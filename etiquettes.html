@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Étiquettes du cabinet · Express Juridique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=11" />
+    <style>
+      /* Chaque étiquette porte sa couleur paramétrée (--c).
+         Pastille = couleur pure ; picto = couleur foncée sur fond teinté,
+         pour rester lisible même avec les teintes claires (jaune, menthe, gris). */
+      .e-card {
+        --c-ink: color-mix(in srgb, var(--c) 58%, #221c55);
+        --c-tint: color-mix(in srgb, var(--c) 22%, #fff);
+      }
+      .e-group-name {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 15px;
+        color: var(--ej-primary-900);
+      }
+      .e-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: var(--ej-radius-md);
+        background: var(--c-tint);
+        color: var(--c-ink);
+        box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 45%, transparent);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: background var(--ej-transition-normal), color var(--ej-transition-normal);
+      }
+      .e-icon .ms {
+        font-size: 18px;
+      }
+      .e-kind {
+        font-family: var(--ej-font-body);
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--ej-neutral-500);
+        letter-spacing: 0;
+      }
+      .e-card.solo .card-header {
+        border-bottom: none;
+      }
+      .e-values {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 10px;
+      }
+      .e-values .tag {
+        height: 30px;
+        padding: 0 12px;
+        font-size: 13px;
+      }
+      .e-values .dot {
+        background: var(--c);
+        width: 9px;
+        height: 9px;
+        transition: background var(--ej-transition-normal);
+      }
+
+      /* ---------- Fenêtre d'édition ---------- */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: rgba(33, 26, 94, 0.32);
+        backdrop-filter: blur(2px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--ej-transition-normal);
+      }
+      .modal-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .modal {
+        width: 100%;
+        max-width: 600px;
+        max-height: calc(100vh - 48px);
+        overflow-y: auto;
+        background: var(--ej-white);
+        border-radius: var(--ej-radius-xl);
+        box-shadow: var(--ej-shadow-xl);
+        transform: translateY(8px) scale(0.98);
+        transition: transform var(--ej-transition-normal);
+      }
+      .modal-overlay.open .modal {
+        transform: none;
+      }
+      .modal-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 22px 24px 18px;
+        border-bottom: 1px solid var(--ej-hairline);
+      }
+      .modal-head h2 {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .modal-body {
+        padding: 22px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+      }
+      .modal-foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px 24px 20px;
+        border-top: 1px solid var(--ej-hairline);
+      }
+      .m-label {
+        font-family: var(--ej-font-display);
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+        margin-bottom: 10px;
+      }
+      .m-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 12px;
+      }
+      .m-row .form-group {
+        flex: 1;
+      }
+      .input-icon {
+        position: relative;
+      }
+      .input-icon .form-input {
+        padding-right: 40px;
+      }
+      .input-icon .ms {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        color: var(--ej-neutral-400);
+      }
+      .swatches {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .swatch {
+        width: 36px;
+        height: 36px;
+        border-radius: var(--ej-radius-md);
+        background: var(--s);
+        box-shadow: 0 0 0 1px rgba(33, 26, 94, 0.08) inset;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        transition: transform var(--ej-transition-fast), box-shadow var(--ej-transition-fast);
+      }
+      .swatch:hover {
+        transform: translateY(-1px);
+      }
+      .swatch .ms {
+        font-size: 18px;
+        opacity: 0;
+      }
+      .swatch[aria-checked="true"] {
+        box-shadow: 0 0 0 2px #fff, 0 0 0 4px color-mix(in srgb, var(--s) 70%, #221c55);
+      }
+      .swatch[aria-checked="true"] .ms {
+        opacity: 1;
+        color: color-mix(in srgb, var(--s) 30%, #221c55);
+      }
+      .swatch.dark[aria-checked="true"] .ms {
+        color: #fff;
+      }
+      .m-radios {
+        display: flex;
+        gap: 24px;
+      }
+      .states {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .state {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .state .grip {
+        color: var(--ej-neutral-400);
+        cursor: grab;
+        font-size: 18px;
+      }
+      .state .tag-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--m-color);
+        flex-shrink: 0;
+        margin: 0 4px 0 2px;
+      }
+      .add-state {
+        align-self: flex-start;
+        margin-top: 4px;
+      }
+      .states-wrap[hidden] {
+        display: none;
+      }
+    </style>
+  </head>
+  <body data-active="etiquettes">
+    <div id="ej-header"></div>
+    <div class="app">
+      <div id="ej-sidebar"></div>
+      <div class="main">
+        <div class="page page-narrow">
+          <div class="page-head">
+            <div>
+              <h1 class="page-title">Étiquettes du cabinet</h1>
+              <p class="page-desc">Administrer les étiquettes que votre cabinet peut utiliser sur ses formalités.</p>
+            </div>
+            <button class="btn btn-primary" type="button"><span class="ms">add</span>Nouvelle étiquette</button>
+          </div>
+
+          <div class="stack" id="groups"></div>
+        </div>
+        <div id="ej-footer"></div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="modal" role="dialog" aria-modal="true" aria-labelledby="m-title">
+      <div class="modal">
+        <div class="modal-head">
+          <h2 id="m-title">Éditer une étiquette existante</h2>
+          <button class="icon-btn" type="button" data-close aria-label="Fermer"><span class="ms">close</span></button>
+        </div>
+        <div class="modal-body">
+          <div class="m-row">
+            <div class="form-group">
+              <label class="m-label" for="m-libelle" style="margin-bottom: 4px">Libellé :</label>
+              <div class="input-icon">
+                <input class="form-input" id="m-libelle" type="text" />
+                <span class="ms">sell</span>
+              </div>
+            </div>
+            <button class="btn btn-sm btn-danger-ghost" type="button" style="margin-bottom: 4px"><span class="ms">delete</span>Supprimer</button>
+          </div>
+
+          <div>
+            <div class="m-label">Couleurs :</div>
+            <div class="swatches" id="swatches" role="radiogroup" aria-label="Couleur de l'étiquette"></div>
+          </div>
+
+          <div>
+            <div class="m-label">Type d'étiquette :</div>
+            <div class="m-radios">
+              <label class="radio"><input type="radio" name="m-type" value="simple" />Étiquette simple</label>
+              <label class="radio"><input type="radio" name="m-type" value="etat" />Étiquette avec état</label>
+            </div>
+          </div>
+
+          <div class="states-wrap" id="states-wrap">
+            <div class="m-label">États de l'étiquette :</div>
+            <div class="states" id="states"></div>
+            <button class="btn btn-sm btn-tertiary add-state" type="button" id="add-state"><span class="ms">add</span>Ajouter un état</button>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn btn-tertiary" type="button" data-close>Annuler</button>
+          <button class="btn btn-primary" type="button" id="m-save"><span class="ms">check</span>Mettre à jour l'étiquette</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Palette de l'app (fenêtre « Éditer une étiquette existante »), dans le même ordre.
+      var PALETTE = [
+        { id: "violet", hex: "#9e9beb" },
+        { id: "rose", hex: "#f2c0be" },
+        { id: "jaune", hex: "#f3d58c" },
+        { id: "ardoise", hex: "#8a8bb3", dark: true },
+        { id: "bleu", hex: "#a0c4e6" },
+        { id: "sarcelle", hex: "#8cc4cc" },
+        { id: "menthe", hex: "#a8e8cf" },
+        { id: "corail", hex: "#d67b75", dark: true },
+        { id: "gris", hex: "#c8cad9" },
+      ];
+      var GROUPS = [
+        { label: "Juriste compétent", color: "corail", type: "etat", states: ["Camille", "Mathieu"] },
+        { label: "Process dossier", color: "violet", type: "etat", states: ["Attente document", "Revu comptable", "A revoir par le juriste"] },
+        { label: "Urgent", color: "corail", type: "simple", states: [] },
+        { label: "Priorité", color: "corail", type: "etat", states: ["Urgent", "trés urgent", "trés très urgent"] },
+      ];
+
+      function hex(id) {
+        for (var i = 0; i < PALETTE.length; i++) if (PALETTE[i].id === id) return PALETTE[i].hex;
+        return PALETTE[0].hex;
+      }
+      function esc(s) {
+        return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+      }
+
+      function render() {
+        document.getElementById("groups").innerHTML = GROUPS.map(function (g, i) {
+          var solo = g.type === "simple" || !g.states.length;
+          return (
+            '<section class="card e-card' + (solo ? " solo" : "") + '" style="--c:' + hex(g.color) + '">' +
+            '<div class="card-header">' +
+            '<div class="e-group-name"><span class="e-icon"><span class="ms">' + (g.type === "simple" ? "label" : "more") + "</span></span>" + esc(g.label) + "</div>" +
+            '<button class="icon-btn" type="button" data-edit="' + i + '" aria-label="Modifier l\'étiquette ' + esc(g.label) + '"><span class="ms">edit</span></button>' +
+            "</div>" +
+            (solo
+              ? ""
+              : '<div class="card-body"><div class="e-values">' +
+                g.states.map(function (s) {
+                  return '<span class="tag"><i class="dot"></i><span>' + esc(s) + "</span></span>";
+                }).join("") +
+                "</div></div>") +
+            "</section>"
+          );
+        }).join("");
+      }
+
+      /* ---------- Fenêtre d'édition ---------- */
+      var modal = document.getElementById("modal");
+      var current = null;
+      var draft = null;
+
+      function renderSwatches() {
+        document.getElementById("swatches").innerHTML = PALETTE.map(function (p) {
+          return (
+            '<button type="button" class="swatch' + (p.dark ? " dark" : "") + '" role="radio" aria-label="Couleur ' + p.id + '" aria-checked="' + (p.id === draft.color) +
+            '" data-color="' + p.id + '" style="--s:' + p.hex + '"><span class="ms">check</span></button>'
+          );
+        }).join("");
+      }
+      function renderStates() {
+        var wrap = document.getElementById("states-wrap");
+        wrap.hidden = draft.type !== "etat";
+        wrap.style.setProperty("--m-color", hex(draft.color));
+        document.getElementById("states").innerHTML = draft.states.map(function (s, i) {
+          return (
+            '<div class="state"><span class="ms grip">drag_indicator</span><span class="tag-dot"></span>' +
+            '<input class="form-input" type="text" data-state="' + i + '" value="' + esc(s) + '" aria-label="État ' + (i + 1) + '" /></div>'
+          );
+        }).join("");
+      }
+      function openModal(i) {
+        current = i;
+        var g = GROUPS[i];
+        draft = { label: g.label, color: g.color, type: g.type, states: g.states.slice() };
+        document.getElementById("m-libelle").value = draft.label;
+        document.querySelectorAll('input[name="m-type"]').forEach(function (r) {
+          r.checked = r.value === draft.type;
+        });
+        renderSwatches();
+        renderStates();
+        modal.classList.add("open");
+        setTimeout(function () {
+          document.getElementById("m-libelle").focus();
+        }, 50);
+      }
+      function closeModal() {
+        modal.classList.remove("open");
+        current = null;
+      }
+
+      document.addEventListener("click", function (e) {
+        var ed = e.target.closest("[data-edit]");
+        if (ed) return openModal(+ed.getAttribute("data-edit"));
+        if (!modal.classList.contains("open")) return;
+        if (e.target === modal || e.target.closest("[data-close]")) return closeModal();
+        var sw = e.target.closest(".swatch");
+        if (sw) {
+          draft.color = sw.getAttribute("data-color");
+          renderSwatches();
+          renderStates();
+          return;
+        }
+        if (e.target.closest("#add-state")) {
+          draft.states.push("");
+          renderStates();
+          var inputs = document.querySelectorAll("[data-state]");
+          inputs[inputs.length - 1].focus();
+          return;
+        }
+        if (e.target.closest("#m-save")) {
+          draft.label = document.getElementById("m-libelle").value.trim() || draft.label;
+          draft.states = draft.states.map(function (s) { return s.trim(); }).filter(Boolean);
+          GROUPS[current] = draft;
+          render();
+          closeModal();
+        }
+      });
+      document.addEventListener("input", function (e) {
+        if (e.target.matches("[data-state]")) draft.states[+e.target.getAttribute("data-state")] = e.target.value;
+      });
+      document.addEventListener("change", function (e) {
+        if (e.target.name === "m-type") {
+          draft.type = e.target.value;
+          renderStates();
+        }
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+      });
+
+      render();
+    </script>
+    <script src="assets/ej-shell.js?v=11"></script>
+  </body>
+</html>

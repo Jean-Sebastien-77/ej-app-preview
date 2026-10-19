@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Mes factures · Express Juridique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=11" />
+    <style>
+      .inv-main {
+        flex: 1;
+        min-width: 0;
+        line-height: 1.5;
+      }
+      .inv-amount {
+        font-weight: 500;
+        color: var(--ej-primary-900);
+      }
+      .empty {
+        padding: 48px 20px;
+        text-align: center;
+        color: var(--ej-neutral-500);
+        font-size: 14px;
+      }
+      .empty .ms {
+        font-size: 32px;
+        color: var(--ej-neutral-300);
+        display: block;
+        margin: 0 auto 8px;
+      }
+    </style>
+  </head>
+  <body data-active="">
+    <div id="ej-header"></div>
+    <div class="app">
+      <div id="ej-sidebar"></div>
+      <div class="main">
+        <div class="page page-narrow">
+          <a class="back-link" href="formalites.html"><span class="ms">arrow_back</span>Retour</a>
+          <div class="page-head">
+            <h1 class="page-title">Mes Factures</h1>
+          </div>
+
+          <div class="tabs" role="tablist">
+            <button class="tab" type="button" role="tab" data-year="2022">2022</button>
+            <button class="tab" type="button" role="tab" data-year="2023">2023</button>
+            <button class="tab" type="button" role="tab" data-year="2024">2024</button>
+            <button class="tab" type="button" role="tab" data-year="2025">2025</button>
+            <button class="tab active" type="button" role="tab" data-year="2026">2026</button>
+          </div>
+
+          <div class="list-card" id="invoices"></div>
+        </div>
+        <div id="ej-footer"></div>
+      </div>
+    </div>
+
+    <script>
+      var INV = {
+        2026: [
+          ["01 octobre 2026", "EJ-0163", "12,00 €"],
+          ["01 septembre 2026", "EJ-0160", "48,00 €"],
+          ["01 août 2026", "EJ-0156", "24,00 €"],
+        ],
+      };
+      var box = document.getElementById("invoices");
+      function show(year) {
+        var rows = INV[year];
+        if (!rows) {
+          box.innerHTML = '<div class="empty"><span class="ms">receipt_long</span>Contenu non représenté dans cette maquette.</div>';
+          return;
+        }
+        box.innerHTML = rows.map(function (r) {
+          return (
+            '<div class="list-row">' +
+            '<span class="list-icon"><span class="ms">receipt_long</span></span>' +
+            '<div class="inv-main">' +
+            '<div class="row-title">' + r[0] + "</div>" +
+            '<div class="row-meta">Num. : ' + r[1] + "</div>" +
+            '<div class="row-meta">Montant : <span class="inv-amount">' + r[2] + "</span></div>" +
+            "</div>" +
+            '<button class="btn btn-secondary btn-sm" type="button"><span class="ms">picture_as_pdf</span>Télécharger en PDF</button>' +
+            "</div>"
+          );
+        }).join("");
+      }
+      var tabs = document.querySelectorAll(".tab");
+      tabs.forEach(function (t) {
+        t.addEventListener("click", function () {
+          tabs.forEach(function (x) {
+            x.classList.toggle("active", x === t);
+          });
+          show(t.getAttribute("data-year"));
+        });
+      });
+      show("2026");
+    </script>
+    <script src="assets/ej-shell.js?v=11"></script>
+  </body>
+</html>

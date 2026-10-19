@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Mes souscriptions · Express Juridique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=11" />
+    <style>
+      .s-main {
+        flex: 1;
+        min-width: 0;
+        line-height: 1.45;
+      }
+      .s-plan {
+        font-size: 14px;
+        color: var(--ej-neutral-800);
+      }
+      .s-renew {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        color: var(--ej-neutral-500);
+      }
+      .s-renew .ms {
+        font-size: 16px;
+        color: var(--ej-success-600);
+      }
+      .empty {
+        padding: 48px 20px;
+        text-align: center;
+        color: var(--ej-neutral-500);
+        font-size: 14px;
+      }
+      .empty .ms {
+        font-size: 32px;
+        color: var(--ej-neutral-300);
+        display: block;
+        margin: 0 auto 8px;
+      }
+      [hidden] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body data-active="souscriptions">
+    <div id="ej-header"></div>
+    <div class="app">
+      <div id="ej-sidebar"></div>
+      <div class="main">
+        <div class="page page-narrow">
+          <a class="back-link" href="formalites.html"><span class="ms">arrow_back</span>Retour</a>
+          <div class="page-head">
+            <h1 class="page-title">Mes Souscriptions</h1>
+          </div>
+
+          <div class="tabs" role="tablist">
+            <button class="tab active" type="button" role="tab" data-tab="en-cours">Souscriptions en cours</button>
+            <button class="tab" type="button" role="tab" data-tab="terminees">Souscriptions terminées</button>
+          </div>
+
+          <div id="tab-en-cours">
+            <p class="muted small mb-16">154 souscriptions en cours.</p>
+            <div class="list-card" id="subs"></div>
+          </div>
+          <div id="tab-terminees" hidden>
+            <div class="list-card">
+              <div class="empty"><span class="ms">inventory_2</span>Contenu non représenté dans cette maquette.</div>
+            </div>
+          </div>
+        </div>
+        <div id="ej-footer"></div>
+      </div>
+    </div>
+
+    <script>
+      var SUBS = [
+        ["SAS Novalys Aéro", "100 844 154", "16/10/2026"],
+        ["27 BELLEVUE", "114 143 410", "16/10/2026"],
+        ["SCP MÉDICALE DES TILLEULS DÉMO", "", "16/10/2026"],
+        ["SCCV LES ATELIERS DÉMO", "", "16/10/2026"],
+        ["SCI LES TERRASSES DÉMO", "", "16/10/2026"],
+        ["NOVA STUDIO DÉMO", "", "15/10/2026"],
+        ["URBAN FIT CLUB", "272 577 898", "13/10/2026"],
+        ["CAP ESTEREL", "359 945 830", "09/10/2026"],
+        ["ODALIS", "873 341 810", "08/10/2026"],
+        ["LUMEN", "961 913 731", "05/10/2026"],
+        ["PAPRIKA CANTINE", "795 294 481", "01/10/2026"],
+        ["NEOLAB.", "371 758 930", "01/10/2026"],
+        ["SOUFFLE ET HARMONIE", "194 369 835", "01/10/2026"],
+        ["HELIOS SAS", "622 427 249", "28/09/2026"],
+        ["LUMEN", "154 379 730", "25/09/2026"],
+        ["selarl vasseur", "", "22/09/2026"],
+        ["AXIOME", "336 851 161", "17/09/2026"],
+        ["KPL3D", "187 094 208", "16/09/2026"],
+        ["CABINET DE LORME", "218 624 777", "16/09/2026"],
+        ["ORVEA", "119 576 308", "16/09/2026"],
+        ["MBCOMPTA", "658 018 966", "16/09/2026"],
+        ["GROUPE BMR", "114 974 823", "16/09/2026"],
+        ["MERCIER & ASSOCIES", "757 508 228", "16/09/2026"],
+        ["LES JARDINS D'ORIANE", "961 559 332", "16/09/2026"],
+        ["SOTRAB", "278 917 483", "16/09/2026"],
+        ["HLMT CONSULTING", "146 373 888", "13/09/2026"],
+        ["JULIEN MARCHAL FORMATIONS", "238 124 756", "11/09/2026"],
+        ["CHAUFFAGE DU LIMOUSIN", "107 336 244", "08/09/2026"],
+        ["BOTANICA", "107 106 376", "24/07/2026"],
+        ["MARALUNA", "103 280 002", "24/07/2026"],
+      ];
+      function esc(s) {
+        return s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+      }
+      document.getElementById("subs").innerHTML = SUBS.map(function (s) {
+        return (
+          '<div class="list-row">' +
+          '<span class="list-icon"><span class="ms">contract</span></span>' +
+          '<div class="s-main">' +
+          '<div><span class="row-title">' + esc(s[0]) + '</span> <span class="muted small">(' + (s[1] || "aucun SIREN") + ")</span></div>" +
+          '<div class="s-plan">Forfait “Gestion Courante“, souscrit le ' + s[2] + ".</div>" +
+          '<div class="s-renew">Renouvellement automatique activé<span class="ms">check</span></div>' +
+          "</div>" +
+          '<button class="icon-btn" type="button" aria-label="Paramètres de la souscription"><span class="ms">settings</span></button>' +
+          "</div>"
+        );
+      }).join("");
+
+      var tabs = document.querySelectorAll(".tab");
+      tabs.forEach(function (t) {
+        t.addEventListener("click", function () {
+          tabs.forEach(function (x) {
+            var on = x === t;
+            x.classList.toggle("active", on);
+            document.getElementById("tab-" + x.getAttribute("data-tab")).hidden = !on;
+          });
+        });
+      });
+    </script>
+    <script src="assets/ej-shell.js?v=11"></script>
+  </body>
+</html>

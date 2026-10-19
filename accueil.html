@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Accueil · Express Juridique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=12" />
+    <style>
+      .page.home {
+        max-width: 1240px;
+      }
+
+      /* ---------- Bandeau ---------- */
+      .hello {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 24px;
+      }
+      .hello-eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--ej-font-display);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ej-action-600);
+        margin-bottom: 10px;
+      }
+      .hello-eyebrow::before {
+        content: "";
+        width: 28px;
+        height: 1px;
+        background: var(--ej-action-600);
+      }
+      .hello h1 {
+        font-size: 34px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        color: var(--ej-primary-900);
+        line-height: 1.15;
+      }
+      .hello p {
+        margin-top: 6px;
+        color: var(--ej-neutral-500);
+      }
+
+      /* ---------- Indicateurs ---------- */
+      .kpis {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-bottom: 28px;
+      }
+      .kpi {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 18px 20px;
+        position: relative;
+      }
+      .kpi-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--ej-neutral-600);
+      }
+      .kpi-top .ms {
+        font-size: 18px;
+        color: var(--ej-neutral-400);
+        transition: color var(--ej-transition-fast), transform var(--ej-transition-fast);
+      }
+      a.kpi:hover .kpi-top .ms {
+        color: var(--ej-action-600);
+        transform: translateX(2px);
+      }
+      .kpi-value {
+        font-family: var(--ej-font-display);
+        font-size: 34px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+        color: var(--ej-primary-900);
+      }
+      .kpi-sub {
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+      }
+      .kpi.alert {
+        background: linear-gradient(180deg, var(--ej-attention-100), #fff 75%);
+        border-color: var(--ej-attention-500);
+      }
+      .kpi.alert .kpi-value {
+        color: var(--ej-attention-600);
+      }
+
+      /* ---------- Grille ---------- */
+      .home-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 380px;
+        gap: 24px;
+        align-items: start;
+      }
+      .col {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .block-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 20px 22px 16px;
+      }
+      .block-head h2 {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .block-head p {
+        font-size: 13.5px;
+        color: var(--ej-neutral-500);
+        margin-top: 2px;
+      }
+
+      /* ---------- Parcours de découverte ---------- */
+      .progress-line {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 0 22px 18px;
+        border-bottom: 1px solid var(--ej-hairline);
+      }
+      .progress-bar {
+        flex: 1;
+        height: 8px;
+        border-radius: var(--ej-radius-full);
+        background: var(--ej-neutral-100);
+        overflow: hidden;
+      }
+      .progress-bar span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--ej-action-600), var(--ej-logo-mint));
+      }
+      .progress-label {
+        font-family: var(--ej-font-display);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+        white-space: nowrap;
+      }
+      .steps {
+        list-style: none;
+      }
+      .step {
+        display: grid;
+        grid-template-columns: 32px 1fr auto;
+        gap: 14px;
+        align-items: center;
+        padding: 14px 22px;
+        border-bottom: 1px solid var(--ej-neutral-100);
+      }
+      .step:last-child {
+        border-bottom: none;
+      }
+      .step-mark {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--ej-font-display);
+        font-size: 13px;
+        font-weight: 600;
+        border: 1.5px solid var(--ej-neutral-300);
+        color: var(--ej-neutral-500);
+        background: #fff;
+      }
+      .step-mark .ms {
+        font-size: 16px;
+      }
+      .step-title {
+        font-family: var(--ej-font-display);
+        font-size: 14.5px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .step-desc {
+        font-size: 13px;
+        color: var(--ej-neutral-500);
+        margin-top: 2px;
+      }
+      .step-actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .tuto-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 34px;
+        padding: 0 12px;
+        border-radius: var(--ej-radius-full);
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--ej-action-600);
+        transition: background var(--ej-transition-fast);
+      }
+      .tuto-link:hover {
+        background: var(--ej-action-100);
+      }
+      .tuto-link .ms {
+        font-size: 16px;
+      }
+      /* Étape faite : grisée */
+      .step.done .step-mark {
+        background: var(--ej-success-100);
+        border-color: transparent;
+        color: var(--ej-success-600);
+      }
+      .step.done .step-title {
+        color: var(--ej-neutral-400);
+        text-decoration: line-through;
+        text-decoration-color: var(--ej-neutral-300);
+        font-weight: 500;
+      }
+      .step.done {
+        padding-top: 8px;
+        padding-bottom: 8px;
+      }
+      .step.done .step-mark {
+        width: 24px;
+        height: 24px;
+        margin-left: 4px;
+      }
+      .step.done .step-mark .ms {
+        font-size: 14px;
+      }
+      .step.done .step-title {
+        font-size: 13.5px;
+      }
+      .step.done .step-desc {
+        display: none;
+      }
+      .step.done .done-tag {
+        font-size: 12px;
+        color: var(--ej-neutral-400);
+      }
+      /* Prochaine étape : mise en avant */
+      .step.next {
+        background: linear-gradient(90deg, var(--ej-action-50), #fff 80%);
+        box-shadow: inset 3px 0 0 var(--ej-action-600);
+      }
+      .step.next .step-mark {
+        border-color: var(--ej-action-600);
+        color: var(--ej-action-600);
+      }
+      .next-tag {
+        display: inline-flex;
+        margin-left: 8px;
+        vertical-align: 2px;
+        height: 20px;
+        padding: 0 8px;
+        border-radius: var(--ej-radius-full);
+        background: var(--ej-primary-900);
+        color: #fff;
+        font-family: var(--ej-font-display);
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        align-items: center;
+      }
+      .done-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        padding: 12px;
+        border-top: 1px solid var(--ej-hairline);
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--ej-neutral-500);
+      }
+      .done-toggle:hover {
+        color: var(--ej-action-600);
+      }
+      .steps.hide-done .step.done {
+        display: none;
+      }
+
+      /* ---------- À traiter ---------- */
+      .todo-row {
+        display: grid;
+        grid-template-columns: 1fr auto auto 20px;
+        gap: 16px;
+        align-items: center;
+        padding: 13px 22px;
+        border-top: 1px solid var(--ej-neutral-100);
+        transition: background var(--ej-transition-fast);
+      }
+      .todo-row:hover {
+        background: var(--ej-primary-50);
+      }
+      .todo-soc {
+        font-family: var(--ej-font-display);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .todo-meta {
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+      }
+      .todo-date {
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+        text-align: right;
+        white-space: nowrap;
+      }
+      .todo-row .chev {
+        color: var(--ej-neutral-400);
+        font-size: 18px;
+      }
+
+      /* ---------- Vidéothèque ---------- */
+      .feature-video {
+        display: block;
+        position: relative;
+        border-radius: var(--ej-radius-lg) var(--ej-radius-lg) 0 0;
+        overflow: hidden;
+        aspect-ratio: 16 / 9;
+        background: var(--ej-primary-900);
+      }
+      .feature-video img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 400ms ease;
+      }
+      .feature-video:hover img {
+        transform: scale(1.03);
+      }
+      .play {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .play span.disc {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--ej-primary-900);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 30px -8px rgba(33, 26, 94, 0.5);
+        transition: transform var(--ej-transition-normal);
+      }
+      .feature-video:hover .play span.disc {
+        transform: scale(1.08);
+      }
+      .play .ms {
+        font-size: 22px;
+        margin-left: 3px;
+      }
+      .duration {
+        position: absolute;
+        right: 10px;
+        bottom: 10px;
+        padding: 2px 8px;
+        border-radius: var(--ej-radius-full);
+        background: rgba(33, 26, 94, 0.82);
+        color: #fff;
+        font-size: 11.5px;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+      }
+      .feature-body {
+        padding: 16px 20px 18px;
+      }
+      .feature-body .overline {
+        color: var(--ej-action-600);
+      }
+      .feature-body h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+        margin-top: 4px;
+      }
+      .feature-body p {
+        font-size: 13px;
+        color: var(--ej-neutral-500);
+        margin-top: 4px;
+      }
+      .vid-list {
+        border-top: 1px solid var(--ej-hairline);
+      }
+      .vid {
+        display: grid;
+        grid-template-columns: 92px 1fr;
+        gap: 12px;
+        align-items: center;
+        padding: 10px 20px;
+        transition: background var(--ej-transition-fast);
+      }
+      .vid:hover {
+        background: var(--ej-primary-50);
+      }
+      .vid-thumb {
+        position: relative;
+        border-radius: 6px;
+        overflow: hidden;
+        aspect-ratio: 16 / 9;
+        background: var(--ej-neutral-100);
+      }
+      .vid-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .vid-thumb .duration {
+        right: 4px;
+        bottom: 4px;
+        font-size: 10px;
+        padding: 1px 5px;
+      }
+      .vid-title {
+        font-size: 13.5px;
+        font-weight: 500;
+        color: var(--ej-primary-900);
+        line-height: 1.35;
+      }
+      .vid-cat {
+        font-size: 11.5px;
+        color: var(--ej-neutral-500);
+        margin-top: 2px;
+      }
+      .vid-all {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        border-top: 1px solid var(--ej-hairline);
+        font-family: var(--ej-font-display);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ej-action-600);
+      }
+      .vid-all:hover .ms {
+        transform: translateX(3px);
+      }
+      .vid-all .ms {
+        font-size: 18px;
+        transition: transform var(--ej-transition-fast);
+      }
+
+      /* ---------- Nouveauté (bloc sombre façon vitrine) ---------- */
+      .news {
+        position: relative;
+        overflow: hidden;
+        border-radius: var(--ej-radius-lg);
+        padding: 22px 22px 20px;
+        color: #fff;
+        background:
+          radial-gradient(420px 220px at 110% -10%, rgba(93, 88, 215, 0.55), transparent 70%),
+          linear-gradient(160deg, var(--ej-primary-900), #211a5e);
+      }
+      .news::after {
+        content: "j";
+        position: absolute;
+        right: 18px;
+        bottom: -38px;
+        font-family: var(--ej-font-display);
+        font-weight: 700;
+        font-size: 150px;
+        line-height: 1;
+        color: rgba(255, 255, 255, 0.06);
+        pointer-events: none;
+      }
+      .news .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 22px;
+        padding: 0 10px;
+        border-radius: var(--ej-radius-full);
+        background: var(--ej-logo-mint);
+        color: #211a5e;
+        font-family: var(--ej-font-display);
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .news h3 {
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        margin-top: 12px;
+      }
+      .news h3 .dot {
+        color: var(--ej-logo-mint);
+      }
+      .news p {
+        font-size: 13.5px;
+        color: rgba(255, 255, 255, 0.78);
+        margin-top: 6px;
+        max-width: 280px;
+      }
+      .btn-mint {
+        background: var(--ej-logo-mint);
+        color: #211a5e;
+        margin-top: 16px;
+      }
+      .btn-mint:hover {
+        background: #fff;
+      }
+    </style>
+  </head>
+  <body data-active="accueil">
+    <div id="ej-header"></div>
+    <div class="app">
+      <div id="ej-sidebar"></div>
+      <div class="main">
+        <div class="page home">
+          <div class="hello">
+            <div>
+              <div class="hello-eyebrow">Lundi 19 octobre 2026</div>
+              <h1>Bonjour Thomas</h1>
+              <p>Voici l'essentiel de l'activité du cabinet Delmas Expertise aujourd'hui.</p>
+            </div>
+            <a class="btn btn-primary" href="nouvelle-formalite.html"><span class="ms">add</span>Nouvelle formalité</a>
+          </div>
+
+          <!-- Suivi d'activité -->
+          <div class="kpis">
+            <a class="card kpi" href="formalites.html">
+              <span class="kpi-top">Formalités en cours<span class="ms">arrow_forward</span></span>
+              <span class="kpi-value">20</span>
+              <span class="kpi-sub">sur 164 formalités au total</span>
+            </a>
+            <a class="card kpi alert" href="suivi-actions.html">
+              <span class="kpi-top">Actions requises<span class="ms">arrow_forward</span></span>
+              <span class="kpi-value">5</span>
+              <span class="kpi-sub">documents à signer</span>
+            </a>
+            <a class="card kpi" href="suivi-actions.html">
+              <span class="kpi-top">Prêts à déposer<span class="ms">arrow_forward</span></span>
+              <span class="kpi-value">8</span>
+              <span class="kpi-sub">dépôts INPI · 3 signatures en cours</span>
+            </a>
+            <a class="card kpi" href="societes.html">
+              <span class="kpi-top">Sociétés suivies<span class="ms">arrow_forward</span></span>
+              <span class="kpi-value">135</span>
+              <span class="kpi-sub">154 souscriptions actives</span>
+            </a>
+          </div>
+
+          <div class="home-grid">
+            <div class="col">
+              <!-- Parcours de découverte -->
+              <section class="card">
+                <div class="block-head">
+                  <div>
+                    <h2>Explorez Express Juridique</h2>
+                    <p>Les fonctionnalités déjà utilisées par votre cabinet sont grisées. Découvrez les suivantes, une vidéo à l'appui.</p>
+                  </div>
+                </div>
+                <div class="progress-line">
+                  <div class="progress-bar"><span id="progress" style="width: 0%"></span></div>
+                  <span class="progress-label" id="progress-label"></span>
+                </div>
+                <ol class="steps" id="steps"></ol>
+                <button class="done-toggle" type="button" id="done-toggle"></button>
+              </section>
+
+              <!-- À traiter -->
+              <section class="card">
+                <div class="block-head">
+                  <div>
+                    <h2>À traiter</h2>
+                    <p>Documents en attente de signature dans vos dépôts INPI.</p>
+                  </div>
+                  <a class="btn btn-secondary btn-sm" href="suivi-actions.html">Suivi des actions<span class="ms">arrow_forward</span></a>
+                </div>
+                <div id="todo"></div>
+              </section>
+            </div>
+
+            <div class="col">
+              <!-- Vidéothèque -->
+              <section class="card" style="overflow: hidden">
+                <a class="feature-video" href="https://express-juridique.com/tutoriels/#/videos/n0-presentation" target="_blank" rel="noopener">
+                  <img src="assets/posters/n0-presentation.jpg" alt="" />
+                  <span class="play"><span class="disc"><span class="ms">play_arrow</span></span></span>
+                  <span class="duration">2:48</span>
+                </a>
+                <div class="feature-body">
+                  <div class="overline">Pour bien démarrer</div>
+                  <h3>Toute votre production juridique</h3>
+                  <p>Express Juridique, de la donnée client au registre, en moins de trois minutes.</p>
+                </div>
+                <div class="vid-list" id="videos"></div>
+                <a class="vid-all" href="https://express-juridique.com/tutoriels/#/" target="_blank" rel="noopener">
+                  Toute la vidéothèque · 25 vidéos<span class="ms">arrow_forward</span>
+                </a>
+              </section>
+
+              <!-- Nouveauté -->
+              <section class="news">
+                <span class="pill"><span class="ms">auto_awesome</span>Nouveau · 100 % gratuit</span>
+                <h3>Rejistre<span class="dot">.</span></h3>
+                <p>Tous vos registres légaux, dématérialisés et tenus à jour à chaque formalité.</p>
+                <a class="btn btn-mint btn-sm" href="societe-registres.html">Découvrir Rejistre<span class="ms">arrow_forward</span></a>
+              </section>
+            </div>
+          </div>
+        </div>
+        <div id="ej-footer"></div>
+      </div>
+    </div>
+
+    <script>
+      var TUTO = "https://express-juridique.com/tutoriels/#/videos/";
+
+      // Parcours de découverte (état fictif du cabinet de démonstration)
+      var STEPS = [
+        { done: true, title: "Ajouter vos sociétés", desc: "135 sociétés suivies dans Express Juridique.", when: "Fait" },
+        { done: true, title: "Créer une première formalité", desc: "Type de formalité, opérations et société concernée.", when: "Fait" },
+        { done: true, title: "Compléter le dossier permanent", desc: "Identité, capital, dirigeants : saisis une fois, réutilisés ensuite.", when: "Fait" },
+        { done: true, title: "Générer les documents", desc: "Tous les actes de la formalité, produits en une fois.", when: "Fait" },
+        { done: true, title: "Inviter votre équipe", desc: "10 utilisateurs dans le cabinet.", when: "Fait" },
+        { title: "Faire signer électroniquement", desc: "Envoyer une collecte de signatures et la suivre jusqu'aux documents signés.", href: "suivi-actions.html", video: "tuto-04-creer-collecte", dur: "6:19" },
+        { title: "Déposer au Guichet unique depuis EJ", desc: "Créer le dépôt INPI directement depuis la formalité.", href: "connecteurs.html", video: "tuto-05-depot-inpi-1", dur: "3:09" },
+        { title: "Tenir vos registres avec Rejistre", desc: "Des registres légaux mis à jour à chaque formalité.", href: "societe-registres.html", video: "n2-12-rejistre", dur: "2:58" },
+        { title: "Piloter le cabinet avec les étiquettes", desc: "Juriste compétent, process, priorité : organiser le travail de l'équipe.", href: "etiquettes.html", video: "n2-08-piloter-cabinet", dur: "2:30" },
+      ];
+
+      var TODO = [
+        { soc: "ORVEA", dep: "#2 -Comptes annuels", date: "18/09/2026 à 16:14" },
+        { soc: "AXIOME", dep: "#3 -Comptes annuels", date: "17/09/2026 à 19:54" },
+        { soc: "KPL3D", dep: "#2 -Comptes annuels", date: "16/09/2026 à 16:16" },
+        { soc: "CABINET DE LORME", dep: "#1 -Comptes annuels", date: "16/09/2026 à 14:41" },
+        { soc: "A.R.T.E", dep: "#2 -Comptes annuels", date: "16/09/2026 à 12:07" },
+      ];
+
+      var VIDEOS = [
+        ["tuto-01-nouvelle-formalite", "Créer une nouvelle formalité", "1:42"],
+        ["tuto-01-dossier-permanent", "Compléter le dossier", "3:25"],
+        ["tuto-03-generation-documents", "Génération des documents", "1:17"],
+        ["tuto-04-creer-collecte", "Créer et envoyer une collecte", "6:19"],
+        ["tuto-05-depot-inpi-1", "Créer un dépôt INPI", "3:09"],
+      ];
+
+      var done = STEPS.filter(function (s) { return s.done; }).length;
+      var firstTodo = STEPS.findIndex(function (s) { return !s.done; });
+      document.getElementById("progress").style.width = Math.round((done / STEPS.length) * 100) + "%";
+      document.getElementById("progress-label").textContent = done + " sur " + STEPS.length + " découvertes";
+
+      document.getElementById("steps").innerHTML = STEPS.map(function (s, i) {
+        var cls = s.done ? "step done" : i === firstTodo ? "step next" : "step";
+        var mark = s.done ? '<span class="ms">check</span>' : String(i + 1);
+        var actions = s.done
+          ? '<span class="done-tag">' + s.when + "</span>"
+          : '<a class="tuto-link" href="' + TUTO + s.video + '" target="_blank" rel="noopener"><span class="ms">play_circle</span>Tuto · ' + s.dur + "</a>" +
+            '<a class="btn btn-sm ' + (i === firstTodo ? "btn-primary" : "btn-secondary") + '" href="' + s.href + '">Commencer</a>';
+        return (
+          '<li class="' + cls + '"><span class="step-mark">' + mark + "</span>" +
+          '<div><div class="step-title">' + s.title + (i === firstTodo ? '<span class="next-tag">Prochaine étape</span>' : "") + "</div>" +
+          '<div class="step-desc">' + s.desc + "</div></div>" +
+          '<div class="step-actions">' + actions + "</div></li>"
+        );
+      }).join("");
+
+      var stepsEl = document.getElementById("steps");
+      var toggle = document.getElementById("done-toggle");
+      function syncToggle() {
+        var hidden = stepsEl.classList.contains("hide-done");
+        toggle.innerHTML = hidden
+          ? '<span class="ms">expand_more</span>Afficher les ' + done + " étapes déjà faites"
+          : '<span class="ms">expand_less</span>Masquer les étapes déjà faites';
+      }
+      toggle.addEventListener("click", function () {
+        stepsEl.classList.toggle("hide-done");
+        syncToggle();
+      });
+      syncToggle();
+
+      document.getElementById("todo").innerHTML = TODO.map(function (t) {
+        return (
+          '<a class="todo-row" href="suivi-actions.html">' +
+          '<div><div class="todo-soc">' + t.soc + '</div><div class="todo-meta">' + t.dep + "</div></div>" +
+          '<span class="badge badge-action">Documents à signer</span>' +
+          '<span class="todo-date">Modifié le<br />' + t.date + "</span>" +
+          '<span class="ms chev">chevron_right</span></a>'
+        );
+      }).join("");
+
+      document.getElementById("videos").innerHTML = VIDEOS.map(function (v) {
+        return (
+          '<a class="vid" href="' + TUTO + v[0] + '" target="_blank" rel="noopener">' +
+          '<span class="vid-thumb"><img src="assets/posters/' + v[0] + '.jpg" alt="" loading="lazy" /><span class="duration">' + v[2] + "</span></span>" +
+          '<span><span class="vid-title" style="display:block">' + v[1] + '</span><span class="vid-cat">Voir EJ fonctionner</span></span></a>'
+        );
+      }).join("");
+    </script>
+    <script src="assets/ej-shell.js?v=11"></script>
+  </body>
+</html>

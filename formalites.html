@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Liste des formalités · Express Juridique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=11" />
+    <style>
+      .f-card {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 6px 24px;
+        padding: 18px 20px;
+      }
+      .f-name {
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--ej-primary-900);
+        letter-spacing: 0.01em;
+      }
+      .f-type {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-top: 8px;
+      }
+      .f-type .list-icon {
+        width: 32px;
+        height: 32px;
+      }
+      .f-type .list-icon .ms {
+        font-size: 18px;
+      }
+      .f-type .list-icon.biz {
+        background: var(--ej-accent-100);
+        color: var(--ej-accent-600);
+      }
+      .f-type-lines {
+        font-size: 14px;
+        color: var(--ej-neutral-800);
+        line-height: 1.45;
+        padding-top: 5px;
+      }
+      .f-tags {
+        grid-column: 1;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 10px;
+      }
+      .f-right {
+        grid-column: 2;
+        grid-row: 1 / span 3;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+        min-width: 210px;
+      }
+      .f-dates {
+        font-size: 13px;
+        color: var(--ej-neutral-600);
+        text-align: right;
+        line-height: 1.55;
+      }
+      .f-dates .undef {
+        color: var(--ej-neutral-400);
+        font-style: italic;
+      }
+      .f-author {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: var(--ej-neutral-500);
+        margin-top: auto;
+      }
+      .f-author .ms {
+        font-size: 15px;
+      }
+    </style>
+  </head>
+  <body data-active="formalites">
+    <div id="ej-header"></div>
+    <div class="app">
+      <div id="ej-sidebar"></div>
+      <div class="main">
+        <div class="page page-narrow">
+          <div class="page-head">
+            <h1 class="page-title">Formalités<span class="count">(164)</span></h1>
+            <a class="btn btn-primary" href="nouvelle-formalite.html"><span class="ms">add</span>Nouvelle formalité</a>
+          </div>
+
+          <div class="toolbar">
+            <label class="search">
+              <span class="ms">search</span>
+              <input type="text" placeholder="Rechercher par société…" />
+            </label>
+            <button class="btn btn-secondary" type="button"><span class="ms">filter_alt</span>Filtrer</button>
+          </div>
+
+          <div class="stack" id="cards"></div>
+
+          <div class="pager pager-standalone">
+            <button class="btn btn-secondary btn-sm" type="button" disabled style="opacity: 0.5"><span class="ms">chevron_left</span>Page précédente</button>
+            <span>Page <strong>1</strong> / 4</span>
+            <button class="btn btn-secondary btn-sm" type="button">Page suivante<span class="ms">chevron_right</span></button>
+          </div>
+        </div>
+        <div id="ej-footer"></div>
+      </div>
+    </div>
+
+    <script>
+      // Contenu réel du staging (page 1, 50 formalités). s : 1 = Documents générés, 0 = Formulaire en cours
+      var ICON = { doc: "fact_check", cal: "event_available", biz: "add_business" };
+      var TAGC = { juriste: "var(--ej-tag-coral)", process: "var(--ej-tag-periwinkle)", priorite: "var(--ej-tag-coral)" };
+      var DATA = [
+        { n: "ALTITUDE CONSEIL", s: 1, i: "doc", t: ["Conventions courantes"], d: [], a: "Sophie LAMBERT" },
+        { n: "ALTITUDE CONSEIL", s: 1, i: "doc", t: ["Conventions courantes"], d: [], a: "Sophie LAMBERT" },
+        { n: "ALTITUDE CONSEIL", s: 1, i: "doc", t: ["Conventions courantes"], d: [], a: "Sophie LAMBERT" },
+        { n: "ALTITUDE CONSEIL", s: 1, i: "doc", t: ["Conventions courantes"], d: [], a: "Sophie LAMBERT" },
+        { n: "LES JARDINS D'ORIANE", s: 1, i: "cal", t: ["Modification de capital"], d: ["Décision du 30 nov. 2026"], a: "Sophie LAMBERT" },
+        { n: "LES JARDINS D'ORIANE", s: 1, i: "cal", t: ["Modification de capital"], d: ["Décision du 31 oct. 2026"], a: "Sophie LAMBERT" },
+        { n: "SAS NOVALYS AÉRO", s: 0, i: "cal", t: ["AGOA et dépôt des comptes"], d: ["Décision du (non-définie)"], a: "Laura PERRIN" },
+        { n: "27 BELLEVUE", s: 0, i: "cal", t: ["AGOA et dépôt des comptes"], d: ["Décision du (non-définie)"], a: "Laura PERRIN" },
+        { n: "SCP MÉDICALE DES TILLEULS DÉMO", s: 1, i: "biz", t: ["Constitution d'une SCP de médecins"], d: ["Décision du 22 oct. 2026", "Signature prévue le 22 oct. 2026"], a: "Sophie LAMBERT" },
+        { n: "SCCV LES ATELIERS DÉMO", s: 0, i: "biz", t: ["Constitution d'une SCIC"], d: ["Décision du 21 oct. 2026", "Signature prévue le 21 oct. 2026"], a: "Sophie LAMBERT" },
+        { n: "SCI LES TERRASSES DÉMO", s: 1, i: "biz", t: ["Constitution d'une SCI"], d: ["Décision du 20 oct. 2026", "Signature prévue le 20 oct. 2026"], a: "Sophie LAMBERT" },
+        { n: "NOVA STUDIO DÉMO", s: 0, i: "biz", t: ["Constitution d'une SAS"], d: ["Décision du 20 oct. 2026", "Signature prévue le 20 oct. 2026"], a: "Sophie LAMBERT" },
+        { n: "MERCIER & ASSOCIES", s: 1, i: "cal", t: ["Modification de capital"], d: ["Décision du 3 sept. 2026"], a: "Sophie LAMBERT" },
+        { n: "MERCIER & ASSOCIES", s: 1, i: "cal", t: ["Modification de capital"], d: ["Décision du 3 sept. 2026"], a: "Sophie LAMBERT" },
+        { n: "JULIEN MARCHAL FORMATIONS", s: 1, i: "cal", t: ["Modification de la personne morale"], d: ["Décision du 14 oct. 2026"], a: "Sophie LAMBERT" },
+        { n: "JULIEN MARCHAL FORMATIONS", s: 1, i: "cal", t: ["Modification de capital"], d: ["Décision du 14 oct. 2026"], a: "Sophie LAMBERT" },
+        { n: "JULIEN MARCHAL FORMATIONS", s: 1, i: "cal", t: ["Modification de capital"], d: ["Décision du 14 oct. 2026"], a: "Sophie LAMBERT" },
+        { n: "AXIOME", s: 1, i: "cal", t: ["Modification de capital"], d: ["Décision du 1 oct. 2026"], a: "Sophie LAMBERT" },
+        { n: "PAPRIKA CANTINE", s: 1, i: "cal", t: ["Modification de capital"], d: ["Décision du 1 oct. 2026"], a: "Sophie LAMBERT" },
+        { n: "URBAN FIT CLUB", s: 0, i: "doc", t: ["Conventions courantes"], d: [], a: "Laura PERRIN" },
+        { n: "PAPRIKA CANTINE", s: 1, i: "cal", t: ["Modification de capital"], d: ["Décision du 1 oct. 2026"], a: "Sophie LAMBERT" },
+        { n: "HELIOS SAS", s: 0, i: "cal", t: ["Modification de capital"], d: ["Décision du 15 oct. 2026"], a: "Sophie LAMBERT" },
+        { n: "LUMEN", s: 0, i: "cal", t: ["Modification de capital"], d: ["Décision du 1 oct. 2026"], a: "Sophie LAMBERT" },
+        { n: "CAP ESTEREL", s: 0, i: "cal", t: ["Modification de capital"], d: ["Décision du (non-définie)"], a: "Laura PERRIN" },
+        { n: "ODALIS", s: 1, i: "cal", t: ["Modification de capital"], d: ["Décision du 3 nov. 2026"], a: "Laura PERRIN" },
+        { n: "ODALIS", s: 1, i: "cal", t: ["Modification de capital"], d: ["Décision du 1 oct. 2026"], a: "Laura PERRIN" },
+        { n: "LUMEN", s: 1, i: "cal", t: ["Modification de capital"], d: ["Décision du 30 sept. 2026"], a: "Laura PERRIN" },
+        { n: "NEOLAB.", s: 0, i: "cal", t: ["Modification de capital"], d: ["Décision du 1 oct. 2026"], a: "Laura PERRIN" },
+        { n: "PAPRIKA CANTINE", s: 1, i: "cal", t: ["AGOA et dépôt des comptes"], tags: [["juriste", "Juriste compétent : Camille"], ["process", "Process dossier : A revoir par le juriste"]], d: ["Décision du 5 août 2026", "Exercice clos le 30 juin 2026"], a: "Sophie LAMBERT" },
+        { n: "NEOLAB.", s: 0, i: "doc", t: ["Conventions courantes"], d: [], a: "Laura PERRIN" },
+        { n: "SOUFFLE ET HARMONIE", s: 0, i: "cal", t: ["AGOA et dépôt des comptes"], d: ["Décision du 1 avr. 2026", "Exercice clos le 31 déc. 2025"], a: "Sophie LAMBERT" },
+        { n: "HELIOS SAS", s: 1, i: "cal", t: ["Modification de capital"], d: ["Décision du 3 sept. 2026"], a: "Sophie LAMBERT" },
+        { n: "TB ELECTRICITE", s: 1, i: "cal", t: ["Modification de capital"], d: ["Décision du 10 sept. 2026"], a: "Sophie LAMBERT" },
+        { n: "AXIOME", s: 1, i: "doc", t: ["Conventions courantes"], d: [], a: "Sophie LAMBERT" },
+        { n: "LUMEN", s: 0, i: "cal", t: ["AGOA et dépôt des comptes"], d: ["Décision du 25 sept. 2026"], a: "Laura PERRIN" },
+        { n: "LUMEN", s: 1, i: "cal", t: ["Cessation d'activité"], d: ["Décision du (non-définie)"], a: "Laura PERRIN" },
+        { n: "SELARL VASSEUR", s: 0, i: "biz", t: ["Constitution d'une Société d'exercice libéral à responsabilité limitée unipersonnelle"], d: ["Décision du 23 sept. 2026", "Signature prévue le (non-définie)"], a: "Laura PERRIN" },
+        { n: "AXIOME", s: 1, i: "cal", t: ["AGOA et dépôt des comptes", "Rémunération de dirigeants"], d: ["Décision du 1 mai 2026", "Exercice clos le 31 déc. 2025"], a: "Sophie LAMBERT" },
+        { n: "KPL3D", s: 0, i: "cal", t: ["AGOA et dépôt des comptes"], tags: [["juriste", "Juriste compétent : Camille"], ["process", "Process dossier : Attente document"], ["priorite", "Priorité : trés urgent"]], d: ["Décision du 1 janv. 2026", "Exercice clos le 30 sept. 2025"], a: "Sophie LAMBERT" },
+        { n: "CABINET DE LORME", s: 0, i: "cal", t: ["AGOA et dépôt des comptes"], d: ["Décision du 4 févr. 2026", "Exercice clos le 31 déc. 2025"], a: "Sophie LAMBERT" },
+        { n: "ORVEA", s: 1, i: "cal", t: ["AGOA et dépôt des comptes", "Rémunération de dirigeants"], d: ["Décision du 4 mars 2026", "Exercice clos le 31 déc. 2025"], a: "Sophie LAMBERT" },
+        { n: "MBCOMPTA", s: 0, i: "cal", t: ["AGOA et dépôt des comptes"], d: ["Décision du 8 janv. 2026", "Exercice clos le 30 sept. 2025"], a: "Sophie LAMBERT" },
+        { n: "GROUPE BMR", s: 0, i: "cal", t: ["AGOA et dépôt des comptes"], d: ["Décision du 1 mai 2026", "Exercice clos le 31 déc. 2025"], a: "Sophie LAMBERT" },
+        { n: "MERCIER & ASSOCIES", s: 1, i: "cal", t: ["AGOA et dépôt des comptes"], d: ["Décision du 3 sept. 2026", "Exercice clos le 30 juin 2026"], a: "Sophie LAMBERT" },
+        { n: "LES JARDINS D'ORIANE", s: 1, i: "cal", t: ["AGOA et dépôt des comptes"], d: ["Décision du 19 févr. 2026", "Exercice clos le 31 déc. 2025"], a: "Sophie LAMBERT" },
+        { n: "SOTRAB", s: 0, i: "cal", t: ["AGOA et dépôt des comptes"], d: ["Décision du 9 juil. 2026", "Exercice clos le 31 mars 2026"], a: "Sophie LAMBERT" },
+        { n: "HLMT CONSULTING", s: 0, i: "cal", t: ["AGOA et dépôt des comptes", "Modification de la personne morale"], d: ["Décision du 14 mai 2026", "Exercice clos le 31 déc. 2025"], a: "Nadia BENALI" },
+        { n: "JULIEN MARCHAL FORMATIONS", s: 1, i: "doc", t: ["Autres actes courants"], d: ["Signature prévue le 13 sept. 2026"], a: "Laura PERRIN" },
+        { n: "CHAUFFAGE DU LIMOUSIN", s: 0, i: "cal", t: ["Cession et transmission de titres"], d: ["Décision du 9 sept. 2026"], a: "Laura PERRIN" },
+        { n: "HELIOS SAS", s: 1, i: "cal", t: ["Modification de capital"], d: ["Décision du 4 sept. 2026"], a: "Paul ROUSSEL" },
+      ];
+
+      function esc(s) {
+        return s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+      }
+      function date(s) {
+        return esc(s).replace("(non-définie)", '<span class="undef">(non définie)</span>');
+      }
+      document.getElementById("cards").innerHTML = DATA.map(function (c) {
+        var badge = c.s
+          ? '<span class="badge badge-success"><span class="ms">check_circle</span>Documents générés</span>'
+          : '<span class="badge badge-progress"><span class="ms">edit_note</span>Formulaire en cours</span>';
+        var tags = c.tags
+          ? '<div class="f-tags">' +
+            c.tags.map(function (t) {
+              return '<span class="tag"><i class="dot" style="background:' + TAGC[t[0]] + '"></i><span>' + esc(t[1]) + "</span></span>";
+            }).join("") +
+            "</div>"
+          : "";
+        return (
+          '<a class="card f-card" href="formalite.html">' +
+          "<div>" +
+          '<div class="f-name">' + esc(c.n) + "</div>" +
+          '<div class="f-type"><span class="list-icon ' + c.i + '"><span class="ms">' + ICON[c.i] + "</span></span>" +
+          '<div class="f-type-lines">' + c.t.map(esc).join("<br/>") + "</div></div>" +
+          "</div>" +
+          '<div class="f-right">' + badge +
+          '<div class="f-dates">' + c.d.map(date).join("<br/>") + "</div>" +
+          '<span class="f-author"><span class="ms">person</span>Créé par ' + esc(c.a) + "</span></div>" +
+          tags +
+          "</a>"
+        );
+      }).join("");
+    </script>
+    <script src="assets/ej-shell.js?v=11"></script>
+  </body>
+</html>

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Mes sociétés · Express Juridique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=11" />
+    <style>
+      .s-count {
+        font-size: 14px;
+        color: var(--ej-neutral-500);
+        white-space: nowrap;
+      }
+      .s-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+      }
+      .s-info .row-meta {
+        display: flex;
+        align-items: center;
+        min-height: 24px;
+      }
+      .s-right {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 13px;
+        color: var(--ej-neutral-500);
+        white-space: nowrap;
+      }
+      .s-right .chev {
+        margin-left: 0;
+      }
+      .s-more {
+        display: flex;
+        justify-content: center;
+        margin-top: 24px;
+      }
+    </style>
+  </head>
+  <body data-active="societes">
+    <div id="ej-header"></div>
+    <div class="app">
+      <div id="ej-sidebar"></div>
+      <div class="main">
+        <div class="page page-narrow">
+          <div class="page-head">
+            <h1 class="page-title">Mes sociétés</h1>
+          </div>
+
+          <div class="toolbar">
+            <label class="search">
+              <span class="ms">search</span>
+              <input type="text" placeholder="Rechercher par dénomination" />
+            </label>
+            <span class="s-count">135 sociétés</span>
+          </div>
+
+          <div class="list-card" id="societes"></div>
+
+          <div class="s-more">
+            <button class="btn btn-secondary" type="button"><span class="ms">downloading</span>Voir plus</button>
+          </div>
+        </div>
+        <div id="ej-footer"></div>
+      </div>
+    </div>
+
+    <script>
+      // Données : nom | SIREN | date de dernière mise à jour
+      var DATA = [
+        ["LES JARDINS D'ORIANE", "961 559 332", "18/10/2026"],
+        ["ALTITUDE CONSEIL", "106 218 754", "18/10/2026"],
+        ["SAS Novalys Aéro", "100 844 154", "16/10/2026"],
+        ["27 BELLEVUE", "114 143 410", "16/10/2026"],
+        ["NOVA STUDIO DÉMO", "En cours de création.", "16/10/2026"],
+        ["SCP MÉDICALE DES TILLEULS DÉMO", "En cours de création.", "16/10/2026"],
+        ["SCCV LES ATELIERS DÉMO", "En cours de création.", "16/10/2026"],
+        ["SCI LES TERRASSES DÉMO", "En cours de création.", "16/10/2026"],
+        ["MERCIER & ASSOCIES", "757 508 228", "15/10/2026"],
+        ["JULIEN MARCHAL FORMATIONS", "238 124 756", "14/10/2026"],
+        ["AXIOME", "336 851 161", "14/10/2026"],
+        ["PAPRIKA CANTINE", "795 294 481", "14/10/2026"],
+        ["HELIOS SAS", "622 427 249", "13/10/2026"],
+        ["URBAN FIT CLUB", "272 577 898", "13/10/2026"],
+        ["LUMEN", "961 913 731", "12/10/2026"],
+        ["TB ELECTRICITE", "100 017 061", "12/10/2026"],
+        ["NEOLAB.", "371 758 930", "11/10/2026"],
+        ["ODALIS", "873 341 810", "11/10/2026"],
+        ["CAP ESTEREL", "359 945 830", "09/10/2026"],
+        ["SOUFFLE ET HARMONIE", "194 369 835", "04/10/2026"],
+        ["SOURIRE DENTAIRE", "362 964 565", "01/10/2026"],
+        ["LUMEN", "154 379 730", "25/09/2026"],
+        ["selarl vasseur", "En cours de création.", "22/09/2026"],
+        ["KPL3D", "187 094 208", "18/09/2026"],
+        ["CABINET DE LORME", "218 624 777", "17/09/2026"],
+        ["ORVEA", "119 576 308", "16/09/2026"],
+        ["MBCOMPTA", "658 018 966", "16/09/2026"],
+        ["GROUPE BMR", "114 974 823", "16/09/2026"],
+        ["SOTRAB", "278 917 483", "16/09/2026"],
+        ["CHAUFFAGE DU LIMOUSIN", "107 336 244", "15/09/2026"],
+        ["HLMT CONSULTING", "146 373 888", "13/09/2026"],
+        ["BOTANICA", "107 106 376", "02/08/2026"],
+        ["MARALUNA", "103 280 002", "24/07/2026"],
+        ["ESTERIA", "345 532 791", "21/07/2026"],
+        ["AZUR HOLDING", "650 309 775", "17/07/2026"],
+        ["KALIPSO SARL", "906 661 239", "17/07/2026"],
+        ["IMMO +", "373 868 763", "15/07/2026"],
+        ["LOGIVIA", "965 431 012", "13/07/2026"],
+        ["VILLA SERENA", "649 899 134", "13/07/2026"],
+        ["PL CONSEILS", "605 023 769", "13/07/2026"],
+      ];
+
+      function esc(s) {
+        return s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+      }
+      document.getElementById("societes").innerHTML = DATA.map(function (s) {
+        var siren =
+          s[1] === "En cours de création."
+            ? '<span class="badge badge-progress" style="height:22px;font-size:11px">En cours de création</span>'
+            : "SIREN : " + esc(s[1]);
+        return (
+          '<a class="list-row" href="societe.html">' +
+          '<span class="list-icon"><span class="ms">storefront</span></span>' +
+          '<div class="s-info"><span class="row-title">' + esc(s[0]) + "</span>" +
+          '<span class="row-meta">' + siren + "</span></div>" +
+          '<div class="s-right"><span>Dernière mise à jour le ' + s[2] + "</span>" +
+          '<span class="ms chev">arrow_forward</span></div>' +
+          "</a>"
+        );
+      }).join("");
+    </script>
+    <script src="assets/ej-shell.js?v=11"></script>
+  </body>
+</html>

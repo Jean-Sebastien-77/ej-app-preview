@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Export Excel IFU 2025 · Express Juridique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=11" />
+    <style>
+      .ifu-intro {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px 32px;
+        align-items: start;
+      }
+      .ifu-title {
+        font-size: 22px;
+        line-height: 1.3;
+        font-weight: 700;
+        color: var(--ej-primary-900);
+      }
+      .ifu-sub {
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--ej-neutral-900);
+        margin-top: 4px;
+      }
+      .ifu-text {
+        font-size: 14px;
+        color: var(--ej-neutral-700);
+        margin-top: 12px;
+        max-width: 480px;
+      }
+      .ifu-cta {
+        padding-top: 6px;
+      }
+      .ifu-section-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .ifu-tile {
+        width: 32px;
+        height: 32px;
+        border-radius: var(--ej-radius-md);
+        background: var(--ej-action-100);
+        color: var(--ej-action-600);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .ifu-tile .ms {
+        font-size: 18px;
+      }
+      .ifu-tile.warn {
+        background: var(--ej-white);
+        color: var(--ej-warning-600);
+      }
+      .ifu-lead {
+        font-size: 14px;
+        color: var(--ej-neutral-700);
+        margin-bottom: 8px;
+      }
+      .ifu-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .ifu-list li {
+        position: relative;
+        padding-left: 20px;
+        font-size: 14px;
+        line-height: 1.55;
+        color: var(--ej-neutral-700);
+      }
+      .ifu-list li::before {
+        content: "";
+        position: absolute;
+        left: 4px;
+        top: 9px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--ej-action-400);
+      }
+      .ifu-warn {
+        margin-top: 4px;
+        padding: 16px 20px;
+        display: block;
+      }
+      .ifu-warn .ifu-list li {
+        color: var(--ej-neutral-800);
+      }
+      .ifu-warn .ifu-list li::before {
+        background: var(--ej-warning-600);
+      }
+    </style>
+  </head>
+  <body data-active="ifu">
+    <div id="ej-header"></div>
+    <div class="app">
+      <div id="ej-sidebar"></div>
+      <div class="main">
+        <div class="page page-narrow">
+          <div class="card">
+            <div class="card-body" style="padding: 28px 32px 32px">
+              <div class="ifu-intro">
+                <div>
+                  <h1 class="ifu-title">EXPORT EXCEL IFU 2025</h1>
+                  <p class="ifu-sub">Dividendes, boni de liquidation et intérêts de CCA</p>
+                  <p class="ifu-text">Cet export Excel, mis à disposition pour la campagne IFU 2025, compile les données relatives aux distributions de dividendes, boni de liquidation et aux intérêts de comptes courants d'associés de vos dossiers Express Juridique.</p>
+                </div>
+                <div class="ifu-cta">
+                  <a class="btn btn-primary" href="#"><span class="ms">file_download</span>Télécharger l'export .xlsx</a>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <section>
+                <div class="ifu-section-head">
+                  <span class="ifu-tile"><span class="ms">table_view</span></span>
+                  <h2 class="section-title">Contenu du fichier Excel</h2>
+                </div>
+                <ul class="ifu-list">
+                  <li>Un tableau de synthèse classé par société, présentant une vue consolidée des distributions, boni de liquidation et intérêts de CCA de chaque associé ;</li>
+                  <li>Un tableau détaillé regroupant l'ensemble des données IFU, structuré pour optimiser la saisie de votre déclaration ;</li>
+                  <li>Une documentation détaillée sur les données extraites et les limites liées à l'export de la base de données.</li>
+                </ul>
+              </section>
+
+              <div class="divider"></div>
+
+              <section>
+                <div class="ifu-section-head">
+                  <span class="ifu-tile"><span class="ms">search</span></span>
+                  <h2 class="section-title">Critères de sélection des dossiers</h2>
+                </div>
+                <p class="ifu-lead">Les formalités prises en compte dans cet export doivent remplir l'ensemble des conditions suivantes :</p>
+                <ul class="ifu-list">
+                  <li>Contenir une décision (distribution, liquidation ou ratification d'intérêts) prise entre le 01/03/2024 et le 31/12/2025 ;</li>
+                  <li>Avoir le statut "Documents générés" ou "Formalité validée" dans Express Juridique.</li>
+                </ul>
+              </section>
+
+              <div class="divider"></div>
+
+              <section class="alert alert-warning ifu-warn">
+                <div style="width: 100%">
+                  <div class="ifu-section-head">
+                    <span class="ifu-tile warn"><span class="ms">warning</span></span>
+                    <h2 class="section-title">Points d'attention</h2>
+                  </div>
+                  <ul class="ifu-list">
+                    <li>Cet export constitue une simulation basée sur les dates de décision et non sur les dates réelles de versement ;</li>
+                    <li>Certaines informations peuvent être absentes si elles n'ont pas été saisies dans l'outil ;</li>
+                    <li>Les données sont extraites automatiquement de vos dossiers Express Juridique, une vérification reste recommandée.</li>
+                  </ul>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+        <div id="ej-footer"></div>
+      </div>
+    </div>
+
+    <script src="assets/ej-shell.js?v=11"></script>
+  </body>
+</html>

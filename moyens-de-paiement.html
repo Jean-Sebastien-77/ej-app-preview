@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Moyen de paiement · Express Juridique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=11" />
+    <style>
+      .pm {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 18px 20px;
+      }
+      .pm .list-icon {
+        width: 48px;
+        height: 48px;
+      }
+      .pm .list-icon .ms {
+        font-size: 26px;
+      }
+      .pm-main {
+        flex: 1;
+        min-width: 0;
+        line-height: 1.5;
+      }
+      .pm-line {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .pm-num {
+        font-size: 14px;
+        letter-spacing: 0.04em;
+      }
+    </style>
+  </head>
+  <body data-active="">
+    <div id="ej-header"></div>
+    <div class="app">
+      <div id="ej-sidebar"></div>
+      <div class="main">
+        <div class="page page-narrow">
+          <a class="back-link" href="souscriptions.html"><span class="ms">arrow_back</span>Retour</a>
+          <div class="page-head">
+            <h1 class="page-title">Moyen de paiement</h1>
+          </div>
+
+          <p class="mb-16">Les souscriptions à vos forfaits Express Juridique seront automatiquement prélevées au travers du moyen de paiement suivant :</p>
+
+          <div class="card pm">
+            <span class="list-icon"><span class="ms">credit_card</span></span>
+            <div class="pm-main">
+              <div class="pm-line">
+                <span class="row-title">Carte bancaire Visa (US)</span>
+                <span class="badge badge-error">Carte Expirée</span>
+              </div>
+              <div class="mono-num pm-num">**** **** **** 4242</div>
+              <div class="row-meta">Expire en : 09/2024</div>
+            </div>
+            <button class="btn btn-secondary btn-sm" type="button"><span class="ms">edit</span>Modifier</button>
+          </div>
+        </div>
+        <div id="ej-footer"></div>
+      </div>
+    </div>
+
+    <script src="assets/ej-shell.js?v=11"></script>
+  </body>
+</html>

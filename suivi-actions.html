@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Tableau de suivi des actions · Express Juridique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=11" />
+    <style>
+      .s-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 16px;
+        border-bottom: 1px solid var(--ej-neutral-200);
+        margin-bottom: 20px;
+      }
+      .s-head .page-title {
+        padding-bottom: 10px;
+      }
+      .s-head .tabs {
+        border-bottom: none;
+        margin-bottom: 0;
+      }
+      .s-head .tab {
+        margin-bottom: 0;
+        border-radius: var(--ej-radius-md) var(--ej-radius-md) 0 0;
+      }
+      .s-soc {
+        font-weight: 500;
+        color: var(--ej-primary-900);
+      }
+      .s-siren {
+        font-size: 12px;
+        color: var(--ej-neutral-500);
+        font-variant-numeric: tabular-nums;
+      }
+      .s-sub {
+        font-size: 13px;
+        color: var(--ej-neutral-600);
+        margin-top: 2px;
+      }
+      .ref-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        vertical-align: bottom;
+      }
+      .ref-link .ms {
+        font-size: 14px;
+      }
+      .s-date {
+        font-size: 13px;
+        font-style: italic;
+        color: var(--ej-neutral-500);
+        white-space: nowrap;
+      }
+      .data-table td {
+        vertical-align: middle;
+      }
+      .s-filters {
+        margin-bottom: 16px;
+      }
+      .pager-in-table {
+        border-top: 1px solid var(--ej-neutral-200);
+        background: var(--ej-white);
+      }
+      .s-empty {
+        padding: 56px 20px;
+        text-align: center;
+        font-size: 14px;
+        color: var(--ej-neutral-500);
+      }
+    </style>
+  </head>
+  <body data-active="suivi">
+    <div id="ej-header"></div>
+    <div class="app">
+      <div id="ej-sidebar"></div>
+      <div class="main">
+        <div class="page page-wide">
+          <div class="s-head">
+            <h1 class="page-title">Tableau de suivi des actions</h1>
+            <div class="tabs" role="tablist">
+              <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="depots">Dépôts INPI</button>
+              <button class="tab" type="button" role="tab" aria-selected="false" data-tab="signatures">Signatures</button>
+            </div>
+          </div>
+
+          <div id="panel-depots">
+            <div class="quick-filters s-filters" role="group" aria-label="Filtrer par catégorie">
+              <button class="qf-pill active" type="button" data-filter="tout">Tout voir</button>
+              <button class="qf-pill warning" type="button" data-filter="action">Action requise</button>
+              <button class="qf-pill" type="button" data-filter="encours">En cours</button>
+              <button class="qf-pill" type="button" data-filter="termine">Terminés</button>
+            </div>
+
+            <div class="data-table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Identification de la formalité</th>
+                    <th>Identification du dépôt</th>
+                    <th>Statut du dépôt</th>
+                    <th>Dernière mise à jour</th>
+                  </tr>
+                </thead>
+                <tbody id="rows">
+              <tr data-cat="termine">
+                <td>
+                  <div><span class="s-soc">PAPRIKA CANTINE</span> <span class="s-siren">(795 294 481)</span></div>
+                  <div class="s-sub"><a class="link" href="formalite.html">#GC-2026-263</a> du 05/08/2026</div>
+                </td>
+                <td>
+                  <div class="strong">#1 -Comptes annuels</div>
+                  <div class="s-sub">Ref. INPI : <a class="link ref-link" href="#">K00101716735<span class="ms">open_in_new</span></a></div>
+                </td>
+                <td><span class="badge badge-neutral">Dépôt supprimé</span></td>
+                <td class="s-date">Supprimé du Guichet Unique le<br />11/10/2026 à 15:34</td>
+              </tr>
+              <tr data-cat="termine">
+                <td>
+                  <div><span class="s-soc">SOUFFLE ET HARMONIE</span> <span class="s-siren">(194 369 835)</span></div>
+                  <div class="s-sub"><a class="link" href="formalite.html">#GC-2026-258</a> du 01/04/2026</div>
+                </td>
+                <td>
+                  <div class="strong">#1 -Comptes annuels</div>
+                  <div class="s-sub">Ref. INPI : <a class="link ref-link" href="#">K00212292864<span class="ms">open_in_new</span></a></div>
+                </td>
+                <td><span class="badge badge-neutral">Dépôt supprimé</span></td>
+                <td class="s-date">Supprimé du Guichet Unique le<br />11/10/2026 à 15:34</td>
+              </tr>
+              <tr data-cat="termine">
+                <td>
+                  <div><span class="s-soc">MBCOMPTA</span> <span class="s-siren">(658 018 966)</span></div>
+                  <div class="s-sub"><a class="link" href="formalite.html">#GC-2026-237</a> du 08/01/2026</div>
+                </td>
+                <td>
+                  <div class="strong">#1 -Comptes annuels</div>
+                  <div class="s-sub">Ref. INPI : <a class="link ref-link" href="#">K00161630325<span class="ms">open_in_new</span></a></div>
+                </td>
+                <td><span class="badge badge-neutral">Dépôt supprimé</span></td>
+                <td class="s-date">Supprimé du Guichet Unique le<br />22/09/2026 à 13:34</td>
+              </tr>
+              <tr data-cat="termine">
+                <td>
+                  <div><span class="s-soc">GROUPE BMR</span> <span class="s-siren">(114 974 823)</span></div>
+                  <div class="s-sub"><a class="link" href="formalite.html">#GC-2026-235</a> du 01/05/2026</div>
+                </td>
+                <td>
+                  <div class="strong">#1 -Comptes annuels</div>
+                  <div class="s-sub">Ref. INPI : <a class="link ref-link" href="#">K00250581585<span class="ms">open_in_new</span></a></div>
+                </td>
+                <td><span class="badge badge-neutral">Dépôt supprimé</span></td>
+                <td class="s-date">Supprimé du Guichet Unique le<br />22/09/2026 à 13:34</td>
+              </tr>
+              <tr data-cat="action">
+                <td>
+                  <div><span class="s-soc">ORVEA</span> <span class="s-siren">(119 576 308)</span></div>
+                  <div class="s-sub"><a class="link" href="formalite.html">#GC-2026-238</a> du 04/03/2026</div>
+                </td>
+                <td>
+                  <div class="strong">#2 -Comptes annuels</div>
+                  <div class="s-sub">Par Olivier Garnier</div>
+                </td>
+                <td><span class="badge badge-action">Documents à signer</span></td>
+                <td class="s-date">Dernière modification le<br />18/09/2026 à 16:14</td>
+              </tr>
+              <tr data-cat="encours">
+                <td>
+                  <div><span class="s-soc">KPL3D</span> <span class="s-siren">(187 094 208)</span></div>
+                  <div class="s-sub"><a class="link" href="formalite.html">#GC-2026-244</a> du 01/01/2026</div>
+                </td>
+                <td>
+                  <div class="strong">#3 -Comptes annuels</div>
+                  <div class="s-sub">Par Olivier Garnier</div>
+                </td>
+                <td><span class="badge badge-progress">En cours de signature</span></td>
+                <td class="s-date">Envoi pour signature le<br />18/09/2026 à 10:05</td>
+              </tr>
+              <tr data-cat="action">
+                <td>
+                  <div><span class="s-soc">AXIOME</span> <span class="s-siren">(336 851 161)</span></div>
+                  <div class="s-sub"><a class="link" href="formalite.html">#GC-2026-246</a> du 01/05/2026</div>
+                </td>
+                <td>
+                  <div class="strong">#3 -Comptes annuels</div>
+                  <div class="s-sub">Par Olivier Garnier</div>
+                </td>
+                <td><span class="badge badge-action">Documents à signer</span></td>
+                <td class="s-date">Dernière modification le<br />17/09/2026 à 19:54</td>
+              </tr>
+              <tr data-cat="encours">
+                <td>
+                  <div><span class="s-soc">AXIOME</span> <span class="s-siren">(336 851 161)</span></div>
+                  <div class="s-sub"><a class="link" href="formalite.html">#GC-2026-246</a> du 01/05/2026</div>
+                </td>
+                <td>
+                  <div class="strong">#2 -Comptes annuels</div>
+                  <div class="s-sub">Par Olivier Garnier</div>
+                </td>
+                <td><span class="badge badge-progress">En cours de signature</span></td>
+                <td class="s-date">Envoi pour signature le<br />17/09/2026 à 19:53</td>
+              </tr>
+              <tr data-cat="encours">
+                <td>
+                  <div><span class="s-soc">AXIOME</span> <span class="s-siren">(336 851 161)</span></div>
+                  <div class="s-sub"><a class="link" href="formalite.html">#GC-2026-246</a> du 01/05/2026</div>
+                </td>
+                <td>
+                  <div class="strong">#1 -Comptes annuels</div>
+                  <div class="s-sub">Par Olivier Garnier</div>
+                </td>
+                <td><span class="badge badge-progress">Prêt à déposer</span></td>
+                <td class="s-date">Documents signés et prêts depuis le<br />17/09/2026 à 08:43</td>
+              </tr>
+              <tr data-cat="action">
+                <td>
+                  <div><span class="s-soc">KPL3D</span> <span class="s-siren">(187 094 208)</span></div>
+                  <div class="s-sub"><a class="link" href="formalite.html">#GC-2026-244</a> du 01/01/2026</div>
+                </td>
+                <td>
+                  <div class="strong">#2 -Comptes annuels</div>
+                  <div class="s-sub">Par Olivier Garnier</div>
+                </td>
+                <td><span class="badge badge-action">Documents à signer</span></td>
+                <td class="s-date">Dernière modification le<br />16/09/2026 à 16:16</td>
+              </tr>
+              <tr data-cat="encours">
+                <td>
+                  <div><span class="s-soc">KPL3D</span> <span class="s-siren">(187 094 208)</span></div>
+                  <div class="s-sub"><a class="link" href="formalite.html">#GC-2026-244</a> du 01/01/2026</div>
+                </td>
+                <td>
+                  <div class="strong">#1 -Comptes annuels</div>
+                  <div class="s-sub">Par Olivier Garnier</div>
+                </td>
+                <td><span class="badge badge-progress">Prêt à déposer</span></td>
+                <td class="s-date">Documents signés et prêts depuis le<br />16/09/2026 à 15:32</td>
+              </tr>
+              <tr data-cat="action">
+                <td>
+                  <div><span class="s-soc">CABINET DE LORME</span> <span class="s-siren">(218 624 777)</span></div>
+                  <div class="s-sub"><a class="link" href="formalite.html">#GC-2026-241</a> du 04/02/2026</div>
+                </td>
+                <td>
+                  <div class="strong">#1 -Comptes annuels</div>
+                  <div class="s-sub">Par Olivier Garnier</div>
+                </td>
+                <td><span class="badge badge-action">Documents à signer</span></td>
+                <td class="s-date">Dernière modification le<br />16/09/2026 à 14:41</td>
+              </tr>
+              <tr data-cat="encours">
+                <td>
+                  <div><span class="s-soc">ORVEA</span> <span class="s-siren">(119 576 308)</span></div>
+                  <div class="s-sub"><a class="link" href="formalite.html">#GC-2026-238</a> du 04/03/2026</div>
+                </td>
+                <td>
+                  <div class="strong">#1 -Comptes annuels</div>
+                  <div class="s-sub">Par Olivier Garnier</div>
+                </td>
+                <td><span class="badge badge-progress">Prêt à déposer</span></td>
+                <td class="s-date">Documents signés et prêts depuis le<br />16/09/2026 à 13:10</td>
+              </tr>
+              <tr data-cat="encours">
+                <td>
+                  <div><span class="s-soc">MBCOMPTA</span> <span class="s-siren">(658 018 966)</span></div>
+                  <div class="s-sub"><a class="link" href="formalite.html">#GC-2026-237</a> du 08/01/2026</div>
+                </td>
+                <td>
+                  <div class="strong">#2 -Comptes annuels</div>
+                  <div class="s-sub">Par Olivier Garnier</div>
+                </td>
+                <td><span class="badge badge-progress">Prêt à déposer</span></td>
+                <td class="s-date">Documents signés et prêts depuis le<br />16/09/2026 à 12:40</td>
+              </tr>
+              <tr data-cat="action">
+                <td>
+                  <div><span class="s-soc">A.R.T.E</span> <span class="s-siren">(996 946 951)</span></div>
+                  <div class="s-sub"><a class="link" href="formalite.html">#GC-2026-069</a> du 22/04/2026</div>
+                </td>
+                <td>
+                  <div class="strong">#2 -Comptes annuels</div>
+                  <div class="s-sub">Par marc.renaud@cabinet-delmas.fr</div>
+                </td>
+                <td><span class="badge badge-action">Documents à signer</span></td>
+                <td class="s-date">Dernière modification le<br />16/09/2026 à 12:07</td>
+              </tr>
+              <tr data-cat="encours">
+                <td>
+                  <div><span class="s-soc">SELARL MV</span> <span class="s-siren">(117 397 040)</span></div>
+                  <div class="s-sub"><a class="link" href="formalite.html">#Transfo-2026-141</a> du 11/06/2026</div>
+                </td>
+                <td>
+                  <div class="strong">#1 -Modification</div>
+                  <div class="s-sub">Par marc.renaud@cabinet-delmas.fr</div>
+                </td>
+                <td><span class="badge badge-progress">Prêt à déposer</span></td>
+                <td class="s-date">Documents signés et prêts depuis le<br />16/09/2026 à 10:59</td>
+              </tr>
+              <tr data-cat="encours">
+                <td>
+                  <div><span class="s-soc">MERCIER &amp; ASSOCIES</span> <span class="s-siren">(757 508 228)</span></div>
+                  <div class="s-sub"><a class="link" href="formalite.html">#GC-2026-232</a> du 03/09/2026</div>
+                </td>
+                <td>
+                  <div class="strong">#1 -Comptes annuels</div>
+                  <div class="s-sub">Par Olivier Garnier</div>
+                </td>
+                <td><span class="badge badge-progress">Prêt à déposer</span></td>
+                <td class="s-date">Documents signés et prêts depuis le<br />16/09/2026 à 10:43</td>
+              </tr>
+              <tr data-cat="encours">
+                <td>
+                  <div><span class="s-soc">LES JARDINS D'ORIANE</span> <span class="s-siren">(961 559 332)</span></div>
+                  <div class="s-sub"><a class="link" href="formalite.html">#GC-2026-229</a> du 19/02/2026</div>
+                </td>
+                <td>
+                  <div class="strong">#1 -Comptes annuels</div>
+                  <div class="s-sub">Par Olivier Garnier</div>
+                </td>
+                <td><span class="badge badge-progress">Prêt à déposer</span></td>
+                <td class="s-date">Documents signés et prêts depuis le<br />16/09/2026 à 10:06</td>
+              </tr>
+              <tr data-cat="encours">
+                <td>
+                  <div><span class="s-soc">CL OPTIC</span> <span class="s-siren">(458 646 298)</span></div>
+                  <div class="s-sub"><a class="link" href="formalite.html">#GC-2026-143</a> du 30/06/2026</div>
+                </td>
+                <td>
+                  <div class="strong">#2 -Comptes annuels</div>
+                  <div class="s-sub">Par marc.renaud@cabinet-delmas.fr</div>
+                </td>
+                <td><span class="badge badge-progress">Prêt à déposer</span></td>
+                <td class="s-date">Documents signés et prêts depuis le<br />16/09/2026 à 08:37</td>
+              </tr>
+              <tr data-cat="encours">
+                <td>
+                  <div><span class="s-soc">CL OPTIC</span> <span class="s-siren">(458 646 298)</span></div>
+                  <div class="s-sub"><a class="link" href="formalite.html">#GC-2026-143</a> du 30/06/2026</div>
+                </td>
+                <td>
+                  <div class="strong">#1 -Comptes annuels</div>
+                  <div class="s-sub">Par marc.renaud@cabinet-delmas.fr</div>
+                </td>
+                <td><span class="badge badge-progress">En cours de signature</span></td>
+                <td class="s-date">Envoi pour signature le<br />16/09/2026 à 08:36</td>
+              </tr>
+                </tbody>
+              </table>
+              <div class="pager pager-in-table">
+                <button class="btn btn-secondary btn-sm" type="button" disabled style="opacity: 0.5"><span class="ms">navigate_before</span>Page précédente</button>
+                <button class="btn btn-secondary btn-sm" type="button">Page suivante<span class="ms">keyboard_arrow_right</span></button>
+              </div>
+            </div>
+          </div>
+
+          <div id="panel-signatures" hidden>
+            <div class="data-table-wrap">
+              <div class="s-empty">Contenu non représenté dans cette maquette.</div>
+            </div>
+          </div>
+        </div>
+        <div id="ej-footer"></div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        // Filtres rapides : masque les lignes selon la catégorie du badge
+        var pills = document.querySelectorAll(".qf-pill");
+        var rows = document.querySelectorAll("#rows tr");
+        pills.forEach(function (p) {
+          p.addEventListener("click", function () {
+            var f = p.getAttribute("data-filter");
+            pills.forEach(function (q) {
+              q.classList.remove("active", "active-warning");
+            });
+            p.classList.add("active");
+            if (p.classList.contains("warning")) p.classList.add("active-warning");
+            rows.forEach(function (r) {
+              r.hidden = !(f === "tout" || r.getAttribute("data-cat") === f);
+            });
+          });
+        });
+
+        // Onglets Dépôts INPI / Signatures
+        var tabs = document.querySelectorAll(".tab[data-tab]");
+        tabs.forEach(function (t) {
+          t.addEventListener("click", function () {
+            tabs.forEach(function (o) {
+              var on = o === t;
+              o.classList.toggle("active", on);
+              o.setAttribute("aria-selected", on ? "true" : "false");
+            });
+            var dep = t.getAttribute("data-tab") === "depots";
+            document.getElementById("panel-depots").hidden = !dep;
+            document.getElementById("panel-signatures").hidden = dep;
+          });
+        });
+      })();
+    </script>
+    <script src="assets/ej-shell.js?v=11"></script>
+  </body>
+</html>

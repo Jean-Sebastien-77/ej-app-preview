@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Administration des utilisateurs · Express Juridique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=11" />
+    <style>
+      .u-item {
+        border-bottom: 1px solid var(--ej-neutral-100);
+      }
+      .u-item:last-child {
+        border-bottom: none;
+      }
+      .u-item .list-row {
+        border-bottom: none;
+        cursor: pointer;
+      }
+      .u-item .list-row:hover {
+        background: var(--ej-primary-50);
+      }
+      .u-main {
+        flex: 1;
+        min-width: 0;
+      }
+      .u-name {
+        display: flex;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 4px 8px;
+      }
+      .u-state {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 2px;
+        font-size: 13px;
+        color: var(--ej-neutral-500);
+      }
+      .u-state .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--ej-success-600);
+        flex-shrink: 0;
+      }
+      .u-state.off .dot {
+        background: var(--ej-neutral-400);
+      }
+      .u-toggle .ms {
+        transition: transform var(--ej-transition-fast);
+      }
+      .u-item.open .u-toggle .ms {
+        transform: rotate(180deg);
+      }
+      .u-panel {
+        display: none;
+        margin: 0 20px 16px 76px;
+        padding: 12px 16px;
+        border-radius: var(--ej-radius-md);
+        background: var(--ej-neutral-50);
+        border: 1px solid var(--ej-neutral-200);
+        font-size: 13px;
+        color: var(--ej-neutral-500);
+      }
+      .u-item.open .u-panel {
+        display: block;
+      }
+    </style>
+  </head>
+  <body data-active="utilisateurs">
+    <div id="ej-header"></div>
+    <div class="app">
+      <div id="ej-sidebar"></div>
+      <div class="main">
+        <div class="page page-narrow">
+          <div class="page-head">
+            <div>
+              <h1 class="page-title">Administration des utilisateurs</h1>
+              <p class="page-desc"><span class="strong">Cabinet :</span> CABINET DELMAS EXPERTISE</p>
+            </div>
+            <button class="btn btn-primary" type="button"><span class="ms">person_add_alt</span>Inviter un nouvel utilisateur</button>
+          </div>
+
+          <div class="list-card" id="users"></div>
+        </div>
+        <div id="ej-footer"></div>
+      </div>
+    </div>
+
+    <script>
+      // s : 1 = en ligne (point vert), 0 = invité(e) (point gris)
+      var USERS = [
+        { i: "AF", c: "var(--ej-action-600)", n: "Antoine FAURE", e: "a.faure@cabinet-delmas.fr", s: 1, t: "Inscrit(e) le 16/02/2022 10:22." },
+        { i: "PR", c: "var(--ej-primary-700)", n: "M. Paul Roussel", e: "p.roussel@cabinet-delmas.fr", s: 1, t: "Dernièrement connecté le 18/10/2026 14:59." },
+        { i: "JM", c: "var(--ej-accent-600)", n: "M. Julien Moreau", e: "j.moreau@cabinet-delmas.fr", s: 1, t: "Inscrit le 29/10/2025 13:52." },
+        { i: "EG", c: "var(--ej-warning-600)", n: "Mme Élodie Garcia", e: "e.garcia@cabinet-delmas.fr", s: 1, t: "Dernièrement connectée le 15/09/2026 10:42." },
+        { i: "LP", c: "var(--ej-tag-coral)", n: "Mme Laura Perrin", e: "l.perrin@cabinet-delmas.fr", s: 1, t: "Dernièrement connectée le 16/10/2026 10:40." },
+        { i: "CD", c: "var(--ej-primary-500)", n: "Mme Claire Dubois", e: "c.dubois@cabinet-delmas.fr", s: 1, t: "Dernièrement connectée le 22/05/2026 15:44." },
+        { i: "NB", c: "var(--ej-action-700)", n: "Mme Nadia Benali", e: "n.benali@cabinet-delmas.fr", s: 1, t: "Dernièrement connectée le 13/09/2026 17:02." },
+        { i: "TG", c: "var(--ej-info-600)", n: "M. Thomas Girard", e: "t.girard@cabinet-delmas.fr", s: 1, t: "Inscrit le 19/10/2026 17:30." },
+        { i: "LF", c: "var(--ej-neutral-500)", n: "Léa Fontaine", e: "l.fontaine@cabinet-delmas.fr", s: 0, t: "Invité(e) le 26/04/2022 10:17." },
+        { i: "JD", c: "var(--ej-accent-600)", n: "Jean DUPOND", e: "j.dupond@cabinet-delmas.fr", s: 0, t: "Invité(e) le 01/08/2022 11:12." },
+      ];
+      function esc(s) {
+        return s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+      }
+      var list = document.getElementById("users");
+      list.innerHTML = USERS.map(function (u) {
+        return (
+          '<div class="u-item">' +
+          '<div class="list-row">' +
+          '<span class="avatar avatar-md" style="background:' + u.c + '">' + u.i + "</span>" +
+          '<div class="u-main">' +
+          '<div class="u-name"><span class="row-title">' + esc(u.n) + '</span><span class="row-meta">&lt;' + esc(u.e) + "&gt;</span></div>" +
+          '<div class="u-state' + (u.s ? "" : " off") + '"><i class="dot"></i><span>' + esc(u.t) + "</span></div>" +
+          "</div>" +
+          '<button class="icon-btn u-toggle" type="button" aria-expanded="false" aria-label="Afficher les détails"><span class="ms">keyboard_arrow_down</span></button>' +
+          "</div>" +
+          '<div class="u-panel">Détails non représentés dans cette maquette.</div>' +
+          "</div>"
+        );
+      }).join("");
+      list.addEventListener("click", function (ev) {
+        var row = ev.target.closest(".list-row");
+        if (!row) return;
+        var item = row.parentNode;
+        var open = item.classList.toggle("open");
+        row.querySelector(".u-toggle").setAttribute("aria-expanded", open ? "true" : "false");
+      });
+    </script>
+    <script src="assets/ej-shell.js?v=11"></script>
+  </body>
+</html>

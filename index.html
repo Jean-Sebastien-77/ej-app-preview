@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Lifting 2026 · Express Juridique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=11" />
+    <style>
+      body {
+        background: var(--ej-white);
+      }
+      .hero {
+        border-bottom: 1px solid var(--ej-neutral-200);
+        background:
+          radial-gradient(1200px 300px at 85% -40%, var(--ej-action-100), transparent 70%),
+          var(--ej-white);
+      }
+      .hero-in {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 40px 32px 36px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 32px;
+      }
+      .hero img {
+        height: 72px;
+        width: auto;
+        margin-bottom: 28px;
+      }
+      .hero h1 {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--ej-primary-900);
+        line-height: 1.2;
+      }
+      .hero p {
+        font-size: 15px;
+        color: var(--ej-neutral-600);
+        margin-top: 8px;
+        max-width: 620px;
+      }
+      .hero-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-end;
+        font-size: 13px;
+        color: var(--ej-neutral-500);
+        white-space: nowrap;
+      }
+      .content {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 32px 32px 64px;
+      }
+      .group + .group {
+        margin-top: 36px;
+      }
+      .group .overline {
+        margin-bottom: 12px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+      .tile {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px;
+      }
+      .tile .list-icon {
+        width: 44px;
+        height: 44px;
+      }
+      .tile .row-title {
+        font-size: 15px;
+      }
+      .tile .chev {
+        margin-left: auto;
+        color: var(--ej-neutral-400);
+        transition: transform var(--ej-transition-fast), color var(--ej-transition-fast);
+      }
+      a.tile:hover .chev {
+        color: var(--ej-action-600);
+        transform: translateX(2px);
+      }
+      .note {
+        margin-top: 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero-in">
+        <div>
+          <img src="assets/ej-logo.svg" alt="Express Juridique" />
+          <h1>Lifting de l'interface 2026</h1>
+          <p>
+            Les écrans de l'application, contenus inchangés, habillés avec le Design System v2 et le
+            logo 2026. Cliquez sur un écran pour l'ouvrir, puis naviguez librement par la barre latérale.
+          </p>
+        </div>
+        <div class="hero-meta">
+          <span class="badge badge-brand"><span class="ms">auto_awesome</span>Maquette de présentation</span>
+          <span>Interface v0.29 · octobre 2026</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="content" id="groups"></main>
+
+    <script>
+      var GROUPS = [
+        {
+          title: "Nouveau",
+          items: [["accueil.html", "home", "Accueil", "Activité, parcours de découverte, vidéos"]],
+        },
+        {
+          title: "Formalités",
+          items: [
+            ["formalites.html", "topic", "Liste des formalités", "164 formalités, filtres, statuts"],
+            ["nouvelle-formalite.html", "add_circle", "Nouvelle formalité", "Type, saisie, opérations, société"],
+            ["formalite.html", "description", "Détail d'une formalité", "Documents générés, DPJ chaîné"],
+          ],
+        },
+        {
+          title: "Sociétés",
+          items: [
+            ["societes.html", "storefront", "Mes sociétés", "135 sociétés"],
+            ["societe.html", "timeline", "Fiche société · Formalités", "Chaîne des formalités"],
+            ["societe-registres.html", "menu_book", "Fiche société · Registres", "Registres dématérialisés"],
+          ],
+        },
+        {
+          title: "Pilotage",
+          items: [
+            ["suivi-actions.html", "table_chart", "Suivi des actions", "Dépôts INPI, statuts"],
+            ["export-ifu.html", "price_change", "Export IFU 2025", "Assistance à la déclaration"],
+          ],
+        },
+        {
+          title: "Administration",
+          items: [
+            ["connecteurs.html", "cable", "Connecteurs", "Signature, INPI, Pappers"],
+            ["etiquettes.html", "bookmarks", "Étiquettes", "Étiquettes du cabinet"],
+          ],
+        },
+        {
+          title: "Organisation et compte",
+          items: [
+            ["mon-cabinet.html", "store", "Mon cabinet", "Informations, adresse, mandataire"],
+            ["utilisateurs.html", "supervisor_account", "Utilisateurs", "Équipe du cabinet"],
+            ["souscriptions.html", "shop", "Souscriptions", "154 souscriptions en cours"],
+            ["moyens-de-paiement.html", "credit_card", "Moyen de paiement", "Carte bancaire"],
+            ["factures.html", "receipt_long", "Factures", "Factures par année"],
+          ],
+        },
+      ];
+      document.getElementById("groups").innerHTML =
+        GROUPS.map(function (g) {
+          return (
+            '<section class="group"><div class="overline">' + g.title + '</div><div class="grid">' +
+            g.items.map(function (it) {
+              return (
+                '<a class="card tile" href="' + it[0] + '"><span class="list-icon"><span class="ms">' + it[1] + "</span></span>" +
+                '<span><span class="row-title" style="display:block">' + it[2] + '</span><span class="row-meta">' + it[3] + "</span></span>" +
+                '<span class="ms chev">arrow_forward</span></a>'
+              );
+            }).join("") +
+            "</div></section>"
+          );
+        }).join("") +
+        '<div class="alert alert-info note"><span class="ms">info</span><span>Maquette statique : toutes les données (cabinet, sociétés, SIREN, personnes) sont fictives. ' +
+        "Certaines listes longues sont tronquées (sociétés, souscriptions) et quelques onglets secondaires affichent un état vide. " +
+        "L'onglet Signatures du suivi des actions n'est pas représenté.</span></div>";
+    </script>
+    <script src="assets/ej-shell.js?v=11"></script>
+  </body>
+</html>

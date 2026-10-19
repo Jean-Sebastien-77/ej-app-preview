@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Créer une nouvelle formalité · Express Juridique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=11" />
+    <style>
+      .nf-section {
+        display: grid;
+        grid-template-columns: 64px 1fr;
+        gap: 4px 24px;
+        padding: 24px;
+      }
+      .nf-section + .nf-section {
+        margin-top: 16px;
+      }
+      .nf-section .list-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: var(--ej-radius-lg);
+      }
+      .nf-section .list-icon .ms {
+        font-size: 28px;
+      }
+      .nf-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--ej-primary-900);
+        line-height: 1.4;
+      }
+      .nf-num {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--ej-primary-100);
+        color: var(--ej-primary-700);
+        font-size: 12px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .nf-hint {
+        font-size: 13px;
+        font-weight: 400;
+        color: var(--ej-neutral-500);
+        margin-top: 2px;
+      }
+      .nf-radios {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .nf-choices {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .nf-choice-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--ej-primary-900);
+      }
+      .nf-choice-desc {
+        font-size: 13px;
+        color: var(--ej-neutral-500);
+        margin-top: 2px;
+        line-height: 1.45;
+      }
+      .nf-group {
+        margin-top: 20px;
+      }
+      .nf-group .overline {
+        margin-bottom: 10px;
+        color: var(--ej-primary-600);
+      }
+      .nf-checks {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px 24px;
+      }
+      .nf-company {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .nf-company .form-input {
+        max-width: 340px;
+      }
+      .nf-bar {
+        position: sticky;
+        bottom: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin: 24px -32px -48px;
+        padding: 14px 32px;
+        background: var(--ej-white);
+        border-top: 1px solid var(--ej-neutral-200);
+      }
+      .nf-bar .alert {
+        padding: 8px 14px;
+      }
+      .nf-bar .btn-primary[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body data-active="formalites">
+    <div id="ej-header"></div>
+    <div class="app">
+      <div id="ej-sidebar"></div>
+      <div class="main">
+        <div class="page page-narrow">
+          <div class="page-head">
+            <h1 class="page-title">Créer une nouvelle formalité</h1>
+            <a class="btn btn-tertiary" href="formalites.html" aria-label="Fermer" title="Fermer"><span class="ms">close</span></a>
+          </div>
+
+          <!-- 1 -->
+          <section class="card nf-section">
+            <span class="list-icon"><span class="ms">category</span></span>
+            <div>
+              <div class="nf-title"><span class="nf-num">1</span>Type de formalité à réaliser :</div>
+              <div class="nf-radios">
+                <label class="radio"><input type="radio" name="type" checked />Opérations courantes et exceptionnelles</label>
+                <label class="radio"><input type="radio" name="type" />Constitution de sociétés</label>
+                <label class="radio"><input type="radio" name="type" />Changement de forme juridique</label>
+                <label class="radio"><input type="radio" name="type" />Actes juridiques et administratifs</label>
+                <label class="radio"><input type="radio" name="type" />Refonte et mise à jour des statuts</label>
+              </div>
+            </div>
+          </section>
+
+          <!-- 2 -->
+          <section class="card nf-section">
+            <span class="list-icon"><span class="ms">link</span></span>
+            <div>
+              <div class="nf-title"><span class="nf-num">2</span>Types de saisie et chaînage :</div>
+              <div class="nf-choices">
+                <label class="choice">
+                  <span class="radio"><input type="radio" name="saisie" checked /></span>
+                  <span>
+                    <div class="nf-choice-title">Réaliser une formalité complète</div>
+                    <div class="nf-choice-desc">Les documents sont générés et les données sont chaînées pour la formalité suivante.</div>
+                  </span>
+                </label>
+                <label class="choice">
+                  <span class="radio"><input type="radio" name="saisie" /></span>
+                  <span>
+                    <div class="nf-choice-title">Saisir des opérations</div>
+                    <div class="nf-choice-desc">Simple saisie servant à alimenter la fiche société et ses registres.</div>
+                  </span>
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3 -->
+          <section class="card nf-section">
+            <span class="list-icon"><span class="ms">checklist</span></span>
+            <div>
+              <div class="nf-title"><span class="nf-num">3</span>Choisissez les opérations à inclure dans la formalité :</div>
+              <div class="nf-hint">(vous pourrez revenir sur ce choix à tout moment)</div>
+
+              <div class="nf-group">
+                <div class="overline">AGOA et dépôt des comptes</div>
+                <div class="nf-checks">
+                  <label class="check"><input type="checkbox" class="op" />Approbation des comptes</label>
+                  <label class="check"><input type="checkbox" class="op" />Conventions réglementées</label>
+                  <label class="check"><input type="checkbox" class="op" />Rapport de Gestion</label>
+                  <label class="check"><input type="checkbox" class="op" />Prêts interentreprises</label>
+                </div>
+              </div>
+
+              <div class="nf-group">
+                <div class="overline">Rémunération de dirigeants</div>
+                <div class="nf-checks">
+                  <label class="check"><input type="checkbox" class="op" />Fixation de rémunération</label>
+                  <label class="check"><input type="checkbox" class="op" />Ratification de rémunération</label>
+                </div>
+              </div>
+
+              <div class="nf-group">
+                <div class="overline">Mandat de dirigeants</div>
+                <div class="nf-checks">
+                  <label class="check"><input type="checkbox" class="op" />Nomination d'un nouveau dirigeant</label>
+                  <label class="check"><input type="checkbox" class="op" />Renouvellement de mandat</label>
+                  <label class="check"><input type="checkbox" class="op" />Exercice d'une fonction salariée</label>
+                  <label class="check"><input type="checkbox" class="op" />Départ (démission, fin de mandat, révocation)</label>
+                </div>
+              </div>
+
+              <div class="nf-group">
+                <div class="overline">Mandats de Commissaires aux Comptes</div>
+                <div class="nf-checks">
+                  <label class="check"><input type="checkbox" class="op" />Commissaire aux comptes classique</label>
+                  <label class="check"><input type="checkbox" class="op" />Commissaire à la transformation</label>
+                  <label class="check"><input type="checkbox" class="op" />Commissaire aux comptes ad hoc</label>
+                </div>
+              </div>
+
+              <div class="nf-group">
+                <div class="overline">Autres formalités courantes</div>
+                <div class="nf-checks">
+                  <label class="check"><input type="checkbox" class="op" />Distribution exceptionnelle de dividendes</label>
+                  <label class="check"><input type="checkbox" class="op" />Acompte sur dividendes</label>
+                  <label class="check"><input type="checkbox" class="op" />Administration des établissements</label>
+                  <label class="check"><input type="checkbox" class="op" />Reprise des actes - Société en formation</label>
+                </div>
+              </div>
+
+              <div class="nf-group">
+                <div class="overline">Mesures relatives aux capitaux propres</div>
+                <div class="nf-checks">
+                  <label class="check"><input type="checkbox" class="op" />Non-dissolution et poursuite d'activité</label>
+                  <label class="check"><input type="checkbox" class="op" />Prolongement de la poursuite d’activité</label>
+                  <label class="check"><input type="checkbox" class="op" />Reconstitution des capitaux propres</label>
+                </div>
+              </div>
+
+              <div class="nf-group">
+                <div class="overline">Modification de la personne morale</div>
+                <div class="nf-checks">
+                  <label class="check"><input type="checkbox" class="op" />Désignation de la société</label>
+                  <label class="check"><input type="checkbox" class="op" />Objet social</label>
+                  <label class="check"><input type="checkbox" class="op" />Transfert de siège</label>
+                  <label class="check"><input type="checkbox" class="op" />Exercice social</label>
+                  <label class="check"><input type="checkbox" class="op" />Prorogation de la durée de la société</label>
+                </div>
+              </div>
+
+              <div class="nf-group">
+                <div class="overline">Modifications statutaires</div>
+                <div class="nf-checks">
+                  <label class="check"><input type="checkbox" class="op" />Résolution de refonte statutaire</label>
+                  <label class="check"><input type="checkbox" class="op" />Modification de clauses statutaires</label>
+                  <label class="check"><input type="checkbox" class="op" />Modifications statutaires libres</label>
+                </div>
+              </div>
+
+              <div class="nf-group">
+                <div class="overline">Cessation d'activité</div>
+                <div class="nf-checks">
+                  <label class="check"><input type="checkbox" class="op" />Dissolution et mise en liquidation</label>
+                  <label class="check"><input type="checkbox" class="op" />Clôture de liquidation amiable</label>
+                  <label class="check"><input type="checkbox" class="op" />Mise en sommeil de la société</label>
+                  <label class="check"><input type="checkbox" class="op" />Transmission Universelle du Patrimoine</label>
+                </div>
+              </div>
+
+              <div class="nf-group">
+                <div class="overline">Cession et transmission de titres</div>
+                <div class="nf-checks">
+                  <label class="check"><input type="checkbox" class="op" />Cession et transmission de titres</label>
+                </div>
+              </div>
+
+              <div class="nf-group">
+                <div class="overline">Modification de capital</div>
+                <div class="nf-checks">
+                  <label class="check"><input type="checkbox" class="op" />Augmentation et réduction de capital</label>
+                  <label class="check"><input type="checkbox" class="op" />Constatation définitive d'une opération de capital</label>
+                </div>
+              </div>
+
+              <div class="nf-group">
+                <div class="overline">Décisions personnalisées</div>
+                <div class="nf-checks">
+                  <label class="check"><input type="checkbox" class="op" />Décisions ordinaires libres</label>
+                  <label class="check"><input type="checkbox" class="op" />Décisions extraordinaires libres</label>
+                </div>
+              </div>
+
+              <div class="nf-group">
+                <div class="overline">Formalités administratives et déclaratives</div>
+                <div class="nf-checks">
+                  <label class="check"><input type="checkbox" class="op" />Déclaration des bénéficiaires effectifs</label>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 4 -->
+          <section class="card nf-section">
+            <span class="list-icon"><span class="ms">domain</span></span>
+            <div>
+              <div class="nf-title"><span class="nf-num">4</span>Société concernée par la nouvelle formalité :</div>
+              <div class="nf-company">
+                <select class="form-input" aria-label="Société concernée">
+                  <option>Sélectionner</option>
+                </select>
+                <button class="btn btn-secondary" type="button"><span class="ms">add_business</span>Ajouter une société</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Barre d'action collante -->
+          <div class="nf-bar">
+            <div class="alert alert-warning" id="nf-alert"><span class="ms">warning</span><span>Vous devez au moins choisir une opération pour pouvoir créer la formalité.</span></div>
+            <button class="btn btn-primary" type="button" id="nf-create" disabled style="margin-left: auto">Créer la formalité<span class="ms">arrow_forward</span></button>
+          </div>
+        </div>
+        <div id="ej-footer"></div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        var ops = document.querySelectorAll("input.op");
+        var btn = document.getElementById("nf-create");
+        var alertBox = document.getElementById("nf-alert");
+        function refresh() {
+          var any = Array.prototype.some.call(ops, function (o) { return o.checked; });
+          btn.disabled = !any;
+          alertBox.style.display = any ? "none" : "";
+        }
+        Array.prototype.forEach.call(ops, function (o) { o.addEventListener("change", refresh); });
+        btn.addEventListener("click", function () {
+          if (!btn.disabled) location.href = "formalite.html";
+        });
+        refresh();
+      })();
+    </script>
+    <script src="assets/ej-shell.js?v=11"></script>
+  </body>
+</html>

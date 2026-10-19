@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Mon cabinet · Express Juridique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=11" />
+    <style>
+      .stats {
+        display: grid;
+        grid-template-columns: 1.3fr 0.9fr 1fr 1fr;
+        gap: 16px;
+      }
+      .stat {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 0;
+      }
+      .stat-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: var(--ej-radius-md);
+        background: var(--ej-action-100);
+        color: var(--ej-action-600);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .stat-icon .ms {
+        font-size: 18px;
+      }
+      .stat-label {
+        font-size: 13px;
+        color: var(--ej-neutral-500);
+        line-height: 1.35;
+      }
+      .stat-value {
+        font-size: 18px;
+        font-weight: 500;
+        color: var(--ej-primary-900);
+        line-height: 1.3;
+      }
+      .stat-value small {
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .stat .btn-sm {
+        height: auto;
+        min-height: 32px;
+        padding: 4px 8px;
+        margin-left: -8px;
+        white-space: normal;
+        text-align: left;
+        line-height: 1.3;
+        align-self: flex-start;
+      }
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+      .two-col > .col {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding: 0 24px;
+      }
+      .two-col > .col:first-child {
+        padding-left: 0;
+      }
+      .two-col > .col:last-child {
+        padding-right: 0;
+        border-left: 1px solid var(--ej-neutral-200);
+      }
+      .cp-commune {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 16px;
+      }
+      .col .radio {
+        line-height: 1.45;
+      }
+    </style>
+  </head>
+  <body data-active="cabinet">
+    <div id="ej-header"></div>
+    <div class="app">
+      <div id="ej-sidebar"></div>
+      <div class="main">
+        <div class="page page-narrow">
+          <div class="page-head">
+            <h1 class="page-title">Informations sur mon cabinet</h1>
+          </div>
+
+          <form class="stack" style="gap: 20px" onsubmit="return false">
+            <div class="card">
+              <div class="card-body">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label class="form-label" for="nom">Nom du cabinet</label>
+                    <input class="form-input" id="nom" type="text" value="CABINET DELMAS EXPERTISE" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="type">&nbsp;</label>
+                    <select class="form-input" id="type" aria-label="Type de cabinet">
+                      <option selected>Expert-comptable</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="siren">Numéro SIREN</label>
+                    <input class="form-input" id="siren" type="text" value="235 850 769" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="tva">Numéro de TVA</label>
+                    <input class="form-input" id="tva" type="text" value="FR __ __ __ __" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-body">
+                <div class="stats">
+                  <div class="stat">
+                    <span class="stat-icon"><span class="ms">account_tree</span></span>
+                    <span class="stat-label">Affiliations :</span>
+                    <span><span class="badge badge-brand">CJEC</span></span>
+                    <button class="btn btn-tertiary btn-sm" type="button">Mettre à jour mes affiliations</button>
+                  </div>
+                  <div class="stat">
+                    <span class="stat-icon"><span class="ms">description</span></span>
+                    <span class="stat-label">Nombre de souscriptions actives :</span>
+                    <span class="stat-value">155</span>
+                  </div>
+                  <div class="stat">
+                    <span class="stat-icon"><span class="ms">sell</span></span>
+                    <span class="stat-label">Tarif appliqué :</span>
+                    <span class="stat-value">10€ <small>HT/société/an</small></span>
+                  </div>
+                  <div class="stat">
+                    <span class="stat-icon"><span class="ms">confirmation_number</span></span>
+                    <span class="stat-label">Jetons de souscriptions gratuites restants :</span>
+                    <span class="stat-value">72 <small>jetons</small></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-body">
+                <div class="two-col">
+                  <div class="col">
+                    <div>
+                      <div class="overline">ADRESSE DU CABINET</div>
+                      <p class="form-helper mt-4">Cette adresse est principalement utilisée pour la facturation de vos abonnements.</p>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="adresse">Adresse</label>
+                      <textarea class="form-input" id="adresse" rows="3">14 RUE DES ARTISANS
+BATIMENT B</textarea>
+                    </div>
+                    <div class="cp-commune">
+                      <div class="form-group">
+                        <label class="form-label" for="cp">Code postal</label>
+                        <input class="form-input" id="cp" type="text" value="69003" />
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="commune">Commune</label>
+                        <input class="form-input" id="commune" type="text" value="LYON" />
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="pays">Pays</label>
+                      <select class="form-input" id="pays" disabled>
+                        <option selected>France</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="col">
+                    <div>
+                      <div class="overline">PROCURATIONS - MANDATAIRE PAR DÉFAUT</div>
+                      <p class="form-helper mt-4">Pour les dossiers impliquant une procuration, le système renseigne par défaut les informations du mandataire à partir des données du cabinet et de l'utilisateur sélectionné ci-dessous. Ces informations restent modifiables au sein du formulaire de la formalité.</p>
+                    </div>
+                    <label class="radio">
+                      <input type="radio" name="mandataire" value="createur" />
+                      <span>Le mandataire par défaut est l’utilisateur qui a créé la formalité.</span>
+                    </label>
+                    <label class="radio">
+                      <input type="radio" name="mandataire" value="choisi" checked />
+                      <span>Le mandataire par défaut est le suivant :</span>
+                    </label>
+                    <select class="form-input" aria-label="Mandataire par défaut" style="margin-left: 28px; width: calc(100% - 28px)">
+                      <option selected>Antoine FAURE</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row" style="justify-content: flex-end">
+              <button class="btn btn-primary" type="submit"><span class="ms">done</span>Enregistrer</button>
+            </div>
+          </form>
+        </div>
+        <div id="ej-footer"></div>
+      </div>
+    </div>
+
+    <script src="assets/ej-shell.js?v=11"></script>
+  </body>
+</html>

@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>PAPRIKA CANTINE · Formalités · Express Juridique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=11" />
+    <style>
+      /* ---- En-tête société (identique dans societe.html et societe-registres.html) ---- */
+      .soc-head {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 22px 24px 22px 64px;
+        margin-bottom: 24px;
+      }
+      .soc-motif {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 40px;
+      }
+      .soc-motif i {
+        position: absolute;
+        left: 0;
+        height: 8px;
+        border-radius: 0 var(--ej-radius-full) var(--ej-radius-full) 0;
+      }
+      .soc-motif .m1 {
+        top: 24px;
+        width: 40px;
+        background: var(--ej-logo-mint);
+      }
+      .soc-motif .m2 {
+        top: 38px;
+        width: 24px;
+        background: var(--ej-action-600);
+      }
+      .soc-name {
+        font-size: 24px;
+        line-height: 1.25;
+        font-weight: 700;
+        color: var(--ej-primary-900);
+      }
+      .soc-form {
+        font-size: 14px;
+        font-style: italic;
+        color: var(--ej-neutral-500);
+        margin-top: 2px;
+      }
+      .soc-greffe {
+        font-size: 14px;
+        color: var(--ej-neutral-600);
+        margin-top: 2px;
+      }
+      .soc-greffe strong {
+        font-weight: 700;
+        color: var(--ej-primary-900);
+      }
+      .soc-ids {
+        text-align: right;
+        font-size: 13px;
+        color: var(--ej-neutral-600);
+        line-height: 1.7;
+        white-space: nowrap;
+      }
+      .soc-ids strong {
+        font-weight: 700;
+        color: var(--ej-primary-900);
+      }
+      .soc-ids .soc-siren {
+        font-size: 14px;
+      }
+      .soc-ids .soc-siren strong {
+        font-size: 18px;
+      }
+
+      /* ---- Ajout de formalité (bloc pointillé) ---- */
+      .add-formalite {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 22px 20px;
+        margin: 16px 0 28px;
+        border: 2px dashed var(--ej-neutral-300);
+        border-radius: var(--ej-radius-lg);
+        background: var(--ej-white);
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--ej-neutral-600);
+        transition: border-color var(--ej-transition-fast), color var(--ej-transition-fast),
+          background var(--ej-transition-fast);
+      }
+      .add-formalite:hover {
+        border-color: var(--ej-action-600);
+        color: var(--ej-action-600);
+        background: var(--ej-action-50);
+      }
+
+      /* ---- Timeline ---- */
+      .timeline {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding-left: 36px;
+      }
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: 7px;
+        top: 24px;
+        bottom: 24px;
+        width: 2px;
+        background: var(--ej-neutral-200);
+      }
+      .tl-item {
+        position: relative;
+      }
+      .tl-item::before {
+        content: "";
+        position: absolute;
+        left: -36px;
+        top: 24px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--ej-white);
+        border: 3px solid var(--ej-action-600);
+      }
+      .tl-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 20px;
+      }
+      .tl-date {
+        font-size: 13px;
+        font-style: italic;
+        color: var(--ej-action-600);
+      }
+      .tl-text {
+        font-size: 15px;
+        color: var(--ej-primary-900);
+        margin-top: 2px;
+      }
+      .tl-text strong {
+        font-weight: 700;
+      }
+      .tl-card .chev {
+        color: var(--ej-neutral-400);
+        transition: transform var(--ej-transition-fast), color var(--ej-transition-fast);
+      }
+      .tl-card:hover .chev {
+        color: var(--ej-action-600);
+        transform: translateX(2px);
+      }
+      .tl-item.tl-end::before {
+        top: 14px;
+        left: -34px;
+        width: 12px;
+        height: 12px;
+        border: 2px solid var(--ej-neutral-300);
+        background: var(--ej-neutral-50);
+      }
+      .tl-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        padding: 8px 18px;
+        border: 1px solid var(--ej-neutral-200);
+        border-radius: var(--ej-radius-full);
+        background: var(--ej-white);
+        font-size: 13px;
+        font-style: italic;
+        color: var(--ej-neutral-500);
+      }
+      .tl-pill .tl-date {
+        color: var(--ej-neutral-400);
+      }
+    </style>
+  </head>
+  <body data-active="societes">
+    <div id="ej-header"></div>
+    <div class="app">
+      <div id="ej-sidebar"></div>
+      <div class="main">
+        <div class="page page-narrow">
+          <a class="back-link" href="societes.html"><span class="ms">chevron_left</span>Mes sociétés</a>
+
+          <div class="card soc-head">
+            <div class="soc-motif" aria-hidden="true"><i class="m1"></i><i class="m2"></i></div>
+            <div>
+              <div class="soc-name">PAPRIKA CANTINE</div>
+              <div class="soc-form">SAS, société par actions simplifiée</div>
+              <div class="soc-greffe">Greffe : <strong>NANTES</strong></div>
+            </div>
+            <div class="soc-ids">
+              <div class="soc-siren">SIREN : <strong>795 294 481</strong></div>
+              <div>Date d'immatriculation : <strong>01/08/2024</strong></div>
+            </div>
+          </div>
+
+          <div class="tabs">
+            <a class="tab active" href="societe.html">Formalités</a>
+            <a class="tab" href="societe-registres.html">Registres</a>
+            <a class="tab tab-spacer" href="#"><span class="ms">settings</span>Paramètres</a>
+          </div>
+
+          <h2 class="section-title">Formalités de la société</h2>
+
+          <a class="add-formalite" href="nouvelle-formalite.html">
+            <span class="ms">add</span>Ajouter une nouvelle formalité à cette société
+          </a>
+
+          <div class="timeline">
+            <div class="tl-item">
+              <a class="card tl-card" href="formalite.html">
+                <div>
+                  <div class="tl-date">14/10/2026</div>
+                  <div class="tl-text"><strong>1 opération :</strong> Constatation définitive d'une opération de capital</div>
+                </div>
+                <span class="ms chev">chevron_right</span>
+              </a>
+            </div>
+            <div class="tl-item">
+              <a class="card tl-card" href="formalite.html">
+                <div>
+                  <div class="tl-date">12/10/2026</div>
+                  <div class="tl-text"><strong>1 opération :</strong> Augmentation et réduction de capital</div>
+                </div>
+                <span class="ms chev">chevron_right</span>
+              </a>
+            </div>
+            <div class="tl-item">
+              <a class="card tl-card" href="formalite.html">
+                <div>
+                  <div class="tl-date">01/10/2026</div>
+                  <div class="tl-text"><strong>1 opération :</strong> Approbation des comptes</div>
+                </div>
+                <span class="ms chev">chevron_right</span>
+              </a>
+            </div>
+            <div class="tl-item tl-end">
+              <span class="tl-pill"><span class="tl-date">01/10/2026</span>Ajout de la société sur Express-Juridique</span>
+            </div>
+          </div>
+        </div>
+        <div id="ej-footer"></div>
+      </div>
+    </div>
+
+    <script src="assets/ej-shell.js?v=11"></script>
+  </body>
+</html>
