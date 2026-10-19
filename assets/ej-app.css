@@ -569,21 +569,24 @@ svg {
   border-color: color-mix(in srgb, var(--ej-info-600) 50%, transparent);
 }
 .badge-success {
-  color: var(--ej-neutral-900);
-  border-color: var(--ej-logo-mint);
+  background: #eefdf7;
+  color: #0b8f60;
+  border-color: transparent;
+  gap: 8px;
+  padding: 0 14px;
+  font-size: 12px;
 }
-/* Terminé : menthe du logo en accent (pastille pleine), texte en encre pour rester lisible. */
-.badge-success .ms {
-  font-size: 16px;
+/* Terminé : version validée par JS (fond menthe très pâle, texte et point menthe foncé). */
+.badge-success::before {
+  content: "";
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: var(--ej-logo-mint);
-  color: #fff;
-  margin-left: -5px;
+  background: #0b8f60;
+  flex-shrink: 0;
 }
-.badge-success .ms svg {
-  width: 11px;
-  height: 11px;
-  stroke-width: 3.5;
+.badge-success .ms {
+  display: none;
 }
 .badge-error {
   color: var(--ej-error-600);
