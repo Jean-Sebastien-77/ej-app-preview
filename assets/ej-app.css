@@ -577,13 +577,13 @@ svg {
   font-size: 16px;
   border-radius: 50%;
   background: var(--ej-logo-mint);
-  color: var(--ej-neutral-900);
+  color: #fff;
   margin-left: -5px;
 }
 .badge-success .ms svg {
   width: 11px;
   height: 11px;
-  stroke-width: 3;
+  stroke-width: 3.5;
 }
 .badge-error {
   color: var(--ej-error-600);
