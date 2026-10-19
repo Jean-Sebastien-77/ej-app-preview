@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="assets/ej-app.css?v=11" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=13" />
     <style>
       .f-card {
         display: grid;
@@ -180,7 +180,7 @@
       }
       document.getElementById("cards").innerHTML = DATA.map(function (c) {
         var badge = c.s
-          ? '<span class="badge badge-success"><span class="ms">check_circle</span>Documents générés</span>'
+          ? '<span class="badge badge-success"><span class="ms">check</span>Documents générés</span>'
           : '<span class="badge badge-progress"><span class="ms">edit_note</span>Formulaire en cours</span>';
         var tags = c.tags
           ? '<div class="f-tags">' +
@@ -204,6 +204,6 @@
         );
       }).join("");
     </script>
-    <script src="assets/ej-shell.js?v=11"></script>
+    <script src="assets/ej-shell.js?v=13"></script>
   </body>
 </html>

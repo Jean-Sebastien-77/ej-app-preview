@@ -569,8 +569,21 @@ svg {
   border-color: color-mix(in srgb, var(--ej-info-600) 50%, transparent);
 }
 .badge-success {
-  color: var(--ej-success-600);
-  border-color: color-mix(in srgb, var(--ej-success-600) 45%, transparent);
+  color: var(--ej-neutral-900);
+  border-color: var(--ej-logo-mint);
+}
+/* Terminé : menthe du logo en accent (pastille pleine), texte en encre pour rester lisible. */
+.badge-success .ms {
+  font-size: 16px;
+  border-radius: 50%;
+  background: var(--ej-logo-mint);
+  color: var(--ej-neutral-900);
+  margin-left: -5px;
+}
+.badge-success .ms svg {
+  width: 11px;
+  height: 11px;
+  stroke-width: 3;
 }
 .badge-error {
   color: var(--ej-error-600);
