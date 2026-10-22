@@ -5,10 +5,15 @@
 (function () {
   var NAV = [
     { id: "accueil", label: "Accueil", icon: "home", href: "accueil.html" },
+    { id: "cockpit", label: "Cockpit", sub: "Tableaux de bord et IA", icon: "layout_dashboard", href: "cockpit.html" },
     { id: "formalites", label: "Formalités", icon: "topic", href: "formalites.html" },
     { id: "societes", label: "Sociétés", icon: "storefront", href: "societes.html" },
     { id: "suivi", label: "Suivi des actions", icon: "table_chart", href: "suivi-actions.html" },
     { id: "ifu", label: "Export IFU 2025", sub: "Assistance à la décla.", icon: "price_change", href: "export-ifu.html" },
+    { section: "Missions & conformité" },
+    { id: "lettres", label: "Lettres de mission", icon: "file_pen_line", href: "lettres-mission.html" },
+    { id: "lab", label: "Dispositif LAB", sub: "Lutte anti-blanchiment", icon: "shield_check", href: "lab.html" },
+    { id: "cac", label: "Missions CAC", sub: "Prochaine maquette", icon: "briefcase", href: "#", profils: ["cac", "mixte"], soon: true },
     { section: "Administration" },
     { id: "connecteurs", label: "Connecteurs", icon: "cable", href: "connecteurs.html" },
     { id: "etiquettes", label: "Étiquettes", icon: "bookmarks", href: "etiquettes.html" },
@@ -31,6 +36,22 @@
 
   var active = document.body.getAttribute("data-active") || "";
 
+  /* Profil de cabinet simulé (maquette) : ec, cac ou mixte. Gardé dans le
+     navigateur ; les pages lisent document.body.dataset.profil. */
+  var PROFILS = [
+    { id: "ec", label: "Expert-comptable" },
+    { id: "cac", label: "Commissaire aux comptes" },
+    { id: "mixte", label: "Cabinet mixte EC et CAC" },
+  ];
+  var profil = "ec";
+  try {
+    var saved = localStorage.getItem("ej-profil");
+    if (PROFILS.some(function (p) { return p.id === saved; })) profil = saved;
+  } catch (e) {}
+  document.body.setAttribute("data-profil", profil);
+  var profilLabel = PROFILS.filter(function (p) { return p.id === profil; })[0].label;
+  window.EJ_PROFIL = profil;
+
   var css =
     ".dropdown{position:relative}" +
     ".dropdown-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:220px;background:#fff;border:1px solid var(--ej-neutral-200);border-radius:var(--ej-radius-lg);box-shadow:var(--ej-shadow-lg);padding:6px;opacity:0;transform:translateY(-4px);pointer-events:none;transition:opacity 150ms ease,transform 150ms ease;z-index:80}" +
@@ -41,7 +62,14 @@
     ".dropdown-item.current{color:var(--ej-action-600)}" +
     ".dropdown-item.current .ms{color:var(--ej-action-600)}" +
     ".dropdown-divider{height:1px;background:var(--ej-neutral-200);margin:6px 4px}" +
-    ".dropdown-head{padding:8px 10px 10px;font-size:12px;color:var(--ej-neutral-500)}";
+    ".dropdown-head{padding:8px 10px 10px;font-size:12px;color:var(--ej-neutral-500)}" +
+    ".header-profil{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:var(--ej-radius-full);background:var(--ej-action-100);color:var(--ej-action-700);font-family:var(--ej-font-display);font-size:11.5px;font-weight:600}" +
+    ".header-profil .ms{font-size:15px}" +
+    ".header-profil:hover{background:var(--ej-action-200)}" +
+    ".sidebar-item.soon{color:var(--ej-neutral-400);cursor:default}" +
+    ".sidebar-item.soon:hover{background:none;color:var(--ej-neutral-400)}" +
+    ".sidebar-item.soon .ms{color:var(--ej-neutral-300)}" +
+    ".menu-btn{display:none}";
   var style = document.createElement("style");
   style.textContent = css;
   document.head.appendChild(style);
@@ -55,8 +83,16 @@
 
   var header =
     '<header class="ej-header">' +
+    '<button class="menu-btn icon-btn" type="button" aria-label="Ouvrir le menu" data-menu><span class="ms">menu</span></button>' +
     '<a class="ej-logo" href="accueil.html" aria-label="Express Juridique, accueil"><img src="assets/ej-logo.svg" alt="Express Juridique" /></a>' +
     '<div class="header-right">' +
+    '<div class="dropdown" data-dropdown>' +
+    '<button class="header-profil" type="button" aria-haspopup="true" title="Profil de démonstration"><span class="ms">eye</span><span class="hp-label">' + profilLabel + '</span><span class="ms">expand_more</span></button>' +
+    '<div class="dropdown-menu"><div class="dropdown-head">Profil de démonstration (maquette)</div>' +
+    PROFILS.map(function (p) {
+      return '<a class="dropdown-item' + (p.id === profil ? " current" : "") + '" href="#" data-profil="' + p.id + '"><span class="ms">' + (p.id === profil ? "check" : "dot") + "</span>" + p.label + "</a>";
+    }).join("") +
+    "</div></div>" +
     '<div class="dropdown" data-dropdown>' +
     '<button class="header-company" type="button" aria-haspopup="true"><span class="ms">domain</span>CABINET DELMAS EXPERTISE<span class="ms">expand_more</span></button>' +
     '<div class="dropdown-menu"><div class="dropdown-head">Cabinet actif</div>' +
@@ -76,9 +112,16 @@
 
   var sidebar =
     '<nav class="sidebar" aria-label="Navigation principale">' +
-    NAV.map(function (n) {
+    NAV.filter(function (n) {
+      return !n.profils || n.profils.indexOf(profil) !== -1;
+    }).map(function (n) {
       if (n.section) return '<div class="sidebar-section">' + n.section + "</div>";
       var isActive = n.id === active;
+      if (n.soon)
+        return (
+          '<span class="sidebar-item soon" aria-disabled="true"><span class="ms">' + n.icon + "</span>" +
+          "<span>" + n.label + '<span class="sidebar-sub">' + n.sub + "</span></span></span>"
+        );
       return (
         '<a class="sidebar-item' + (isActive ? " active" : "") + '" href="' + n.href + '"' + (isActive ? ' aria-current="page"' : "") + ">" +
         '<span class="ms">' + n.icon + "</span>" +
@@ -215,6 +258,18 @@
   document.head.appendChild(lu);
 
   document.addEventListener("click", function (e) {
+    var pick = e.target.closest("[data-profil]");
+    if (pick && pick.tagName === "A") {
+      e.preventDefault();
+      try { localStorage.setItem("ej-profil", pick.getAttribute("data-profil")); } catch (err) {}
+      location.reload();
+      return;
+    }
+    if (e.target.closest("[data-menu]")) {
+      document.body.classList.toggle("menu-open");
+      return;
+    }
+    if (document.body.classList.contains("menu-open") && !e.target.closest(".sidebar")) document.body.classList.remove("menu-open");
     var dd = e.target.closest("[data-dropdown]");
     var trigger = e.target.closest("[data-dropdown] > button");
     document.querySelectorAll("[data-dropdown].open").forEach(function (d) {

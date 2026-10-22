@@ -1,0 +1,1715 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Lettre de mission · Express Juridique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=16" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=17" />
+    <style>
+      /* ---------- Sections numérotées (pattern nouvelle-formalite.html) ---------- */
+      .nf-section {
+        display: grid;
+        grid-template-columns: 48px minmax(0, 1fr);
+        gap: 4px 18px;
+        padding: 22px;
+      }
+      .nf-section + .nf-section {
+        margin-top: 16px;
+      }
+      .nf-section .list-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--ej-radius-lg);
+      }
+      .nf-section .list-icon .ms {
+        font-size: 24px;
+      }
+      .nf-body {
+        min-width: 0;
+      }
+      .nf-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--ej-primary-900);
+        line-height: 1.4;
+      }
+      .nf-num {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--ej-primary-100);
+        color: var(--ej-primary-700);
+        font-size: 12px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .nf-hint {
+        font-size: 13px;
+        font-weight: 400;
+        color: var(--ej-neutral-500);
+        margin-top: 2px;
+      }
+      .nf-choices {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .nf-choice-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--ej-primary-900);
+      }
+      .nf-choice-desc {
+        font-size: 13px;
+        color: var(--ej-neutral-500);
+        margin-top: 2px;
+        line-height: 1.45;
+      }
+      .nf-group {
+        margin-top: 18px;
+      }
+      .nf-group .overline {
+        margin-bottom: 8px;
+        color: var(--ej-primary-600);
+      }
+      .nf-bar {
+        position: sticky;
+        bottom: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px 16px;
+        margin: 24px -32px -48px;
+        padding: 14px 32px;
+        background: var(--ej-white);
+        border-top: 1px solid var(--ej-neutral-200);
+      }
+      .nf-bar .btn-primary[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+
+      /* ---------- Mise en page : formulaire + aperçu ---------- */
+      .lm-layout {
+        max-width: 880px;
+      }
+      .lm-mt {
+        margin-top: 16px;
+      }
+      .lm-aside {
+        margin-top: 16px;
+      }
+      .back-link.lm-back {
+        margin-bottom: 14px;
+      }
+      .lm-banner {
+        max-width: 880px;
+        margin-bottom: 16px;
+      }
+      .lm-banner:empty {
+        display: none;
+      }
+      .lm-banner .alert {
+        align-items: center;
+      }
+      .lm-banner .alert > div {
+        flex: 1 1 0;
+        min-width: 0;
+      }
+      .lm-banner .alert:has(.btn) {
+        flex-wrap: wrap;
+      }
+      .lm-banner .alert:has(.btn) > div {
+        flex: 1 1 calc(100% - 40px);
+      }
+      .lm-banner .alert .btn {
+        margin-left: auto;
+      }
+      @media (min-width: 1400px) {
+        .lm-layout {
+          max-width: none;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) 470px;
+          gap: 24px;
+          align-items: start;
+        }
+        .lm-banner {
+          max-width: none;
+        }
+        .lm-aside {
+          position: sticky;
+          top: 76px;
+          margin-top: 0;
+        }
+        .lm-aside.nf-section {
+          display: block;
+          padding: 20px;
+        }
+        .lm-aside.nf-section > .list-icon {
+          display: none;
+        }
+        .lm-aside .lm-desk {
+          max-height: calc(100vh - 290px);
+          overflow: auto;
+        }
+      }
+
+      /* ---------- Client ---------- */
+      .lm-summary {
+        margin-top: 16px;
+        padding: 16px 18px;
+        border-radius: var(--ej-radius-lg);
+        background: var(--ej-neutral-50);
+        border: 1px solid var(--ej-neutral-100);
+      }
+      .lm-summary .kv {
+        grid-template-columns: 160px minmax(0, 1fr);
+        gap: 8px 16px;
+        font-size: 14px;
+      }
+      .lm-summary .source {
+        margin-top: 12px;
+      }
+      .lm-placeholder {
+        margin-top: 16px;
+        padding: 18px;
+        border: 1px dashed var(--ej-neutral-300);
+        border-radius: var(--ej-radius-lg);
+        font-size: 13.5px;
+        color: var(--ej-neutral-500);
+      }
+      .lm-alerts {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 12px;
+      }
+      .lm-alerts .alert {
+        font-size: 13.5px;
+      }
+      .lm-alerts .alert > div {
+        min-width: 0;
+      }
+      .lm-alink {
+        display: inline-block;
+        margin-top: 4px;
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+
+      /* ---------- Modèles ---------- */
+      .lm-used {
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--ej-neutral-500);
+        font-variant-numeric: tabular-nums;
+      }
+      .lm-sugg {
+        display: inline-flex;
+        align-items: center;
+        height: 20px;
+        padding: 0 8px;
+        margin-left: 8px;
+        border-radius: var(--ej-radius-full);
+        background: var(--ej-action-100);
+        color: var(--ej-action-700);
+        font-family: var(--ej-font-display);
+        font-size: 10.5px;
+        font-weight: 600;
+        vertical-align: 1px;
+      }
+      .lm-sugg[hidden] {
+        display: none;
+      }
+      .choice:has(input:disabled) {
+        cursor: default;
+      }
+
+      /* ---------- Prestations ---------- */
+      .lm-phead,
+      .lm-prow {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 80px 104px 92px;
+        gap: 8px 12px;
+        align-items: center;
+      }
+      .lm-phead {
+        margin-top: 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--ej-neutral-200);
+        font-family: var(--ej-font-display);
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ej-neutral-500);
+      }
+      .lm-phead .r,
+      .lm-prow .lm-f-a {
+        text-align: right;
+      }
+      .lm-prow {
+        padding: 10px 0;
+        border-bottom: 1px solid var(--ej-neutral-100);
+      }
+      .lm-prow:last-child {
+        border-bottom: none;
+      }
+      .lm-pname {
+        font-weight: 500;
+        color: var(--ej-neutral-900);
+      }
+      .lm-pcap {
+        display: block;
+        font-size: 12px;
+        color: var(--ej-neutral-500);
+      }
+      .lm-ej {
+        display: inline-flex;
+        align-items: center;
+        height: 20px;
+        padding: 0 8px;
+        margin-left: 6px;
+        border-radius: var(--ej-radius-full);
+        background: var(--ej-action-100);
+        color: var(--ej-action-700);
+        font-family: var(--ej-font-display);
+        font-size: 10.5px;
+        font-weight: 600;
+        white-space: nowrap;
+        vertical-align: 1px;
+      }
+      .lm-f {
+        display: block;
+        min-width: 0;
+      }
+      .lm-f-cap {
+        display: none;
+        margin-bottom: 3px;
+        font-size: 11.5px;
+        color: var(--ej-neutral-500);
+      }
+      .lm-inp {
+        position: relative;
+        display: block;
+      }
+      .lm-inp .form-input {
+        height: 36px;
+        padding: 0 10px;
+        font-size: 14px;
+        font-variant-numeric: tabular-nums;
+      }
+      .lm-inp .lm-unit {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 13px;
+        color: var(--ej-neutral-400);
+        pointer-events: none;
+      }
+      .lm-inp input[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+      }
+      .lm-inp input[type="number"]::-webkit-inner-spin-button,
+      .lm-inp input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      .lm-inp.has-unit .form-input {
+        padding-right: 24px;
+      }
+      .lm-amt {
+        font-family: var(--ej-font-display);
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        color: var(--ej-primary-900);
+      }
+      .lm-prow.off .lm-amt {
+        color: var(--ej-neutral-400);
+        font-weight: 400;
+      }
+      .lm-na {
+        min-height: 1px;
+      }
+
+      /* Récapitulatif */
+      .lm-recap {
+        margin-top: 22px;
+        padding: 18px;
+        border-radius: var(--ej-radius-lg);
+        background: var(--ej-neutral-50);
+        border: 1px solid var(--ej-neutral-100);
+      }
+      .lm-recap-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 10px;
+        font-size: 13px;
+        color: var(--ej-neutral-500);
+      }
+      .lm-recap-head strong {
+        font-family: var(--ej-font-display);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .lm-rline {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 4px 0;
+        font-size: 14px;
+        color: var(--ej-neutral-700);
+        font-variant-numeric: tabular-nums;
+      }
+      .lm-rline.main {
+        font-size: 15px;
+        color: var(--ej-neutral-900);
+      }
+      .lm-rline.main strong {
+        font-family: var(--ej-font-display);
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .lm-rline.total {
+        margin-top: 4px;
+        padding-top: 10px;
+        border-top: 1px solid var(--ej-neutral-200);
+        font-weight: 600;
+        color: var(--ej-neutral-900);
+      }
+      .lm-factu {
+        margin-top: 16px;
+      }
+      .lm-factu .nf-choices {
+        margin-top: 8px;
+      }
+
+      /* ---------- Conditions ---------- */
+      .lm-cond {
+        margin-top: 16px;
+      }
+      .lm-cond .form-helper {
+        font-size: 12.5px;
+      }
+      .lm-cond .check {
+        grid-column: 1 / -1;
+      }
+
+      /* ---------- Aperçu de la lettre ---------- */
+      .lm-desk {
+        margin-top: 14px;
+        padding: 18px;
+        border-radius: var(--ej-radius-lg);
+        background: var(--ej-neutral-100);
+      }
+      .lm-sheet {
+        max-width: 640px;
+        margin: 0 auto;
+        padding: 28px 26px 26px;
+        background: var(--ej-white);
+        border: 1px solid var(--ej-neutral-200);
+        border-radius: var(--ej-radius-sm);
+        box-shadow: var(--ej-shadow-md);
+        font-size: 11.5px;
+        line-height: 1.6;
+        color: var(--ej-neutral-800);
+      }
+      .lm-sheet p {
+        margin-top: 8px;
+      }
+      .lm-sh-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--ej-primary-900);
+      }
+      .lm-sh-cab {
+        font-family: var(--ej-font-display);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        color: var(--ej-primary-900);
+      }
+      .lm-sh-mut {
+        color: var(--ej-neutral-500);
+      }
+      .lm-sh-meta {
+        text-align: right;
+        color: var(--ej-neutral-600);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .lm-sh-dest {
+        margin: 16px 0 0 auto;
+        width: 62%;
+        min-width: 180px;
+      }
+      .lm-sh-dest strong {
+        font-weight: 600;
+        color: var(--ej-neutral-900);
+      }
+      .lm-sh-title {
+        margin-top: 20px;
+        font-family: var(--ej-font-display);
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: var(--ej-primary-900);
+      }
+      .lm-sheet h4 {
+        margin-top: 14px;
+        font-family: var(--ej-font-display);
+        font-size: 11.5px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .lm-sheet ul {
+        margin: 4px 0 0 16px;
+      }
+      .lm-sheet li + li {
+        margin-top: 2px;
+      }
+      .lm-sheet .lm-ph {
+        color: var(--ej-neutral-400);
+        font-style: italic;
+      }
+      .lm-sh-table {
+        width: 100%;
+        margin-top: 6px;
+        border-collapse: collapse;
+        font-variant-numeric: tabular-nums;
+      }
+      .lm-sh-table td {
+        padding: 4px 0;
+        border-bottom: 1px solid var(--ej-neutral-100);
+        vertical-align: top;
+      }
+      .lm-sh-table td:last-child {
+        text-align: right;
+        white-space: nowrap;
+        padding-left: 12px;
+      }
+      .lm-sh-table small {
+        display: block;
+        font-size: 10.5px;
+        color: var(--ej-neutral-500);
+      }
+      .lm-sh-table tr.sum td {
+        border-bottom: none;
+        font-weight: 600;
+        color: var(--ej-neutral-900);
+      }
+      .lm-sh-table tr.sub td {
+        border-bottom: none;
+        color: var(--ej-neutral-600);
+      }
+      .lm-sh-sign {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 18px;
+      }
+      .lm-sh-box {
+        min-height: 92px;
+        padding: 10px 12px;
+        border: 1px dashed var(--ej-neutral-300);
+        border-radius: var(--ej-radius-md);
+        font-size: 11px;
+      }
+      .lm-sh-box b {
+        display: block;
+        font-family: var(--ej-font-display);
+        font-weight: 600;
+        color: var(--ej-neutral-900);
+      }
+      .lm-sh-box .st {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 8px;
+        font-weight: 600;
+        color: var(--ej-success-600);
+      }
+      .lm-sh-box .st.wait {
+        color: var(--ej-info-600);
+      }
+      .lm-sh-box .st .ms {
+        font-size: 14px;
+      }
+      .lm-sh-box .mut {
+        display: block;
+        margin-top: 6px;
+        color: var(--ej-neutral-400);
+      }
+      .lm-asidenote {
+        margin-top: 14px;
+        font-size: 13px;
+      }
+
+      /* ---------- Barre d'action ---------- */
+      .lm-bar-info {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-shrink: 0;
+      }
+      .lm-bar-total {
+        font-size: 13px;
+        color: var(--ej-neutral-500);
+        white-space: nowrap;
+      }
+      .lm-bar-total strong {
+        font-family: var(--ej-font-display);
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+        font-variant-numeric: tabular-nums;
+      }
+      .lm-bar-msg {
+        flex: 1;
+        min-width: 0;
+      }
+      .lm-bar-msg:empty {
+        display: none;
+      }
+      .lm-bar-msg .alert {
+        padding: 8px 14px;
+        font-size: 13px;
+        align-items: center;
+      }
+      .lm-bar-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
+        flex-shrink: 0;
+      }
+      .lm-sm {
+        display: none;
+      }
+      .help-bubble {
+        bottom: 96px;
+      }
+
+      /* ---------- Message de confirmation (maquette) ---------- */
+      .lm-toast {
+        position: fixed;
+        left: 50%;
+        bottom: 96px;
+        z-index: 80;
+        transform: translate(-50%, 16px);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: calc(100vw - 32px);
+        padding: 12px 18px;
+        border-radius: var(--ej-radius-lg);
+        background: var(--ej-primary-900);
+        color: var(--ej-white);
+        font-size: 14px;
+        box-shadow: var(--ej-shadow-lg);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--ej-transition-normal), transform var(--ej-transition-normal);
+      }
+      .lm-toast.show {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+      .lm-toast .ms {
+        color: var(--ej-logo-mint);
+      }
+
+      /* ---------- Mobile ---------- */
+      @media (max-width: 900px) {
+        .nf-bar {
+          flex-wrap: wrap;
+          margin: 24px -16px -40px;
+          padding: 12px 16px;
+          gap: 8px 12px;
+        }
+        .lm-bar-info {
+          width: 100%;
+          justify-content: space-between;
+        }
+        .lm-bar-msg {
+          flex: 1 1 100%;
+          order: 2;
+        }
+        .lm-bar-actions {
+          order: 3;
+          width: 100%;
+          margin-left: 0;
+        }
+        .lm-bar-actions .btn {
+          flex: 1 1 auto;
+          padding: 0 14px;
+          font-size: 13px;
+          min-width: 0;
+        }
+        .lm-bar-actions .btn.lm-icon {
+          flex: 0 0 auto;
+          padding: 0 12px;
+        }
+        .lm-lg {
+          display: none;
+        }
+        .lm-sm {
+          display: inline;
+        }
+        .lm-toast {
+          bottom: 168px;
+        }
+      }
+      @media (max-width: 640px) {
+        .nf-section {
+          grid-template-columns: minmax(0, 1fr);
+          padding: 18px 16px;
+        }
+        .nf-section > .list-icon {
+          display: none;
+        }
+        .nf-choices {
+          grid-template-columns: 1fr;
+        }
+        .lm-summary .kv {
+          grid-template-columns: 1fr;
+          gap: 2px;
+        }
+        .lm-summary .kv dd {
+          margin-bottom: 8px;
+        }
+        .lm-phead {
+          display: none;
+        }
+        .lm-prow {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          padding: 14px 0;
+        }
+        .lm-prow > .lm-pl {
+          grid-column: 1 / -1;
+        }
+        .lm-f-cap {
+          display: block;
+        }
+        .lm-prow .lm-f-a {
+          text-align: left;
+        }
+        .lm-prow .lm-f-q.lm-na {
+          display: none;
+        }
+        .lm-recap {
+          padding: 16px;
+        }
+        .lm-desk {
+          padding: 10px;
+        }
+        .lm-sheet {
+          padding: 20px 16px;
+        }
+        .lm-sh-dest {
+          width: 100%;
+        }
+        .lm-banner .alert .btn {
+          margin-left: 0;
+        }
+      }
+    </style>
+  </head>
+  <body class="m-resp" data-active="lettres">
+    <div id="ej-header"></div>
+    <div class="app">
+      <div id="ej-sidebar"></div>
+      <div class="main">
+        <div class="page page-wide">
+          <a class="back-link lm-back" href="lettres-mission.html"><span class="ms">arrow_back</span>Lettres de mission</a>
+
+          <div class="page-head m-wrap">
+            <div>
+              <div class="m-eyebrow">Missions &amp; conformité</div>
+              <h1 class="page-title" id="lm-title">Nouvelle lettre de mission</h1>
+              <p class="page-desc" id="lm-desc"></p>
+            </div>
+            <div class="m-actions"><span class="badge badge-neutral" id="lm-badge">Nouvelle lettre</span></div>
+          </div>
+
+          <div class="lm-banner" id="lm-banner"></div>
+
+          <div class="lm-layout">
+            <div class="lm-forms" id="lm-forms">
+              <!-- 1 Client -->
+              <section class="card nf-section">
+                <span class="list-icon"><span class="ms">building_2</span></span>
+                <div class="nf-body">
+                  <div class="nf-title"><span class="nf-num">1</span>Client</div>
+                  <div class="nf-hint">L'identité du client est reprise du DPJ, vous n'avez rien à ressaisir.</div>
+                  <div class="form-group lm-mt">
+                    <label class="form-label" for="lm-soc">Société concernée</label>
+                    <select class="form-input" id="lm-soc"></select>
+                  </div>
+                  <div id="lm-client"></div>
+                </div>
+              </section>
+
+              <!-- 2 Modèle -->
+              <section class="card nf-section">
+                <span class="list-icon"><span class="ms">layers</span></span>
+                <div class="nf-body">
+                  <div class="nf-title"><span class="nf-num">2</span>Modèle de lettre</div>
+                  <div class="nf-hint">Choisir un modèle pré-coche les prestations. Vous pourrez les ajuster ensuite.</div>
+                  <div class="nf-choices" id="lm-modeles"></div>
+                </div>
+              </section>
+
+              <!-- 3 Prestations -->
+              <section class="card nf-section">
+                <span class="list-icon"><span class="ms">euro</span></span>
+                <div class="nf-body">
+                  <div class="nf-title"><span class="nf-num">3</span>Prestations et honoraires</div>
+                  <div class="nf-hint">Cochez les prestations de la lettre, puis ajustez quantités et prix. Les montants sont annuels et hors taxes.</div>
+                  <div id="lm-prest"></div>
+
+                  <div class="lm-recap">
+                    <div class="lm-recap-head"><span>Récapitulatif</span><strong id="r-n"></strong></div>
+                    <div class="lm-rline main"><span>Total annuel HT</span><strong id="r-ht"></strong></div>
+                    <div class="lm-rline"><span>TVA 20 %</span><span id="r-tva"></span></div>
+                    <div class="lm-rline total"><span>Total annuel TTC</span><span id="r-ttc"></span></div>
+                    <div class="lm-factu">
+                      <div class="form-label">Facturation</div>
+                      <div class="nf-choices">
+                        <label class="choice">
+                          <span class="radio"><input type="radio" name="factu" value="mensuelle" /></span>
+                          <span>
+                            <div class="nf-choice-title">Mensuelle</div>
+                            <div class="nf-choice-desc" id="fa-mensuelle"></div>
+                          </span>
+                        </label>
+                        <label class="choice">
+                          <span class="radio"><input type="radio" name="factu" value="trimestrielle" /></span>
+                          <span>
+                            <div class="nf-choice-title">Trimestrielle</div>
+                            <div class="nf-choice-desc" id="fa-trimestrielle"></div>
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- 4 Conditions -->
+              <section class="card nf-section">
+                <span class="list-icon"><span class="ms">calendar_clock</span></span>
+                <div class="nf-body">
+                  <div class="nf-title"><span class="nf-num">4</span>Conditions</div>
+                  <div class="form-grid lm-cond">
+                    <div class="form-group">
+                      <label class="form-label" for="f-effet">Date d'effet</label>
+                      <input class="form-input" type="date" id="f-effet" />
+                      <span class="form-helper" id="f-exo"></span>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="f-duree">Durée</label>
+                      <select class="form-input" id="f-duree">
+                        <option value="tacite">Un exercice, renouvelable par tacite reconduction</option>
+                        <option value="fixe">Un exercice, sans reconduction</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="f-cab">Associé signataire</label>
+                      <select class="form-input" id="f-cab"></select>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="f-client">Signataire du client</label>
+                      <input class="form-input" type="text" id="f-client" placeholder="Dirigeant de la société" />
+                      <span class="form-helper" id="f-client-h"></span>
+                    </div>
+                    <label class="check"><input type="checkbox" id="f-cg" checked />Joindre les conditions générales du cabinet en annexe</label>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <!-- 5 Aperçu -->
+            <aside class="card nf-section lm-aside" aria-label="Aperçu de la lettre">
+              <span class="list-icon"><span class="ms">signature</span></span>
+              <div class="nf-body">
+                <div class="nf-title"><span class="nf-num">5</span>Aperçu et signature</div>
+                <div class="nf-hint">L'aperçu se met à jour pendant que vous complétez la lettre.</div>
+                <div class="lm-desk"><div class="lm-sheet" id="lm-sheet"></div></div>
+                <div class="alert alert-brand lm-asidenote"><span class="ms">signature</span><span>La signature électronique suit le même parcours que pour les formalités : le client signe en ligne, le suivi reste dans Express Juridique.</span></div>
+              </div>
+            </aside>
+          </div>
+
+          <div class="m-note">
+            <span class="ms">info</span>
+            <span>Maquette : contenu de la lettre de mission et mentions obligatoires à faire valider par un professionnel (code de déontologie des experts-comptables).</span>
+          </div>
+
+          <!-- Barre d'action collante -->
+          <div class="nf-bar">
+            <div class="lm-bar-info">
+              <span class="badge badge-neutral" id="bar-badge">Nouvelle lettre</span>
+              <span class="lm-bar-total" id="bar-total"></span>
+            </div>
+            <div class="lm-bar-msg" id="bar-msg"></div>
+            <div class="lm-bar-actions" id="bar-actions"></div>
+          </div>
+        </div>
+        <div id="ej-footer"></div>
+      </div>
+    </div>
+
+    <div class="lm-toast" id="lm-toast" role="status" aria-live="polite"><span class="ms">check_circle</span><span id="lm-toast-txt"></span></div>
+
+    <script src="assets/ej-missions-data.js?v=17"></script>
+    <script>
+      (function () {
+        var E = window.EJM;
+        var esc = E.esc;
+        function $(id) { return document.getElementById(id); }
+
+        var MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+        var REF_NOUVELLE = "LM-2026-059";
+        /* Le bouton « Renouveler » d'une lettre reconduite n'apparaît qu'à l'approche de l'échéance */
+        var SEUIL_RENOUVELLEMENT_JOURS = 90;
+
+        /* Dirigeants fictifs, identiques à lab-dossier.html (le DPJ les fournira en vrai) */
+        var DIRIGEANTS = {
+          paprika: ["Camille Rousseau", "Présidente"],
+          axiome: ["Marc Vidal", "Gérant"],
+          helios: ["Étienne Marchand", "Président"],
+          kpl3d: ["Antoine Faure", "Président"],
+          orvea: ["Inès Carpentier", "Présidente"],
+          "cap-esterel": ["Philippe Aubert", "Gérant"],
+          lumen: ["Manon Duval", "Présidente"],
+          "azur-holding": ["Olivier Santini", "Président"],
+          mercier: ["Hélène Mercier", "Gérante"],
+          sourire: ["Paul Henry", "Gérant"],
+          "urban-fit": ["Kévin Laurent", "Président"],
+          "tb-elec": ["Thierry Bouchet", "Gérant"],
+          "groupe-bmr": ["Bruno Marchal", "Président-directeur général"],
+          neolab: ["Pierre Weiss", "Président"],
+          odalis: ["Sabrina Mallet", "Gérante"],
+          kalipso: ["Karim Haddad", "Gérant"],
+          sotrab: ["Daniel Chevalier", "Président"],
+          botanica: ["Lucie Fabre", "Présidente"],
+        };
+
+        /* Nature de chaque base de prix */
+        var BASE = {
+          "Forfait annuel": { qty: false, def: 1, mult: 1, cap: "Forfait annuel", unitQ: "" },
+          "Par bulletin": { qty: true, def: 5, mult: 12, cap: "Par bulletin, sur 12 mois", capQ: "Bulletins par mois", unitQ: "bulletins par mois" },
+          "Par opération": { qty: true, def: 2, mult: 1, cap: "Par opération, estimation annuelle", capQ: "Opérations par an", unitQ: "opérations par an" },
+          "Au temps passé": { qty: true, def: 10, mult: 1, cap: "Au temps passé, estimation annuelle", capQ: "Heures par an", unitQ: "heures par an" },
+        };
+        var LIB = {};
+        E.prestations.forEach(function (p) { LIB[p.id] = p; });
+
+        /* Prestations pré-cochées par modèle */
+        var MODELE_PREST = {
+          pme: ["presentation", "liasse", "juridique"],
+          sci: ["sci", "d2072", "juridique"],
+          liberal: ["presentation", "bnc"],
+          social: ["paie"],
+        };
+        /* Les missions d'une lettre existante portent le libellé exact de la bibliothèque
+           (seule la paie porte une quantité : « Paie (12 bulletins/mois) »). */
+        var PAR_LIBELLE = {};
+        E.prestations.forEach(function (p) { PAR_LIBELLE[p.libelle] = p; });
+
+        /* Élision : « de Camille » mais « d'Étienne » */
+        function de(nom) {
+          var n = String(nom || "").trim();
+          if (!n) return "de";
+          var c = n.charAt(0).normalize("NFD").charAt(0).toLowerCase();
+          return "aeiouyh".indexOf(c) !== -1 ? "d'" + n : "de " + n;
+        }
+
+        /* ---------- Dates ---------- */
+        function pad(n) { return (n < 10 ? "0" : "") + n; }
+        function fmt(d) { return pad(d.getDate()) + "/" + pad(d.getMonth() + 1) + "/" + d.getFullYear(); }
+        function iso(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+        function parseFr(s) { var p = s.split("/"); return new Date(+p[2], +p[1] - 1, +p[0]); }
+        function parseIso(s) { var p = s.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+        function clotureAn(soc, y) { var p = soc.cloture.split("/"); return new Date(y, +p[1] - 1, +p[0]); }
+        var AUJOURDHUI = parseFr(E.today);
+        function jourSuivant(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1); }
+        /* Première clôture de la société à partir d'une date (incluse ou non) */
+        function clotureApres(soc, d, incluse) {
+          for (var y = d.getFullYear(); y <= d.getFullYear() + 2; y++) {
+            var c = clotureAn(soc, y);
+            if (incluse ? c >= d : c > d) return c;
+          }
+          return null;
+        }
+        /* Nouvelle lettre ou brouillon : prise d'effet au début de l'exercice qui suit la clôture à venir */
+        function effetParDefaut(soc) { return jourSuivant(clotureApres(soc, AUJOURDHUI, false)); }
+        /* Renouvellement : l'exercice commence le lendemain de l'échéance réelle */
+        function effetRenouvellement(lm) { return jourSuivant(parseFr(lm.echeance)); }
+        function joursAvant(dateFr) { return Math.round((parseFr(dateFr) - AUJOURDHUI) / 86400000); }
+        function clotureLabel(soc) {
+          var p = soc.cloture.split("/");
+          return (+p[0] === 1 ? "1er" : +p[0]) + " " + MOIS[+p[1] - 1];
+        }
+
+        /* ---------- Montants ---------- */
+        function r2(n) { return Math.round(n * 100) / 100; }
+        function money(n) {
+          n = r2(n);
+          if (n === Math.round(n)) return E.euros(n);
+          return n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+        }
+
+        /* ---------- Société, état ---------- */
+        function socParId(id) {
+          return E.societes.filter(function (s) { return s.id === id; })[0] || null;
+        }
+        function labIncomplet(s) { return s.lab.statut === "incomplet" || s.lab.statut === "a_ouvrir"; }
+        function labGel(s) { return s.lab.gel === "a_verifier"; }
+        function labBloque(s) { return labIncomplet(s) || labGel(s); }
+        function modeleSuggere(soc) {
+          if (soc.forme === "SCI") return "sci";
+          if (soc.forme === "SELARL") return "liberal";
+          return "pme";
+        }
+
+        var S = {
+          mode: "new", /* new | brouillon | envoyee | signee | a_renouveler | avenant | renouvellement */
+          nature: "lettre", /* lettre | avenant | renouvellement (reste vrai après l'envoi) */
+          id: null,
+          fixedSoc: false,
+          lm: null,
+          modele: null,
+          userModele: false,
+          rows: {},
+          factu: "mensuelle",
+          effet: "",
+          duree: "tacite",
+          signCab: "TG",
+          signClient: "",
+          cg: true,
+          ref: null,
+          envoyee: null,
+          signee: null,
+          periodeFin: null, /* échéance de la période en cours, pour une lettre existante seulement */
+        };
+
+        function resetRows(ids) {
+          E.prestations.forEach(function (p) {
+            S.rows[p.id] = { on: ids.indexOf(p.id) !== -1, qty: BASE[p.base].def, prix: p.prix, note: "" };
+          });
+        }
+        resetRows([]);
+
+        function curSoc() { return S.id ? socParId(S.id) : null; }
+        function dirigeant() {
+          var d = S.id ? DIRIGEANTS[S.id] : null;
+          return d ? { nom: d[0], qualite: d[1] } : null;
+        }
+        /* Clôture de l'exercice dans lequel tombe la date d'effet */
+        function finExo() {
+          var soc = curSoc();
+          return soc && S.effet ? clotureApres(soc, parseIso(S.effet), true) : null;
+        }
+        function dateLettre() {
+          if ((S.mode === "signee" || S.mode === "a_renouveler") && S.signee) return S.signee;
+          if (S.mode === "envoyee" && S.envoyee) return S.envoyee;
+          return E.today;
+        }
+        function isLocked() { return S.mode === "envoyee" || S.mode === "signee" || S.mode === "a_renouveler"; }
+
+        function amount(id) {
+          var r = S.rows[id];
+          return r.on ? r2(r.prix * r.qty * BASE[LIB[id].base].mult) : 0;
+        }
+        function selected() { return E.prestations.filter(function (p) { return S.rows[p.id].on; }); }
+        function totalHT() { return r2(E.prestations.reduce(function (t, p) { return t + amount(p.id); }, 0)); }
+
+        /* ---------- Pré-remplissage d'une lettre existante ---------- */
+        function prestationsDepuisLettre(soc) {
+          var principal = null;
+          resetRows([]);
+          soc.lm.missions.forEach(function (m) {
+            var p = /^Paie\b/.test(m) ? LIB.paie : PAR_LIBELLE[m];
+            if (!p) return;
+            var r = S.rows[p.id];
+            r.on = true;
+            if (p.id === "paie") {
+              var n = /(\d+)/.exec(m);
+              if (n) r.qty = +n[1];
+            } else if (!principal && !BASE[p.base].qty) {
+              principal = p.id;
+            }
+          });
+          /* Retrouve le forfait annuel de la lettre en n'ajustant qu'un seul prix :
+             celui de la prestation principale, au forfait. */
+          var cible = soc.lm.honoraires;
+          if (cible == null || !principal) return;
+          var rp = S.rows[principal];
+          var prixLib = LIB[principal].prix;
+          var voulu = r2(prixLib + (cible - totalHT()));
+          if (voulu >= prixLib / 2) {
+            rp.prix = voulu;
+          } else if (S.rows.paie.on) {
+            /* Forfait principal ramené à moins de la moitié de son prix : il est plafonné à cette moitié,
+               la remise porte alors sur le prix unitaire du bulletin et le reliquat revient au forfait. */
+            var paie = S.rows.paie;
+            rp.prix = prixLib / 2;
+            var hors = totalHT() - amount("paie");
+            paie.prix = Math.max(0.5, Math.floor(((cible - hors) / (paie.qty * BASE["Par bulletin"].mult)) * 2) / 2);
+            rp.prix = Math.max(0, r2(rp.prix + (cible - totalHT())));
+          } else {
+            rp.prix = Math.max(0, voulu);
+          }
+        }
+
+        function appliquerModele(id) {
+          S.modele = id;
+          resetRows(MODELE_PREST[id] || []);
+        }
+
+        function ouvrirSociete(id) {
+          S.id = id;
+          S.signClient = dirigeant() ? dirigeant().nom : "";
+        }
+
+        /* ---------- Initialisation selon l'URL ---------- */
+        var idUrl = new URLSearchParams(location.search).get("id");
+        var socUrl = idUrl ? socParId(idUrl) : null;
+
+        /* Identifiant inconnu : on le dit, on ne bascule pas en silence sur une nouvelle lettre */
+        if (idUrl && !socUrl) {
+          document.title = "Société introuvable · Express Juridique";
+          $("lm-title").textContent = "Société introuvable";
+          $("lm-desc").textContent = "";
+          document.querySelector(".m-actions").style.display = "none";
+          document.querySelector(".nf-bar").style.display = "none";
+          document.querySelector(".lm-layout").innerHTML =
+            '<section class="card nf-section"><span class="list-icon"><span class="ms">search_x</span></span><div class="nf-body">' +
+            '<div class="nf-title">Aucune société ne correspond à « ' + esc(idUrl) + " »</div>" +
+            '<div class="nf-hint">Le lien est peut-être ancien ou incomplet. Retrouvez la société dans la liste des lettres de mission.</div>' +
+            '<p class="lm-mt"><a class="btn btn-primary" href="lettres-mission.html"><span class="ms">arrow_back</span>Retour aux lettres de mission</a></p>' +
+            "</div></section>";
+          return;
+        }
+
+        if (socUrl) {
+          ouvrirSociete(socUrl.id);
+          S.lm = socUrl.lm;
+          S.modele = modeleSuggere(socUrl);
+          if (socUrl.lm.statut === "absente") {
+            S.effet = iso(effetParDefaut(socUrl));
+            appliquerModele(S.modele);
+          } else {
+            S.mode = socUrl.lm.statut;
+            S.nature = "lettre";
+            S.fixedSoc = true;
+            S.ref = socUrl.lm.ref;
+            prestationsDepuisLettre(socUrl);
+            if (socUrl.lm.statut === "brouillon") {
+              S.effet = iso(effetParDefaut(socUrl));
+            } else {
+              /* Lettre envoyée, signée ou à renouveler : elle prend effet à sa signature */
+              S.periodeFin = socUrl.lm.echeance;
+              S.signee = socUrl.lm.signee || null;
+              S.envoyee = socUrl.lm.envoyee || null;
+              S.effet = S.signee ? iso(parseFr(S.signee)) : "";
+              S.duree = socUrl.lm.reconduction === false ? "fixe" : "tacite";
+            }
+          }
+        } else {
+          S.effet = "";
+        }
+
+        /* ---------- Construction des blocs statiques ---------- */
+        (function construire() {
+          /* Société */
+          var opts = '<option value="" disabled' + (S.id ? "" : " selected") + ">Choisir une société</option>";
+          opts += E.societes
+            .slice()
+            .sort(function (a, b) { return a.nom.localeCompare(b.nom, "fr"); })
+            .map(function (s) { return '<option value="' + esc(s.id) + '">' + esc(s.nom) + " · " + esc(s.forme) + "</option>"; })
+            .join("");
+          $("lm-soc").innerHTML = opts;
+
+          /* Modèles */
+          $("lm-modeles").innerHTML = E.modeles.map(function (m) {
+            return (
+              '<label class="choice">' +
+              '<span class="radio"><input type="radio" name="modele" value="' + esc(m.id) + '" /></span>' +
+              "<span>" +
+              '<div class="nf-choice-title">' + esc(m.libelle) + '<span class="lm-sugg" data-sugg="' + esc(m.id) + '" hidden>Suggéré</span></div>' +
+              '<div class="nf-choice-desc">' + esc(m.desc) + "</div>" +
+              '<div class="lm-used">Utilisé ' + m.usage + " fois par le cabinet</div>" +
+              "</span></label>"
+            );
+          }).join("");
+
+          /* Prestations */
+          var familles = [];
+          E.prestations.forEach(function (p) { if (familles.indexOf(p.famille) === -1) familles.push(p.famille); });
+          var h = '<div class="lm-phead"><span>Prestation</span><span>Quantité</span><span>Prix HT</span><span class="r">Montant HT</span></div>';
+          familles.forEach(function (f) {
+            h += '<div class="nf-group"><div class="overline">' + esc(f) + "</div>";
+            E.prestations.filter(function (p) { return p.famille === f; }).forEach(function (p) {
+              var meta = BASE[p.base];
+              h +=
+                '<div class="lm-prow off" data-row="' + p.id + '">' +
+                '<label class="check lm-pl"><input type="checkbox" data-k="on" data-id="' + p.id + '" />' +
+                '<span><span class="lm-pname">' + esc(p.libelle) + "</span>" +
+                (p.ej ? '<span class="lm-ej">Produit dans EJ</span>' : "") +
+                '<span class="lm-pcap" data-cap="' + p.id + '">' + esc(meta.cap) + "</span></span></label>" +
+                (meta.qty
+                  ? '<label class="lm-f lm-f-q"><span class="lm-f-cap">' + esc(meta.capQ) + '</span><span class="lm-inp"><input class="form-input" type="number" min="0" step="1" inputmode="decimal" data-k="qty" data-id="' + p.id + '" aria-label="' + esc(p.libelle + ", " + meta.capQ.toLowerCase()) + '" /></span></label>'
+                  : '<span class="lm-f lm-f-q lm-na"></span>') +
+                '<label class="lm-f lm-f-p"><span class="lm-f-cap">' + (meta.qty ? "Prix unitaire HT" : "Prix HT") + '</span><span class="lm-inp has-unit"><input class="form-input" type="number" min="0" step="0.5" inputmode="decimal" data-k="prix" data-id="' + p.id + '" aria-label="' + esc(p.libelle + ", prix hors taxes") + '" /><span class="lm-unit">€</span></span></label>' +
+                '<div class="lm-f lm-f-a"><span class="lm-f-cap">Montant annuel HT</span><span class="lm-amt" data-amt="' + p.id + '"></span></div>' +
+                "</div>";
+            });
+            h += "</div>";
+          });
+          $("lm-prest").innerHTML = h;
+
+          /* Associés signataires */
+          $("f-cab").innerHTML = Object.keys(E.equipe)
+            .filter(function (k) { return /^Associé/.test(E.equipe[k].role); })
+            .map(function (k) { return '<option value="' + k + '">' + esc(E.equipe[k].nom) + " · " + esc(E.equipe[k].role) + "</option>"; })
+            .join("");
+        })();
+
+        /* ---------- Rendu : en-tête et bannière ---------- */
+        var BADGES = {
+          new: ["badge-neutral", "Nouvelle lettre"],
+          brouillon: ["badge-neutral", "Brouillon"],
+          envoyee: ["badge-progress", "Envoyée pour signature"],
+          signee: ["badge-success", "Signée"],
+          a_renouveler: ["badge-action", "À renouveler"],
+          avenant: ["badge-neutral", "Avenant en brouillon"],
+          renouvellement: ["badge-neutral", "Renouvellement en brouillon"],
+        };
+        var TITRES = {
+          avenant: "Avenant à la lettre de mission",
+          renouvellement: "Renouvellement de la lettre de mission",
+        };
+
+        /* Renouvellement possible : lettre échue, ou reconduite dont l'échéance approche */
+        function renouvelable() {
+          if (!S.lm) return false;
+          if (S.mode === "a_renouveler") return true;
+          if (S.mode !== "signee") return false;
+          return S.lm.reconduction !== false && joursAvant(S.lm.echeance) <= SEUIL_RENOUVELLEMENT_JOURS;
+        }
+        function libRenouvellement(soc) {
+          var debut = effetRenouvellement(S.lm);
+          var fin = clotureApres(soc, debut, true);
+          return { debut: fmt(debut), fin: fmt(fin) };
+        }
+
+        function renderHead() {
+          var soc = curSoc();
+          $("lm-title").textContent = S.mode === "new" ? "Nouvelle lettre de mission" : TITRES[S.nature] || "Lettre de mission";
+          var desc;
+          if (S.mode === "new") desc = "Choisissez un modèle, composez prestations et honoraires, puis envoyez la lettre pour signature.";
+          else desc = soc.nom + " · " + (S.ref || "Référence attribuée à l'enregistrement");
+          $("lm-desc").textContent = desc;
+          var b = BADGES[S.mode];
+          $("lm-badge").className = "badge " + b[0];
+          $("lm-badge").textContent = b[1];
+        }
+
+        function renderBanner() {
+          var soc = curSoc();
+          var d = dirigeant();
+          var h = "";
+          function alerte(cls, icone, corps, bouton) {
+            return '<div class="alert ' + cls + '"><span class="ms">' + icone + "</span><div>" + corps + "</div>" + (bouton || "") + "</div>";
+          }
+          if (S.mode === "signee") {
+            var rec = S.lm.reconduction !== false;
+            h = alerte("alert-success", "check_circle",
+              "<strong>Lettre signée le " + esc(S.lm.signee) + "</strong> par " + esc(d ? d.nom : "le client") + ". Elle prend effet à sa signature et elle est en lecture seule : pour la modifier, créez un avenant. " +
+              "La période en cours court jusqu'au " + esc(S.lm.echeance) + (rec ? ", puis la lettre est reconduite tacitement." : ".") +
+              (renouvelable() ? " L'échéance approche : vous pouvez préparer le renouvellement." : ""));
+          } else if (S.mode === "envoyee") {
+            h = alerte("alert-info", "send",
+              "<strong>Envoyée pour signature le " + esc(S.envoyee) + ".</strong> En attente de la signature " + esc(d ? de(d.nom) : "du client") + ". La lettre est verrouillée tant qu'elle n'est pas signée.");
+          } else if (S.mode === "a_renouveler") {
+            var r = libRenouvellement(soc);
+            h = alerte("alert-warning", "refresh_cw",
+              "<strong>" + (S.lm.reconduction === false ? "Lettre non reconduite, arrivée" : "Lettre arrivée") + " à échéance le " + esc(S.lm.echeance) + " : à renouveler.</strong><br>" +
+              "Renouveler à partir du " + esc(r.debut) + " (exercice clos le " + esc(r.fin) + "). Reprenez ses prestations dans une nouvelle lettre.",
+              '<button class="btn btn-primary btn-sm" type="button" data-act="renouveler"><span class="ms">refresh_cw</span>Renouveler</button>');
+          } else if (S.nature === "renouvellement") {
+            var rn = libRenouvellement(soc);
+            h = alerte("alert-brand", "refresh_cw",
+              "<strong>Renouvellement à partir du " + esc(rn.debut) + " (exercice clos le " + esc(rn.fin) + ").</strong> Les prestations de la lettre " + esc(S.lm.ref) + " sont reprises. Ajustez les honoraires avant l'envoi.");
+          } else if (S.mode === "avenant") {
+            h = alerte("alert-brand", "file_diff",
+              "<strong>Avenant à la lettre " + esc(S.lm.ref) + " du " + esc(S.lm.signee) + ".</strong> Modifiez les prestations concernées : la lettre signée reste inchangée.");
+          }
+          $("lm-banner").innerHTML = h;
+        }
+
+        /* ---------- Rendu : client ---------- */
+        function renderClient() {
+          var soc = curSoc();
+          var el = $("lm-client");
+          if (!soc) {
+            el.innerHTML = '<div class="lm-placeholder">Choisissez une société : sa dénomination, son SIREN, son dirigeant et sa date de clôture sont repris du DPJ.</div>';
+            return;
+          }
+          var d = dirigeant();
+          var h =
+            '<div class="lm-summary"><dl class="kv">' +
+            "<dt>Dénomination</dt><dd>" + esc(soc.nom) + "</dd>" +
+            "<dt>Forme juridique</dt><dd>" + esc(soc.forme) + "</dd>" +
+            "<dt>SIREN</dt><dd>" + esc(soc.siren) + "</dd>" +
+            "<dt>Dirigeant</dt><dd>" + esc(d ? d.nom + ", " + d.qualite : "À renseigner") + "</dd>" +
+            "<dt>Clôture de l'exercice</dt><dd>" + esc(clotureLabel(soc)) + "</dd>" +
+            "<dt>Activité</dt><dd>" + esc(soc.activite) + "</dd>" +
+            '</dl><div class="source"><span class="ms">library</span>Source : DPJ de la société</div></div>';
+
+          var al = "";
+          var lab = soc.lab;
+          var lienLab = "lab-dossier.html?id=" + encodeURIComponent(soc.id);
+          if (lab.statut === "a_jour") {
+            al += '<div class="alert alert-success"><span class="ms">shield_check</span><div><strong>Identification LAB à jour.</strong> Dernière revue le ' + esc(lab.derniereRevue) + ". L'envoi pour signature est possible.<br>" +
+              '<a class="lm-alink" href="' + lienLab + '">Voir le dossier LAB</a></div></div>';
+          } else if (lab.statut === "a_revoir") {
+            var complet = lab.pieces[0] === lab.pieces[1];
+            al += '<div class="alert alert-warning"><span class="ms">shield_alert</span><div><strong>Revue LAB échue depuis le ' + esc(lab.prochaineRevue) + ".</strong> " +
+              (complet ? "Le dossier est complet (" + lab.pieces[0] + "/" + lab.pieces[1] + " pièces). " : "Pièces : " + lab.pieces[0] + "/" + lab.pieces[1] + ". ") +
+              "L'envoi reste possible (choix du cabinet).<br>" +
+              '<a class="lm-alink" href="' + lienLab + '">Voir le dossier LAB</a></div></div>';
+          } else if (lab.statut === "incomplet") {
+            al += '<div class="alert alert-warning"><span class="ms">shield_alert</span><div><strong>Identification LAB incomplète</strong> (' + lab.pieces[0] + " pièces reçues sur " + lab.pieces[1] + "). L'envoi pour signature sera possible une fois l'identification LAB complète.<br>" +
+              '<a class="lm-alink" href="' + lienLab + '">Compléter le dossier LAB</a></div></div>';
+          } else {
+            al += '<div class="alert alert-warning"><span class="ms">shield_alert</span><div><strong>Dossier LAB non ouvert.</strong> L\'envoi pour signature sera possible une fois l\'identification LAB complète.<br>' +
+              '<a class="lm-alink" href="' + lienLab + '">Ouvrir le dossier LAB</a></div></div>';
+          }
+          if (labGel(soc)) {
+            al += '<div class="alert alert-warning"><span class="ms">shield_alert</span><div><strong>Homonymie gel des avoirs à lever.</strong> L\'envoi pour signature est bloqué tant que l\'homonymie n\'est pas levée dans le dossier LAB.<br>' +
+              '<a class="lm-alink" href="' + lienLab + '">Lever l\'homonymie dans le dossier LAB</a></div></div>';
+          }
+          if (S.mode === "new" && soc.lm.statut !== "absente") {
+            al += '<div class="alert alert-info"><span class="ms">info</span><div>Cette société a déjà une lettre de mission : <strong>' + esc(E.LM_STATUT[soc.lm.statut].toLowerCase()) + "</strong> (" + esc(soc.lm.ref) + ").<br>" +
+              '<a class="lm-alink" href="lettre-mission.html?id=' + encodeURIComponent(soc.id) + '">Ouvrir cette lettre</a></div></div>';
+          }
+          el.innerHTML = h + '<div class="lm-alerts">' + al + "</div>";
+        }
+
+        /* ---------- Synchronisation des champs ---------- */
+        function syncModeles() {
+          var soc = curSoc();
+          var sugg = soc ? modeleSuggere(soc) : null;
+          Array.prototype.forEach.call(document.querySelectorAll('input[name="modele"]'), function (i) {
+            i.checked = i.value === S.modele;
+            i.disabled = isLocked();
+          });
+          Array.prototype.forEach.call(document.querySelectorAll("[data-sugg]"), function (s) {
+            s.hidden = !(sugg && s.getAttribute("data-sugg") === sugg && S.mode === "new");
+          });
+        }
+
+        function syncRows(setValues) {
+          var locked = isLocked();
+          E.prestations.forEach(function (p) {
+            var r = S.rows[p.id];
+            var row = document.querySelector('[data-row="' + p.id + '"]');
+            row.classList.toggle("off", !r.on);
+            var chk = row.querySelector('[data-k="on"]');
+            var q = row.querySelector('[data-k="qty"]');
+            var pr = row.querySelector('[data-k="prix"]');
+            if (setValues) {
+              chk.checked = r.on;
+              if (q) q.value = r.qty;
+              pr.value = r.prix;
+              var cap = BASE[p.base].cap + (r.note ? " · reprise de « " + r.note + " »" : "");
+              row.querySelector("[data-cap]").textContent = cap;
+            }
+            chk.disabled = locked;
+            if (q) q.disabled = locked || !r.on;
+            pr.disabled = locked || !r.on;
+            row.querySelector("[data-amt]").textContent = r.on ? money(amount(p.id)) : "·";
+          });
+        }
+
+        function syncFactu() {
+          Array.prototype.forEach.call(document.querySelectorAll('input[name="factu"]'), function (i) {
+            i.checked = i.value === S.factu;
+            i.disabled = isLocked();
+          });
+        }
+
+        function syncConditions(setValues) {
+          var soc = curSoc();
+          var locked = isLocked();
+          if (setValues) {
+            $("f-effet").value = S.effet;
+            $("f-duree").value = S.duree;
+            $("f-cab").value = S.signCab;
+            $("f-client").value = S.signClient;
+            $("f-cg").checked = S.cg;
+            $("lm-soc").value = S.id || "";
+          }
+          ["f-effet", "f-duree", "f-cab", "f-client", "f-cg"].forEach(function (id) { $(id).disabled = locked; });
+          $("lm-soc").disabled = S.fixedSoc || locked;
+          var aide;
+          if (!soc) aide = "L'exercice dépend de la société choisie.";
+          else if (S.periodeFin) aide = (S.signee ? "Prise d'effet à la signature. " : "Prise d'effet à la signature du client. ") + "Période en cours jusqu'au " + S.periodeFin + ".";
+          else if (S.nature === "avenant") aide = "Les autres stipulations de la lettre " + S.lm.ref + " restent applicables.";
+          else if (!S.effet) aide = "Renseignez la date d'effet.";
+          else {
+            aide = "Exercice clos le " + fmt(finExo()) + ".";
+            if (parseIso(S.effet) < AUJOURDHUI) aide += " Date d'effet antérieure à la date de la lettre : à confirmer.";
+          }
+          $("f-exo").textContent = aide;
+          $("f-duree").closest(".form-group").style.display = S.nature === "avenant" ? "none" : "";
+          var d = dirigeant();
+          $("f-client-h").textContent = d ? "Dirigeant du DPJ : " + d.nom + ", " + d.qualite + "." : "";
+        }
+
+        function renderRecap() {
+          var ht = totalHT();
+          var tva = r2(ht * 0.2);
+          var n = selected().length;
+          $("r-n").textContent = n === 0 ? "Aucune prestation" : n + (n > 1 ? " prestations" : " prestation");
+          $("r-ht").textContent = money(ht);
+          $("r-tva").textContent = money(tva);
+          $("r-ttc").textContent = money(r2(ht + tva));
+          $("fa-mensuelle").textContent = ht ? "12 échéances de " + money(ht / 12) + " HT." : "12 échéances par an.";
+          $("fa-trimestrielle").textContent = ht ? "4 échéances de " + money(ht / 4) + " HT." : "4 échéances par an.";
+        }
+
+        /* ---------- Rendu : aperçu de la lettre ---------- */
+        function ph(t) { return '<span class="lm-ph">[' + t + "]</span>"; }
+
+        /* Texte « durée et prise d'effet » : lettre existante, ou nouvelle lettre / renouvellement */
+        function texteDuree(soc, debut, fin) {
+          if (S.periodeFin) {
+            var rec = S.lm.reconduction !== false;
+            var t = S.signee
+              ? "La présente lettre prend effet le " + esc(S.signee) + ", date de sa signature."
+              : "La présente lettre prend effet à la date de sa signature par le client.";
+            if (!rec && joursAvant(S.periodeFin) < 0) {
+              t += " Elle n'est pas reconduite : elle est arrivée à échéance le " + esc(S.periodeFin) + ".";
+            } else {
+              t += " La période en cours court jusqu'au " + esc(S.periodeFin) + ".";
+              t += rec
+                ? " Elle est ensuite renouvelée par tacite reconduction, sauf dénonciation par l'une des parties dans les conditions convenues."
+                : " Elle n'est pas reconduite à cette date.";
+            }
+            return t;
+          }
+          return "La présente lettre prend effet le " + (debut ? esc(debut) : ph("date d'effet")) +
+            " pour la durée d'un exercice" + (fin ? ", clos le " + esc(fin) : "") + "." +
+            (S.duree === "tacite"
+              ? " Elle est ensuite renouvelée par tacite reconduction, sauf dénonciation par l'une des parties dans les conditions convenues."
+              : " Elle prend fin à l'issue de l'exercice, sans reconduction.");
+        }
+
+        function renderSheet() {
+          var soc = curSoc();
+          var d = dirigeant();
+          var av = S.nature === "avenant";
+          var fe = finExo();
+          var finExoTxt = fe ? fmt(fe) : "";
+          var debut = S.effet ? fmt(parseIso(S.effet)) : "";
+          var lignes = selected();
+          var ht = totalHT();
+          var tva = r2(ht * 0.2);
+          var sCli = S.signClient.trim();
+          var n = 0;
+          function titre(t) { n++; return "<h4>" + n + ". " + t + "</h4>"; }
+
+          var h = '<div class="lm-sh-top"><div><div class="lm-sh-cab">' + esc(E.cabinet) + '</div><div class="lm-sh-mut">Cabinet d\'expertise comptable</div></div>' +
+            '<div class="lm-sh-meta">' + (S.ref ? "Réf. " + esc(S.ref) : "Réf. à l'enregistrement") + "<br>Le " + esc(dateLettre()) + "</div></div>";
+
+          h += '<div class="lm-sh-dest">' +
+            "<strong>" + (soc ? esc(soc.nom) : ph("Société à choisir")) + "</strong>" + (soc ? " · " + esc(soc.forme) : "") + "<br>" +
+            (soc ? "SIREN " + esc(soc.siren) + "<br>" : "") +
+            "À l'attention " + (sCli ? esc(de(sCli)) + (d && d.nom === sCli ? ", " + esc(d.qualite) : "") : "de " + ph("signataire")) + "</div>";
+
+          h += '<h3 class="lm-sh-title">' + (av ? "Avenant à la lettre " + esc(S.lm.ref) + " du " + esc(S.lm.signee) : "Lettre de mission") + "</h3>";
+          h += "<p><strong>Objet :</strong> " +
+            (av
+              ? "modification des prestations et des honoraires de la lettre de mission " + esc(S.lm.ref) + "."
+              : S.periodeFin
+                ? "lettre de mission " + esc(S.ref) + "."
+                : "lettre de mission pour l'exercice " + (fe ? "clos le " + esc(finExoTxt) : ph("exercice")) + ".") + "</p>";
+          h += "<p>Madame, Monsieur,</p><p>" +
+            (av
+              ? "Nous vous confirmons les modifications apportées à la mission que vous nous avez confiée."
+              : "Nous vous confirmons les termes et conditions de la mission que vous nous confiez.") + "</p>";
+
+          /* Nature et étendue de la mission */
+          h += titre("Nature et étendue de la mission");
+          if (!lignes.length) h += '<p class="lm-ph">Aucune prestation sélectionnée.</p>';
+          else {
+            h += "<ul>" + lignes.map(function (p) {
+              var r = S.rows[p.id], meta = BASE[p.base];
+              var det = meta.qty ? " : " + r.qty + " " + meta.unitQ + (p.base === "Au temps passé" || p.base === "Par opération" ? " (estimation)" : "") : "";
+              return "<li>" + esc(p.libelle) + esc(det) + "</li>";
+            }).join("") + "</ul>";
+          }
+
+          /* Durée et prise d'effet (l'avenant ne reprend pas la durée de la lettre) */
+          if (av) {
+            h += titre("Prise d'effet") + "<p>Le présent avenant prend effet le " + (debut ? esc(debut) : ph("date d'effet")) +
+              ". Les autres stipulations de la lettre " + esc(S.lm.ref) + " signée le " + esc(S.lm.signee) + " demeurent applicables.</p>";
+          } else {
+            h += titre("Durée et prise d'effet") + "<p>" + texteDuree(soc, debut, finExoTxt) + "</p>";
+          }
+
+          /* Honoraires et modalités de facturation */
+          h += titre("Honoraires et modalités de facturation");
+          if (!lignes.length) h += '<p class="lm-ph">Les honoraires seront calculés à partir des prestations sélectionnées.</p>';
+          else {
+            h += '<table class="lm-sh-table">' + lignes.map(function (p) {
+              var r = S.rows[p.id], meta = BASE[p.base];
+              var sous = meta.qty ? "<small>" + r.qty + " " + esc(meta.unitQ) + " à " + esc(money(r.prix)) + " HT" + (p.base === "Par bulletin" ? " par bulletin" : p.base === "Au temps passé" ? " de l'heure" : " l'unité") + "</small>" : "";
+              return "<tr><td>" + esc(p.libelle) + sous + "</td><td>" + esc(money(amount(p.id))) + "</td></tr>";
+            }).join("") +
+              '<tr class="sum"><td>Total annuel HT</td><td>' + esc(money(ht)) + "</td></tr>" +
+              '<tr class="sub"><td>TVA 20 %</td><td>' + esc(money(tva)) + "</td></tr>" +
+              '<tr class="sum"><td>Total annuel TTC</td><td>' + esc(money(r2(ht + tva))) + "</td></tr></table>";
+            h += "<p>Les honoraires sont facturés par échéances " + (S.factu === "mensuelle" ? "mensuelles de " + esc(money(ht / 12)) : "trimestrielles de " + esc(money(ht / 4))) + " HT.</p>";
+          }
+
+          /* Obligations */
+          h += titre("Obligations du cabinet et du client") + "<ul>" +
+            "<li>Le cabinet exécute la mission avec diligence et dans le respect du secret professionnel.</li>" +
+            "<li>Le client remet dans les délais les documents et informations nécessaires.</li>" +
+            "<li>Le client fournit les éléments d'identification demandés par le cabinet au titre de la lutte contre le blanchiment des capitaux et le financement du terrorisme, et les met à jour en cas de changement.</li>" +
+            "<li>Le client signale au cabinet tout événement susceptible d'affecter la mission.</li>" +
+            "<li>Le client règle les honoraires aux échéances convenues.</li></ul>";
+
+          /* Responsabilité, résiliation, conservation : texte d'attente à faire valider */
+          h += titre("Responsabilité et assurance") +
+            "<p>Le cabinet est responsable de l'exécution de sa mission dans les conditions applicables à la profession. Il est couvert par une assurance de responsabilité civile professionnelle : " +
+            ph("références de l'assureur et du contrat à renseigner") + ".</p>";
+          h += titre("Résiliation et préavis") +
+            "<p>Chacune des parties peut mettre fin à la lettre dans les conditions convenues, moyennant un préavis de " + ph("durée du préavis à définir") + ".</p>";
+          h += titre("Conservation des documents") +
+            "<p>Le cabinet conserve les documents et dossiers du client pendant les durées applicables à la profession et les restitue à sa demande dans les conditions prévues.</p>";
+
+          if (S.cg) h += titre("Conditions générales") + "<p>Les conditions générales du cabinet sont jointes en annexe et font partie de la présente lettre.</p>";
+
+          var cab = E.equipe[S.signCab];
+          var boxCab, boxCli;
+          var nomCli = sCli ? esc(sCli) : ph("signataire");
+          var qualCli = d && d.nom === sCli ? ", " + esc(d.qualite) : "";
+          var libCab = "<b>Le cabinet</b>" + esc(cab ? cab.nom : "") + (cab ? ", associé" : "");
+          var libCli = "<b>Pour le client</b>" + nomCli + qualCli;
+          var mutCab = '<span class="mut">Pour le cabinet, l\'associé signataire</span>';
+          var mutCli = '<span class="mut">Bon pour accord, date et signature</span>';
+          if (S.mode === "signee" || S.mode === "a_renouveler") {
+            var ok = '<span class="st"><span class="ms">check_circle</span>Signée électroniquement le ' + esc(S.signee) + "</span>";
+            boxCab = libCab + ok;
+            boxCli = libCli + ok;
+          } else if (S.mode === "envoyee") {
+            boxCab = libCab + '<span class="st"><span class="ms">check_circle</span>Signée le ' + esc(S.envoyee) + "</span>";
+            boxCli = libCli + '<span class="st wait"><span class="ms">clock</span>En attente de signature</span>';
+          } else {
+            boxCab = libCab + mutCab;
+            boxCli = libCli + mutCli;
+          }
+          h += '<div class="lm-sh-sign"><div class="lm-sh-box">' + boxCab + '</div><div class="lm-sh-box">' + boxCli + "</div></div>";
+
+          $("lm-sheet").innerHTML = h;
+        }
+
+        /* ---------- Rendu : barre d'action ---------- */
+        function verdict() {
+          var soc = curSoc();
+          if (!soc) return { ok: false, msg: "Choisissez une société pour continuer." };
+          if (labGel(soc)) return { ok: false, msg: "Envoi bloqué : homonymie gel des avoirs à lever dans le dossier LAB." };
+          if (labIncomplet(soc)) return { ok: false, msg: "L'envoi pour signature sera possible une fois l'identification LAB complète." };
+          if (!selected().length) return { ok: false, msg: "Ajoutez au moins une prestation pour envoyer la lettre." };
+          return { ok: true, msg: "Prête pour la signature électronique." };
+        }
+
+        function btn(cls, act, icone, lg, sm, extra) {
+          return '<button class="btn ' + cls + '" type="button" data-act="' + act + '"' + (extra || "") + '><span class="ms">' + icone + '</span><span class="lm-lg">' + lg + '</span><span class="lm-sm">' + (sm || lg) + "</span></button>";
+        }
+
+        function renderBar() {
+          var ht = totalHT();
+          var b = BADGES[S.mode];
+          $("bar-badge").className = "badge " + b[0];
+          $("bar-badge").textContent = b[1];
+          $("bar-total").innerHTML = ht ? "<strong>" + esc(money(ht)) + "</strong> HT par an" : "Aucune prestation";
+
+          var msg = "", acts = "";
+          if (S.mode === "signee") {
+            acts = '<button class="btn btn-tertiary lm-icon" type="button" data-act="pdf" aria-label="Télécharger le PDF"><span class="ms">download</span><span class="lm-lg">Télécharger le PDF</span></button>' +
+              btn("btn-secondary", "avenant", "file_diff", "Créer un avenant") +
+              (renouvelable() ? btn("btn-primary", "renouveler", "refresh_cw", "Renouveler") : "");
+          } else if (S.mode === "envoyee") {
+            msg = '<div class="alert alert-info"><span class="ms">clock</span><span>En attente de la signature du client.</span></div>';
+            acts = btn("btn-primary", "relancer", "send", "Relancer le client", "Relancer");
+          } else if (S.mode === "a_renouveler") {
+            msg = '<div class="alert alert-warning"><span class="ms">refresh_cw</span><span>' + (S.lm.reconduction === false ? "Lettre non reconduite, échue" : "Lettre échue") + " le " + esc(S.lm.echeance) + ".</span></div>";
+            acts = btn("btn-primary", "renouveler", "refresh_cw", "Renouveler à partir du " + libRenouvellement(curSoc()).debut, "Renouveler");
+          } else {
+            var v = verdict();
+            msg = '<div class="alert ' + (v.ok ? "alert-success" : "alert-warning") + '"><span class="ms">' + (v.ok ? "check_circle" : "warning") + "</span><span>" + esc(v.msg) + "</span></div>";
+            acts = btn("btn-secondary", "brouillon", "save", "Enregistrer le brouillon", "Enregistrer") +
+              btn("btn-primary", "envoyer", "send", "Envoyer pour signature", "Envoyer pour signature", v.ok ? "" : " disabled");
+          }
+          $("bar-msg").innerHTML = msg;
+          $("bar-actions").innerHTML = acts;
+        }
+
+        /* ---------- Rafraîchissements ---------- */
+        function refreshLight() {
+          syncRows(false);
+          renderRecap();
+          renderSheet();
+          renderBar();
+          syncConditions(false);
+        }
+        function refreshAll() {
+          renderHead();
+          renderBanner();
+          renderClient();
+          syncModeles();
+          syncRows(true);
+          syncFactu();
+          syncConditions(true);
+          renderRecap();
+          renderSheet();
+          renderBar();
+        }
+
+        /* ---------- Message de confirmation ---------- */
+        var toastTimer;
+        function toast(msg) {
+          $("lm-toast-txt").textContent = msg;
+          $("lm-toast").classList.add("show");
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(function () { $("lm-toast").classList.remove("show"); }, 3400);
+        }
+
+        /* ---------- Actions ---------- */
+        function agir(act) {
+          var soc = curSoc();
+          if (act === "brouillon") {
+            if (S.mode === "new") { S.mode = "brouillon"; S.ref = S.ref || REF_NOUVELLE; }
+            refreshAll();
+            toast("Brouillon enregistré.");
+          } else if (act === "envoyer") {
+            if (!verdict().ok) return;
+            S.ref = S.ref || REF_NOUVELLE;
+            S.envoyee = E.today;
+            S.signee = null;
+            S.periodeFin = null;
+            S.mode = "envoyee";
+            S.fixedSoc = true;
+            refreshAll();
+            toast("Lettre envoyée pour signature à " + (S.signClient || "votre client") + ".");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          } else if (act === "relancer") {
+            toast("Relance envoyée à " + (S.signClient || "votre client") + ".");
+          } else if (act === "pdf") {
+            toast("Téléchargement du PDF (maquette).");
+          } else if (act === "avenant") {
+            S.mode = "avenant";
+            S.nature = "avenant";
+            S.ref = null;
+            S.periodeFin = null;
+            S.effet = iso(AUJOURDHUI);
+            refreshAll();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          } else if (act === "renouveler") {
+            if (!renouvelable()) return;
+            S.mode = "renouvellement";
+            S.nature = "renouvellement";
+            S.ref = null;
+            S.periodeFin = null;
+            S.duree = "tacite";
+            S.effet = iso(effetRenouvellement(S.lm));
+            refreshAll();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        }
+
+        document.addEventListener("click", function (e) {
+          var a = e.target.closest("[data-act]");
+          if (!a || a.disabled) return;
+          agir(a.getAttribute("data-act"));
+        });
+
+        $("lm-soc").addEventListener("change", function (e) {
+          ouvrirSociete(e.target.value);
+          var soc = curSoc();
+          S.effet = iso(effetParDefaut(soc));
+          if (!S.userModele) appliquerModele(modeleSuggere(soc));
+          refreshAll();
+        });
+
+        $("lm-modeles").addEventListener("change", function (e) {
+          if (e.target.name !== "modele") return;
+          S.userModele = true;
+          appliquerModele(e.target.value);
+          syncModeles();
+          syncRows(true);
+          renderRecap();
+          renderSheet();
+          renderBar();
+        });
+
+        $("lm-prest").addEventListener("input", function (e) {
+          var k = e.target.getAttribute("data-k");
+          var id = e.target.getAttribute("data-id");
+          if (!id || (k !== "qty" && k !== "prix")) return;
+          var v = parseFloat(e.target.value);
+          S.rows[id][k] = isNaN(v) || v < 0 ? 0 : v;
+          refreshLight();
+        });
+        $("lm-prest").addEventListener("change", function (e) {
+          if (e.target.getAttribute("data-k") !== "on") return;
+          S.rows[e.target.getAttribute("data-id")].on = e.target.checked;
+          refreshLight();
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('input[name="factu"]'), function (i) {
+          i.addEventListener("change", function () { S.factu = i.value; refreshLight(); });
+        });
+        $("f-effet").addEventListener("input", function (e) { S.effet = e.target.value; renderSheet(); });
+        $("f-duree").addEventListener("change", function (e) { S.duree = e.target.value; renderSheet(); });
+        $("f-cab").addEventListener("change", function (e) { S.signCab = e.target.value; renderSheet(); });
+        $("f-client").addEventListener("input", function (e) { S.signClient = e.target.value; renderSheet(); });
+        $("f-cg").addEventListener("change", function (e) { S.cg = e.target.checked; renderSheet(); });
+
+        refreshAll();
+      })();
+    </script>
+    <script src="assets/ej-shell.js?v=17"></script>
+  </body>
+</html>

@@ -1,0 +1,4053 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Cockpit · Express Juridique</title>
+    <link rel="icon" href="data:," />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=17" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=17" />
+    <style>
+      /* Cockpit · styles locaux (préfixe cp-). Aucune nouvelle couleur : tokens ej-app.css. */
+      .page.cp-page {
+        max-width: 1240px;
+      }
+      .cp-head {
+        margin-bottom: 10px;
+        align-items: flex-end;
+      }
+      .cp-head .page-title {
+        font-size: 30px;
+        letter-spacing: -0.02em;
+      }
+      .cp-sub {
+        margin-top: 4px;
+        font-size: 13.5px;
+        color: var(--ej-neutral-600);
+      }
+      .cp-sub .ms {
+        font-size: 16px;
+        margin-right: 4px;
+        vertical-align: -3px;
+        color: var(--ej-action-600);
+      }
+      .cp-sub strong {
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .cp-head-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px 14px;
+      }
+      .cp-howto {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--ej-action-600);
+        border-radius: var(--ej-radius-md);
+      }
+      .cp-howto:hover {
+        text-decoration: underline;
+      }
+      .cp-howto .ms {
+        font-size: 16px;
+      }
+
+      /* Principes : une seule ligne, détail dans le panneau */
+      .cp-princ {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px 8px;
+        margin-bottom: 12px;
+        font-size: 12.5px;
+        color: var(--ej-neutral-600);
+      }
+      .cp-princ > .ms {
+        font-size: 15px;
+        color: var(--ej-accent-600);
+      }
+
+      /* Onglets de modèles : défilent dans leur conteneur, dégradé de bord */
+      .cp-tabs-wrap {
+        position: relative;
+        min-width: 0;
+      }
+      .tabs.cp-tabs {
+        margin-bottom: 0;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        border-bottom: none;
+        box-shadow: inset 0 -1px 0 var(--ej-hairline);
+      }
+      .tabs.cp-tabs::-webkit-scrollbar {
+        display: none;
+      }
+      .cp-tabs .tab {
+        flex-shrink: 0;
+        white-space: nowrap;
+        margin-bottom: 0;
+      }
+      .cp-tabs .tab .ver {
+        margin-left: 2px;
+      }
+      .cp-tabs-fade {
+        position: absolute;
+        top: 0;
+        bottom: 1px;
+        width: 44px;
+        display: none;
+        align-items: center;
+        pointer-events: none;
+        color: var(--ej-action-600);
+      }
+      .cp-tabs-fade .ms {
+        font-size: 18px;
+      }
+      .cp-tabs-fade.r {
+        right: 0;
+        justify-content: flex-end;
+        background: linear-gradient(to left, var(--ej-neutral-50) 40%, transparent);
+      }
+      .cp-tabs-fade.l {
+        left: 0;
+        justify-content: flex-start;
+        background: linear-gradient(to right, var(--ej-neutral-50) 40%, transparent);
+      }
+      .cp-tabs-wrap.cp-more-r .cp-tabs-fade.r,
+      .cp-tabs-wrap.cp-more-l .cp-tabs-fade.l {
+        display: flex;
+      }
+
+      /* Tête de modèle : description, date de calcul unique, sociétés suivies */
+      .cp-intro {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 6px 16px;
+        margin: 10px 0 12px;
+        font-size: 13px;
+        color: var(--ej-neutral-600);
+      }
+      .cp-mh-meta {
+        display: inline-flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px 8px;
+        font-size: 12.5px;
+        color: var(--ej-neutral-600);
+      }
+      .cp-mh-meta .ms {
+        font-size: 15px;
+        color: var(--ej-action-600);
+      }
+      .cp-who {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .cp-who .ms {
+        font-size: 15px;
+        color: var(--ej-neutral-500);
+      }
+
+      /* Tuiles : titre court, chiffre, sous-titre, liste, règle repliée */
+      .cp-tiles {
+        margin-bottom: 14px;
+      }
+      .cp-tiles .stats {
+        grid-template-columns: repeat(auto-fit, minmax(176px, 1fr));
+        gap: 12px;
+      }
+      .cp-tiles .stat {
+        gap: 4px;
+        padding: 14px 16px 12px;
+      }
+      .cp-tiles .stat-top {
+        min-width: 0;
+      }
+      .cp-tname {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: var(--ej-neutral-700);
+      }
+      .cp-tiles .stat-value {
+        font-size: 30px;
+      }
+      .cp-tiles .stat-sub {
+        color: var(--ej-neutral-600);
+        line-height: 1.4;
+      }
+      .cp-tiles .stat-sub .cp-etat {
+        margin-right: 4px;
+        vertical-align: 1px;
+      }
+      .cp-tfoot {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 2px 12px;
+        margin-top: auto;
+        padding-top: 4px;
+      }
+      .cp-tfoot .stat-link {
+        margin-top: 0;
+      }
+      .cp-rule {
+        font-size: 12px;
+      }
+      .cp-rule summary {
+        cursor: pointer;
+        list-style: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        font-weight: 500;
+        color: var(--ej-neutral-600);
+        border-radius: var(--ej-radius-sm);
+      }
+      .cp-rule summary::-webkit-details-marker {
+        display: none;
+      }
+      .cp-rule summary .ms {
+        font-size: 15px;
+        transition: transform var(--ej-transition-fast);
+      }
+      .cp-rule[open] {
+        flex-basis: 100%;
+      }
+      .cp-rule[open] summary .ms {
+        transform: rotate(180deg);
+      }
+      .cp-rule summary:hover {
+        color: var(--ej-action-600);
+      }
+      .cp-rule .stat-rule {
+        margin-top: 6px;
+        color: var(--ej-neutral-600);
+      }
+      .cp-pinmark {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        flex-shrink: 0;
+      }
+      .cp-pinmark > .ms {
+        font-size: 15px;
+        color: var(--ej-action-600);
+      }
+
+      /* Barre IA repliée en une ligne */
+      .cp-ai {
+        padding: 10px 12px;
+        margin-bottom: 18px;
+      }
+      .cp-ai-line {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .cp-ai-ico {
+        font-size: 18px;
+        color: var(--ej-action-600);
+        flex-shrink: 0;
+      }
+      .cp-jbtn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 36px;
+        padding: 0 12px;
+        flex-shrink: 0;
+        border-radius: var(--ej-radius-full);
+        border: 1px solid var(--ej-hairline);
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--ej-neutral-700);
+      }
+      .cp-jbtn:hover,
+      .cp-jbtn[aria-expanded="true"] {
+        border-color: var(--ej-action-600);
+        color: var(--ej-action-600);
+      }
+      .cp-jbtn .ms {
+        font-size: 15px;
+      }
+      .cp-jcount {
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        border-radius: var(--ej-radius-full);
+        background: var(--ej-action-100);
+        color: var(--ej-action-700);
+        font-size: 11px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .cp-ai-form {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        gap: 8px;
+      }
+      .cp-ai-input {
+        flex: 1;
+        min-width: 0;
+        height: 40px;
+        padding: 0 16px;
+        border: 1px solid var(--ej-neutral-300);
+        border-radius: var(--ej-radius-full);
+        background: var(--ej-white);
+        font-size: 14px;
+        outline: none;
+        transition: border-color var(--ej-transition-fast), box-shadow var(--ej-transition-fast);
+      }
+      .cp-ai-input::placeholder {
+        color: var(--ej-neutral-500);
+      }
+      .cp-ai-input:focus {
+        border-color: var(--ej-action-600);
+        box-shadow: 0 0 0 3px var(--ej-action-100);
+      }
+      .cp-ai-send {
+        height: 40px;
+        flex-shrink: 0;
+      }
+      .cp-ai-more {
+        margin-top: 10px;
+      }
+      .cp-ai-more[hidden] {
+        display: none;
+      }
+      .cp-sugg {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 10px;
+      }
+      .cp-ai-more .cp-sugg {
+        margin-top: 0;
+      }
+      .cp-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 30px;
+        padding: 4px 12px;
+        border: 1px solid var(--ej-hairline);
+        border-radius: var(--ej-radius-full);
+        background: var(--ej-white);
+        font-size: 12.5px;
+        line-height: 1.35;
+        color: var(--ej-neutral-700);
+        text-align: left;
+        transition: border-color var(--ej-transition-fast), color var(--ej-transition-fast);
+      }
+      .cp-chip:hover {
+        border-color: var(--ej-action-600);
+        color: var(--ej-action-600);
+      }
+      .cp-chip .cp-fn {
+        font-family: var(--ej-font-display);
+        font-size: 10.5px;
+        font-weight: 600;
+        color: var(--ej-neutral-600);
+      }
+      .cp-ai-foot {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--ej-neutral-600);
+      }
+      .cp-ai-foot .ms {
+        font-size: 14px;
+        margin-top: 1px;
+        color: var(--ej-accent-600);
+      }
+      .cp-ai-out:empty {
+        display: none;
+      }
+      .cp-ai-out {
+        margin-top: 12px;
+      }
+      .cp-msg {
+        border: 1px solid var(--ej-action-200);
+        background: var(--ej-action-50);
+        border-radius: var(--ej-radius-lg);
+        padding: 14px 16px;
+      }
+      .cp-msg:focus {
+        outline: none;
+      }
+      .cp-msg.cp-msg-warn {
+        border-color: var(--ej-warning-100);
+        background: var(--ej-warning-100);
+      }
+      .cp-msg-q {
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+        margin-bottom: 6px;
+      }
+      .cp-msg-lead {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        font-family: var(--ej-font-display);
+        font-size: 14.5px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .cp-msg-lead .ms {
+        font-size: 18px;
+        margin-top: 1px;
+        color: var(--ej-action-600);
+      }
+      .cp-msg-warn .cp-msg-lead,
+      .cp-msg-warn .cp-msg-lead .ms {
+        color: var(--ej-warning-600);
+      }
+      .cp-msg-warn p,
+      .cp-msg-warn .cp-msg-q,
+      .cp-msg-warn .cp-sent {
+        color: var(--ej-neutral-700);
+      }
+      .cp-msg p {
+        font-size: 13.5px;
+        color: var(--ej-neutral-700);
+        margin-top: 6px;
+      }
+      .cp-thinking {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--ej-neutral-500);
+      }
+      .cp-thinking .ms {
+        font-size: 16px;
+        color: var(--ej-action-600);
+        animation: cp-spin 1s linear infinite;
+      }
+      @keyframes cp-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .cp-thinking .ms {
+          animation: none;
+        }
+      }
+      .cp-plan {
+        list-style: none;
+        display: grid;
+        gap: 4px;
+        margin: 10px 0 0;
+      }
+      .cp-plan li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 7px 12px;
+        border: 1px solid var(--ej-neutral-100);
+        border-radius: var(--ej-radius-md);
+        background: var(--ej-white);
+        font-size: 13px;
+        color: var(--ej-neutral-700);
+      }
+      .cp-plan li.cp-off {
+        color: var(--ej-neutral-500);
+      }
+      .cp-delta {
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+        white-space: nowrap;
+      }
+      .cp-plan li.cp-off .cp-delta {
+        font-weight: 500;
+        color: var(--ej-neutral-500);
+      }
+      .cp-spec {
+        margin-top: 10px;
+        padding: 8px 10px;
+        border: 1px dashed var(--ej-neutral-300);
+        border-radius: var(--ej-radius-md);
+        background: var(--ej-white);
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 11.5px;
+        line-height: 1.5;
+        color: var(--ej-neutral-700);
+        overflow-wrap: anywhere;
+      }
+      .cp-spec b {
+        font-family: var(--ej-font-body);
+        font-weight: 600;
+        color: var(--ej-neutral-500);
+        display: block;
+        margin-bottom: 2px;
+      }
+      .cp-sent {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        margin-top: 8px;
+        font-size: 12px;
+        color: var(--ej-neutral-500);
+      }
+      .cp-sent .ms {
+        font-size: 14px;
+        margin-top: 1px;
+        color: var(--ej-accent-600);
+      }
+      .cp-btns {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .cp-ans-rule {
+        margin-top: 8px;
+        font-size: 12.5px;
+        line-height: 1.5;
+        color: var(--ej-neutral-500);
+      }
+      .cp-ans-rule strong {
+        font-weight: 600;
+        color: var(--ej-neutral-700);
+      }
+      .cp-ans-list {
+        margin-top: 10px;
+        border: 1px solid var(--ej-neutral-100);
+        border-radius: var(--ej-radius-md);
+        background: var(--ej-white);
+        overflow: hidden;
+      }
+      .cp-ans-list .cp-row {
+        padding: 10px 14px;
+      }
+
+      /* Journal */
+      .cp-journal {
+        margin-top: 12px;
+        padding-top: 10px;
+        border-top: 1px solid var(--ej-neutral-100);
+      }
+      .cp-journal h3 {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+        margin-bottom: 4px;
+      }
+      .cp-jempty {
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+      }
+      .cp-jrow {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px 10px;
+        padding: 7px 0;
+        border-bottom: 1px dashed var(--ej-neutral-200);
+        font-size: 12.5px;
+      }
+      .cp-jrow:last-child {
+        border-bottom: none;
+      }
+      .cp-jtime {
+        color: var(--ej-neutral-600);
+        font-variant-numeric: tabular-nums;
+      }
+      .cp-jsrc {
+        font-family: var(--ej-font-display);
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--ej-action-600);
+      }
+      .cp-jtxt {
+        flex: 1;
+        min-width: 180px;
+        color: var(--ej-neutral-700);
+      }
+      .cp-jrow.cp-undone .cp-jtxt {
+        color: var(--ej-neutral-500);
+        text-decoration: line-through;
+      }
+      .cp-jstate {
+        font-size: 12px;
+        color: var(--ej-neutral-600);
+      }
+
+      /* Filtres actifs */
+      .cp-active {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px 8px;
+        margin-bottom: 16px;
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+      }
+      .cp-active:empty {
+        display: none;
+      }
+      .cp-fchip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        height: 28px;
+        padding: 0 4px 0 12px;
+        border-radius: var(--ej-radius-full);
+        background: var(--ej-action-100);
+        color: var(--ej-action-800);
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .cp-fchip button {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--ej-action-700);
+      }
+      .cp-fchip button:hover {
+        background: var(--ej-action-200);
+      }
+      .cp-fchip .ms {
+        font-size: 13px;
+      }
+      .cp-linkbtn {
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--ej-action-600);
+        border-radius: var(--ej-radius-sm);
+      }
+      .cp-linkbtn:hover {
+        text-decoration: underline;
+      }
+
+      /* Blocs */
+      .cp-blocks {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .cp-sec-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        font-family: var(--ej-font-display);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ej-neutral-500);
+      }
+      .cp-sec-label .ms {
+        font-size: 15px;
+        color: var(--ej-action-600);
+      }
+      #cp-pins:not(:empty) {
+        margin-bottom: 20px;
+      }
+      .stat .stat-top .icon-btn {
+        width: 28px;
+        height: 28px;
+        margin: -4px -6px -4px 0;
+      }
+      .stat .stat-top .icon-btn .ms {
+        font-size: 16px;
+      }
+      .stat-value.cp-zero {
+        color: var(--ej-neutral-500);
+      }
+      .stat .source {
+        margin-top: 2px;
+        flex-wrap: wrap;
+      }
+      .stat .stat-link {
+        align-self: flex-start;
+        border-radius: var(--ej-radius-sm);
+      }
+      .cp-block .block-head {
+        flex-wrap: wrap;
+        align-items: flex-start;
+      }
+      .cp-block .block-head h2 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .cp-head-side {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .cp-block-note {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+        margin: 0 22px 14px;
+        padding: 10px 12px;
+        border-radius: var(--ej-radius-md);
+        background: var(--ej-neutral-50);
+        font-size: 12.5px;
+        line-height: 1.5;
+        color: var(--ej-neutral-600);
+      }
+      .cp-block-note .ms {
+        font-size: 15px;
+        margin-top: 1px;
+        color: var(--ej-info-600);
+      }
+      .cp-block-rule {
+        padding: 12px 22px 16px;
+        border-top: 1px solid var(--ej-neutral-100);
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--ej-neutral-500);
+      }
+      .cp-block-rule strong {
+        font-weight: 600;
+        color: var(--ej-neutral-700);
+      }
+
+      /* Lignes actionnables */
+      .cp-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        align-items: center;
+        gap: 8px 16px;
+        padding: 12px 22px;
+        border-top: 1px solid var(--ej-neutral-100);
+        transition: background var(--ej-transition-fast);
+      }
+      .cp-row:hover {
+        background: var(--ej-primary-50);
+      }
+      .cp-ans-list .cp-row:first-child {
+        border-top: none;
+      }
+      .cp-row-soc {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px 8px;
+        font-family: var(--ej-font-display);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .cp-forme {
+        display: inline-flex;
+        align-items: center;
+        height: 18px;
+        padding: 0 7px;
+        border: 1px solid var(--ej-neutral-200);
+        border-radius: var(--ej-radius-full);
+        font-family: var(--ej-font-body);
+        font-size: 10.5px;
+        font-weight: 600;
+        color: var(--ej-neutral-500);
+      }
+      .cp-row-motif {
+        margin-top: 2px;
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+      }
+      .cp-row-side {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+        text-align: right;
+      }
+      .cp-row-meta {
+        font-size: 12px;
+        color: var(--ej-neutral-500);
+        white-space: nowrap;
+      }
+      .cp-verb {
+        justify-self: end;
+      }
+      .cp-verb .ms {
+        font-size: 15px;
+      }
+      .cp-late {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--ej-warning-600);
+        white-space: nowrap;
+      }
+      .cp-late .ms {
+        font-size: 14px;
+      }
+      .cp-group-head {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px 10px;
+        padding: 10px 22px;
+        border-top: 1px solid var(--ej-neutral-100);
+        background: var(--ej-neutral-50);
+        font-family: var(--ej-font-display);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .cp-group-head .ms {
+        font-size: 16px;
+        color: var(--ej-action-600);
+      }
+      .cp-count {
+        min-width: 22px;
+        height: 20px;
+        padding: 0 7px;
+        border-radius: var(--ej-radius-full);
+        background: var(--ej-white);
+        border: 1px solid var(--ej-hairline);
+        font-size: 11.5px;
+        font-variant-numeric: tabular-nums;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .cp-more {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        padding: 10px;
+        border-top: 1px solid var(--ej-neutral-100);
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--ej-action-600);
+      }
+      .cp-more .ms {
+        font-size: 16px;
+      }
+      .cp-more:hover {
+        background: var(--ej-primary-50);
+      }
+      .cp-empty {
+        padding: 18px 22px 22px;
+        border-top: 1px solid var(--ej-neutral-100);
+        font-size: 13.5px;
+        color: var(--ej-neutral-500);
+      }
+
+      /* États de donnée */
+      .cp-etat {
+        display: inline-flex;
+        align-items: center;
+        height: 20px;
+        padding: 0 8px;
+        border-radius: var(--ej-radius-full);
+        font-family: var(--ej-font-body);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0;
+        text-transform: none;
+        white-space: nowrap;
+        border: 1px solid transparent;
+      }
+      .cp-etat.ex {
+        background: var(--ej-success-100);
+        color: var(--ej-success-600);
+      }
+      .cp-etat.dpj {
+        background: var(--ej-info-100);
+        color: var(--ej-info-600);
+      }
+      .cp-etat.mod {
+        color: var(--ej-neutral-500);
+        border: 1px dashed var(--ej-neutral-400);
+      }
+      .cp-etat.hyp {
+        background: var(--ej-warning-100);
+        color: var(--ej-warning-600);
+      }
+
+      /* Barre segmentée (avancement par étape) */
+      .cp-seg {
+        padding: 0 22px 18px;
+      }
+      .cp-seg-bar {
+        display: flex;
+        gap: 3px;
+        height: 14px;
+      }
+      .cp-seg-part {
+        min-width: 8px;
+        height: 100%;
+        border-radius: 4px;
+        transition: opacity var(--ej-transition-fast);
+      }
+      .cp-seg-part:hover {
+        opacity: 0.8;
+      }
+      .cp-seg-part.cp-dim {
+        opacity: 0.25;
+      }
+      .cp-seg-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 12px;
+      }
+      .cp-leg {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 32px;
+        padding: 0 12px;
+        border: 1px solid var(--ej-hairline);
+        border-radius: var(--ej-radius-full);
+        background: var(--ej-white);
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--ej-neutral-700);
+      }
+      .cp-leg i {
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        flex-shrink: 0;
+      }
+      .cp-leg b {
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        color: var(--ej-primary-900);
+      }
+      .cp-leg:hover {
+        border-color: var(--ej-action-600);
+      }
+      .cp-leg[aria-pressed="true"] {
+        border-color: var(--ej-primary-900);
+        box-shadow: inset 0 0 0 1px var(--ej-primary-900);
+      }
+      .cp-camp-pick {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .cp-camp-pick .qf-pill {
+        height: auto;
+        min-height: 34px;
+        padding: 6px 14px;
+        text-align: left;
+      }
+      .cp-camp-pick .qf-pill[disabled] {
+        cursor: default;
+        color: var(--ej-neutral-500);
+      }
+
+      /* Calendrier (liste chronologique) */
+      .cp-month {
+        padding: 10px 22px;
+        border-top: 1px solid var(--ej-neutral-100);
+        background: var(--ej-neutral-50);
+        font-family: var(--ej-font-display);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ej-neutral-500);
+      }
+      .cp-cal {
+        grid-template-columns: 52px minmax(0, 1fr) auto auto;
+      }
+      .cp-day {
+        width: 46px;
+        text-align: center;
+        font-family: var(--ej-font-display);
+        line-height: 1.1;
+      }
+      .cp-day b {
+        display: block;
+        font-size: 19px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+        font-variant-numeric: tabular-nums;
+      }
+      .cp-day span {
+        font-size: 11px;
+        color: var(--ej-neutral-500);
+      }
+
+      /* Panneau latéral */
+      .cp-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 90;
+        background: color-mix(in srgb, var(--ej-neutral-900) 32%, transparent);
+      }
+      .cp-drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 91;
+        width: min(580px, 100vw);
+        display: flex;
+        flex-direction: column;
+        background: var(--ej-white);
+        box-shadow: var(--ej-shadow-xl);
+      }
+      .cp-backdrop[hidden],
+      .cp-drawer[hidden] {
+        display: none;
+      }
+      .cp-dr-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 20px 22px 14px;
+        border-bottom: 1px solid var(--ej-hairline);
+      }
+      .cp-dr-head h2 {
+        font-size: 19px;
+        font-weight: 600;
+        line-height: 1.3;
+        color: var(--ej-primary-900);
+        margin-top: 2px;
+      }
+      .cp-dr-body {
+        flex: 1;
+        overflow-y: auto;
+      }
+      .cp-dr-foot {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 14px 22px;
+        border-top: 1px solid var(--ej-hairline);
+      }
+      .cp-dr-foot:empty {
+        display: none;
+      }
+      .cp-dr-sec {
+        padding: 16px 22px;
+        border-bottom: 1px solid var(--ej-neutral-100);
+      }
+      .cp-dr-sec h3 {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+        margin-bottom: 8px;
+      }
+      .cp-dr-sec p {
+        font-size: 13px;
+        color: var(--ej-neutral-600);
+      }
+      .cp-dr-sec p + p {
+        margin-top: 6px;
+      }
+      .cp-dr-sec .stat-rule {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+      }
+      .cp-drawer .cp-row {
+        grid-template-columns: minmax(0, 1fr) auto;
+        padding: 12px 22px;
+      }
+      .cp-drawer .cp-row-side {
+        grid-column: 1;
+        grid-row: 2;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        text-align: left;
+        gap: 6px 10px;
+      }
+      .cp-drawer .cp-verb {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+      }
+      .cp-checks {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 18px;
+        border: none;
+        margin-bottom: 14px;
+      }
+      .cp-checks legend {
+        width: 100%;
+        margin-bottom: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--ej-neutral-700);
+      }
+      .cp-order {
+        list-style: none;
+        display: grid;
+        gap: 6px;
+      }
+      .cp-order li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 6px 6px 12px;
+        border: 1px solid var(--ej-hairline);
+        border-radius: var(--ej-radius-md);
+        font-size: 13.5px;
+        color: var(--ej-neutral-800);
+      }
+      .cp-order li > span:first-child {
+        flex: 1;
+      }
+      .cp-order .icon-btn {
+        width: 32px;
+        height: 32px;
+      }
+      .cp-order .icon-btn[disabled] {
+        opacity: 0.35;
+        cursor: default;
+      }
+      .cp-cat-item {
+        padding: 14px 22px;
+        border-bottom: 1px solid var(--ej-neutral-100);
+      }
+      .cp-cat-top {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px 8px;
+        font-family: var(--ej-font-display);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .cp-cat-top > span:first-child {
+        margin-right: auto;
+      }
+      .cp-cat-item p {
+        margin-top: 4px;
+        font-size: 12.5px;
+        line-height: 1.5;
+        color: var(--ej-neutral-600);
+      }
+      .cp-cat-item p strong {
+        font-weight: 600;
+        color: var(--ej-neutral-700);
+      }
+      .cp-cat-group {
+        padding: 14px 22px 8px;
+        font-family: var(--ej-font-display);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ej-neutral-500);
+        background: var(--ej-neutral-50);
+        border-bottom: 1px solid var(--ej-neutral-100);
+      }
+      .cp-dr-list:empty::after {
+        content: "Aucune ligne avec ces filtres.";
+        display: block;
+        padding: 18px 22px;
+        font-size: 13.5px;
+        color: var(--ej-neutral-500);
+      }
+
+      /* Vision cible : page blanche */
+      .cp-vision {
+        padding: 22px;
+        border: 1px dashed var(--ej-action-300);
+        border-radius: var(--ej-radius-xl);
+        background: var(--ej-action-50);
+      }
+      .cp-vision-head {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .cp-vision-head h2 {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+        margin-right: 4px;
+      }
+      .cp-vision > p {
+        margin-top: 6px;
+        max-width: 760px;
+        font-size: 13.5px;
+        color: var(--ej-neutral-600);
+      }
+      .cp-vgrid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 18px;
+      }
+      .cp-vstep {
+        padding: 16px;
+        border: 1px solid var(--ej-hairline);
+        border-radius: var(--ej-radius-lg);
+        background: var(--ej-white);
+      }
+      .cp-vstep h3 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14.5px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .cp-vnum {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--ej-primary-900);
+        color: var(--ej-white);
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .cp-vstep > p {
+        margin-top: 6px;
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+      }
+      .cp-vfake {
+        margin-top: 12px;
+        padding: 10px 12px;
+        border: 1px solid var(--ej-neutral-300);
+        border-radius: var(--ej-radius-md);
+        font-size: 12.5px;
+        font-style: italic;
+        color: var(--ej-neutral-500);
+        background: var(--ej-neutral-50);
+      }
+      .cp-vplan {
+        list-style: none;
+        margin-top: 12px;
+        display: grid;
+        gap: 6px;
+        font-size: 12.5px;
+        color: var(--ej-neutral-700);
+      }
+      .cp-vplan li {
+        display: flex;
+        gap: 6px;
+        align-items: flex-start;
+      }
+      .cp-vplan .ms {
+        font-size: 14px;
+        margin-top: 2px;
+        color: var(--ej-action-600);
+      }
+      .cp-ghosts {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .cp-ghost {
+        padding: 10px;
+        border: 1px dashed var(--ej-neutral-300);
+        border-radius: var(--ej-radius-md);
+      }
+      .cp-ghost i {
+        display: block;
+        height: 8px;
+        border-radius: 4px;
+        background: var(--ej-neutral-100);
+      }
+      .cp-ghost i + i {
+        margin-top: 6px;
+      }
+      .cp-ghost .cp-gv {
+        width: 40%;
+        height: 16px;
+        background: var(--ej-neutral-200);
+      }
+      .cp-ghost.cp-wide {
+        grid-column: 1 / span 2;
+      }
+      .cp-vfoot {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 16px;
+        margin-top: 16px;
+        font-size: 12.5px;
+        color: var(--ej-neutral-600);
+      }
+      .cp-vfoot span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .cp-vfoot .ms {
+        font-size: 14px;
+        color: var(--ej-action-600);
+      }
+      .cp-profil-alert {
+        margin-bottom: 18px;
+      }
+
+      /* Mobile */
+      @media (max-width: 900px) {
+        body.m-resp .cp-head-actions {
+          align-items: flex-start;
+        }
+        body.m-resp .cp-head .page-title {
+          font-size: 28px;
+        }
+      }
+      @media (max-width: 700px) {
+        .cp-row,
+        .cp-cal {
+          grid-template-columns: minmax(0, 1fr);
+          padding: 12px 16px;
+        }
+        .cp-cal .cp-day {
+          display: flex;
+          align-items: baseline;
+          gap: 6px;
+          width: auto;
+          text-align: left;
+        }
+        .cp-cal .cp-day b {
+          display: inline;
+          font-size: 15px;
+        }
+        .cp-row-side {
+          flex-direction: row;
+          flex-wrap: wrap;
+          align-items: center;
+          text-align: left;
+          gap: 6px 10px;
+        }
+        .cp-row-meta {
+          white-space: normal;
+        }
+        .cp-verb {
+          justify-self: start;
+        }
+        .cp-drawer .cp-row {
+          grid-template-columns: minmax(0, 1fr);
+          padding: 12px 16px;
+        }
+        .cp-drawer .cp-row-side {
+          grid-row: auto;
+        }
+        .cp-drawer .cp-verb {
+          grid-column: 1;
+          grid-row: auto;
+        }
+        .cp-group-head,
+        .cp-month,
+        .cp-empty {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+        .cp-block .block-head {
+          padding: 16px 16px 12px;
+        }
+        .cp-block-note {
+          margin: 0 16px 12px;
+        }
+        .cp-block-rule,
+        .cp-seg {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+        .cp-ai {
+          padding: 14px 14px 12px;
+        }
+        .cp-ai-input {
+          padding: 0 14px;
+          font-size: 14px;
+        }
+        .cp-send-lbl {
+          display: none;
+        }
+        .cp-ai-send {
+          padding: 0 14px;
+        }
+        .cp-jbtn {
+          margin-left: 0;
+        }
+        .cp-vgrid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .cp-vision {
+          padding: 16px;
+        }
+        .cp-dr-head,
+        .cp-dr-sec,
+        .cp-cat-item,
+        .cp-cat-group,
+        .cp-dr-foot {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+        .cp-principles {
+          gap: 6px 14px;
+        }
+      }
+
+      /* File du jour : une ligne par société */
+      .cp-acts {
+        list-style: none;
+        margin-top: 4px;
+        display: grid;
+        gap: 2px;
+        font-size: 12.5px;
+        color: var(--ej-neutral-600);
+      }
+      .cp-acts li {
+        display: flex;
+        gap: 6px;
+        align-items: baseline;
+      }
+      .cp-acts li::before {
+        content: "";
+        flex-shrink: 0;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--ej-action-400);
+        transform: translateY(-2px);
+      }
+      .cp-acts b {
+        font-weight: 600;
+        color: var(--ej-neutral-700);
+      }
+      .cp-nact {
+        font-family: var(--ej-font-body);
+        font-size: 11.5px;
+        font-weight: 600;
+        color: var(--ej-action-700);
+        background: var(--ej-action-100);
+        border-radius: var(--ej-radius-full);
+        padding: 1px 8px;
+      }
+      .cp-due {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+        white-space: nowrap;
+      }
+      .cp-due .ms {
+        font-size: 14px;
+        color: var(--ej-action-600);
+      }
+      .cp-jwhy {
+        font-size: 12px;
+        color: var(--ej-neutral-600);
+      }
+      .cp-plist {
+        list-style: none;
+        display: grid;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--ej-neutral-700);
+      }
+      .cp-plist li {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+      }
+      .cp-plist .ms {
+        font-size: 16px;
+        margin-top: 2px;
+        color: var(--ej-action-600);
+      }
+      .cp-msg .cp-sugg {
+        margin-top: 10px;
+      }
+
+      @media (max-width: 700px) {
+        .cp-ai {
+          padding: 8px;
+        }
+        .cp-ai-line {
+          gap: 6px;
+        }
+        .cp-ai-ico,
+        .cp-ai-ver,
+        .cp-jlbl {
+          display: none;
+        }
+        .cp-ai-input {
+          padding: 0 12px;
+          font-size: 14px;
+        }
+        .cp-jbtn {
+          padding: 0 10px;
+        }
+        .cp-head .page-title {
+          font-size: 26px;
+        }
+      }
+      @media (max-width: 480px) {
+        body.m-resp .cp-tiles .stats {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 10px;
+        }
+        .cp-tiles .stat {
+          padding: 12px 12px 10px;
+        }
+        .cp-tiles .stat-value {
+          font-size: 26px;
+        }
+        .cp-howto-txt,
+        .cp-princ-more,
+        .cp-mh-desc:not(.cp-keep) {
+          display: none;
+        }
+        .cp-sub {
+          font-size: 12.5px;
+        }
+        .cp-head .page-title {
+          font-size: 24px;
+        }
+        .cp-princ {
+          margin-bottom: 8px;
+        }
+      }
+    </style>
+  </head>
+  <body class="m-resp" data-active="cockpit">
+    <div id="ej-header"></div>
+    <div class="app">
+      <div id="ej-sidebar"></div>
+      <div class="main">
+        <div class="page cp-page">
+          <div id="cp-profil"></div>
+
+          <div class="page-head m-wrap cp-head">
+            <div>
+              <div class="m-eyebrow">Lundi 19 octobre 2026</div>
+              <h1 class="page-title">Cockpit</h1>
+              <p class="cp-sub" id="cp-sub"></p>
+            </div>
+            <div class="cp-head-actions">
+              <button class="btn btn-secondary btn-sm" type="button" data-cp-open="perso"><span class="ms">sliders_horizontal</span>Personnaliser<span class="ver ver-v0">V0</span></button>
+              <button class="cp-howto" type="button" data-cp-open="catalogue" aria-label="Comment sont calculés ces chiffres ?"><span class="ms">calculator</span><span class="cp-howto-txt">Comment sont calculés ces chiffres ?</span></button>
+            </div>
+          </div>
+
+          <p class="cp-princ"><span class="ms">lock</span><span>L’IA compose, EJ calcule.<span class="cp-princ-more"> Aucune donnée nominative envoyée au modèle.</span></span><button type="button" class="cp-linkbtn" data-cp-open="principes">Nos principes</button></p>
+
+          <div class="cp-tabs-wrap" id="cp-tabs-wrap">
+            <div class="tabs cp-tabs" role="tablist" aria-label="Modèles de cockpit" id="cp-tabs"></div>
+            <span class="cp-tabs-fade l" aria-hidden="true"><span class="ms">chevron_left</span></span>
+            <span class="cp-tabs-fade r" aria-hidden="true"><span class="ms">chevron_right</span></span>
+          </div>
+          <div class="cp-intro" id="cp-intro"></div>
+          <div class="cp-active" id="cp-active"></div>
+          <div class="cp-tiles" id="cp-tiles"></div>
+
+          <section class="card cp-ai" aria-labelledby="cp-ai-title">
+            <h2 class="sr-only" id="cp-ai-title">Demandez ou modifiez votre cockpit (IA simulée, V1)</h2>
+            <div class="cp-ai-line">
+              <span class="ms cp-ai-ico" aria-hidden="true">sparkles</span>
+              <form class="cp-ai-form" id="cp-ai-form" autocomplete="off">
+                <label class="sr-only" for="cp-ai-input">Votre demande au cockpit</label>
+                <input class="cp-ai-input" id="cp-ai-input" type="text" maxlength="200" placeholder="Demandez ou modifiez : « montre seulement les SAS »" />
+                <button class="btn btn-primary cp-ai-send" type="submit" aria-label="Envoyer la demande"><span class="ms">send</span><span class="cp-send-lbl">Envoyer</span></button>
+              </form>
+              <button class="cp-jbtn" type="button" data-cp-sugg-toggle aria-expanded="false" aria-controls="cp-ai-more" aria-label="Suggestions de demandes"><span class="ms">lightbulb</span><span class="cp-jlbl">Suggestions</span></button>
+              <button class="cp-jbtn" type="button" data-cp-journal aria-expanded="false" aria-controls="cp-journal" aria-label="Journal des modifications"><span class="ms">history</span><span class="cp-jlbl">Journal</span><span class="cp-jcount" id="cp-jcount">0</span></button>
+              <span class="ver ver-v1 cp-ai-ver">V1</span>
+            </div>
+            <div class="cp-ai-more" id="cp-ai-more" hidden>
+              <div class="cp-sugg" id="cp-sugg"></div>
+              <p class="cp-ai-foot"><span class="ms">lock</span><span>IA simulée dans la maquette. Elle choisit des indicateurs certifiés, EJ les calcule. Les noms de sociétés et de personnes sont masqués avant l’envoi au modèle.</span></p>
+            </div>
+            <div class="cp-ai-out" id="cp-ai-out" aria-live="polite"></div>
+            <div class="cp-journal" id="cp-journal" hidden></div>
+          </section>
+
+          <div class="cp-blocks" id="cp-blocks"></div>
+
+          <div class="m-note">
+            <span class="ms">info</span>
+            <span>Maquette de démonstration. Données 100 % fictives, IA simulée par des réponses scriptées. Indicateurs, règles de calcul et couvertures à valider par EJ. Repères de version selon la décision de cadrage du Cockpit IA du 22/10/2026 (V0 sans IA, V1 modification et questions sur le catalogue, V2 page blanche, cible avec les modules 2027).</span>
+          </div>
+        </div>
+        <div id="ej-footer"></div>
+      </div>
+    </div>
+
+    <div class="cp-backdrop" id="cp-backdrop" hidden></div>
+    <aside class="cp-drawer" id="cp-drawer" role="dialog" aria-modal="true" aria-labelledby="cp-dr-title" hidden>
+      <div class="cp-dr-head">
+        <div>
+          <div class="overline" id="cp-dr-over"></div>
+          <h2 id="cp-dr-title"></h2>
+        </div>
+        <button class="icon-btn" type="button" data-cp-close aria-label="Fermer le panneau"><span class="ms">close</span></button>
+      </div>
+      <div class="cp-dr-body" id="cp-dr-body"></div>
+      <div class="cp-dr-foot" id="cp-dr-foot"></div>
+    </aside>
+
+    <script src="assets/ej-missions-data.js?v=17"></script>
+    <script>
+      (function () {
+        "use strict";
+        var E = window.EJM;
+        function esc(s) {
+          return E.esc(s == null ? "" : s);
+        }
+
+        /* ---------- Repères ---------- */
+        var TODAY = new Date(2026, 9, 19);
+        var H90 = new Date(2026, 9, 19 + 90);
+        var CALC = "19/10/2026 à 07:00";
+        var ME = "Thomas Girard";
+        var MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+        var MOIS_C = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+        var MOIS_N = ["janvier", "fevrier", "mars", "avril", "mai", "juin", "juillet", "aout", "septembre", "octobre", "novembre", "decembre"];
+        var FORMES = ["SAS", "SARL", "SA", "SELARL", "SCI", "SCP", "SCCV"];
+        var CIVILES = ["SCI", "SCP", "SCCV"];
+        function isCiv(f) {
+          return CIVILES.indexOf(f) !== -1;
+        }
+
+        function pad(n) {
+          return (n < 10 ? "0" : "") + n;
+        }
+        function fmt(dt) {
+          return pad(dt.getDate()) + "/" + pad(dt.getMonth() + 1) + "/" + dt.getFullYear();
+        }
+        function parse(s) {
+          var p = s.split("/");
+          return new Date(+p[2], +p[1] - 1, +p[0]);
+        }
+        function since(s) {
+          return Math.round((TODAY - parse(s)) / 864e5);
+        }
+        function daysTo(d) {
+          return Math.round((d - TODAY) / 864e5);
+        }
+        function addMonths(d, n) {
+          return new Date(d.getFullYear(), d.getMonth() + n, d.getDate());
+        }
+        function pl(n, one, many) {
+          return n > 1 ? many : one;
+        }
+        function ms(name) {
+          return '<span class="ms">' + name + "</span>";
+        }
+
+        /* ---------- Données fictives du cabinet (cohérentes avec formalités, suivi des actions, EJM) ----------
+           Sociétés : nom | forme | clôture (jj/mm, DPJ) | étape d'approbation | drapeaux | date de décision de l'AGOA
+           Étapes : prep (à préparer), gen (documents générés), sig (en signature), dep (à déposer), ok (déposé)
+           Drapeaux : f = formulaire AGOA commencé, c = en cours de création, p = approuvée en 2025 sans approbation en 2026,
+           n = entrée au cabinet après l'échéance (exercice de la campagne non suivi par le cabinet) */
+        var NAMED = [
+          "LES JARDINS D'ORIANE|SAS|31/12|dep||26/06/2026",
+          "ALTITUDE CONSEIL|SARL|31/12|ok",
+          "SAS NOVALYS AÉRO|SAS|31/12|prep|f",
+          "27 BELLEVUE|SCI|31/12|prep|f",
+          "NOVA STUDIO DÉMO|SAS|||c",
+          "SCP MÉDICALE DES TILLEULS DÉMO|SCP|||c",
+          "SCCV LES ATELIERS DÉMO|SCCV|||c",
+          "SCI LES TERRASSES DÉMO|SCI|||c",
+          "MERCIER & ASSOCIES|SELARL|30/06|dep||10/09/2026",
+          "JULIEN MARCHAL FORMATIONS|SARL|31/12|ok",
+          "AXIOME|SARL|31/12|gen||22/06/2026",
+          "PAPRIKA CANTINE|SAS|30/06|gen",
+          "HELIOS SAS|SAS|30/06|prep",
+          "URBAN FIT CLUB|SAS|31/08|ok",
+          "LUMEN|SAS|31/12|prep|f",
+          "TB ELECTRICITE|SARL|31/12|ok",
+          "NEOLAB.|SAS|31/12||n",
+          "ODALIS|SARL|31/12|ok",
+          "CAP ESTEREL|SCI|31/12|ok",
+          "SOUFFLE ET HARMONIE|SARL|31/12|prep|f",
+          "SOURIRE DENTAIRE|SELARL|31/12|ok",
+          "SELARL VASSEUR|SELARL|||c",
+          "KPL3D|SAS|30/09|gen",
+          "CABINET DE LORME|SARL|31/12|gen",
+          "ORVEA|SAS|31/12|gen||29/06/2026",
+          "MBCOMPTA|SARL|30/09|dep",
+          "GROUPE BMR|SA|31/12|prep|f",
+          "SOTRAB|SAS|31/03|prep|f",
+          "CHAUFFAGE DU LIMOUSIN|SARL|31/12|ok",
+          "HLMT CONSULTING|SARL|31/12|prep|f",
+          "BOTANICA|SAS|31/03|ok",
+          "MARALUNA|SAS|31/12|ok",
+          "ESTERIA|SAS|31/12|ok",
+          "AZUR HOLDING|SAS|31/12|ok",
+          "KALIPSO SARL|SARL|31/12||n",
+          "IMMO +|SCI|||p",
+          "LOGIVIA|SAS|31/12|ok",
+          "VILLA SERENA|SCI|||p",
+          "PL CONSEILS|SARL|31/12|ok",
+          "A.R.T.E|SAS|31/12|gen",
+          "CL OPTIC|SARL|31/12|sig||12/09/2026",
+          "SELARL MV|SELARL|31/12|ok",
+        ];
+        var GENERIC = (
+          "ATELIER BERTIN|BOULANGERIE DU MARCHÉ|GARAGE DUVAL|PHARMACIE DES ARCADES|TRANSPORTS LEMAIRE|SCI DU PARC|MAISON CAILLAUD|OPTIQUE MARTIN|" +
+          "CLINIQUE VÉTÉRINAIRE DU LAC|BATIGEST|ELEC SERVICES|NOVATERRA|LES VERGERS DE SAINT CLAIR|HORIZON PATRIMOINE|SCI LES CHÊNES|CAFÉ DES SPORTS|" +
+          "AGENCE PIXELIA|CABINET FOURNIER|SELARL DR ROCHE|ARTISANS DU BOIS|MENUISERIE GAUTHIER|SAVEURS D'ASIE|ÉCOLE DE CONDUITE PRIMA|DOMAINE DES CRÊTES|" +
+          "FROMAGERIE BLANC|LOGISTIQUE OUEST|SCI MONTPLAISIR|KINÉ SANTÉ PLUS|IMPRIMERIE MODERNE|ALPHA SÉCURITÉ|BIO ET CO|CRÉATIONS LÉA|" +
+          "TECHNIFROID|SCI LA FONTAINE|GROUPE ARMAND|HÔTEL DU PORT|PRESTIGE AUTO|VERDI PAYSAGE|LES DÉLICES DE MARIE|CONSEIL ET STRATÉGIE|" +
+          "MEDIALINK|SCI DES TILLEULS|ATLAS INGÉNIERIE|FLEURS DE SAISON|DATAVERSE|SCI BEAUSOLEIL|PLOMBERIE RIVIÈRE|MARINE ÉQUIPEMENT|" +
+          "OSTÉO DU CENTRE|CHARPENTES DUBOIS|STUDIO NOMADE|SCI LE CLOS|GAMMA FINANCE|PRIMEURS DU SUD|RÉSIDENCE LES PINS|NETTOYAGE PRO|" +
+          "SELARL AVOCATS LEROY|TERRA BÂTIMENT|SCI HAUTEVILLE|BRASSERIE DU NORD|ÉQUILIBRE COACHING|AUTO ÉCOLE DU CENTRE|ORTHOPTIE MARCEAU|CAVE DES VIGNERONS|" +
+          "SCI ROSERAIE|LUMIÈRE ET DÉCO|AEROTECH SERVICES|TABAC DE LA GARE|SCI VAL FLEURI|IMMOGEST|VÉLO PASSION|PÂTISSERIE AUGUSTIN|" +
+          "SCI BELLEVUE DEUX|RESTAURANT LE GALION|MANUFACTURE DE L'EST|SCI CAP SUD|ÉNERGIES NOUVELLES|SERVICES À DOMICILE AMI|SCI DES ACACIAS|DIGITAL FACTORY|" +
+          "EXPERTISE BÂTIMENT|SCI DU MOULIN|GARDEN CENTER VERT|AMBULANCES SECOURS|SCI LES OLIVIERS|TRAITEUR GOURMET|ACADÉMIE DE DANSE|SCI MARIGNAN|" +
+          "CLIMATISATION DU SUD|MAROQUINERIE ÉLISE|SCI DES BRUYÈRES|AGRI SERVICES|LIBRAIRIE DES QUAIS"
+        ).split("|");
+
+        var SOC = [];
+        var BYNAME = {};
+        function addSoc(s) {
+          s.civ = isCiv(s.f);
+          if (s.cl) {
+            var p = s.cl.split("/");
+            var m0 = +p[1] - 1;
+            var y = m0 >= 6 ? 2025 : 2026; /* exercice clos entre le 01/07/2025 et le 30/06/2026 */
+            s.clos = new Date(y, m0, +p[0]);
+            s.dl = new Date(y, m0 + 7, 0); /* six mois après la clôture, fin de mois */
+          }
+          /* Campagne : sociétés commerciales avec date de clôture, hors création et hors entrées tardives */
+          s.camp = !!s.cl && !s.crea && !s.civ && !s.nouv;
+          SOC.push(s);
+          BYNAME[s.n] = s;
+        }
+        NAMED.forEach(function (l) {
+          var p = l.split("|");
+          var fl = p[4] || "";
+          addSoc({ n: p[0], f: p[1], cl: p[2] || null, st: p[3] || null, fe: fl.indexOf("f") !== -1, crea: fl.indexOf("c") !== -1, prev: fl.indexOf("p") !== -1, nouv: fl.indexOf("n") !== -1, decS: p[5] || null });
+        });
+        var SCHED = [
+          ["30/06", "prep"], ["30/06", "prep"], ["30/06", "gen"], ["30/06", "ok"], ["31/05", "prep"], ["31/05", "sig", "05/10/2026"], ["30/04", "dep", "28/08/2026"], ["30/04", "ok"],
+          ["31/03", "ok"], ["31/03", "ok"], ["31/03", "ok"], ["30/09", "ok"], ["30/09", "ok"], ["30/09", "ok"], ["30/09", "ok"], ["31/08", "ok"], ["31/08", "ok"],
+        ];
+        (function () {
+          var nNull = 0, nPrev = 0, k = 0;
+          GENERIC.forEach(function (n, i) {
+            var f = /^SCI /.test(n) ? "SCI" : /^SELARL /.test(n) ? "SELARL" : i % 11 === 10 ? "SA" : i % 2 ? "SARL" : "SAS";
+            var s = { n: n, f: f, cl: null, st: null, fe: false, crea: false, prev: false, nouv: false, decS: null };
+            if (i % 6 === 2 && nNull < 16) {
+              nNull++;
+              if (nPrev < 4) {
+                s.prev = true;
+                nPrev++;
+              }
+            } else {
+              var sc = SCHED[k++] || ["31/12", "ok"];
+              s.cl = sc[0];
+              s.st = sc[1];
+              s.decS = sc[2] || null;
+            }
+            addSoc(s);
+          });
+        })();
+        var TOTAL = SOC.length; /* 135 */
+
+        /* Société fictive EJM (lettres de mission, LAB) du même nom */
+        var EJM_BY = {};
+        E.societes.forEach(function (s) {
+          EJM_BY[s.nom] = s;
+        });
+        function lmFlag(name) {
+          var x = EJM_BY[name];
+          return x && x.lm.statut === "absente" ? '<span class="badge badge-error">Lettre de mission absente</span>' : "";
+        }
+
+        /* Dépôts INPI non terminés (suivi-actions.html) */
+        var DEP = [
+          { soc: "ORVEA", ref: "#GC-2026-238", dep: "#2 · Comptes annuels", st: "a_signer", date: "18/09/2026", by: "Olivier Garnier" },
+          { soc: "AXIOME", ref: "#GC-2026-246", dep: "#3 · Comptes annuels", st: "a_signer", date: "17/09/2026", by: "Olivier Garnier" },
+          { soc: "KPL3D", ref: "#GC-2026-244", dep: "#2 · Comptes annuels", st: "a_signer", date: "16/09/2026", by: "Olivier Garnier" },
+          { soc: "CABINET DE LORME", ref: "#GC-2026-241", dep: "#1 · Comptes annuels", st: "a_signer", date: "16/09/2026", by: "Olivier Garnier" },
+          { soc: "A.R.T.E", ref: "#GC-2026-069", dep: "#2 · Comptes annuels", st: "a_signer", date: "16/09/2026", by: "Marc Renaud" },
+          { soc: "KPL3D", ref: "#GC-2026-244", dep: "#3 · Comptes annuels", st: "sig", date: "18/09/2026", by: "Olivier Garnier" },
+          { soc: "AXIOME", ref: "#GC-2026-246", dep: "#2 · Comptes annuels", st: "sig", date: "17/09/2026", by: "Olivier Garnier" },
+          { soc: "CL OPTIC", ref: "#GC-2026-143", dep: "#1 · Comptes annuels", st: "sig", date: "16/09/2026", by: "Marc Renaud" },
+          { soc: "AXIOME", ref: "#GC-2026-246", dep: "#1 · Comptes annuels", st: "pret", date: "17/09/2026", by: "Olivier Garnier" },
+          { soc: "KPL3D", ref: "#GC-2026-244", dep: "#1 · Comptes annuels", st: "pret", date: "16/09/2026", by: "Olivier Garnier" },
+          { soc: "ORVEA", ref: "#GC-2026-238", dep: "#1 · Comptes annuels", st: "pret", date: "16/09/2026", by: "Olivier Garnier" },
+          { soc: "MBCOMPTA", ref: "#GC-2026-237", dep: "#2 · Comptes annuels", st: "pret", date: "16/09/2026", by: "Olivier Garnier" },
+          { soc: "SELARL MV", ref: "#Transfo-2026-141", dep: "#1 · Modification", st: "pret", date: "16/09/2026", by: "Marc Renaud" },
+          { soc: "MERCIER & ASSOCIES", ref: "#GC-2026-232", dep: "#1 · Comptes annuels", st: "pret", date: "16/09/2026", by: "Olivier Garnier" },
+          { soc: "LES JARDINS D'ORIANE", ref: "#GC-2026-229", dep: "#1 · Comptes annuels", st: "pret", date: "16/09/2026", by: "Olivier Garnier" },
+          { soc: "CL OPTIC", ref: "#GC-2026-143", dep: "#2 · Comptes annuels", st: "pret", date: "16/09/2026", by: "Marc Renaud" },
+        ];
+        /* Formalités au statut « Formulaire en cours » (formalites.html). dec : date de décision, null = non définie, "" = sans objet */
+        var FORM = [
+          { soc: "SAS NOVALYS AÉRO", ref: "#GC-2026-271", type: "AGOA et dépôt des comptes", dec: null, maj: "16/10/2026", by: "Laura Perrin" },
+          { soc: "27 BELLEVUE", ref: "#GC-2026-270", type: "AGOA et dépôt des comptes", dec: null, maj: "16/10/2026", by: "Laura Perrin" },
+          { soc: "SCCV LES ATELIERS DÉMO", ref: "#Const-2026-088", type: "Constitution d'une SCIC", dec: "21/10/2026", maj: "16/10/2026", by: "Sophie Lambert" },
+          { soc: "NOVA STUDIO DÉMO", ref: "#Const-2026-087", type: "Constitution d'une SAS", dec: "20/10/2026", maj: "16/10/2026", by: "Sophie Lambert" },
+          { soc: "URBAN FIT CLUB", ref: "#AC-2026-112", type: "Conventions courantes", dec: "", maj: "13/10/2026", by: "Laura Perrin" },
+          { soc: "HELIOS SAS", ref: "#Capital-2026-061", type: "Modification de capital", dec: "15/10/2026", maj: "13/10/2026", by: "Sophie Lambert" },
+          { soc: "LUMEN", ref: "#Capital-2026-058", type: "Modification de capital", dec: "01/10/2026", maj: "12/10/2026", by: "Sophie Lambert" },
+          { soc: "CAP ESTEREL", ref: "#Capital-2026-057", type: "Modification de capital", dec: null, maj: "09/10/2026", by: "Laura Perrin" },
+          { soc: "NEOLAB.", ref: "#Capital-2026-055", type: "Modification de capital", dec: "01/10/2026", maj: "11/10/2026", by: "Laura Perrin" },
+          { soc: "NEOLAB.", ref: "#AC-2026-104", type: "Conventions courantes", dec: "", maj: "11/10/2026", by: "Laura Perrin" },
+          { soc: "SOUFFLE ET HARMONIE", ref: "#GC-2026-258", type: "AGOA et dépôt des comptes", dec: "01/04/2026", maj: "02/04/2026", by: "Sophie Lambert" },
+          { soc: "LUMEN", ref: "#GC-2026-252", type: "AGOA et dépôt des comptes", dec: "25/09/2026", maj: "25/09/2026", by: "Laura Perrin" },
+          { soc: "SELARL VASSEUR", ref: "#Const-2026-079", type: "Constitution d'une SELARL unipersonnelle", dec: "23/09/2026", maj: "22/09/2026", by: "Laura Perrin" },
+          { soc: "KPL3D", ref: "#GC-2026-244", type: "AGOA et dépôt des comptes", dec: "01/01/2026", maj: "16/09/2026", by: "Sophie Lambert" },
+          { soc: "CABINET DE LORME", ref: "#GC-2026-241", type: "AGOA et dépôt des comptes", dec: "04/02/2026", maj: "16/09/2026", by: "Sophie Lambert" },
+          { soc: "MBCOMPTA", ref: "#GC-2026-237", type: "AGOA et dépôt des comptes", dec: "08/01/2026", maj: "16/09/2026", by: "Sophie Lambert" },
+          { soc: "GROUPE BMR", ref: "#GC-2026-235", type: "AGOA et dépôt des comptes", dec: "01/05/2026", maj: "16/09/2026", by: "Sophie Lambert" },
+          { soc: "SOTRAB", ref: "#GC-2026-249", type: "AGOA et dépôt des comptes", dec: "09/07/2026", maj: "16/09/2026", by: "Sophie Lambert" },
+          { soc: "HLMT CONSULTING", ref: "#GC-2026-233", type: "AGOA et modification de la personne morale", dec: "14/05/2026", maj: "13/09/2026", by: "Nadia Benali" },
+          { soc: "CHAUFFAGE DU LIMOUSIN", ref: "#Cession-2026-019", type: "Cession et transmission de titres", dec: "09/09/2026", maj: "15/09/2026", by: "Laura Perrin" },
+        ];
+        var FORM_TOTAL = 164;
+        /* Décisions et signatures prévues dans les formalités (90 prochains jours) */
+        var PLAN = [
+          { soc: "SCI LES TERRASSES DÉMO", date: "20/10/2026", nat: "Signature prévue · constitution d'une SCI", by: "Sophie Lambert" },
+          { soc: "NOVA STUDIO DÉMO", date: "20/10/2026", nat: "Décision et signature prévues · constitution d'une SAS", by: "Sophie Lambert" },
+          { soc: "SCCV LES ATELIERS DÉMO", date: "21/10/2026", nat: "Décision et signature prévues · constitution", by: "Sophie Lambert" },
+          { soc: "SCP MÉDICALE DES TILLEULS DÉMO", date: "22/10/2026", nat: "Décision et signature prévues · constitution d'une SCP", by: "Sophie Lambert" },
+          { soc: "LES JARDINS D'ORIANE", date: "31/10/2026", nat: "Décision prévue · modification de capital", by: "Sophie Lambert" },
+          { soc: "ODALIS", date: "03/11/2026", nat: "Décision prévue · modification de capital", by: "Laura Perrin" },
+          { soc: "LES JARDINS D'ORIANE", date: "30/11/2026", nat: "Décision prévue · modification de capital", by: "Sophie Lambert" },
+        ];
+
+        /* Date de décision de l'AGOA de la campagne : formalité « AGOA… » si elle existe, sinon donnée locale */
+        FORM.forEach(function (f) {
+          var s = BYNAME[f.soc];
+          if (s && /^AGOA/.test(f.type) && f.dec) s.decS = f.dec;
+        });
+        /* AG tenue : décision passée, ou étape « En signature », « À déposer », « Déposé ».
+           AG non tenue dans le délai : échéance dépassée sans décision, ou décision postérieure à l'échéance.
+           Dépôt des comptes en retard : décision connue, comptes non déposés deux mois après (voie électronique, Guichet unique). */
+        SOC.forEach(function (s) {
+          s.dec = s.decS ? parse(s.decS) : null;
+          if (!s.camp) return;
+          s.held = s.st === "sig" || s.st === "dep" || s.st === "ok" || (!!s.dec && s.dec <= TODAY);
+          s.agLate = s.st !== "ok" && s.dl < TODAY && (!s.dec || s.dec > s.dl);
+          s.due = s.dec ? addMonths(s.dec, 2) : null;
+          s.depLate = s.st !== "ok" && !!s.dec && s.dec <= TODAY && s.due < TODAY;
+        });
+
+        /* Utilisateurs du cabinet (utilisateurs.html) et « créé par » anciens ou invités cités dans les formalités */
+        var PEOPLE = [
+          { name: "Thomas Girard", st: "actif" },
+          { name: "Antoine Faure", st: "actif" },
+          { name: "Paul Roussel", st: "actif" },
+          { name: "Julien Moreau", st: "actif" },
+          { name: "Élodie Garcia", st: "actif" },
+          { name: "Laura Perrin", st: "actif" },
+          { name: "Claire Dubois", st: "actif" },
+          { name: "Nadia Benali", st: "actif" },
+          { name: "Léa Fontaine", st: "invite" },
+          { name: "Jean Dupond", st: "invite" },
+          { name: "Sophie Lambert", st: "ancien" },
+          { name: "Olivier Garnier", st: "ancien" },
+          { name: "Marc Renaud", st: "ancien" },
+        ];
+        function personOf(name) {
+          return PEOPLE.filter(function (p) {
+            return p.name === name;
+          })[0];
+        }
+        function personNote(name) {
+          var p = personOf(name);
+          if (!p || p.st === "actif") return "";
+          return p.st === "invite"
+            ? "« " + name + " » a un compte invité dans le cabinet."
+            : "« " + name + " » apparaît comme « créé par » dans les formalités mais pas dans la liste actuelle des utilisateurs : utilisateur ancien ou invité, à rapprocher par EJ.";
+        }
+
+        /* ---------- Période (mois ou trimestre) ---------- */
+        function yearFor(m) {
+          /* fenêtre de douze mois : les neuf derniers mois et les trois prochains */
+          return m < TODAY.getMonth() - 8 ? TODAY.getFullYear() + 1 : TODAY.getFullYear();
+        }
+        function perMonth(m, y) {
+          if (y == null) y = yearFor(m);
+          return { key: y + "-" + pad(m + 1), from: new Date(y, m, 1), to: new Date(y, m + 1, 0), label: MOIS[m] + " " + y };
+        }
+        function perQuarter(q, y) {
+          if (y == null) y = yearFor(q * 3 - 1);
+          return { key: y + "-T" + q, from: new Date(y, (q - 1) * 3, 1), to: new Date(y, q * 3, 0), label: "T" + q + " " + y + " (" + MOIS[(q - 1) * 3] + " à " + MOIS[q * 3 - 1] + ")" };
+        }
+        function periodFromKey(k) {
+          var m = /^(\d{4})-(T)?(\d{1,2})$/.exec(k || "");
+          if (!m) return null;
+          return m[2] ? perQuarter(+m[3], +m[1]) : perMonth(+m[3] - 1, +m[1]);
+        }
+        function periodChoices() {
+          var out = [];
+          for (var i = -8; i <= 3; i++) {
+            var d = new Date(TODAY.getFullYear(), TODAY.getMonth() + i, 1);
+            out.push(perMonth(d.getMonth(), d.getFullYear()));
+          }
+          [1, 2, 3, 4].forEach(function (q) {
+            out.push(perQuarter(q, 2026));
+          });
+          out.push(perQuarter(1, 2027));
+          return out;
+        }
+        function curQ() {
+          return Math.floor(TODAY.getMonth() / 3) + 1;
+        }
+        function parsePeriod(t) {
+          var m;
+          if (/ (ce|du|le) trimestre (en cours |actuel )?|trimestre en cours /.test(t) && !/ trimestre prochain | prochain trimestre /.test(t)) return perQuarter(curQ(), TODAY.getFullYear());
+          if (/ trimestre prochain | prochain trimestre /.test(t)) return curQ() === 4 ? perQuarter(1, TODAY.getFullYear() + 1) : perQuarter(curQ() + 1, TODAY.getFullYear());
+          if ((m = / t([1-4])( (20\d\d))? /.exec(t))) return perQuarter(+m[1], m[3] ? +m[3] : null);
+          if ((m = / (premier|1er|deuxieme|second|2e|troisieme|3e|quatrieme|4e) trimestre( (20\d\d))? /.exec(t)))
+            return perQuarter({ premier: 1, "1er": 1, deuxieme: 2, second: 2, "2e": 2, troisieme: 3, "3e": 3, quatrieme: 4, "4e": 4 }[m[1]], m[3] ? +m[3] : null);
+          if (/ (mois prochain|prochain mois) /.test(t)) return perMonth((TODAY.getMonth() + 1) % 12, TODAY.getMonth() === 11 ? TODAY.getFullYear() + 1 : TODAY.getFullYear());
+          if (/ (mois dernier|dernier mois) /.test(t)) return perMonth((TODAY.getMonth() + 11) % 12, TODAY.getMonth() === 0 ? TODAY.getFullYear() - 1 : TODAY.getFullYear());
+          if (/ (ce mois|ce mois ci|mois en cours) /.test(t)) return perMonth(TODAY.getMonth(), TODAY.getFullYear());
+          if ((m = new RegExp(" (" + MOIS_N.join("|") + ")( (20\\d\\d))? ").exec(t))) return perMonth(MOIS_N.indexOf(m[1]), m[3] ? +m[3] : null);
+          return null;
+        }
+        /* Période exprimée mais non gérée (semaine, année, date précise) : rendue telle que saisie */
+        function parsePeriodKo(t, raw) {
+          var m = / (cette semaine|la semaine prochaine|semaine prochaine|la semaine derniere|semaine derniere|demain|hier|cette annee|l annee derniere|l annee prochaine|l an dernier|l an prochain|ce semestre|le semestre prochain|premier semestre|second semestre) /.exec(t);
+          if (m) return fromRaw(raw, m[1]);
+          m = / (?:en|de|pour|sur|depuis) ((?:19|20)\d\d) /.exec(t);
+          if (m) return m[1];
+          m = /\b\d{1,2}\/\d{1,2}(\/\d{2,4})?\b/.exec(raw);
+          if (m) return m[0];
+          return null;
+        }
+
+        /* ---------- Repérage des noms (sociétés du portefeuille, utilisateurs du cabinet) ----------
+           fold() garde la longueur de la chaîne : les positions trouvées s'appliquent au texte saisi. */
+        function fold(s) {
+          var o = "";
+          for (var i = 0; i < s.length; i++) {
+            var c = s.charAt(i);
+            if (c === "’" || c === "‘") c = "'";
+            o += c.normalize("NFD").charAt(0).toLowerCase().charAt(0);
+          }
+          return o;
+        }
+        function fromRaw(raw, phrase) {
+          var re = new RegExp(phrase.split(" ").join("[^a-z0-9]+"));
+          var m = re.exec(fold(raw));
+          return m ? raw.substr(m.index, m[0].length) : phrase;
+        }
+        var FORME_TOK = ["sas", "sarl", "sa", "sci", "scp", "sccv", "selarl", "sasu", "eurl", "demo"];
+        var PATS = (function () {
+          var pats = [];
+          var seen = {};
+          function add(txt, type, id, cap) {
+            var p = fold(txt).replace(/[^a-z0-9+]+$/, "").replace(/\s+/g, " ").trim();
+            if (p.length < 2 || seen[type + "|" + p]) return;
+            seen[type + "|" + p] = 1;
+            pats.push({ p: p, type: type, id: id, cap: !!cap });
+          }
+          var names = SOC.map(function (s) {
+            return s.n;
+          });
+          E.societes.forEach(function (s) {
+            if (names.indexOf(s.nom) === -1) names.push(s.nom);
+          });
+          names.forEach(function (n) {
+            add(n, "soc", n);
+            var tok = fold(n).replace(/[^a-z0-9+&' ]/g, " ").split(/\s+/).filter(Boolean);
+            while (tok.length && FORME_TOK.indexOf(tok[0]) !== -1) tok.shift();
+            while (tok.length && FORME_TOK.indexOf(tok[tok.length - 1]) !== -1) tok.pop();
+            var alias = tok.join(" ");
+            if (alias.length >= 4 && alias !== fold(n)) add(alias, "soc", n);
+          });
+          PEOPLE.forEach(function (p) {
+            var parts = p.name.split(" ");
+            add(p.name, "per", p.name);
+            add(parts[parts.length - 1], "per", p.name);
+            add(parts[0], "per", p.name, true); /* prénom seul : seulement avec majuscule */
+          });
+          return pats.sort(function (a, b) {
+            return b.p.length - a.p.length;
+          });
+        })();
+        function isAN(c) {
+          return !!c && /[a-z0-9]/.test(c);
+        }
+        function findSpans(raw) {
+          var f = fold(raw);
+          var spans = [];
+          PATS.forEach(function (pt) {
+            var from = 0;
+            var i;
+            while ((i = f.indexOf(pt.p, from)) !== -1) {
+              var j = i + pt.p.length;
+              from = i + 1;
+              if (isAN(f.charAt(i - 1)) || isAN(f.charAt(j))) continue;
+              if (pt.cap && raw.charAt(i) === raw.charAt(i).toLowerCase()) continue;
+              if (spans.some(function (s) {
+                return i < s.e && j > s.s;
+              })) continue;
+              spans.push({ s: i, e: j, type: pt.type, id: pt.id });
+            }
+          });
+          return spans.sort(function (a, b) {
+            return a.s - b.s;
+          });
+        }
+        /* Noms propres non reconnus : masqués par précaution (mots en capitales ou à majuscule hors début de phrase) */
+        var KNOWN_UP = ["ag", "agoa", "age", "sas", "sasu", "sarl", "eurl", "sa", "sci", "scp", "sccv", "selarl", "lab", "cac", "inpi", "dpj", "ej", "tva", "ppe", "ia", "rne", "cir", "siren", "t1", "t2", "t3", "t4", "v0", "v1", "v2", "lm", "be"];
+        var KNOWN_CAP = MOIS_N.concat(["guichet", "express", "juridique", "cockpit", "campagne", "depot", "depots", "formalite", "formalites", "signature", "signatures", "societe", "societes", "lettre", "lettres", "mission", "missions", "echeance", "echeances", "assemblee", "approbation", "comptes", "dossier", "dossiers", "associe", "collaborateur"]);
+        function residualSpans(raw, spans) {
+          var out = [];
+          var re = /[A-Za-zÀ-ÖØ-öø-ÿ0-9][A-Za-zÀ-ÖØ-öø-ÿ0-9'’.&+-]*/g;
+          var m;
+          while ((m = re.exec(raw))) {
+            var s = m.index;
+            var e = s + m[0].length;
+            var w = m[0].replace(/[.'’-]+$/, "");
+            e = s + w.length;
+            if (spans.some(function (x) {
+              return s < x.e && e > x.s;
+            })) continue;
+            var fw = fold(w);
+            var letters = w.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ]/g, "");
+            if (!letters) continue;
+            var allUp = letters.length >= 2 && letters === letters.toUpperCase();
+            var cap = letters.charAt(0) !== letters.charAt(0).toLowerCase();
+            var before = raw.slice(0, s).replace(/\s+$/, "");
+            var start = !before || /[.?!:«"]$/.test(before);
+            var suspect = (allUp && KNOWN_UP.indexOf(fw) === -1) || (cap && !allUp && !start && KNOWN_CAP.indexOf(fw) === -1);
+            if (!suspect) continue;
+            var last = out[out.length - 1];
+            if (last && /^\s+$/.test(raw.slice(last.e, s))) last.e = e;
+            else out.push({ s: s, e: e, type: "nom", id: fold(w) });
+          }
+          out.forEach(function (o) {
+            o.id = fold(raw.slice(o.s, o.e));
+          });
+          return out;
+        }
+        function maskInfo(raw) {
+          var spans = findSpans(raw);
+          spans = spans.concat(residualSpans(raw, spans)).sort(function (a, b) {
+            return a.s - b.s;
+          });
+          var num = { soc: {}, per: {}, nom: {} };
+          var cnt = { soc: 0, per: 0, nom: 0 };
+          var lab = { soc: "société", per: "personne", nom: "nom" };
+          var html = "";
+          var last = 0;
+          spans.forEach(function (sp) {
+            if (!num[sp.type][sp.id]) num[sp.type][sp.id] = ++cnt[sp.type];
+            html += esc(raw.slice(last, sp.s)) + "[" + lab[sp.type] + " " + num[sp.type][sp.id] + "]";
+            last = sp.e;
+          });
+          html += esc(raw.slice(last));
+          return { html: html, soc: cnt.soc, per: cnt.per, nom: cnt.nom };
+        }
+
+        /* ---------- État ---------- */
+        var F = { formes: [], createur: null, periode: null };
+        function cloneF(f) {
+          return { formes: f.formes.slice(), createur: f.createur, periode: f.periode };
+        }
+        function sameF(a, b) {
+          return a.formes.join() === b.formes.join() && a.createur === b.createur && (a.periode ? a.periode.key : "") === (b.periode ? b.periode.key : "");
+        }
+        var DEFAULT_ORDER = {
+          file: ["todo"],
+          campagne: ["etapes", "liste", "repli"],
+          avancement: ["pipeline", "liste"],
+          echeances: ["calendrier", "noncalc"],
+          missions: ["lettres", "lab"],
+        };
+        var BLOCK_NAMES = {
+          todo: "À faire aujourd’hui",
+          etapes: "Avancement par étape",
+          liste: "Liste des dossiers",
+          repli: "Sans date de clôture : le repli",
+          pipeline: "Opérations par étape",
+          calendrier: "Les 90 prochains jours",
+          noncalc: "Ce que le calendrier ne sait pas encore",
+          lettres: "Lettres de mission à faire signer",
+          lab: "Dossiers LAB à revoir",
+        };
+        var ORDER = {};
+        Object.keys(DEFAULT_ORDER).forEach(function (k) {
+          ORDER[k] = DEFAULT_ORDER[k].slice();
+        });
+        var S = { model: "file", pins: [], more: {}, campStage: null, opsStage: null, journal: [], hc: [], jid: 0, savedLoaded: false, lastQ: null, lastB: null };
+        var pending = null;
+        var thinkTimer = null;
+
+        function passF(name) {
+          if (!F.formes.length) return true;
+          var s = BYNAME[name];
+          return !!s && F.formes.indexOf(s.f) !== -1;
+        }
+        function passFe(forme) {
+          return !F.formes.length || F.formes.indexOf(forme) !== -1;
+        }
+        function passC(by) {
+          return !F.createur || by === F.createur;
+        }
+        function passP(d) {
+          return !F.periode || (d >= F.periode.from && d <= F.periode.to);
+        }
+        function withF(tmp, fn) {
+          var old = F;
+          F = tmp;
+          try {
+            return fn();
+          } finally {
+            F = old;
+          }
+        }
+
+        /* ---------- Lignes de liste ---------- */
+        function formeOf(name) {
+          var s = BYNAME[name];
+          return s ? s.f : "";
+        }
+        var DEP_META = {
+          a_signer: { label: "Documents à signer", badge: "badge-action", when: "Modifié le ", verb: "Lancer la signature" },
+          sig: { label: "En cours de signature", badge: "badge-progress", when: "Envoyé pour signature le ", verb: "Suivre la signature" },
+          pret: { label: "Prêt à déposer", badge: "badge-progress", when: "Prêt depuis le ", verb: "Déposer au Guichet unique" },
+        };
+        function depRow(d) {
+          var m = DEP_META[d.st];
+          return {
+            soc: d.soc,
+            forme: formeOf(d.soc),
+            motif: "Dépôt " + esc(d.dep) + ' · <a class="link" href="formalite.html">' + esc(d.ref) + "</a> · créé par " + esc(d.by),
+            badge: '<span class="badge ' + m.badge + '">' + m.label + "</span>" + lmFlag(d.soc),
+            meta: m.when + d.date + " (" + since(d.date) + " j)",
+            verb: m.verb,
+            href: "suivi-actions.html",
+            age: since(d.date),
+          };
+        }
+        function formRow(f, verb) {
+          var dec = f.dec === null ? "date de décision non définie" : f.dec ? "décision du " + f.dec : "";
+          return {
+            soc: f.soc,
+            forme: formeOf(f.soc),
+            motif: '<a class="link" href="formalite.html">' + esc(f.ref) + "</a> · " + esc(f.type) + (dec ? " · " + dec : "") + " · créé par " + esc(f.by),
+            badge: '<span class="badge badge-progress">Formulaire en cours</span>' + lmFlag(f.soc),
+            meta: "Mis à jour le " + f.maj + " (" + since(f.maj) + " j)",
+            verb: verb || "Reprendre le formulaire",
+            href: "formalite.html",
+            age: since(f.maj),
+          };
+        }
+        var STAGES = [
+          { k: "prep", label: "À préparer", badge: "badge-neutral", verb: "Créer l’AGOA", href: "nouvelle-formalite.html", color: "var(--ej-neutral-300)" },
+          { k: "gen", label: "Documents générés", badge: "badge-action", verb: "Lancer la signature", href: "suivi-actions.html", color: "var(--ej-attention-500)" },
+          { k: "sig", label: "En signature", badge: "badge-progress", verb: "Suivre la signature", href: "suivi-actions.html", color: "var(--ej-action-400)" },
+          { k: "dep", label: "À déposer", badge: "badge-progress", verb: "Déposer au Guichet unique", href: "suivi-actions.html", color: "var(--ej-primary-900)" },
+          { k: "ok", label: "Déposé", badge: "badge-success", verb: "Voir la société", href: "societe.html", color: "var(--ej-accent-400)" },
+        ];
+        var STAGE = {};
+        STAGES.forEach(function (s) {
+          STAGE[s.k] = s;
+        });
+        function late(txt) {
+          return '<span class="cp-late">' + ms("warning") + txt + "</span>";
+        }
+        function campMeta(s) {
+          if (s.st === "ok") return "";
+          var out = [];
+          if (s.agLate) out.push(late("AG non tenue dans le délai"));
+          if (s.depLate) out.push(late("Délai de dépôt dépassé"));
+          if (!out.length && s.dl < TODAY) out.push(late("Échéance dépassée, comptes non déposés"));
+          if (!out.length && !s.held) out.push("AG dans " + daysTo(s.dl) + " j");
+          if (!out.length && s.due) out.push("Dépôt avant le " + fmt(s.due));
+          return out.join(" ");
+        }
+        function campRow(s) {
+          var st = STAGE[s.st];
+          var verb = st.verb;
+          var href = st.href;
+          if (s.st === "prep" && s.fe) {
+            verb = "Reprendre l’AGOA";
+            href = "formalite.html";
+          }
+          return {
+            soc: s.n,
+            forme: s.f,
+            motif:
+              "Exercice clos le " + fmt(s.clos) + " · AG avant le " + fmt(s.dl) +
+              (s.dec ? " · décision du " + fmt(s.dec) : "") +
+              (s.st === "prep" && s.fe ? " · formulaire AGOA commencé" : ""),
+            badge: '<span class="badge ' + st.badge + '">' + st.label + "</span>" + lmFlag(s.n),
+            meta: campMeta(s),
+            verb: verb,
+            href: href,
+          };
+        }
+        function rowHtml(r) {
+          return (
+            '<div class="cp-row"><div><div class="cp-row-soc">' + esc(r.soc) + (r.forme ? '<span class="cp-forme">' + esc(r.forme) + "</span>" : "") + "</div>" +
+            '<div class="cp-row-motif">' + r.motif + "</div></div>" +
+            '<div class="cp-row-side">' + (r.badge || "") + (r.meta ? '<span class="cp-row-meta">' + r.meta + "</span>" : "") + "</div>" +
+            '<a class="btn btn-secondary btn-sm cp-verb" href="' + esc(r.href) + '">' + r.verb + ms("arrow_right") + "</a></div>"
+          );
+        }
+        function socRow(s, motif) {
+          return { soc: s.n, forme: s.f, motif: motif, badge: lmFlag(s.n), meta: "", verb: "Voir la société", href: "societe.html" };
+        }
+
+        /* ---------- Catalogue d'indicateurs certifiés ----------
+           etat : ex (donnée existante), dpj (promise par le DPJ), mod (module 2027), hyp (hypothèse à vérifier)
+           dims : dimensions de filtre autorisées (forme, createur, periode) ; camp : règle de la campagne d'approbation */
+        function campBase() {
+          return SOC.filter(function (s) {
+            return s.camp && passFe(s.f);
+          }).sort(function (a, b) {
+            return a.dl - b.dl || (a.n < b.n ? -1 : 1);
+          });
+        }
+        function campSoc() {
+          return campBase().filter(function (s) {
+            return passP(s.dl);
+          });
+        }
+        function portfolio() {
+          return SOC.filter(function (s) {
+            return passFe(s.f);
+          }).length;
+        }
+        /* Sociétés commerciales sans date de clôture : hors calcul de la campagne */
+        function noClot() {
+          return SOC.filter(function (s) {
+            return !s.cl && !s.civ && passFe(s.f);
+          });
+        }
+        function civiles() {
+          return SOC.filter(function (s) {
+            return s.civ && passFe(s.f);
+          });
+        }
+        function nouvelles() {
+          return SOC.filter(function (s) {
+            return s.nouv && passFe(s.f);
+          });
+        }
+        function seeBtn(id, txt) {
+          return '<button type="button" class="cp-linkbtn" data-cp-list="' + id + '">' + txt + "</button>";
+        }
+        function campCov(n) {
+          var nc = noClot().length;
+          var cv = civiles().length;
+          var nv = nouvelles().length;
+          return (
+            n + " sociétés sur " + portfolio() +
+            (nc ? " · " + seeBtn("camp_sans_cloture", nc + " sans date de clôture") : "") +
+            (cv ? " · " + seeBtn("camp_civiles", cv + " " + pl(cv, "société civile", "sociétés civiles") + " (règle propre)") : "") +
+            (nv ? " · " + seeBtn("camp_nouv", nv + " " + pl(nv, "entrée", "entrées") + " au cabinet après l’échéance") : "")
+          );
+        }
+        var PER_CAMP = "mois de l’échéance de l’AG";
+        function depCalc(st) {
+          return DEP.filter(function (d) {
+            return d.st === st && passF(d.soc) && passC(d.by);
+          }).map(depRow);
+        }
+        var IND = {
+          soc_suivies: {
+            label: "Sociétés suivies", short: "Sociétés suivies", ver: "v0", etat: "ex", src: "Fiches sociétés", dims: ["forme"],
+            rule: "société suivie par le cabinet dans Express Juridique (compteur de l’accueil actuel).",
+            calc: function () {
+              var rows = SOC.filter(function (s) {
+                return passFe(s.f);
+              }).map(function (s) {
+                return socRow(s, s.cl ? "Clôture au " + s.cl + " (DPJ)" : "Date de clôture absente du DPJ");
+              });
+              return { v: rows.length, sub: F.formes.length ? "sur " + TOTAL + " sociétés suivies" : "tout le portefeuille", cov: "les " + TOTAL + " sociétés du cabinet", rows: rows };
+            },
+          },
+          docs_a_signer: {
+            label: "Documents à signer", short: "Documents à signer", ver: "v0", etat: "ex", src: "Suivi des actions, dépôts INPI", dims: ["forme", "createur"],
+            rule: "dépôt INPI au statut « Documents à signer ».",
+            calc: function () {
+              var rows = depCalc("a_signer");
+              return { v: rows.length, sub: "signature à lancer", cov: "tous les dépôts INPI du cabinet", rows: rows };
+            },
+          },
+          prets_a_deposer: {
+            label: "Prêts à déposer", short: "Prêts à déposer", ver: "v0", etat: "ex", src: "Suivi des actions, dépôts INPI", dims: ["forme", "createur"],
+            rule: "dépôt INPI au statut « Prêt à déposer » (documents signés).",
+            calc: function () {
+              var rows = depCalc("pret");
+              return { v: rows.length, sub: "à transmettre au Guichet unique", cov: "tous les dépôts INPI du cabinet", rows: rows };
+            },
+          },
+          sig_15j: {
+            label: "Signatures en attente depuis plus de 15 jours", short: "Signatures > 15 j", ver: "v0", etat: "ex", src: "Suivi des actions, horodatage du dernier événement", dims: ["forme", "createur"],
+            rule: "dépôt « En cours de signature », envoyé il y a plus de 15 jours.",
+            calc: function () {
+              var all = depCalc("sig");
+              var rows = all.filter(function (r) {
+                return r.age > 15;
+              });
+              return { v: rows.length, sub: "sur " + all.length + " " + pl(all.length, "signature en cours", "signatures en cours"), cov: "toutes les collectes de signatures du cabinet", rows: rows };
+            },
+          },
+          form_en_cours: {
+            label: "Formalités en cours", short: "Formalités en cours", ver: "v0", etat: "ex", src: "Formalités, statut", dims: ["forme", "createur"],
+            rule: "formalité au statut « Formulaire en cours ».",
+            calc: function () {
+              var rows = FORM.filter(function (f) {
+                return passF(f.soc) && passC(f.by);
+              }).map(function (f) {
+                return formRow(f);
+              });
+              return { v: rows.length, sub: "sur " + FORM_TOTAL + " formalités", cov: "toutes les formalités du cabinet (" + FORM_TOTAL + ")", rows: rows };
+            },
+          },
+          dec_manquante: {
+            label: "Dates de décision à saisir", short: "Décisions sans date", ver: "v0", etat: "ex", src: "Formalités, date de décision", dims: ["forme", "createur"],
+            rule: "formalité en cours dont la date de décision est « non définie ».",
+            calc: function () {
+              var rows = FORM.filter(function (f) {
+                return f.dec === null && passF(f.soc) && passC(f.by);
+              }).map(function (f) {
+                return formRow(f, "Compléter la date");
+              });
+              return { v: rows.length, sub: "formalités en cours", cov: "toutes les formalités en cours", rows: rows };
+            },
+          },
+          camp_total: {
+            label: "Sociétés dans la campagne", short: "Sociétés en campagne", ver: "v0", etat: "dpj", src: "DPJ, date de clôture", dims: ["forme", "periode"], camp: true, perNote: PER_CAMP,
+            rule: "société commerciale dont l’exercice est clos entre le 01/07/2025 et le 30/06/2026, d’après la date de clôture du DPJ. AG d’approbation dans les six mois après la clôture, sauf prorogation. Sociétés civiles exclues : règle propre à définir avec le juriste EJ.",
+            calc: function () {
+              var c = campSoc();
+              return { v: c.length, sub: "exercices clos de 07/2025 à 06/2026", cov: campCov(c.length), rows: c.map(campRow) };
+            },
+          },
+          camp_deposees: {
+            label: "Approbations déposées", short: "Approbations déposées", ver: "v0", etat: "hyp", src: "Suivi des actions et DPJ", dims: ["forme", "periode"], camp: true, perNote: PER_CAMP,
+            rule: "dépôt des comptes de l’exercice de la campagne au statut « terminé ». Hypothèse : le statut « terminé » reste à définir avec EJ (dépôt transmis, ou validé par le Guichet unique ?), comme dans le modèle Avancement.",
+            calc: function () {
+              var c = campSoc();
+              var rows = c.filter(function (s) {
+                return s.st === "ok";
+              });
+              var pct = c.length ? Math.round((rows.length / c.length) * 100) : 0;
+              return { v: rows.length, sub: pct + " % de la campagne", cov: "les " + c.length + " sociétés de la campagne", rows: rows.map(campRow) };
+            },
+          },
+          camp_90j: {
+            label: "AG à tenir dans les 90 jours", short: "AG sous 90 j", ver: "v0", etat: "dpj", src: "DPJ (clôture) et formalités (date de décision, étape)", dims: ["forme", "periode"], camp: true, perNote: PER_CAMP,
+            rule: "AG pas encore tenue (aucune décision passée, étape ni « En signature » ni « À déposer ») dont l’échéance, six mois après la clôture sauf prorogation, tombe d’ici le " + fmt(H90) + ".",
+            calc: function () {
+              var rows = campSoc().filter(function (s) {
+                return s.st !== "ok" && !s.held && s.dl >= TODAY && s.dl <= H90;
+              });
+              return { v: rows.length, sub: "échéance avant le " + fmt(H90), cov: "les " + campSoc().length + " sociétés de la campagne", rows: rows.map(campRow) };
+            },
+          },
+          camp_ag_retard: {
+            label: "AG non tenue dans le délai", short: "AG hors délai", ver: "v0", etat: "dpj", src: "DPJ (clôture) et formalités (date de décision)", dims: ["forme", "periode"], camp: true, perNote: PER_CAMP,
+            rule: "échéance dépassée (six mois après la clôture, sauf prorogation) sans date de décision, ou décision postérieure à l’échéance. Une prorogation accordée par le tribunal n’est pas connue d’EJ.",
+            calc: function () {
+              var rows = campSoc().filter(function (s) {
+                return s.agLate;
+              });
+              return { v: rows.length, sub: "sans décision avant l’échéance", cov: "les " + campSoc().length + " sociétés de la campagne", rows: rows.map(campRow) };
+            },
+          },
+          camp_depot_retard: {
+            label: "Dépôt des comptes en retard", short: "Dépôts en retard", ver: "v0", etat: "dpj", src: "Formalités (date de décision) et suivi des actions", dims: ["forme", "periode"], camp: true, perNote: PER_CAMP,
+            rule: "décision d’approbation connue, comptes non déposés un mois après (deux mois par voie électronique, cas du Guichet unique) : délai de dépôt dépassé.",
+            calc: function () {
+              var rows = campSoc().filter(function (s) {
+                return s.depLate;
+              });
+              return { v: rows.length, sub: "échéance dépassée, comptes non déposés", cov: "les " + campSoc().length + " sociétés de la campagne", rows: rows.map(campRow) };
+            },
+          },
+          camp_sans_cloture: {
+            label: "Sociétés sans date de clôture", short: "Sans date de clôture", ver: "v0", etat: "dpj", src: "DPJ, date de clôture", dims: ["forme"], camp: true,
+            rule: "société commerciale sans date de clôture au DPJ : aucune échéance calculable.",
+            calc: function () {
+              var l = noClot();
+              var crea = l.filter(function (s) {
+                return s.crea;
+              }).length;
+              return {
+                v: l.length,
+                sub: "dont " + crea + " en création",
+                cov: "les " + portfolio() + " sociétés suivies, hors sociétés civiles",
+                rows: l.map(function (s) {
+                  return {
+                    soc: s.n,
+                    forme: s.f,
+                    motif: s.crea ? "Société en cours de création : premier exercice non clos" : "Date de clôture absente du DPJ" + (s.prev ? " · approuvée en 2025, rien en 2026" : ""),
+                    badge: s.prev ? '<span class="cp-etat hyp">Repli à vérifier</span>' : "",
+                    meta: "",
+                    verb: s.crea ? "Suivre la constitution" : "Compléter le DPJ",
+                    href: s.crea ? "formalites.html" : "societe.html",
+                  };
+                }),
+              };
+            },
+          },
+          camp_civiles: {
+            label: "Sociétés civiles hors campagne", short: "Sociétés civiles", ver: "v0", etat: "ex", src: "Fiche société, forme juridique", dims: ["forme"],
+            rule: "société civile (SCI, SCP, SCCV) : pas de dépôt des comptes au greffe, donc exclue de la règle des sociétés commerciales. Règle propre à définir avec le juriste EJ.",
+            calc: function () {
+              var rows = civiles().map(function (s) {
+                return socRow(s, "Règle d’approbation propre à définir avec le juriste EJ" + (s.cl ? " · clôture au " + s.cl : ""));
+              });
+              return { v: rows.length, sub: "règle propre à définir", cov: "les " + portfolio() + " sociétés suivies", rows: rows };
+            },
+          },
+          camp_nouv: {
+            label: "Entrées au cabinet après l’échéance", short: "Entrées tardives", ver: "v0", etat: "hyp", src: "Fiche société, date d’entrée au cabinet (à confirmer avec EJ)", dims: ["forme"],
+            rule: "société entrée au cabinet après l’échéance de son AG : l’exercice de la campagne n’a pas été suivi par le cabinet. Hors campagne.",
+            calc: function () {
+              var rows = nouvelles().map(function (s) {
+                var x = EJM_BY[s.n];
+                return socRow(s, "Cliente depuis le " + (x && x.lab.ouverture ? x.lab.ouverture : "10/2026") + " · exercice clos le " + fmt(s.clos) + " suivi par le cabinet précédent");
+              });
+              return { v: rows.length, sub: "hors campagne", cov: "les " + portfolio() + " sociétés suivies", rows: rows };
+            },
+          },
+          camp_repli: {
+            label: "Approuvées en 2025, rien en 2026", short: "Repli sans clôture", ver: "v0", etat: "hyp", src: "Formalités, historique des AGOA", dims: ["forme"], camp: true,
+            rule: "société commerciale sans date de clôture, approbation déposée en 2025 et aucune formalité d’approbation en 2026.",
+            calc: function () {
+              var rows = noClot().filter(function (s) {
+                return s.prev;
+              });
+              return {
+                v: rows.length,
+                sub: "repli quand la clôture manque",
+                cov: "les " + noClot().length + " sociétés sans date de clôture",
+                rows: rows.map(function (s) {
+                  return { soc: s.n, forme: s.f, motif: "Dernière approbation déposée en 2025 · date de clôture absente du DPJ", badge: '<span class="badge badge-neutral">À vérifier</span>', meta: "", verb: "Créer l’AGOA", href: "nouvelle-formalite.html" };
+                }),
+              };
+            },
+          },
+          ops_en_cours: {
+            label: "Opérations en cours", short: "Opérations en cours", ver: "v0", etat: "ex", src: "Formalités et suivi des actions", dims: ["forme", "createur"],
+            rule: "formalités « Formulaire en cours » et dépôts INPI non terminés.",
+            calc: function () {
+              var rows = opsRows(null);
+              var nf = rows.filter(function (r) {
+                return r.kind === "form";
+              }).length;
+              return { v: rows.length, sub: nf + " " + pl(nf, "formalité", "formalités") + " · " + (rows.length - nf) + " " + pl(rows.length - nf, "dépôt", "dépôts"), cov: "toutes les formalités et tous les dépôts du cabinet", rows: rows };
+            },
+          },
+          ops_30j: {
+            label: "Sans mouvement depuis 30 jours", short: "Sans mouvement > 30 j", ver: "v0", etat: "ex", src: "Date du dernier événement", dims: ["forme", "createur"],
+            rule: "dernier événement (mise à jour ou changement de statut) il y a plus de 30 jours.",
+            calc: function () {
+              var all = opsRows(null);
+              var rows = all.filter(function (r) {
+                return r.age > 30;
+              });
+              return { v: rows.length, sub: "sur " + all.length + " opérations", cov: "toutes les opérations en cours", rows: rows };
+            },
+          },
+          ech_90j: {
+            label: "Échéances des 90 prochains jours", short: "Échéances sous 90 j", ver: "v0", etat: "dpj", src: "DPJ (clôture) et formalités (dates prévues, date de décision)", dims: ["forme", "periode"], perNote: "date de l’échéance",
+            rule: "AG pas encore tenue (six mois après la clôture, sauf prorogation), dépôt des comptes à faire (deux mois après la décision) et décisions ou signatures prévues dans les formalités, du " + fmt(TODAY) + " au " + fmt(H90) + ".",
+            calc: function () {
+              var items = echItems();
+              var n = { ag: 0, dep: 0, plan: 0 };
+              items.forEach(function (i) {
+                n[i.kind]++;
+              });
+              return {
+                v: items.length,
+                sub: n.ag + " AG · " + n.dep + " " + pl(n.dep, "dépôt", "dépôts") + " · " + n.plan + " " + pl(n.plan, "date prévue", "dates prévues"),
+                cov: campCov(campBase().length),
+                rows: items.map(function (i) {
+                  return i.row;
+                }),
+              };
+            },
+          },
+          lm_sans_sig: {
+            label: "Sociétés sans lettre de mission signée", short: "Lettres non signées", ver: "cible", etat: "mod", src: "Module Lettres de mission (2027, provisoire)", dims: ["forme"],
+            rule: "lettre au statut autre que « Signée » : brouillon, envoyée, à renouveler (non reconduite) ou absente.",
+            calc: function () {
+              var rows = E.societes.filter(function (s) {
+                return s.lm.statut !== "signee" && passFe(s.forme);
+              }).map(lmRow);
+              return { v: rows.length, sub: "à faire signer ou à établir", cov: E.societes.length + " sociétés suivies dans le module (maquette) sur " + E.totalSocietes, rows: rows };
+            },
+          },
+          lm_renouveler: {
+            label: "Lettres à renouveler", short: "Lettres à renouveler", ver: "cible", etat: "mod", src: "Module Lettres de mission (2027, provisoire)", dims: ["forme"],
+            rule: "lettre non reconduite, échéance atteinte.",
+            calc: function () {
+              var rows = E.societes.filter(function (s) {
+                return s.lm.statut === "a_renouveler" && passFe(s.forme);
+              }).map(lmRow);
+              return { v: rows.length, sub: "non reconduites, échéance atteinte", cov: E.societes.length + " sociétés suivies dans le module (maquette)", rows: rows };
+            },
+          },
+          lab_a_revoir: {
+            label: "Dossiers LAB à revoir", short: "LAB à revoir", ver: "cible", etat: "mod", src: "Module LAB (2027, provisoire)", dims: ["forme"],
+            rule: "dossier LAB dont la revue est échue, les pièces incomplètes ou qui reste à ouvrir.",
+            calc: function () {
+              var rows = E.societes.filter(function (s) {
+                return s.lab.statut !== "a_jour" && passFe(s.forme);
+              }).map(labRow);
+              return { v: rows.length, sub: "revues, pièces, ouvertures", cov: E.societes.length + " sociétés suivies dans le module (maquette)", rows: rows };
+            },
+          },
+          lab_renforcee: {
+            label: "Vigilance renforcée", short: "Vigilance renforcée", ver: "cible", etat: "mod", src: "Module LAB (2027, provisoire)", dims: ["forme"],
+            rule: "dossier LAB évalué au risque « élevé ».",
+            calc: function () {
+              var rows = E.societes.filter(function (s) {
+                return s.lab.risque === "eleve" && passFe(s.forme);
+              }).map(labRow);
+              return { v: rows.length, sub: "clients au risque élevé", cov: E.societes.length + " sociétés suivies dans le module (maquette)", rows: rows };
+            },
+          },
+          lab_sans_be: {
+            label: "Bénéficiaires effectifs non identifiés", short: "Bénéficiaires effectifs", ver: "cible", etat: "mod", src: "Module LAB (2027, provisoire)", dims: ["forme"],
+            rule: "dossier LAB sans bénéficiaire effectif identifié.",
+            calc: function () {
+              var rows = E.societes.filter(function (s) {
+                return !s.lab.be && passFe(s.forme);
+              }).map(labRow);
+              return { v: rows.length, sub: "dossiers sans bénéficiaire effectif", cov: E.societes.length + " sociétés suivies dans le module (maquette)", rows: rows };
+            },
+          },
+        };
+        var BASE_IDS = Object.keys(IND);
+        var DIM_LABEL = { forme: "forme juridique", createur: "créé par", periode: "période (mois ou trimestre)" };
+
+        function lmRow(s) {
+          var st = s.lm.statut;
+          var badge = { envoyee: "badge-progress", brouillon: "badge-neutral", a_renouveler: "badge-action", absente: "badge-error" }[st] || "badge-neutral";
+          var motif = st === "envoyee" ? "Envoyée le " + s.lm.envoyee : st === "a_renouveler" ? "Lettre non reconduite, échéance atteinte le " + s.lm.echeance : st === "absente" ? "Aucune lettre de mission" : "Brouillon " + esc(s.lm.ref || "");
+          return {
+            soc: s.nom, forme: s.forme, motif: motif,
+            badge: '<span class="badge ' + badge + '">' + E.LM_STATUT[st] + "</span>", meta: "",
+            verb: st === "absente" ? "Créer la lettre" : st === "envoyee" ? "Relancer la signature" : st === "brouillon" ? "Finaliser la lettre" : "Renouveler",
+            href: st === "absente" ? "lettres-mission.html" : "lettre-mission.html?id=" + encodeURIComponent(s.id),
+          };
+        }
+        function labRow(s) {
+          var rk = s.lab.risque;
+          var risk = rk ? '<span class="risk risk-' + rk + '">' + E.RISQUE[rk] + "</span>" : '<span class="risk risk-na">Non évalué</span>';
+          var motif = s.lab.statut === "incomplet" ? "Pièces reçues : " + s.lab.pieces[0] + " sur " + s.lab.pieces[1] : s.lab.statut === "a_ouvrir" ? "Dossier jamais ouvert" : s.lab.prochaineRevue ? "Revue prévue le " + s.lab.prochaineRevue : "Revue à planifier";
+          if (s.lab.gel === "a_verifier") motif += " · homonymie gel des avoirs à lever";
+          return {
+            soc: s.nom, forme: s.forme, motif: E.LAB_STATUT[s.lab.statut] + " · " + motif, badge: risk, meta: "",
+            verb: s.lab.statut === "a_ouvrir" ? "Ouvrir le dossier" : "Revoir le dossier",
+            href: "lab-dossier.html?id=" + encodeURIComponent(s.id),
+          };
+        }
+        function opsRows(stage) {
+          var rows = [];
+          if (!stage || stage === "form")
+            FORM.forEach(function (f) {
+              if (passF(f.soc) && passC(f.by)) {
+                var r = formRow(f);
+                r.kind = "form";
+                rows.push(r);
+              }
+            });
+          DEP.forEach(function (d) {
+            if ((!stage || stage === d.st) && passF(d.soc) && passC(d.by)) {
+              var r = depRow(d);
+              r.kind = d.st;
+              rows.push(r);
+            }
+          });
+          return rows.sort(function (a, b) {
+            return b.age - a.age;
+          });
+        }
+        function echItems() {
+          var items = [];
+          campBase().forEach(function (s) {
+            if (s.st === "ok") return;
+            if (!s.held && s.dl >= TODAY && s.dl <= H90 && passP(s.dl)) {
+              var r = campRow(s);
+              r.motif = "Échéance de l’AG d’approbation · exercice clos le " + fmt(s.clos);
+              r.meta = '<span class="cp-etat dpj">DPJ</span>';
+              items.push({ d: s.dl, kind: "ag", row: r });
+            }
+            if (s.held && s.due && s.due >= TODAY && s.due <= H90 && passP(s.due)) {
+              var r2 = campRow(s);
+              r2.motif = "Dépôt des comptes à faire · décision du " + fmt(s.dec) + " (deux mois par voie électronique)";
+              r2.meta = '<span class="cp-etat ex">Formalité</span>';
+              r2.verb = s.st === "dep" ? "Déposer au Guichet unique" : r2.verb;
+              items.push({ d: s.due, kind: "dep", row: r2 });
+            }
+          });
+          PLAN.forEach(function (p) {
+            var dt = parse(p.date);
+            if (dt >= TODAY && dt <= H90 && passF(p.soc) && passP(dt)) {
+              items.push({
+                d: dt,
+                kind: "plan",
+                row: { soc: p.soc, forme: formeOf(p.soc), motif: esc(p.nat) + " · créé par " + esc(p.by), badge: lmFlag(p.soc), meta: '<span class="cp-etat ex">Formalité</span>', verb: "Ouvrir la formalité", href: "formalite.html" },
+              });
+            }
+          });
+          items.sort(function (a, b) {
+            return a.d - b.d;
+          });
+          return items;
+        }
+
+        /* ---------- Composants ---------- */
+        var VER = { v0: "V0", v1: "V1", v2: "V2", cible: "Vision cible" };
+        function verTag(v, short) {
+          return '<span class="ver ver-' + v + '">' + (short && v === "cible" ? "Cible" : VER[v]) + "</span>";
+        }
+        var ETAT = { ex: ["ex", "Donnée existante"], dpj: ["dpj", "Promise par le DPJ"], mod: ["mod", "Module 2027"], hyp: ["hyp", "Hypothèse à vérifier"] };
+        function etatTag(e) {
+          return '<span class="cp-etat ' + ETAT[e][0] + '">' + ETAT[e][1] + "</span>";
+        }
+        function filterLines(d, f) {
+          f = f || F;
+          var out = [];
+          if (f.formes.length) out.push(d.dims.indexOf("forme") !== -1 ? "<strong>Filtre</strong> : forme " + esc(f.formes.join(", ")) : "<strong>Filtre forme</strong> : non applicable");
+          if (f.createur) out.push(d.dims.indexOf("createur") !== -1 ? "<strong>Filtre</strong> : créé par " + esc(f.createur) : "<strong>Filtre créé par</strong> : non applicable (indicateur par société)");
+          if (f.periode) out.push(d.dims.indexOf("periode") !== -1 ? "<strong>Période</strong> : " + esc(f.periode.label) + (d.perNote ? " (" + d.perNote + ")" : "") : "<strong>Filtre période</strong> : non applicable");
+          return out;
+        }
+        function ruleLines(d, r, f, withCalc) {
+          return ["<strong>Règle</strong> : " + d.rule, "<strong>Source</strong> : " + esc(d.src) + " · " + etatTag(d.etat)]
+            .concat(withCalc ? ["<strong>Calculé le</strong> " + CALC] : [])
+            .concat(["<strong>Couverture</strong> : " + r.cov])
+            .concat(filterLines(d, f));
+        }
+        function tile(id, opt) {
+          opt = opt || {};
+          var d = IND[id];
+          if (!d) return "";
+          var r = d.calc();
+          return (
+            '<div class="card stat' + (opt.att && r.v > 0 ? " attention" : "") + '">' +
+            '<div class="stat-top"><span class="cp-tname" title="' + esc(d.label) + '">' + esc(d.short) + "</span>" +
+            (opt.pinned
+              ? '<span class="cp-pinmark">' + ms("pin") + '<button type="button" class="icon-btn" data-cp-unpin="' + id + '" aria-label="Retirer la tuile épinglée ' + esc(d.label) + '" title="Retirer du cockpit">' + ms("close") + "</button></span>"
+              : "") +
+            "</div>" +
+            '<div class="stat-value' + (r.v === 0 ? " cp-zero" : "") + '">' + r.v + "</div>" +
+            '<div class="stat-sub">' + (d.etat === "hyp" ? '<span class="cp-etat hyp">Hypothèse</span>' : "") + r.sub + "</div>" +
+            '<div class="cp-tfoot"><button type="button" class="stat-link" data-cp-list="' + id + '">Voir la liste' + ms("arrow_right") + "</button>" +
+            '<details class="cp-rule"><summary>Règle et couverture' + ms("chevron_down") + '</summary><div class="stat-rule">' + ruleLines(d, r, F, false).join("<br>") + "</div></details></div></div>"
+          );
+        }
+        function block(id, title, desc, side, body) {
+          return (
+            '<section class="card cp-block" data-block="' + id + '"><div class="block-head"><div><h2>' + title + "</h2>" + (desc ? "<p>" + desc + "</p>" : "") + "</div>" +
+            (side ? '<div class="cp-head-side">' + side + "</div>" : "") + "</div>" + body + "</section>"
+          );
+        }
+        function moreBtn(key, n, limit) {
+          if (n <= limit) return "";
+          var open = !!S.more[key];
+          return '<button type="button" class="cp-more" data-cp-more="' + key + '" aria-expanded="' + open + '">' + (open ? ms("expand_less") + "Réduire" : ms("expand_more") + "Afficher les " + (n - limit) + " autres") + "</button>";
+        }
+        function seg(stages, counts, active, attr) {
+          var bar = stages.map(function (s) {
+            var n = counts[s.k] || 0;
+            if (!n) return "";
+            return (
+              '<button type="button" class="cp-seg-part' + (active && active !== s.k ? " cp-dim" : "") + '" style="flex:' + n + " 1 0;background:" + s.color + '" ' + attr + '="' + s.k + '" tabindex="-1" title="' + esc(s.label) + " : " + n + '"></button>'
+            );
+          }).join("");
+          var leg = stages.map(function (s) {
+            return '<button type="button" class="cp-leg" ' + attr + '="' + s.k + '" aria-pressed="' + (active === s.k) + '"><i style="background:' + s.color + '"></i>' + s.label + " <b>" + (counts[s.k] || 0) + "</b></button>";
+          }).join("");
+          return '<div class="cp-seg"><div class="cp-seg-bar" aria-hidden="true">' + bar + '</div><div class="cp-seg-legend">' + leg + "</div></div>";
+        }
+
+        /* ---------- Modèles ---------- */
+        var MODELS = [
+          { id: "file", label: "File du jour", full: "Ma file du jour", ver: "v0", icon: "list_checks", desc: "Ce qui attend une action, société par société, de l’échéance la plus proche aux dossiers immobiles." },
+          { id: "campagne", label: "Campagne", full: "Campagne d’approbation des comptes", ver: "v0", icon: "stamp", desc: "Les approbations des comptes de l’année, de la préparation au dépôt." },
+          { id: "avancement", label: "Avancement", full: "Avancement des opérations", ver: "v0", icon: "layers", desc: "Toutes les opérations en cours, par étape, et celles qui n’avancent plus." },
+          { id: "echeances", label: "Échéances", full: "Calendrier des échéances", ver: "v0", icon: "calendar_clock", desc: "Les dates à tenir dans les 90 prochains jours, et ce qui ne se calcule pas encore." },
+          { id: "missions", label: "Missions", full: "Missions & conformité", ver: "cible", icon: "shield_check", desc: "Vision cible : modules annoncés de mars à mai 2027 (provisoire). Chiffres sur les " + E.societes.length + " dossiers de la maquette, pas sur les " + E.totalSocietes + " sociétés." },
+          { id: "nouveau", label: "Nouveau", full: "Nouveau tableau", ver: "v2", icon: "plus", desc: "Composer un tableau sur page blanche, en trois temps." },
+        ];
+        function modelOf(id) {
+          return MODELS.filter(function (m) {
+            return m.id === id;
+          })[0];
+        }
+        var TILE_IDS = {
+          file: ["docs_a_signer", "prets_a_deposer", "sig_15j", "form_en_cours"],
+          campagne: ["camp_total", "camp_90j", "camp_ag_retard", "camp_depot_retard", "camp_deposees"],
+          avancement: ["ops_en_cours", "ops_30j", "sig_15j", "dec_manquante"],
+          echeances: ["ech_90j", "camp_ag_retard", "camp_depot_retard", "camp_sans_cloture"],
+          missions: ["lm_sans_sig", "lm_renouveler", "lab_a_revoir", "lab_renforcee"],
+          nouveau: [],
+        };
+        var ATT = { file: "docs_a_signer", campagne: "camp_ag_retard", avancement: "ops_30j", echeances: "camp_depot_retard", missions: "lm_sans_sig" };
+
+        /* File du jour : une ligne par société, triée par urgence datée */
+        var ACT_RANK = { "Relancer les signataires": 0, "Lancer la signature": 1, "Déposer au Guichet unique": 2, "Préparer l’échéance": 3, "Compléter la date de décision": 4, "Suivre la signature": 5, "Reprendre le formulaire": 6 };
+        function fileGroups() {
+          var by = {};
+          var order = [];
+          function add(soc, a) {
+            if (!by[soc]) {
+              by[soc] = { soc: soc, acts: [] };
+              order.push(soc);
+            }
+            by[soc].acts.push(a);
+          }
+          DEP.forEach(function (d) {
+            if (!passF(d.soc) || !passC(d.by)) return;
+            var relance = d.st === "sig" && since(d.date) > 15;
+            add(d.soc, { verb: relance ? "Relancer les signataires" : DEP_META[d.st].verb, what: "dépôt " + d.dep.split(" · ")[0] + " · " + esc(d.ref), href: "suivi-actions.html", age: since(d.date) });
+          });
+          FORM.forEach(function (f) {
+            if (!passF(f.soc) || !passC(f.by)) return;
+            add(f.soc, { verb: f.dec === null ? "Compléter la date de décision" : "Reprendre le formulaire", what: esc(f.type) + " · " + esc(f.ref), href: "formalite.html", age: since(f.maj) });
+          });
+          PLAN.forEach(function (p) {
+            var dt = parse(p.date);
+            if (dt < TODAY || daysTo(dt) > 30 || !passF(p.soc) || !passC(p.by)) return;
+            add(p.soc, { verb: "Préparer l’échéance", what: esc(p.nat) + " le " + p.date, href: "formalite.html", age: null, due: dt, dueTxt: p.nat.split(" · ")[0] + " le " + p.date });
+          });
+          var groups = order.map(function (k) {
+            var g = by[k];
+            var s = BYNAME[k];
+            var dues = [];
+            g.acts.forEach(function (a) {
+              if (a.due) dues.push({ d: a.due, txt: a.dueTxt, late: false });
+            });
+            if (s && s.camp && s.st !== "ok") {
+              if (s.agLate) dues.push({ d: s.dl, txt: "AG non tenue dans le délai (échéance du " + fmt(s.dl) + ")", late: true });
+              else if (!s.held && s.dl >= TODAY && s.dl <= H90) dues.push({ d: s.dl, txt: "AG avant le " + fmt(s.dl), late: false });
+              if (s.held && s.due) dues.push({ d: s.due, txt: s.depLate ? "Délai de dépôt dépassé depuis le " + fmt(s.due) : "Dépôt des comptes avant le " + fmt(s.due), late: s.depLate });
+            }
+            var fut = dues.filter(function (x) {
+              return !x.late && x.d >= TODAY && x.d <= H90;
+            }).sort(function (a, b) {
+              return a.d - b.d;
+            });
+            var lt = dues.filter(function (x) {
+              return x.late;
+            }).sort(function (a, b) {
+              return a.d - b.d;
+            });
+            var ages = g.acts.filter(function (a) {
+              return a.age != null;
+            }).map(function (a) {
+              return a.age;
+            });
+            g.acts.sort(function (a, b) {
+              return ACT_RANK[a.verb] - ACT_RANK[b.verb];
+            });
+            g.next = fut[0] || null;
+            g.late = lt[0] || null;
+            g.grp = g.next ? 0 : g.late ? 1 : 2;
+            g.calm = ages.length ? Math.min.apply(null, ages) : null; /* jours depuis le dernier mouvement */
+            return g;
+          });
+          return groups.sort(function (a, b) {
+            if (a.grp !== b.grp) return a.grp - b.grp;
+            if (a.grp === 0) return a.next.d - b.next.d;
+            if (a.grp === 1) return a.late.d - b.late.d;
+            return (a.calm || 0) - (b.calm || 0);
+          });
+        }
+        function fileRow(g) {
+          var s = BYNAME[g.soc];
+          var n = g.acts.length;
+          var shown = g.acts.slice(0, 3);
+          var due = "";
+          if (g.next) due += '<span class="cp-due">' + ms("calendar_days") + esc(g.next.txt) + "</span>";
+          if (g.late) due += late(esc(g.late.txt));
+          var calm = g.calm != null && g.calm > 30 ? '<span class="cp-row-meta">Sans mouvement depuis ' + g.calm + " j</span>" : g.calm != null ? '<span class="cp-row-meta">Dernier mouvement il y a ' + g.calm + " j</span>" : "";
+          return (
+            '<div class="cp-row"><div><div class="cp-row-soc">' + esc(g.soc) + (s ? '<span class="cp-forme">' + esc(s.f) + "</span>" : "") + '<span class="cp-nact">' + n + " " + pl(n, "action", "actions") + "</span></div>" +
+            '<ul class="cp-acts">' + shown.map(function (a) {
+              return "<li><span><b>" + a.verb + "</b> · " + a.what + "</span></li>";
+            }).join("") + (n > 3 ? "<li><span>et " + (n - 3) + " " + pl(n - 3, "autre", "autres") + "</span></li>" : "") + "</ul></div>" +
+            '<div class="cp-row-side">' + due + lmFlag(g.soc) + calm + "</div>" +
+            '<a class="btn btn-secondary btn-sm cp-verb" href="' + g.acts[0].href + '">' + g.acts[0].verb + ms("arrow_right") + "</a></div>"
+          );
+        }
+        function blocksFile() {
+          var groups = fileGroups();
+          var nAct = 0;
+          groups.forEach(function (g) {
+            nAct += g.acts.length;
+          });
+          var GT = [
+            { k: 0, icon: "calendar_days", title: "Échéance proche" },
+            { k: 1, icon: "warning", title: "En retard" },
+            { k: 2, icon: "hourglass", title: "Sans échéance datée" },
+          ];
+          var body =
+            '<div class="cp-block-note">' + ms("info") + "<span>Périmètre : tout le cabinet. EJ ne connaît pas encore de collaborateur affecté (question 5 posée à EJ) ; seul le « créé par » existe.</span></div>";
+          GT.forEach(function (t) {
+            var list = groups.filter(function (g) {
+              return g.grp === t.k;
+            });
+            if (!list.length) return;
+            var key = "file" + t.k;
+            var limit = 5;
+            var shown = S.more[key] ? list : list.slice(0, limit);
+            body += '<div class="cp-group-head">' + ms(t.icon) + "<span>" + t.title + '</span><span class="cp-count">' + list.length + "</span></div>" + shown.map(fileRow).join("") + moreBtn(key, list.length, limit);
+          });
+          if (!groups.length) body += '<div class="cp-empty">Rien à traiter avec ces filtres.</div>';
+          return {
+            todo: block(
+              "todo",
+              "À faire aujourd’hui <span class=\"cp-count\">" + groups.length + " " + pl(groups.length, "société", "sociétés") + " · " + nAct + " " + pl(nAct, "action", "actions") + "</span>",
+              "Une ligne par société. Les échéances proches d’abord, puis les retards, puis les dossiers sans échéance datée.",
+              '<a class="btn btn-secondary btn-sm" href="suivi-actions.html">Suivi des actions' + ms("arrow_right") + "</a>",
+              body
+            ),
+          };
+        }
+        function blocksCampagne() {
+          var c = campSoc();
+          var counts = {};
+          c.forEach(function (s) {
+            counts[s.st] = (counts[s.st] || 0) + 1;
+          });
+          var rest = c.filter(function (s) {
+            return S.campStage ? s.st === S.campStage : s.st !== "ok";
+          });
+          var lot = c.filter(function (s) {
+            return s.st === "prep" && !s.fe;
+          });
+          var repli = IND.camp_repli.calc();
+          var sc = IND.camp_sans_cloture.calc();
+          var cv = civiles().length;
+          var listTitle = S.campStage ? "Étape « " + STAGE[S.campStage].label + " »" : "Sociétés à faire avancer";
+          var listSide =
+            (S.campStage ? '<button type="button" class="btn btn-tertiary btn-sm" data-cp-stage="">' + ms("close") + "Toutes les étapes</button>" : "") +
+            '<button type="button" class="btn btn-primary btn-sm" data-cp-open="lot"' + (lot.length ? "" : " disabled") + ">" + ms("layers") + "Préparer " + lot.length + " AGOA en lot</button>" +
+            '<span class="cp-etat hyp">Hypothèse backend</span>';
+          return {
+            etapes: block(
+              "etapes",
+              "Avancement par étape",
+              c.length + " sociétés, de la préparation au dépôt. Cliquez une étape pour filtrer la liste.",
+              '<a class="btn btn-secondary btn-sm" href="formalites.html">Formalités' + ms("arrow_right") + "</a>",
+              seg(STAGES, counts, S.campStage, "data-cp-stage") +
+                '<div class="cp-block-note">' + ms("info") + "<span><strong>Sociétés civiles : règle propre à définir avec le juriste EJ (" + cv + " " + pl(cv, "exclue", "exclues") + ").</strong> Elles ne déposent pas leurs comptes au greffe ; la campagne suit la règle des sociétés commerciales. " + seeBtn("camp_civiles", "Voir les sociétés civiles") + "</span></div>" +
+                '<div class="cp-block-rule"><strong>Règle</strong> : étape déduite de la formalité « AGOA et dépôt des comptes » de l’exercice et du statut de ses dépôts ; si une société a plusieurs dépôts, l’étape la moins avancée compte. L’étape « Déposé » est une hypothèse tant que le statut « terminé » n’est pas défini avec EJ. <strong>Calculé le</strong> ' + CALC + ". <strong>Couverture</strong> : " + campCov(c.length) + ".</div>"
+            ),
+            liste: block(
+              "liste",
+              listTitle + ' <span class="cp-count">' + rest.length + "</span>",
+              "Triées par échéance (six mois après la clôture, sauf prorogation). La création en lot dépend de ce que le backend EJ sait faire (question 8).",
+              listSide,
+              rest.length ? rest.map(campRow).map(rowHtml).join("") : '<div class="cp-empty">Aucune société à cette étape avec ces filtres.</div>'
+            ),
+            repli: block(
+              "repli",
+              "Sans date de clôture : le repli " + etatTag("hyp"),
+              sc.v + " " + pl(sc.v, "société commerciale n’a", "sociétés commerciales n’ont") + " pas de date de clôture au DPJ et ne peuvent pas entrer dans la campagne. Repli proposé : celles approuvées en 2025 sans approbation en 2026.",
+              seeBtn("camp_sans_cloture", "Voir les " + sc.v),
+              repli.rows.length ? repli.rows.map(rowHtml).join("") : '<div class="cp-empty">Aucune société concernée avec ces filtres.</div>'
+            ),
+          };
+        }
+        var OPS_STAGES = [
+          { k: "form", label: "Formulaire en cours", color: "var(--ej-neutral-300)" },
+          { k: "a_signer", label: "Documents à signer", color: "var(--ej-attention-500)" },
+          { k: "sig", label: "En signature", color: "var(--ej-action-400)" },
+          { k: "pret", label: "Prêt à déposer", color: "var(--ej-primary-900)" },
+        ];
+        function blocksAvancement() {
+          var all = opsRows(null);
+          var counts = {};
+          all.forEach(function (r) {
+            counts[r.kind] = (counts[r.kind] || 0) + 1;
+          });
+          var rows = opsRows(S.opsStage);
+          var lbl = S.opsStage ? OPS_STAGES.filter(function (s) {
+            return s.k === S.opsStage;
+          })[0].label : "Toutes les opérations en cours";
+          return {
+            pipeline: block(
+              "pipeline",
+              "Opérations par étape",
+              all.length + " opérations en cours. Cliquez une étape pour filtrer la liste.",
+              '<a class="btn btn-secondary btn-sm" href="suivi-actions.html">Suivi des actions' + ms("arrow_right") + "</a>",
+              seg(OPS_STAGES, counts, S.opsStage, "data-cp-ops") +
+                '<div class="cp-block-note">' + ms("info") + "<span>Étapes absentes faute de donnée : « En attente client » n’existe que comme étiquette libre propre à chaque cabinet ; « Terminé » reste à définir avec EJ (dépôt validé par le Guichet unique ?). Durée de traitement : impossible sans historique des statuts (V2).</span></div>"
+            ),
+            liste: block(
+              "liste",
+              esc(lbl) + ' <span class="cp-count">' + rows.length + "</span>",
+              "Les plus anciennes d’abord, d’après la date du dernier événement.",
+              S.opsStage ? '<button type="button" class="btn btn-tertiary btn-sm" data-cp-ops="">' + ms("close") + "Toutes les étapes</button>" : "",
+              rows.length ? rows.map(rowHtml).join("") : '<div class="cp-empty">Aucune opération avec ces filtres.</div>'
+            ),
+          };
+        }
+        function seeBtnVerb(id, txt) {
+          return '<button type="button" class="btn btn-secondary btn-sm cp-verb" data-cp-list="' + id + '">' + txt + ms("arrow_right") + "</button>";
+        }
+        function blocksEcheances() {
+          var items = echItems();
+          var body = "";
+          var cur = "";
+          items.forEach(function (i) {
+            var mk = i.d.getFullYear() + "-" + i.d.getMonth();
+            if (mk !== cur) {
+              cur = mk;
+              body += '<div class="cp-month">' + MOIS[i.d.getMonth()] + " " + i.d.getFullYear() + "</div>";
+            }
+            var r = i.row;
+            body +=
+              '<div class="cp-row cp-cal"><div class="cp-day"><b>' + i.d.getDate() + "</b><span>" + MOIS_C[i.d.getMonth()] + "</span></div>" +
+              '<div><div class="cp-row-soc">' + esc(r.soc) + (r.forme ? '<span class="cp-forme">' + esc(r.forme) + "</span>" : "") + '</div><div class="cp-row-motif">' + r.motif + "</div></div>" +
+              '<div class="cp-row-side">' + (r.badge || "") + r.meta + "</div>" +
+              '<a class="btn btn-secondary btn-sm cp-verb" href="' + esc(r.href) + '">' + r.verb + ms("arrow_right") + "</a></div>";
+          });
+          if (!items.length) body = '<div class="cp-empty">Aucune échéance dans les 90 prochains jours avec ces filtres.</div>';
+          var sc = IND.camp_sans_cloture.calc();
+          var dec = IND.dec_manquante.calc();
+          var cv = civiles().length;
+          var nc =
+            '<div class="cp-row"><div><div class="cp-row-soc">Sociétés sans date de clôture</div><div class="cp-row-motif">Aucune échéance d’AG calculable. Dont ' + sc.sub.replace("dont ", "") + ".</div></div><div class=\"cp-row-side\">" + etatTag("dpj") + '<span class="cp-row-meta">' + sc.v + "</span></div>" + seeBtnVerb("camp_sans_cloture", "Voir la liste") + "</div>" +
+            '<div class="cp-row"><div><div class="cp-row-soc">Sociétés civiles</div><div class="cp-row-motif">Règle propre à définir avec le juriste EJ : pas de dépôt des comptes au greffe.</div></div><div class="cp-row-side">' + etatTag("ex") + '<span class="cp-row-meta">' + cv + "</span></div>" + seeBtnVerb("camp_civiles", "Voir la liste") + "</div>" +
+            '<div class="cp-row"><div><div class="cp-row-soc">Formalités sans date de décision</div><div class="cp-row-motif">La décision ne peut pas être placée dans le calendrier.</div></div><div class="cp-row-side">' + etatTag("ex") + '<span class="cp-row-meta">' + dec.v + "</span></div>" + seeBtnVerb("dec_manquante", "Voir la liste") + "</div>" +
+            '<div class="cp-row"><div><div class="cp-row-soc">Fins de mandat (dirigeants, commissaires aux comptes)</div><div class="cp-row-motif">Promises par le DPJ. Non affichées tant qu’EJ n’a pas mesuré combien de sociétés les renseignent : un calendrier incomplet sans le dire ferait rater des échéances.</div></div><div class="cp-row-side">' + etatTag("dpj") + "</div><span></span></div>" +
+            '<div class="cp-row"><div><div class="cp-row-soc">Opérations planifiées hors formalité</div><div class="cp-row-motif">Aucune donnée dans EJ aujourd’hui.</div></div><div class="cp-row-side"><span class="cp-etat mod">Non disponible</span></div><span></span></div>';
+          return {
+            calendrier: block(
+              "calendrier",
+              "Les 90 prochains jours <span class=\"cp-count\">" + items.length + "</span>",
+              "Du " + fmt(TODAY) + " au " + fmt(H90) + (F.periode ? ", période " + esc(F.periode.label) : "") + ". AG pas encore tenues, dépôts des comptes à faire et dates prévues dans les formalités.",
+              '<a class="btn btn-secondary btn-sm" href="formalites.html">Formalités' + ms("arrow_right") + "</a>",
+              body
+            ),
+            noncalc: block("noncalc", "Ce que le calendrier ne sait pas encore", "Dire ce qui manque plutôt que l’omettre.", "", nc),
+          };
+        }
+        function blocksMissions() {
+          var lm = IND.lm_sans_sig.calc().rows;
+          var lab = IND.lab_a_revoir.calc().rows;
+          return {
+            lettres: block(
+              "lettres",
+              "Lettres de mission à faire signer <span class=\"cp-count\">" + lm.length + "</span>",
+              "Brouillons, lettres envoyées, non reconduites ou absentes.",
+              '<a class="btn btn-secondary btn-sm" href="lettres-mission.html">Toutes les lettres' + ms("arrow_right") + "</a>",
+              lm.length ? lm.map(rowHtml).join("") : '<div class="cp-empty">Aucune lettre à faire signer avec ces filtres.</div>'
+            ),
+            lab: block(
+              "lab",
+              "Dossiers LAB à revoir <span class=\"cp-count\">" + lab.length + "</span>",
+              "Revues échues, pièces manquantes, dossiers à ouvrir.",
+              '<a class="btn btn-secondary btn-sm" href="lab.html">Dispositif LAB' + ms("arrow_right") + "</a>",
+              lab.length ? lab.map(rowHtml).join("") : '<div class="cp-empty">Aucun dossier à revoir avec ces filtres.</div>'
+            ),
+          };
+        }
+        function visionHtml() {
+          return (
+            '<section class="cp-vision" aria-labelledby="cp-vision-title">' +
+            '<div class="cp-vision-head"><h2 id="cp-vision-title">Nouveau tableau sur page blanche</h2>' + verTag("v2") + "</div>" +
+            "<p>À la manière de Pigment : vous décrivez le tableau voulu, l’IA propose un plan, vous le relisez, puis le tableau se construit à partir du catalogue d’indicateurs certifiés, enrichi par les demandes hors catalogue reçues en V1. Aperçu non fonctionnel.</p>" +
+            '<div class="cp-vgrid">' +
+            '<div class="cp-vstep"><h3><span class="cp-vnum">1</span>Demander</h3><p>Une phrase, comme à un collègue.</p><div class="cp-vfake" aria-hidden="true">« Un tableau pour suivre les cessions de titres de l’année, par mois, avec les dossiers en signature. »</div></div>' +
+            '<div class="cp-vstep"><h3><span class="cp-vnum">2</span>Planifier</h3><p>L’IA propose un plan que vous relisez avant toute construction.</p><ul class="cp-vplan">' +
+            "<li>" + ms("check") + "Indicateur : cessions de titres par mois (formalités)</li>" +
+            "<li>" + ms("check") + "Composant : histogramme sur 12 mois</li>" +
+            "<li>" + ms("check") + "Liste : cessions au statut « En signature »</li>" +
+            "<li>" + ms("ban") + "Prix de cession : hors catalogue, non affiché</li></ul></div>" +
+            '<div class="cp-vstep"><h3><span class="cp-vnum">3</span>Construire</h3><p>Le tableau se monte bloc par bloc ; chaque bloc se supprime à la main et reste dans l’historique.</p><div class="cp-ghosts" aria-hidden="true">' +
+            '<div class="cp-ghost"><i class="cp-gv"></i><i></i></div><div class="cp-ghost"><i class="cp-gv"></i><i></i></div><div class="cp-ghost cp-wide"><i></i><i></i><i></i></div></div></div>' +
+            "</div>" +
+            '<div class="cp-vfoot"><span>' + ms("list_checks") + "Catalogue fermé, même en V2</span><span>" + ms("lock") + "Aucune donnée nominative envoyée au modèle</span><span>" + ms("history") + "Plan relu, suppression manuelle, historique</span></div>" +
+            "</section>"
+          );
+        }
+
+        /* ---------- Rendu ---------- */
+        function renderSub() {
+          document.getElementById("cp-sub").innerHTML =
+            ms("circle_user") + "<strong>" + esc(ME) + "</strong> · Associé · modèle par défaut : File du jour (Campagne au printemps)";
+        }
+        function renderTabs() {
+          document.getElementById("cp-tabs").innerHTML = MODELS.map(function (m) {
+            var on = m.id === S.model;
+            return (
+              '<button class="tab' + (on ? " active" : "") + '" type="button" role="tab" id="cp-tab-' + m.id + '" aria-selected="' + on + '" aria-controls="cp-blocks" tabindex="' + (on ? "0" : "-1") + '" data-cp-model="' + m.id + '" title="' + esc(m.full) + '">' +
+              ms(m.icon) + esc(m.label) + (m.ver === "v0" ? "" : verTag(m.ver, true)) + "</button>"
+            );
+          }).join("");
+          tabsFade();
+        }
+        function tabsFade(scrollActive) {
+          var box = document.getElementById("cp-tabs");
+          var wrap = document.getElementById("cp-tabs-wrap");
+          if (scrollActive) {
+            var a = box.querySelector(".tab.active");
+            if (a) {
+              var l = a.offsetLeft - box.offsetLeft;
+              if (l < box.scrollLeft) box.scrollLeft = l - 24;
+              else if (l + a.offsetWidth > box.scrollLeft + box.clientWidth) box.scrollLeft = l + a.offsetWidth - box.clientWidth + 24;
+            }
+          }
+          wrap.classList.toggle("cp-more-r", box.scrollLeft + box.clientWidth < box.scrollWidth - 2);
+          wrap.classList.toggle("cp-more-l", box.scrollLeft > 2);
+        }
+        function renderIntro() {
+          var m = modelOf(S.model);
+          var meta =
+            '<span class="cp-mh-meta">' + ms("clock") + "<span>Calculé le " + CALC + "</span><span>·</span>" + seeBtn("soc_suivies", "Sociétés suivies : " + TOTAL) + "</span>";
+          var intro = '<span class="cp-mh-desc' + (S.model === "missions" ? " cp-keep" : "") + '">' + esc(m.desc) + "</span>" + meta;
+          if (S.model === "campagne")
+            intro =
+              '<div class="cp-camp-pick" role="group" aria-label="Campagne"><button class="qf-pill active" type="button" aria-pressed="true">Campagne 2026 · AG avant le 31/12/2026</button><button class="qf-pill" type="button" disabled title="S’ouvre en janvier 2027">Campagne 2027 · ouvre en janvier</button></div>' + meta;
+          document.getElementById("cp-intro").innerHTML = intro;
+        }
+        function renderActive() {
+          var h = "";
+          if (F.formes.length) h += '<span class="cp-fchip">Forme : ' + esc(F.formes.join(", ")) + '<button type="button" data-cp-rmf="formes" aria-label="Retirer le filtre forme juridique">' + ms("close") + "</button></span>";
+          if (F.createur) h += '<span class="cp-fchip">Créé par : ' + esc(F.createur) + '<button type="button" data-cp-rmf="createur" aria-label="Retirer le filtre créé par">' + ms("close") + "</button></span>";
+          if (F.periode) h += '<span class="cp-fchip">Période : ' + esc(F.periode.label) + '<button type="button" data-cp-rmf="periode" aria-label="Retirer le filtre période">' + ms("close") + "</button></span>";
+          if (h) h = "<span>Filtres actifs</span>" + h;
+          if (S.savedLoaded) h += '<span class="cp-fchip">Vue enregistrée<button type="button" data-cp-reset-saved aria-label="Revenir à la vue par défaut">' + ms("close") + "</button></span>";
+          document.getElementById("cp-active").innerHTML = h;
+        }
+        function renderTiles() {
+          var el = document.getElementById("cp-tiles");
+          if (S.model === "nouveau") {
+            el.innerHTML = "";
+            return;
+          }
+          var ids = TILE_IDS[S.model];
+          var extra = S.pins.filter(function (p) {
+            return ids.indexOf(p) === -1;
+          });
+          el.innerHTML =
+            '<section aria-label="Indicateurs du modèle"><div class="stats">' +
+            ids.map(function (id) {
+              return tile(id, { att: id === ATT[S.model] });
+            }).join("") +
+            extra.map(function (id) {
+              return tile(id, { pinned: true });
+            }).join("") +
+            "</div></section>";
+        }
+        function blocksFor(model) {
+          if (model === "file") return blocksFile();
+          if (model === "campagne") return blocksCampagne();
+          if (model === "avancement") return blocksAvancement();
+          if (model === "echeances") return blocksEcheances();
+          if (model === "missions") return blocksMissions();
+          return {};
+        }
+        function renderBlocks() {
+          var el = document.getElementById("cp-blocks");
+          el.setAttribute("aria-labelledby", "cp-tab-" + S.model);
+          el.setAttribute("role", "tabpanel");
+          if (S.model === "nouveau") {
+            el.innerHTML = visionHtml();
+            return;
+          }
+          var b = blocksFor(S.model);
+          el.innerHTML = ORDER[S.model].map(function (k) {
+            return b[k] || "";
+          }).join("");
+        }
+        function render() {
+          renderTabs();
+          renderIntro();
+          renderActive();
+          renderTiles();
+          renderBlocks();
+          renderJournal();
+        }
+
+        /* ---------- Panneau latéral ---------- */
+        var lastFocus = null;
+        var drawerMode = null;
+        var draft = null;
+        function openDrawer(over, title, body, foot, mode) {
+          if (document.getElementById("cp-drawer").hidden || !drawerMode) lastFocus = document.activeElement;
+          drawerMode = mode || "list";
+          document.getElementById("cp-dr-over").textContent = over;
+          document.getElementById("cp-dr-title").innerHTML = title;
+          document.getElementById("cp-dr-body").innerHTML = body;
+          document.getElementById("cp-dr-foot").innerHTML = foot || "";
+          document.getElementById("cp-drawer").hidden = false;
+          document.getElementById("cp-backdrop").hidden = false;
+          document.getElementById("cp-drawer").querySelector("[data-cp-close]").focus();
+        }
+        function closeDrawer() {
+          var dr = document.getElementById("cp-drawer");
+          if (dr.hidden) return false;
+          dr.hidden = true;
+          document.getElementById("cp-backdrop").hidden = true;
+          drawerMode = null;
+          draft = null;
+          if (lastFocus && document.body.contains(lastFocus)) lastFocus.focus();
+          lastFocus = null;
+          return true;
+        }
+        function openList(id, f) {
+          var d = IND[id];
+          if (!d) return;
+          f = f || F;
+          var r = withF(f, d.calc);
+          var body =
+            '<div class="cp-dr-sec"><div class="stat-rule">' + ruleLines(d, r, f, true).join("<br>") + "</div></div>" +
+            '<div class="cp-dr-list">' + r.rows.map(rowHtml).join("") + "</div>";
+          openDrawer("Liste exacte · " + r.v + " " + pl(r.v, "ligne", "lignes"), esc(d.label) + " " + verTag(d.ver), body, "", "list");
+        }
+        var PRINCIPES = [
+          ["wand_sparkles", "L’IA compose, EJ calcule : l’IA traduit une demande en indicateurs d’un catalogue fermé, le moteur d’EJ calcule. L’IA ne produit ni chiffre ni requête libre."],
+          ["lock", "Aucune donnée nominative envoyée au modèle : noms de sociétés et de personnes masqués avant l’envoi, seuls le catalogue et la demande partent."],
+          ["list_filter", "Chaque chiffre montre sa règle, sa date de calcul et sa couverture, et ouvre la liste exacte des dossiers."],
+          ["shield_check", "Droits appliqués par le serveur d’EJ, pour chaque personne qui consulte."],
+          ["undo_2", "L’IA propose, vous validez : plan visible, annulation, journal."],
+        ];
+        function openCatalogue(principesOnly) {
+          var groups = [
+            ["ex", "Données existantes dans EJ"],
+            ["dpj", "Promises par le DPJ"],
+            ["hyp", "Hypothèses à vérifier"],
+            ["mod", "Modules 2027 (vision cible)"],
+          ];
+          var body =
+            '<div class="cp-dr-sec"><h3>Nos principes</h3><ul class="cp-plist">' + PRINCIPES.map(function (p) {
+              return "<li>" + ms(p[0]) + "<span>" + p[1] + "</span></li>";
+            }).join("") + "</ul></div>" +
+            '<div class="cp-dr-sec"><p>L’IA ne calcule rien. Elle choisit un indicateur de ce catalogue fermé, certifié par EJ, et le moteur d’EJ le calcule avec les droits de la personne connectée. Une demande hors catalogue reçoit une réponse honnête et enrichit la liste des indicateurs à créer.</p></div>';
+          groups.forEach(function (g) {
+            var ids = BASE_IDS.filter(function (id) {
+              return IND[id].etat === g[0];
+            });
+            if (!ids.length) return;
+            body += '<div class="cp-cat-group">' + g[1] + "</div>";
+            ids.forEach(function (id) {
+              var d = IND[id];
+              body +=
+                '<div class="cp-cat-item"><div class="cp-cat-top"><span>' + esc(d.label) + "</span>" + verTag(d.ver) + etatTag(d.etat) + "</div>" +
+                "<p><strong>Règle</strong> : " + d.rule + "<br><strong>Source</strong> : " + esc(d.src) + "<br><strong>Filtres possibles</strong> : " + (d.dims.length ? d.dims.map(function (x) {
+                  return DIM_LABEL[x];
+                }).join(", ") : "aucun") + "</p></div>";
+            });
+          });
+          body +=
+            '<div class="cp-cat-group">Hors catalogue</div><div class="cp-cat-item"><p><strong>Absents d’EJ, jamais affichés</strong> : chiffre d’affaires, trésorerie et effectif salarié des clients ; collaborateur affecté, durée de traitement, activité par personne.</p>' +
+            "<p><strong>Demandes transmises à EJ pendant cette session</strong> : " + (S.hc.length ? S.hc.map(function (q) {
+              return "« " + esc(q) + " »";
+            }).join(" ; ") : "aucune") + "</p></div>";
+          openDrawer("Catalogue certifié · " + BASE_IDS.length + " indicateurs", principesOnly ? "Nos principes" : "Comment sont calculés ces chiffres ?", body, "", "catalogue");
+        }
+        function openLot() {
+          var lot = campSoc().filter(function (s) {
+            return s.st === "prep" && !s.fe;
+          });
+          var body =
+            '<div class="cp-dr-sec"><p>Créer en une fois une formalité « AGOA et dépôt des comptes » pour chaque société ci-dessous, pré-remplie depuis le DPJ (identité, capital, dirigeants, exercice).</p>' +
+            '<div class="alert alert-warning mt-8">' + ms("warning") + "<div><strong>Hypothèse.</strong> La création en lot dépend de ce que le backend EJ sait déclencher (question 8 du cadrage). Rien n’est créé dans cette maquette.</div></div></div>" +
+            '<div class="cp-dr-list">' + lot.map(campRow).map(rowHtml).join("") + "</div>";
+          var foot = '<button type="button" class="btn btn-secondary" data-cp-close>Fermer</button><a class="btn btn-primary" href="nouvelle-formalite.html">' + ms("plus") + "Ouvrir la création de formalité</a>";
+          openDrawer("Campagne d’approbation · " + lot.length + " " + pl(lot.length, "société", "sociétés"), "Préparer les AGOA en lot", body, foot, "lot");
+        }
+
+        /* ---------- Personnaliser (V0 : filtrer, réordonner, sauvegarder) ---------- */
+        function openPerso() {
+          draft = { formes: F.formes.slice(), createur: F.createur, periode: F.periode ? F.periode.key : "", order: S.model === "nouveau" ? [] : ORDER[S.model].slice() };
+          drawPerso();
+        }
+        function drawPerso(focusKey) {
+          var m = modelOf(S.model);
+          var opts = '<option value="">Tout le cabinet</option>' + PEOPLE.map(function (c) {
+            return '<option value="' + esc(c.name) + '"' + (draft.createur === c.name ? " selected" : "") + ">" + esc(c.name) + (c.name === ME ? " (vous)" : c.st === "invite" ? " (compte invité)" : c.st === "ancien" ? " (ancien ou invité)" : "") + "</option>";
+          }).join("");
+          var popts = '<option value="">Toute la période</option>' + periodChoices().map(function (p) {
+            return '<option value="' + p.key + '"' + (draft.periode === p.key ? " selected" : "") + ">" + esc(p.label) + "</option>";
+          }).join("");
+          var order = draft.order.length > 1
+            ? '<ol class="cp-order">' + draft.order.map(function (k, i) {
+                return (
+                  "<li><span>" + BLOCK_NAMES[k] + "</span>" +
+                  '<button type="button" class="icon-btn" data-cp-move="' + i + ':-1" aria-label="Monter ' + esc(BLOCK_NAMES[k]) + '"' + (i === 0 ? " disabled" : "") + ">" + ms("arrow_up") + "</button>" +
+                  '<button type="button" class="icon-btn" data-cp-move="' + i + ':1" aria-label="Descendre ' + esc(BLOCK_NAMES[k]) + '"' + (i === draft.order.length - 1 ? " disabled" : "") + ">" + ms("arrow_down") + "</button></li>"
+                );
+              }).join("") + "</ol>"
+            : "<p>Ce modèle n’a pas de blocs à réordonner. Les indicateurs restent en tête.</p>";
+          var body =
+            '<div class="cp-dr-sec"><h3>Filtres</h3><fieldset class="cp-checks"><legend>Forme juridique</legend>' +
+            FORMES.map(function (f) {
+              return '<label class="check"><input type="checkbox" data-cp-pf="' + f + '"' + (draft.formes.indexOf(f) !== -1 ? " checked" : "") + " />" + f + "</label>";
+            }).join("") +
+            '</fieldset><div class="form-group"><label class="form-label" for="cp-p-crea">Créé par</label><select class="form-input" id="cp-p-crea">' + opts + '</select><span class="form-helper">Le « créé par » est la seule donnée de personne dans EJ aujourd’hui. Il ne filtre pas les indicateurs par société (campagne, échéances).</span></div>' +
+            '<div class="form-group"><label class="form-label" for="cp-p-per">Période</label><select class="form-input" id="cp-p-per">' + popts + '</select><span class="form-helper">Mois de l’échéance (campagne, échéances). Sans effet sur la file du jour, l’avancement et les missions.</span></div></div>' +
+            '<div class="cp-dr-sec"><h3>Ordre des blocs · ' + esc(m.full) + "</h3>" + order + "</div>" +
+            '<div class="cp-dr-sec"><h3>Sauvegarde</h3><p>Dans EJ, votre cockpit sera retrouvé à chaque connexion. Dans cette maquette, il est gardé dans ce navigateur.</p></div>';
+          var foot =
+            '<button type="button" class="btn btn-tertiary" data-cp-perso="reset">' + ms("rotate_ccw") + "Réinitialiser</button>" +
+            '<button type="button" class="btn btn-secondary" data-cp-perso="save">' + ms("save") + "Appliquer et enregistrer</button>" +
+            '<button type="button" class="btn btn-primary" data-cp-perso="apply">Appliquer</button>';
+          openDrawer("Personnaliser · V0", "Personnaliser le cockpit", body, foot, "perso");
+          if (focusKey) {
+            var again = document.querySelector('[data-cp-move="' + focusKey + '"]');
+            if (again && !again.disabled) again.focus();
+          }
+        }
+        function applyPerso(save) {
+          var prev = { F: cloneF(F), model: S.model, order: S.model === "nouveau" ? null : ORDER[S.model].slice() };
+          var nextF = { formes: draft.formes.slice(), createur: draft.createur, periode: periodFromKey(draft.periode) };
+          var parts = [];
+          if (nextF.formes.join() !== F.formes.join()) parts.push(nextF.formes.length ? "forme " + nextF.formes.join(", ") : "filtre forme retiré");
+          if (nextF.createur !== F.createur) parts.push(nextF.createur ? "créé par " + nextF.createur : "filtre créé par retiré");
+          if ((nextF.periode ? nextF.periode.key : "") !== (F.periode ? F.periode.key : "")) parts.push(nextF.periode ? "période " + nextF.periode.label : "filtre période retiré");
+          if (prev.order && draft.order.join() !== prev.order.join()) parts.push("ordre des blocs de « " + modelOf(S.model).full + " »");
+          F = nextF;
+          if (prev.order) ORDER[S.model] = draft.order.slice();
+          if (parts.length) log("Vous", "Personnalisation : " + parts.join(" ; "), "perso", prev);
+          if (save) {
+            try {
+              localStorage.setItem("ej-cockpit-vue", JSON.stringify({ formes: F.formes, createur: F.createur, periode: F.periode ? F.periode.key : null, order: ORDER, pins: S.pins }));
+              log("Vous", "Vue enregistrée comme vue par défaut", "save", null);
+            } catch (e) {}
+          }
+          closeDrawer();
+          render();
+        }
+
+        /* ---------- Journal, annulation, épinglage ---------- */
+        function now() {
+          var d = new Date();
+          return pad(d.getHours()) + ":" + pad(d.getMinutes());
+        }
+        var UNDOABLE = { filtre: 1, perso: 1, pin: 1, unpin: 1 };
+        function log(src, txt, kind, prev) {
+          var next = null;
+          if (kind === "filtre" || kind === "perso") next = { F: cloneF(F), order: prev && prev.order ? ORDER[prev.model].slice() : null };
+          S.journal.unshift({ id: ++S.jid, t: now(), src: src, txt: txt, kind: kind, prev: prev, next: next, undone: false });
+        }
+        /* Une entrée ne s'annule que si l'état courant est encore son résultat */
+        function canUndo(j) {
+          if (j.undone || !UNDOABLE[j.kind]) return false;
+          if (j.kind === "pin") return S.pins.indexOf(j.prev.pin) !== -1;
+          if (j.kind === "unpin") return S.pins.indexOf(j.prev.pin) === -1;
+          if (!sameF(F, j.next.F)) return false;
+          if (j.next.order && ORDER[j.prev.model].join() !== j.next.order.join()) return false;
+          return true;
+        }
+        function renderJournal() {
+          document.getElementById("cp-jcount").textContent = S.journal.length;
+          var el = document.getElementById("cp-journal");
+          el.innerHTML =
+            "<h3>Journal des modifications</h3>" +
+            (S.journal.length
+              ? S.journal.map(function (j) {
+                  var act = "";
+                  if (j.undone) act = '<span class="cp-jstate">Annulé</span>';
+                  else if (UNDOABLE[j.kind])
+                    act = canUndo(j)
+                      ? '<button type="button" class="btn btn-tertiary btn-sm" data-cp-undo="' + j.id + '">' + ms("undo_2") + "Annuler</button>"
+                      : '<button type="button" class="btn btn-tertiary btn-sm" disabled aria-describedby="cp-jwhy-' + j.id + '">' + ms("undo_2") + 'Annuler</button><span class="cp-jwhy" id="cp-jwhy-' + j.id + '">Une modification plus récente dépend de celle-ci.</span>';
+                  return (
+                    '<div class="cp-jrow' + (j.undone ? " cp-undone" : "") + '"><span class="cp-jtime">' + j.t + '</span><span class="cp-jsrc">' + j.src + '</span><span class="cp-jtxt">' + esc(j.txt) + "</span>" + act + "</div>"
+                  );
+                }).join("")
+              : '<p class="cp-jempty">Aucune modification pour l’instant. Chaque changement proposé par l’IA ou fait à la main s’inscrit ici et peut être annulé.</p>');
+        }
+        function undo(id) {
+          var j = S.journal.filter(function (x) {
+            return x.id === id;
+          })[0];
+          if (!j || !canUndo(j)) return;
+          if (j.kind === "filtre" || j.kind === "perso") {
+            F = cloneF(j.prev.F);
+            if (j.prev.order) ORDER[j.prev.model] = j.prev.order.slice();
+          } else if (j.kind === "pin") {
+            S.pins = S.pins.filter(function (p) {
+              return p !== j.prev.pin;
+            });
+          } else if (j.kind === "unpin") {
+            S.pins.push(j.prev.pin);
+          }
+          j.undone = true;
+          log("Vous", "Annulation : " + j.txt, "undo", null);
+          clearTimeout(thinkTimer);
+          pending = null;
+          document.getElementById("cp-ai-out").innerHTML = "";
+          render();
+          var b = document.querySelector("[data-cp-journal]");
+          if (b) b.focus();
+        }
+        function pin(id) {
+          if (!IND[id] || S.pins.indexOf(id) !== -1) return;
+          S.pins.push(id);
+          log("Vous", "Tuile épinglée : " + IND[id].label, "pin", { pin: id });
+          render();
+        }
+        function unpin(id) {
+          S.pins = S.pins.filter(function (p) {
+            return p !== id;
+          });
+          log("Vous", "Tuile retirée : " + IND[id].label, "unpin", { pin: id });
+          render();
+          var t = document.getElementById("cp-ai-input");
+          if (t) t.focus();
+        }
+
+        /* ---------- IA simulée : interprétation sur catalogue fermé ---------- */
+        var SUGG = [
+          { fn: "Modifier", q: "Montre seulement les SAS et SARL" },
+          { fn: "Modifier", q: "Seulement les formalités créées par Laura Perrin" },
+          { fn: "Période", q: "Montre les AG de décembre" },
+          { fn: "Question", q: "Combien d’AG en retard chez les SAS ?" },
+          { fn: "Question", q: "Combien de sociétés n’ont pas de lettre de mission signée ?" },
+          { fn: "Hors catalogue", q: "Quel est le chiffre d’affaires moyen de mes clients ?" },
+        ];
+        function suggHtml(list) {
+          return list.map(function (s) {
+            return '<button type="button" class="cp-chip" data-cp-sugg="' + esc(s.q) + '"><span class="cp-fn">' + esc(s.fn) + "</span>" + esc(s.q) + "</button>";
+          }).join("");
+        }
+        function norm(s) {
+          return " " + s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9+]+/g, " ") + " ";
+        }
+        /* Données absentes d'EJ (jamais estimées) et mesure d'activité (hors périmètre avant V2) */
+        var HC_ABS = /( chiffre d affaires | le ca | du ca | ca moyen| ca annuel| rentabilit| marge| benefice| resultat net| tresorerie| effectifs? salaries?| effectif moyen| nombre de salaries| salaries | masse salariale| dividende| valorisation)/;
+        var HC_ACT = /( productivit| temps passe| duree de traitement| charge de travail| par collaborateur)/;
+        var C_RULES = [
+          ["lm_renouveler", / lettres? de mission /, /( renouvel| reconduit)/],
+          ["lm_renouveler", / lettres? /, /( renouvel| reconduit)/],
+          ["lm_sans_sig", / lettres? de mission /, null],
+          ["lab_sans_be", / beneficiaires? effectifs? /, null],
+          ["lab_renforcee", /( vigilance renforcee| risque eleve)/, null],
+          ["lab_a_revoir", /( lab | blanchiment| vigilance)/, null],
+          ["sig_15j", / signature/, /( 15 | quinze | attente| attend| relanc| bloque| depuis | retard)/],
+          ["docs_a_signer", / a signer /, null],
+          ["prets_a_deposer", / a deposer /, null],
+          ["camp_sans_cloture", / cloture /, /( sans | manqu| pas de | absente?s? | vide)/],
+          ["camp_civiles", / societes? civiles? /, null],
+          ["camp_repli", /( repli )/, null],
+          ["camp_depot_retard", /( depots?| deposes?| comptes non deposes)/, /( retard| depasse| hors delai)/],
+          ["camp_ag_retard", /( ag | assemblees?| approbations?)/, /( retard| depasse| hors delai| non tenue?s?)/],
+          ["camp_ag_retard", /( retard| depasse| hors delai| echeance passee)/, null],
+          ["camp_90j", /( ag | assemblee| approbation)/, /( 90 | trois mois| prochain| a tenir| bientot)/],
+          ["camp_deposees", /( approbations?| comptes )/, /( deposee?s? | faites | terminee?s? )/],
+          ["camp_total", / campagne /, null],
+          ["dec_manquante", / dates? de decision /, null],
+          ["ops_30j", /( sans mouvement| n avance| bloque| inactif| 30 jours)/, null],
+          ["ech_90j", / echeances? /, null],
+          ["form_en_cours", /( formalites? en cours | formulaires? en cours )/, null],
+          ["ops_en_cours", /( operations? en cours | dossiers en cours )/, null],
+          ["soc_suivies", /( societes suivies| portefeuille| combien de societes | nombre de societes )/, null],
+        ];
+        function matchC(t) {
+          for (var i = 0; i < C_RULES.length; i++) {
+            var r = C_RULES[i];
+            if (r[1].test(t) && (!r[2] || r[2].test(t))) return r[0];
+          }
+          return null;
+        }
+        function findFormes(raw) {
+          var out = [];
+          var conv = [];
+          var re = /\b(SELARL|SARL|SASU|SAS|SCI|SCP|SCCV|SA|EURL)\b/gi;
+          var m;
+          while ((m = re.exec(raw))) {
+            var up = m[1].toUpperCase();
+            if (up === "SA" && m[1] !== "SA") continue;
+            if (up === "SASU") {
+              up = "SAS";
+              if (conv.indexOf("SASU") === -1) conv.push("SASU");
+            }
+            if (up === "EURL") {
+              up = "SARL";
+              if (conv.indexOf("EURL") === -1) conv.push("EURL");
+            }
+            if (out.indexOf(up) === -1) out.push(up);
+          }
+          return { formes: out, conv: conv };
+        }
+        function convNote(conv) {
+          if (!conv.length) return "";
+          return conv.map(function (c) {
+            return c === "EURL" ? "EJ range les EURL avec les SARL (même forme, associé unique)" : "EJ range les SASU avec les SAS (même forme, associé unique)";
+          }).join(" ; ") + ".";
+        }
+        /* Repère les précisions d'une demande : sociétés, personnes, formes, période */
+        function parseQ(raw) {
+          var spans = findSpans(raw);
+          var socs = [];
+          var pers = [];
+          var clean = "";
+          var last = 0;
+          spans.forEach(function (sp) {
+            var list = sp.type === "soc" ? socs : pers;
+            if (list.indexOf(sp.id) === -1) list.push(sp.id);
+            clean += raw.slice(last, sp.s) + " ";
+            last = sp.e;
+          });
+          clean += raw.slice(last);
+          var t = norm(clean);
+          var fr = findFormes(clean);
+          var formes = fr.formes;
+          if (/ societes? civiles? /.test(t))
+            CIVILES.forEach(function (c) {
+              if (formes.indexOf(c) === -1) formes.push(c);
+            });
+          if (/ societes? anonymes? /.test(t) && formes.indexOf("SA") === -1) formes.push("SA");
+          var creePar = / cre(e|ee|es|ees) par /.test(t);
+          var createur = null;
+          var affect = null;
+          if (pers.length && creePar) createur = pers[0];
+          else if (pers.length) affect = pers[0];
+          else if (/( j ai cree| mes formalites| mes depots| mes operations)/.test(t)) createur = ME;
+          if (affect === null && /( attribu| affecte| assigne| en charge de| suivie?s? par | geree?s? par | mes dossiers | mon portefeuille )/.test(t)) affect = / mes dossiers | mon portefeuille /.test(t) ? ME : "";
+          var periode = parsePeriod(t);
+          var noms = residualSpans(raw, spans).map(function (r) {
+            return raw.slice(r.s, r.e);
+          });
+          return { raw: raw, t: t, socs: socs, pers: pers, noms: noms, formes: formes, conv: fr.conv, createur: createur, affect: affect, periode: periode, periodeKo: periode ? null : parsePeriodKo(t, clean) };
+        }
+        var RESET_RE = /( reinitialis| retir\w* (les |le )?filtres?| enlev\w* (les |le )?filtres?| supprim\w* (les |le )?filtres?| sans filtre| tout le cabinet| tous les filtres)/;
+        function interpret(raw) {
+          var P = parseQ(raw);
+          var t = P.t;
+          if (HC_ACT.test(t)) return { type: "hc", kind: "act", P: P };
+          if (HC_ABS.test(t)) return { type: "hc", kind: "abs", P: P };
+          if (P.affect !== null) return { type: "affect", P: P };
+          var isQ = /( combien | quel | quels | quelle | quelles | lesquel| qui | liste | nombre )/.test(t) || raw.indexOf("?") !== -1;
+          var c = matchC(t);
+          var hasF = P.formes.length || P.createur || P.periode;
+          if (c && (isQ || !hasF)) return { type: "c", id: c, P: P };
+          if (isQ && P.formes.length && /( combien | nombre )/.test(t)) return { type: "c", id: "soc_suivies", P: P };
+          if (RESET_RE.test(t)) return { type: "b", change: { reset: true }, P: P };
+          if (hasF || P.socs.length || P.noms.length || P.periodeKo) {
+            var ch = {};
+            if (P.formes.length) ch.formes = P.formes.slice();
+            if (P.createur) ch.createur = P.createur;
+            if (P.periode) ch.periode = P.periode;
+            return { type: "b", change: ch, P: P };
+          }
+          if (isQ) return { type: "hc", kind: "cat", P: P };
+          return { type: "unknown", P: P };
+        }
+        /* Ligne « Envoyé au modèle » : noms masqués avant l'envoi */
+        function sentLine(raw) {
+          var m = maskInfo(raw);
+          var parts = [];
+          if (m.soc) parts.push(m.soc + " " + pl(m.soc, "société", "sociétés"));
+          if (m.per) parts.push(m.per + " " + pl(m.per, "personne", "personnes"));
+          if (m.nom) parts.push(m.nom + " " + pl(m.nom, "nom propre non reconnu", "noms propres non reconnus"));
+          return (
+            '<p class="cp-sent">' + ms("lock") + "<span>Envoyé au modèle : « " + m.html + " » et le catalogue (" + BASE_IDS.length + " indicateurs, 3 dimensions de filtre)." +
+            (parts.length ? " Masqué avant l’envoi : " + parts.join(", ") + "." : "") +
+            " Aucune société, aucun nom de client.</span></p>"
+          );
+        }
+        function qLine(raw) {
+          return '<div class="cp-msg-q">Votre demande : « ' + esc(raw) + " »</div>";
+        }
+        function out(html) {
+          var el = document.getElementById("cp-ai-out");
+          el.innerHTML = html;
+          var msg = el.querySelector(".cp-msg");
+          if (msg) msg.focus();
+        }
+        function closeBtn() {
+          return '<button type="button" class="btn btn-tertiary btn-sm" data-cp-dismiss>Fermer</button>';
+        }
+        function ask(raw) {
+          raw = (raw || "").trim();
+          clearTimeout(thinkTimer);
+          pending = null;
+          if (!raw) {
+            out(
+              '<div class="cp-msg" tabindex="-1"><div class="cp-msg-lead">' + ms("info") + "<span>Écrivez une demande avant d’envoyer.</span></div>" +
+              "<p>Par exemple, modifier le cockpit (« montre seulement les SAS ») ou poser une question sur un indicateur (« combien de signatures attendent depuis plus de 15 jours ? »).</p>" +
+              '<div class="cp-sugg">' + suggHtml(SUGG.slice(0, 4)) + '</div><div class="cp-btns">' + closeBtn() + "</div></div>"
+            );
+            return;
+          }
+          out('<div class="cp-thinking">' + ms("loader_circle") + "Je traduis votre demande en indicateurs du catalogue…</div>");
+          thinkTimer = setTimeout(function () {
+            respond(raw);
+          }, 650);
+        }
+        function respond(raw) {
+          var it = interpret(raw);
+          if (it.type === "b") return planB(raw, it.change, it.P);
+          if (it.type === "c") return answerC(raw, it.id, it.P);
+          if (it.type === "hc") return answerHC(raw, it.kind);
+          if (it.type === "affect") return answerAffect(raw, it.P);
+          out(
+            '<div class="cp-msg" tabindex="-1">' + qLine(raw) + '<div class="cp-msg-lead">' + ms("info") + "Je n’ai pas reconnu d’indicateur ni de filtre du catalogue dans votre demande.</div>" +
+            "<p>Je réponds seulement à partir des indicateurs certifiés par EJ, sans estimation. Essayez une de ces demandes, ou ouvrez le catalogue.</p>" +
+            '<div class="cp-sugg">' + suggHtml(SUGG.slice(0, 4)) + '</div><div class="cp-btns"><button type="button" class="btn btn-secondary btn-sm" data-cp-open="catalogue">' + ms("list_checks") + "Voir le catalogue</button>" + closeBtn() + "</div>" + sentLine(raw) + "</div>"
+          );
+        }
+        var SPEC_ID = { file: "ma_file_du_jour", campagne: "campagne_approbation", avancement: "avancement_operations", echeances: "calendrier_echeances", missions: "missions_conformite", nouveau: "nouveau_tableau" };
+        function koList(P) {
+          var ko = [];
+          P.socs.forEach(function (n) {
+            ko.push("société " + n);
+          });
+          P.noms.forEach(function (n) {
+            ko.push("« " + n + " » (ni société du portefeuille ni utilisateur du cabinet)");
+          });
+          if (P.periodeKo) ko.push("période « " + P.periodeKo + " » (le cockpit filtre par mois ou par trimestre)");
+          return ko;
+        }
+        function dimsOfChange(change) {
+          var d = [];
+          if (change.formes) d.push("forme");
+          if (change.createur) d.push("createur");
+          if (change.periode) d.push("periode");
+          return d;
+        }
+        function modelsFor(dims) {
+          return MODELS.filter(function (m) {
+            return TILE_IDS[m.id].some(function (id) {
+              return dims.some(function (x) {
+                return IND[id].dims.indexOf(x) !== -1;
+              });
+            });
+          });
+        }
+        function planB(raw, change, P) {
+          var ko = koList(P);
+          var curDims = [];
+          if (F.formes.length) curDims.push("forme");
+          if (F.createur) curDims.push("createur");
+          if (F.periode) curDims.push("periode");
+          var dims = change.reset ? curDims : dimsOfChange(change);
+          S.lastB = { raw: raw, change: change, P: P };
+          var koHtml = ko.length ? '<p><strong>Filtre non disponible</strong> : ' + esc(ko.join(" ; ")) + ". Le cockpit filtre par forme juridique, « créé par » et période (mois ou trimestre). Pour une société, ouvrez sa fiche depuis la liste.</p>" : "";
+          if (!dims.length) {
+            pending = null;
+            out(
+              '<div class="cp-msg cp-msg-warn" tabindex="-1">' + qLine(raw) +
+              '<div class="cp-msg-lead">' + ms("info") + "<span>" + (change.reset ? "Aucun filtre actif : rien à retirer." : "Filtre non disponible : " + esc(ko.join(" ; ")) + ".") + "</span></div>" +
+              (change.reset ? "" : "<p>Le cockpit filtre par forme juridique, « créé par » et période (mois ou trimestre). Je n’applique rien plutôt qu’un filtre approximatif.</p>") +
+              '<div class="cp-btns">' + (P.socs.length ? '<a class="btn btn-secondary btn-sm" href="societe.html">' + ms("storefront") + "Ouvrir la fiche société</a>" : "") + closeBtn() + "</div>" + sentLine(raw) + "</div>"
+            );
+            return;
+          }
+          var next = change.reset
+            ? { formes: [], createur: null, periode: null }
+            : {
+                formes: change.formes ? change.formes.slice() : F.formes.slice(),
+                createur: change.createur !== undefined ? change.createur : F.createur,
+                periode: change.periode !== undefined ? change.periode : F.periode,
+              };
+          var ids = TILE_IDS[S.model].concat(S.pins.filter(function (p) {
+            return TILE_IDS[S.model].indexOf(p) === -1;
+          }));
+          var concerned = 0;
+          var items = ids.map(function (id) {
+            var d = IND[id];
+            var hit = dims.some(function (x) {
+              return d.dims.indexOf(x) !== -1;
+            });
+            if (hit) concerned++;
+            var before = d.calc().v;
+            var after = withF(next, d.calc).v;
+            return '<li class="' + (hit ? "" : "cp-off") + '"><span>' + esc(d.label) + '</span><span class="cp-delta">' + (hit ? before + " → " + after : "non concerné") + "</span></li>";
+          });
+          var what = change.reset
+            ? "retirer tous les filtres"
+            : [
+                change.formes ? "forme juridique = " + change.formes.join(", ") : "",
+                change.createur ? "créé par = " + change.createur + (change.createur === ME ? " (vous)" : "") : "",
+                change.periode ? "période = " + change.periode.label : "",
+              ].filter(Boolean).join(" et ");
+          var dimTxt = dims.map(function (x) {
+            return DIM_LABEL[x];
+          }).join(", ");
+          if (!concerned) {
+            /* Filtre sans effet : pas d'Appliquer, on dit pourquoi et où il s'applique */
+            pending = null;
+            var where = modelsFor(dims).filter(function (m) {
+              return m.id !== S.model;
+            });
+            out(
+              '<div class="cp-msg cp-msg-warn" tabindex="-1">' + qLine(raw) +
+              '<div class="cp-msg-lead">' + ms("info") + "<span>Filtre sans effet sur « " + esc(modelOf(S.model).full) + " » : " + esc(what) + ".</span></div>" +
+              "<p>" + (TILE_IDS[S.model].length ? "Aucun indicateur de ce modèle ne se filtre par " + esc(dimTxt) + "." : "Ce modèle n’a pas encore d’indicateur.") + " Je ne propose pas de l’appliquer ici." + (where.length ? " Il s’applique aux modèles : " + where.map(function (m) {
+                return "« " + esc(m.label) + " »";
+              }).join(", ") + "." : "") + "</p>" + koHtml +
+              '<div class="cp-btns">' + where.map(function (m) {
+                return '<button type="button" class="btn btn-secondary btn-sm" data-cp-replan="' + m.id + '">' + ms(m.icon) + "Ouvrir « " + esc(m.label) + " » avec ce filtre</button>";
+              }).join("") + closeBtn() + "</div>" + sentLine(raw) + "</div>"
+            );
+            return;
+          }
+          var spec = { modele: SPEC_ID[S.model], filtres: {} };
+          if (!change.reset) {
+            if (change.formes) spec.filtres.forme = change.formes;
+            if (change.createur) spec.filtres.cree_par = P.pers.length ? "[personne 1]" : "[utilisateur connecté]";
+            if (change.periode) spec.filtres.periode = change.periode.key;
+          }
+          var specTxt = esc(JSON.stringify(spec).replace(/,/g, ", ").replace(/:/g, ": "));
+          var notes = [];
+          if (change.createur === ME) notes.push("Vous n’avez créé aucune des formalités ou des dépôts en cours : les listes concernées seront vides. Le filtre reste applicable.");
+          else if (change.createur) {
+            notes.push("Le nom est remplacé par « [personne 1] » avant l’envoi au modèle, puis retrouvé par EJ.");
+            if (personNote(change.createur)) notes.push(personNote(change.createur));
+          }
+          if (change.formes && change.formes.some(isCiv) && TILE_IDS[S.model].some(function (id) {
+            return IND[id].camp;
+          })) notes.push("Sociétés civiles : hors campagne, règle propre à définir avec le juriste EJ. Les indicateurs de campagne ne les comptent pas.");
+          if (P.conv.length) notes.push(convNote(P.conv));
+          if (concerned < items.length) notes.push("Les indicateurs « non concernés » ne se filtrent pas par " + dimTxt + " et restent au total du cabinet.");
+          pending = { raw: raw, next: next, what: what };
+          out(
+            '<div class="cp-msg" tabindex="-1">' + qLine(raw) +
+            '<div class="cp-msg-lead">' + ms("wand_sparkles") + "<span>J’ai compris : " + esc(what) + ". " + concerned + " " + pl(concerned, "indicateur concerné", "indicateurs concernés") + ".</span></div>" +
+            '<ul class="cp-plan" aria-label="Plan proposé">' + items.join("") + "</ul>" +
+            notes.map(function (n) {
+              return "<p>" + esc(n) + "</p>";
+            }).join("") +
+            "<p>Les listes de ce modèle suivent le même filtre.</p>" + koHtml +
+            '<div class="cp-spec"><b>Spécification proposée au moteur EJ (pas de requête libre)</b>' + specTxt + "</div>" +
+            sentLine(raw) +
+            '<div class="cp-btns"><button type="button" class="btn btn-primary btn-sm" data-cp-apply>' + ms("check") + 'Appliquer</button><button type="button" class="btn btn-secondary btn-sm" data-cp-cancel>Annuler</button></div></div>'
+          );
+        }
+        function applyPending() {
+          if (!pending) return;
+          var prev = { F: cloneF(F) };
+          F = cloneF(pending.next);
+          log("IA", "Filtre appliqué : " + pending.what + " (demande : « " + pending.raw + " »)", "filtre", prev);
+          var what = pending.what;
+          pending = null;
+          render();
+          out(
+            '<div class="cp-msg" tabindex="-1"><div class="cp-msg-lead">' + ms("check") + "<span>C’est appliqué : " + esc(what) + ".</span></div>" +
+            '<p>Les chiffres et les listes sont recalculés par EJ. Le changement est inscrit au journal, d’où vous pouvez l’annuler.</p><div class="cp-btns"><button type="button" class="btn btn-secondary btn-sm" data-cp-journal-open>' + ms("history") + "Voir le journal</button>" + closeBtn() + "</div></div>"
+          );
+        }
+        /* Précisions de la question : appliquées si l'indicateur les gère, sinon signalées */
+        function qFilter(d, P) {
+          var Q = { f: cloneF(F), ok: [], ko: koList(P), civOnly: null, civDropped: [] };
+          if (P.formes.length) {
+            if (d.dims.indexOf("forme") !== -1) {
+              var fs = P.formes.slice();
+              if (d.camp) {
+                var civ = fs.filter(isCiv);
+                fs = fs.filter(function (f) {
+                  return !isCiv(f);
+                });
+                if (!fs.length) Q.civOnly = civ;
+                else Q.civDropped = civ;
+              }
+              if (fs.length) {
+                Q.f.formes = fs;
+                Q.ok.push("forme " + fs.join(", "));
+              }
+            } else Q.ko.unshift("forme juridique " + P.formes.join(", "));
+          }
+          if (P.createur) {
+            if (d.dims.indexOf("createur") !== -1) {
+              Q.f.createur = P.createur;
+              Q.ok.push("créé par " + P.createur);
+            } else Q.ko.unshift("créé par " + P.createur + " (indicateur calculé par société)");
+          }
+          if (P.periode) {
+            if (d.dims.indexOf("periode") !== -1) {
+              Q.f.periode = P.periode;
+              Q.ok.push("période " + P.periode.label);
+            } else Q.ko.unshift("période " + P.periode.label);
+          }
+          return Q;
+        }
+        function answerC(raw, id, P) {
+          var d = IND[id];
+          var Q = qFilter(d, P);
+          if (Q.civOnly) return answerCivil(raw, Q.civOnly);
+          S.lastQ = Q.f;
+          var r = withF(Q.f, d.calc);
+          if (Q.ko.length) {
+            /* jamais le total à la place de la question : on le dit et on propose l'indicateur global */
+            out(
+              '<div class="cp-msg cp-msg-warn" tabindex="-1">' + qLine(raw) +
+              '<div class="cp-msg-lead">' + ms("filter_x") + "<span>Filtre non disponible : " + esc(Q.ko.join(" ; ")) + ".</span></div>" +
+              "<p>« " + esc(d.label) + " » se filtre par : " + (d.dims.length ? esc(d.dims.map(function (x) {
+                return DIM_LABEL[x];
+              }).join(", ")) : "aucune dimension") + ". Je ne remplace pas votre question par un total.</p>" +
+              "<p><strong>Indicateur global" + (Q.ok.length ? " (" + esc(Q.ok.join(", ")) + ")" : "") + " : " + esc(d.label) + " ?</strong></p>" +
+              '<div class="cp-btns"><button type="button" class="btn btn-secondary btn-sm" data-cp-list="' + id + '" data-cp-useq>Voir l’indicateur global (' + r.v + ")</button>" +
+              (P.socs.length ? '<a class="btn btn-tertiary btn-sm" href="societe.html">' + ms("storefront") + "Fiche de " + esc(P.socs[0]) + "</a>" : "") + closeBtn() + "</div>" +
+              sentLine(raw) + "</div>"
+            );
+            return;
+          }
+          var lines = ruleLines(d, r, Q.f, true);
+          if (Q.ok.length) lines.push("<strong>Précisions de votre question appliquées</strong> : " + esc(Q.ok.join(" ; ")));
+          if (Q.civDropped.length) lines.push("<strong>Sociétés civiles</strong> : " + esc(Q.civDropped.join(", ")) + " hors campagne, règle propre à définir avec le juriste EJ");
+          if (P.conv.length) lines.push(esc(convNote(P.conv)));
+          var shown = r.rows.slice(0, 5);
+          var pinned = S.pins.indexOf(id) !== -1;
+          out(
+            '<div class="cp-msg" tabindex="-1">' + qLine(raw) +
+            '<div class="cp-msg-lead">' + ms("list_checks") + "<span>" + esc(d.label) + (Q.ok.length ? " (" + esc(Q.ok.join(", ")) + ")" : "") + " : " + r.v + " " + verTag(d.ver) + "</span></div>" +
+            (d.ver === "cible" ? "<p>Indicateur du catalogue cible : il sera calculé par EJ quand le module sera livré. Ici, sur les données de la maquette.</p>" : "") +
+            '<div class="cp-ans-rule">' + lines.join("<br>") + "</div>" +
+            (shown.length ? '<div class="cp-ans-list">' + shown.map(rowHtml).join("") + "</div>" : "") +
+            '<div class="cp-btns">' +
+            (pinned ? '<button type="button" class="btn btn-secondary btn-sm" disabled>' + ms("pin") + "Déjà épinglé</button>" : '<button type="button" class="btn btn-primary btn-sm" data-cp-pin="' + id + '">' + ms("pin") + "Épingler au cockpit</button>") +
+            '<button type="button" class="btn btn-secondary btn-sm" data-cp-list="' + id + '" data-cp-useq>Voir la liste complète (' + r.v + ")</button>" +
+            closeBtn() + "</div>" +
+            (Q.ok.length && !pinned ? '<p class="cp-ans-rule">La tuile épinglée suit les filtres du cockpit, pas les précisions de cette question.</p>' : "") +
+            sentLine(raw) + "</div>"
+          );
+        }
+        function answerCivil(raw, civ) {
+          var n = SOC.filter(function (s) {
+            return civ.indexOf(s.f) !== -1;
+          }).length;
+          S.lastQ = { formes: civ.slice(), createur: null, periode: null };
+          out(
+            '<div class="cp-msg cp-msg-warn" tabindex="-1">' + qLine(raw) +
+            '<div class="cp-msg-lead">' + ms("info") + "<span>Règle non applicable aux sociétés civiles (" + esc(civ.join(", ")) + ").</span></div>" +
+            "<p>Les sociétés civiles ne déposent pas leurs comptes au greffe : elles sont exclues de la campagne, calculée sur la règle des sociétés commerciales. Règle propre à définir avec le juriste EJ (" + n + " " + pl(n, "société exclue", "sociétés exclues") + ").</p>" +
+            '<div class="cp-btns"><button type="button" class="btn btn-secondary btn-sm" data-cp-list="camp_civiles" data-cp-useq>Voir les ' + esc(civ.join(", ")) + " (" + n + ")</button>" + closeBtn() + "</div>" +
+            sentLine(raw) + "</div>"
+          );
+        }
+        function answerAffect(raw, P) {
+          var who = P.affect && P.affect !== ME ? P.affect : null;
+          var note = who ? personNote(who) : "";
+          out(
+            '<div class="cp-msg cp-msg-warn" tabindex="-1">' + qLine(raw) +
+            '<div class="cp-msg-lead">' + ms("user_x") + "<span>Express Juridique ne connaît pas encore de collaborateur affecté ; filtre possible sur « créé par ».</span></div>" +
+            "<p>L’affectation d’un collaborateur à une société ou à une formalité est une question posée à EJ (question 5 du cadrage). Aujourd’hui, seule la personne qui a créé la formalité ou le dépôt est connue.</p>" +
+            (note ? "<p>" + esc(note) + "</p>" : "") +
+            '<div class="cp-sugg">' + suggHtml([{ fn: "Modifier", q: "Seulement les formalités créées par " + (who || ME) }]) + "</div>" +
+            '<div class="cp-btns">' + closeBtn() + "</div>" + sentLine(raw) + "</div>"
+          );
+        }
+        function answerHC(raw, kind) {
+          if (S.hc.indexOf(raw) === -1) S.hc.push(raw);
+          log("IA", "Demande hors catalogue transmise à EJ : « " + raw + " »", "hc", null);
+          renderJournal();
+          var lead = kind === "abs" ? "Cette donnée n’existe pas dans Express Juridique." : kind === "act" ? "Mesure d’activité hors périmètre." : "Pas encore dans le catalogue certifié.";
+          var p =
+            kind === "abs"
+              ? "Chiffre d’affaires, trésorerie, effectif salarié : EJ ne les reçoit pas. Je ne fais aucune estimation."
+              : kind === "act"
+              ? "Mesurer l’activité par personne demande un historique des statuts et une affectation qu’EJ n’a pas, et un cadre social (information des salariés). Hors périmètre avant la V2."
+              : "Aucun indicateur certifié ne répond à cette question. Je ne fais aucune estimation ; la demande est transmise à EJ pour enrichir le catalogue.";
+          out(
+            '<div class="cp-msg cp-msg-warn" tabindex="-1">' + qLine(raw) +
+            '<div class="cp-msg-lead">' + ms("search_x") + "<span>" + lead + " Demande notée pour EJ.</span></div><p>" + p + "</p>" +
+            '<div class="cp-btns"><button type="button" class="btn btn-secondary btn-sm" data-cp-open="catalogue">' + ms("list_checks") + "Voir ce que le catalogue contient</button>" + closeBtn() + "</div>" + sentLine(raw) + "</div>"
+          );
+        }
+        function dismissAi() {
+          clearTimeout(thinkTimer);
+          pending = null;
+          document.getElementById("cp-ai-out").innerHTML = "";
+          document.getElementById("cp-ai-input").focus();
+        }
+
+        /* ---------- Profil de cabinet ---------- */
+        function renderProfil() {
+          var p = document.body.getAttribute("data-profil") || window.EJ_PROFIL || "ec";
+          var el = document.getElementById("cp-profil");
+          if (p === "cac")
+            el.innerHTML = '<div class="alert alert-info cp-profil-alert">' + ms("info") + "<div><strong>Cockpit CAC : prochaine maquette</strong> (mandats, échéances, interventions). Le cockpit expert-comptable reste visible ci-dessous.</div></div>";
+          else if (p === "mixte")
+            el.innerHTML = '<div class="alert alert-info cp-profil-alert">' + ms("info") + "<div><strong>Cabinet mixte.</strong> Les modèles CAC (mandats, échéances, interventions) s’ajouteront à cette liste avec la prochaine maquette.</div></div>";
+          else el.innerHTML = "";
+        }
+
+        /* ---------- Vue enregistrée ---------- */
+        function loadSaved() {
+          try {
+            var raw = localStorage.getItem("ej-cockpit-vue");
+            if (!raw) return;
+            var v = JSON.parse(raw);
+            if (v && Array.isArray(v.formes)) F.formes = v.formes.filter(function (f) {
+              return FORMES.indexOf(f) !== -1;
+            });
+            if (v && typeof v.createur === "string" && personOf(v.createur)) F.createur = v.createur;
+            if (v && typeof v.periode === "string") F.periode = periodFromKey(v.periode);
+            if (v && v.order) Object.keys(DEFAULT_ORDER).forEach(function (k) {
+              var o = v.order[k];
+              if (Array.isArray(o) && o.length === DEFAULT_ORDER[k].length && o.every(function (x) {
+                return DEFAULT_ORDER[k].indexOf(x) !== -1;
+              })) ORDER[k] = o.slice();
+            });
+            if (v && Array.isArray(v.pins)) S.pins = v.pins.filter(function (p) {
+              return BASE_IDS.indexOf(p) !== -1;
+            });
+            S.savedLoaded = true;
+          } catch (e) {}
+        }
+        function resetSaved() {
+          try {
+            localStorage.removeItem("ej-cockpit-vue");
+          } catch (e) {}
+          F = { formes: [], createur: null, periode: null };
+          Object.keys(DEFAULT_ORDER).forEach(function (k) {
+            ORDER[k] = DEFAULT_ORDER[k].slice();
+          });
+          S.pins = [];
+          S.savedLoaded = false;
+          log("Vous", "Retour à la vue par défaut", "save", null);
+          render();
+        }
+
+        /* ---------- Événements ---------- */
+        function setModel(id) {
+          if (!modelOf(id)) return;
+          S.model = id;
+          S.campStage = null;
+          S.opsStage = null;
+          render();
+          tabsFade(true);
+        }
+        function toggleSugg(force) {
+          var box = document.getElementById("cp-ai-more");
+          var btn = document.querySelector("[data-cp-sugg-toggle]");
+          var open = force === undefined ? box.hidden : force;
+          box.hidden = !open;
+          btn.setAttribute("aria-expanded", String(open));
+        }
+        function toggleJournal(force) {
+          var el = document.getElementById("cp-journal");
+          var btn = document.querySelector("[data-cp-journal]");
+          var open = force === undefined ? el.hidden : force;
+          el.hidden = !open;
+          if (btn) btn.setAttribute("aria-expanded", String(open));
+          if (open) renderJournal();
+        }
+        document.addEventListener("click", function (e) {
+          var t = e.target.closest ? e.target : null;
+          if (!t) return;
+          var a;
+          if ((a = t.closest("[data-cp-model]"))) return setModel(a.getAttribute("data-cp-model"));
+          if ((a = t.closest("[data-cp-replan]"))) {
+            var lb = S.lastB;
+            setModel(a.getAttribute("data-cp-replan"));
+            if (lb) planB(lb.raw, lb.change, lb.P);
+            return;
+          }
+          if ((a = t.closest("[data-cp-list]"))) return openList(a.getAttribute("data-cp-list"), a.hasAttribute("data-cp-useq") ? S.lastQ : null);
+          if ((a = t.closest("[data-cp-sugg]"))) {
+            var q = a.getAttribute("data-cp-sugg");
+            document.getElementById("cp-ai-input").value = q;
+            return ask(q);
+          }
+          if (t.closest("[data-cp-sugg-toggle]")) return toggleSugg();
+          if (t.closest("[data-cp-apply]")) return applyPending();
+          if (t.closest("[data-cp-cancel]")) {
+            pending = null;
+            out('<div class="cp-msg" tabindex="-1"><div class="cp-msg-lead">' + ms("undo_2") + "<span>Annulé. Rien n’a changé dans votre cockpit.</span></div></div>");
+            return;
+          }
+          if (t.closest("[data-cp-dismiss]")) return dismissAi();
+          if ((a = t.closest("[data-cp-pin]"))) {
+            var pid = a.getAttribute("data-cp-pin");
+            pin(pid);
+            out('<div class="cp-msg" tabindex="-1"><div class="cp-msg-lead">' + ms("pin") + "<span>Épinglé : « " + esc(IND[pid].label) + " » apparaît avec les indicateurs du modèle, avec sa règle et sa couverture.</span></div><p>Vous pouvez la retirer depuis la tuile ou annuler depuis le journal.</p></div>");
+            return;
+          }
+          if ((a = t.closest("[data-cp-unpin]"))) return unpin(a.getAttribute("data-cp-unpin"));
+          if ((a = t.closest("[data-cp-undo]"))) return undo(+a.getAttribute("data-cp-undo"));
+          if ((a = t.closest("[data-cp-rmf]"))) {
+            var prev = { F: cloneF(F) };
+            var which = a.getAttribute("data-cp-rmf");
+            if (which === "formes") F.formes = [];
+            else if (which === "createur") F.createur = null;
+            else F.periode = null;
+            log("Vous", which === "formes" ? "Filtre forme juridique retiré" : which === "createur" ? "Filtre créé par retiré" : "Filtre période retiré", "filtre", prev);
+            render();
+            document.getElementById("cp-ai-input").focus();
+            return;
+          }
+          if (t.closest("[data-cp-reset-saved]")) return resetSaved();
+          if ((a = t.closest("[data-cp-more]"))) {
+            var k = a.getAttribute("data-cp-more");
+            S.more[k] = !S.more[k];
+            renderBlocks();
+            var again = document.querySelector('[data-cp-more="' + k + '"]');
+            if (again) again.focus();
+            return;
+          }
+          if ((a = t.closest("[data-cp-stage]"))) {
+            var st = a.getAttribute("data-cp-stage") || null;
+            S.campStage = S.campStage === st ? null : st;
+            renderBlocks();
+            return;
+          }
+          if ((a = t.closest("[data-cp-ops]"))) {
+            var os = a.getAttribute("data-cp-ops") || null;
+            S.opsStage = S.opsStage === os ? null : os;
+            renderBlocks();
+            return;
+          }
+          if ((a = t.closest("[data-cp-open]"))) {
+            var w = a.getAttribute("data-cp-open");
+            if (w === "catalogue") return openCatalogue(false);
+            if (w === "principes") return openCatalogue(true);
+            if (w === "perso") return openPerso();
+            if (w === "lot") return openLot();
+            return;
+          }
+          if ((a = t.closest("[data-cp-move]"))) {
+            if (!draft || a.disabled) return;
+            var mv = a.getAttribute("data-cp-move").split(":");
+            var i = +mv[0];
+            var j = i + +mv[1];
+            if (j < 0 || j >= draft.order.length) return;
+            var tmp = draft.order[i];
+            draft.order[i] = draft.order[j];
+            draft.order[j] = tmp;
+            return drawPerso(j + ":" + mv[1]);
+          }
+          if ((a = t.closest("[data-cp-perso]"))) {
+            if (!draft) return;
+            var act = a.getAttribute("data-cp-perso");
+            if (act === "reset") {
+              draft = { formes: [], createur: null, periode: "", order: S.model === "nouveau" ? [] : DEFAULT_ORDER[S.model].slice() };
+              return drawPerso();
+            }
+            return applyPerso(act === "save");
+          }
+          if (t.closest("[data-cp-journal-open]")) return toggleJournal(true);
+          if (t.closest("[data-cp-journal]")) return toggleJournal();
+          if (t.closest("[data-cp-close]") || t.id === "cp-backdrop") return closeDrawer();
+        });
+        document.addEventListener("change", function (e) {
+          if (!draft) return;
+          var t = e.target;
+          if (t.hasAttribute && t.hasAttribute("data-cp-pf")) {
+            var f = t.getAttribute("data-cp-pf");
+            draft.formes = draft.formes.filter(function (x) {
+              return x !== f;
+            });
+            if (t.checked) draft.formes.push(f);
+            draft.formes.sort(function (a, b) {
+              return FORMES.indexOf(a) - FORMES.indexOf(b);
+            });
+          } else if (t.id === "cp-p-crea") {
+            draft.createur = t.value || null;
+          } else if (t.id === "cp-p-per") {
+            draft.periode = t.value || "";
+          }
+        });
+        document.getElementById("cp-ai-form").addEventListener("submit", function (e) {
+          e.preventDefault();
+          ask(document.getElementById("cp-ai-input").value);
+        });
+        document.getElementById("cp-ai-input").addEventListener("input", function () {
+          toggleSugg(true);
+        });
+        document.getElementById("cp-tabs").addEventListener("scroll", function () {
+          tabsFade();
+        });
+        window.addEventListener("resize", function () {
+          tabsFade();
+        });
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape") {
+            if (closeDrawer()) return;
+            var jr = document.getElementById("cp-journal");
+            if (!jr.hidden) {
+              toggleJournal(false);
+              var jb = document.querySelector("[data-cp-journal]");
+              if (jb) jb.focus();
+              return;
+            }
+            if (document.getElementById("cp-ai-out").innerHTML) dismissAi();
+            return;
+          }
+          /* Onglets : flèches gauche et droite */
+          if ((e.key === "ArrowRight" || e.key === "ArrowLeft") && e.target.closest && e.target.closest("[data-cp-model]")) {
+            var i = MODELS.indexOf(modelOf(S.model));
+            var n = MODELS[(i + (e.key === "ArrowRight" ? 1 : MODELS.length - 1)) % MODELS.length];
+            setModel(n.id);
+            var tab = document.getElementById("cp-tab-" + n.id);
+            if (tab) tab.focus();
+            e.preventDefault();
+            return;
+          }
+          /* Panneau : le focus reste dedans */
+          if (e.key === "Tab" && !document.getElementById("cp-drawer").hidden) {
+            var dr = document.getElementById("cp-drawer");
+            var f = Array.prototype.filter.call(dr.querySelectorAll("a[href], button:not([disabled]), input, select, summary, [tabindex]:not([tabindex='-1'])"), function (x) {
+              return x.offsetParent !== null;
+            });
+            if (!f.length) return;
+            var first = f[0];
+            var last = f[f.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+              last.focus();
+              e.preventDefault();
+            } else if (!e.shiftKey && document.activeElement === last) {
+              first.focus();
+              e.preventDefault();
+            } else if (!dr.contains(document.activeElement)) {
+              first.focus();
+              e.preventDefault();
+            }
+          }
+        });
+
+        /* ---------- Démarrage (après ej-shell.js, qui pose data-profil) ---------- */
+        document.getElementById("cp-sugg").innerHTML = suggHtml(SUGG);
+        renderSub();
+        loadSaved();
+        render();
+        document.addEventListener("DOMContentLoaded", function () {
+          renderProfil();
+          tabsFade();
+        });
+      })();
+    </script>
+    <script src="assets/ej-shell.js?v=17"></script>
+  </body>
+</html>

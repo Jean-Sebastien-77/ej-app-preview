@@ -1,0 +1,380 @@
+/* ==========================================================
+   Express Juridique · Lifting 2026 · Missions & conformité, Cockpit
+   Complète ej-app.css (chargé AVANT) pour les écrans LAB, lettres de
+   mission, missions CAC et cockpit. Aucune nouvelle couleur : uniquement
+   les tokens de ej-app.css.
+   Les pages qui chargent ce fichier ajoutent class="m-resp" sur <body>
+   pour activer le comportement mobile (menu latéral repliable).
+   ========================================================== */
+
+/* ---------- En-tête de page avec surtitre ---------- */
+.m-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--ej-font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ej-action-600);
+  margin-bottom: 8px;
+}
+.m-eyebrow::before {
+  content: "";
+  width: 28px;
+  height: 1px;
+  background: var(--ej-action-600);
+}
+.page-head.m-wrap {
+  flex-wrap: wrap;
+}
+.m-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ---------- Badge de version (V0, V1, vision cible) ---------- */
+.ver {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: var(--ej-radius-full);
+  font-family: var(--ej-font-display);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+.ver-v0 {
+  background: var(--ej-primary-900);
+  color: var(--ej-white);
+}
+.ver-v1 {
+  background: var(--ej-action-100);
+  color: var(--ej-action-700);
+}
+.ver-v2 {
+  background: transparent;
+  color: var(--ej-action-700);
+  border-color: var(--ej-action-300);
+}
+.ver-cible {
+  background: transparent;
+  color: var(--ej-neutral-500);
+  border: 1px dashed var(--ej-neutral-400);
+}
+
+/* ---------- Tuile d'indicateur (chiffre + règle + couverture + liste) ---------- */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 20px 16px;
+}
+.stat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ej-neutral-600);
+}
+.stat-value {
+  font-family: var(--ej-font-display);
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--ej-primary-900);
+  font-variant-numeric: tabular-nums;
+}
+.stat-sub {
+  font-size: 12.5px;
+  color: var(--ej-neutral-500);
+}
+.stat-rule {
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--ej-neutral-100);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ej-neutral-500);
+}
+.stat-rule strong {
+  font-weight: 600;
+  color: var(--ej-neutral-700);
+}
+.stat-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ej-action-600);
+}
+.stat-link .ms {
+  font-size: 15px;
+  transition: transform var(--ej-transition-fast);
+}
+.stat-link:hover .ms {
+  transform: translateX(2px);
+}
+.stat.attention {
+  background: linear-gradient(180deg, var(--ej-attention-100), var(--ej-white) 75%);
+  border-color: var(--ej-attention-500);
+}
+
+/* ---------- Niveau de risque (point + libellé) ---------- */
+.risk {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.risk::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.risk-faible {
+  color: var(--ej-success-600);
+}
+.risk-faible::before {
+  background: var(--ej-success-600);
+}
+.risk-standard {
+  color: var(--ej-info-600);
+}
+.risk-standard::before {
+  background: var(--ej-info-600);
+}
+.risk-eleve {
+  color: var(--ej-warning-600);
+}
+.risk-eleve::before {
+  background: var(--ej-warning-600);
+}
+.risk-na {
+  color: var(--ej-neutral-500);
+}
+.risk-na::before {
+  background: transparent;
+  border: 1.5px solid var(--ej-neutral-400);
+}
+
+/* ---------- Jauge fine ---------- */
+.meter {
+  height: 8px;
+  border-radius: var(--ej-radius-full);
+  background: var(--ej-neutral-100);
+  overflow: hidden;
+}
+.meter > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--ej-action-600), var(--ej-logo-mint));
+}
+
+/* ---------- Bloc carte avec en-tête (comme l'accueil) ---------- */
+.block-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 22px 16px;
+}
+.block-head h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ej-primary-900);
+}
+.block-head p {
+  font-size: 13.5px;
+  color: var(--ej-neutral-500);
+  margin-top: 2px;
+}
+
+/* ---------- Liste clé / valeur (fiches) ---------- */
+.kv {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 10px 20px;
+  font-size: 14px;
+}
+.kv dt {
+  color: var(--ej-neutral-500);
+}
+.kv dd {
+  color: var(--ej-neutral-900);
+  font-weight: 500;
+}
+
+/* ---------- Provenance d'une donnée (DPJ, RNE, connecteur) ---------- */
+.source {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: var(--ej-neutral-500);
+}
+.kv dd .source {
+  margin-left: 8px;
+  vertical-align: 1px;
+}
+.source .ms {
+  font-size: 13px;
+  color: var(--ej-accent-600);
+}
+
+/* ---------- Note de maquette (contenu à valider) ---------- */
+.m-note {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-top: 28px;
+  padding: 12px 16px;
+  border: 1px dashed var(--ej-neutral-300);
+  border-radius: var(--ej-radius-lg);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ej-neutral-500);
+}
+.m-note .ms {
+  font-size: 16px;
+  margin-top: 1px;
+}
+
+/* ---------- Accessibilité et états communs ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ---------- Tableau défilant horizontalement sur petit écran ---------- */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ---------- Mobile (pages en body.m-resp) ---------- */
+@media (max-width: 900px) {
+  body.m-resp .menu-btn {
+    display: inline-flex;
+    margin-right: 4px;
+  }
+  body.m-resp .ej-header {
+    padding: 0 12px;
+    gap: 8px;
+  }
+  body.m-resp .ej-header > .ej-logo {
+    margin-right: auto;
+  }
+  body.m-resp .ej-logo img {
+    height: 32px;
+  }
+  body.m-resp .header-company,
+  body.m-resp .header-sep,
+  body.m-resp .header-user > :not(.avatar) {
+    display: none;
+  }
+  body.m-resp .header-user {
+    font-size: 0;
+    gap: 0;
+  }
+  body.m-resp .header-profil {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  body.m-resp .sidebar {
+    position: fixed;
+    left: 0;
+    top: 56px;
+    z-index: 70;
+    width: 260px;
+    background: var(--ej-white);
+    box-shadow: var(--ej-shadow-xl);
+    transform: translateX(-105%);
+    transition: transform var(--ej-transition-normal);
+  }
+  body.m-resp.menu-open .sidebar {
+    transform: none;
+  }
+  body.m-resp .sidebar-item.active::before {
+    left: -10px;
+  }
+  body.m-resp .page {
+    padding: 20px 16px 40px;
+  }
+  body.m-resp .page-head {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  body.m-resp .page-title {
+    font-size: 23px;
+  }
+  body.m-resp .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  body.m-resp .form-grid {
+    grid-template-columns: 1fr;
+  }
+  body.m-resp .kv {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+  body.m-resp .kv dd {
+    margin-bottom: 10px;
+  }
+  body.m-resp .toolbar {
+    flex-wrap: wrap;
+  }
+  body.m-resp .search {
+    max-width: none;
+  }
+  body.m-resp .ej-footer {
+    padding: 14px 16px 80px;
+  }
+  /* La bulle d'aide masquait les actions en bas d'écran : retirée sur mobile dans ces pages. */
+  body.m-resp .help-bubble {
+    display: none;
+  }
+}
+@media (max-width: 480px) {
+  body.m-resp .stats {
+    grid-template-columns: 1fr;
+  }
+  body.m-resp .header-profil .hp-label {
+    display: none;
+  }
+}

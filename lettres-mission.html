@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Lettres de mission · Express Juridique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=16" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=17" />
+    <style>
+      /* ---------- Honoraires (une ligne sobre) ---------- */
+      .lm-total {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 4px 18px;
+        margin: 22px 0 26px;
+        font-size: 14px;
+        color: var(--ej-neutral-600);
+      }
+      .lm-total .ms {
+        font-size: 17px;
+        color: var(--ej-action-600);
+        align-self: center;
+      }
+      .lm-total strong {
+        font-family: var(--ej-font-display);
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .lm-total .lm-total-sub {
+        font-size: 13px;
+        color: var(--ej-neutral-500);
+      }
+
+      /* ---------- Filtres ---------- */
+      .lm-filters {
+        margin-bottom: 14px;
+      }
+      .lm-filters .qf-pill .lm-n {
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+        color: var(--ej-neutral-500);
+      }
+      .lm-filters .qf-pill.active .lm-n {
+        color: var(--ej-primary-900);
+      }
+      .lm-count {
+        font-size: 14px;
+        color: var(--ej-neutral-500);
+        white-space: nowrap;
+      }
+
+      /* ---------- Tableau ---------- */
+      .lm-table {
+        min-width: 900px;
+      }
+      .lm-table th,
+      .lm-table td {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      .lm-table th:first-child,
+      .lm-table td:first-child {
+        padding-left: 18px;
+      }
+      .lm-table th:last-child,
+      .lm-table td:last-child {
+        padding-right: 18px;
+      }
+      .lm-table th {
+        letter-spacing: 0.08em;
+        font-size: 10px;
+      }
+      .lm-table th.w-soc {
+        min-width: 160px;
+      }
+      .lm-table th.w-miss {
+        min-width: 150px;
+      }
+      .lm-table th.w-hon {
+        width: 92px;
+        white-space: normal;
+        line-height: 1.35;
+      }
+      .lm-table td {
+        vertical-align: middle;
+        font-size: 13px;
+      }
+      .lm-table tbody tr[data-href] {
+        cursor: pointer;
+      }
+      .lm-table th.r,
+      .lm-table td.c-hon {
+        text-align: right;
+      }
+      .lm-soc {
+        font-family: var(--ej-font-display);
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        color: var(--ej-primary-900);
+      }
+      a.lm-soc:hover {
+        color: var(--ej-action-600);
+      }
+      .lm-sub {
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+        margin-top: 1px;
+      }
+      .lm-lab {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 5px;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--ej-warning-600);
+      }
+      .lm-lab .ms {
+        font-size: 14px;
+      }
+      .lm-lab:hover {
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .lm-ref {
+        font-size: 13px;
+        font-variant-numeric: tabular-nums;
+        color: var(--ej-neutral-600);
+        white-space: nowrap;
+      }
+      .lm-miss {
+        font-size: 12.5px;
+        line-height: 1.45;
+        color: var(--ej-neutral-700);
+      }
+      .lm-miss .lm-more {
+        display: inline-block;
+        margin-top: 2px;
+        padding: 0 8px;
+        border-radius: var(--ej-radius-full);
+        background: var(--ej-neutral-100);
+        font-size: 11.5px;
+        font-weight: 600;
+        color: var(--ej-neutral-600);
+      }
+      .lm-miss.none {
+        font-style: italic;
+        color: var(--ej-neutral-400);
+      }
+      .c-hon {
+        font-family: var(--ej-font-display);
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        color: var(--ej-primary-900);
+      }
+      .lm-date {
+        min-width: 120px;
+        font-size: 12.5px;
+        line-height: 1.45;
+        color: var(--ej-neutral-700);
+      }
+      .lm-date .lm-date-sub {
+        display: block;
+        font-size: 12px;
+        color: var(--ej-neutral-500);
+      }
+      .lm-date .lm-date-sub.late {
+        color: var(--ej-warning-600);
+      }
+      .lm-resp {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        white-space: nowrap;
+        color: var(--ej-neutral-700);
+      }
+      .lm-resp .n-full {
+        display: none;
+      }
+      .c-act {
+        text-align: right;
+        white-space: nowrap;
+      }
+      .c-act .btn {
+        height: 34px;
+      }
+      .lm-empty {
+        padding: 56px 20px;
+        text-align: center;
+        font-size: 14px;
+        color: var(--ej-neutral-500);
+      }
+
+      /* ---------- Message de confirmation (maquette) ---------- */
+      .lm-toast {
+        position: fixed;
+        left: 50%;
+        bottom: 28px;
+        z-index: 80;
+        transform: translate(-50%, 16px);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: calc(100vw - 32px);
+        padding: 12px 18px;
+        border-radius: var(--ej-radius-lg);
+        background: var(--ej-primary-900);
+        color: var(--ej-white);
+        font-size: 14px;
+        box-shadow: var(--ej-shadow-lg);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--ej-transition-normal), transform var(--ej-transition-normal);
+      }
+      .lm-toast.show {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+      .lm-toast .ms {
+        color: var(--ej-logo-mint);
+      }
+
+      /* ---------- Mobile : cartes empilées ---------- */
+      @media (max-width: 760px) {
+        .lm-table {
+          min-width: 0;
+        }
+        .lm-table thead {
+          display: none;
+        }
+        .lm-table,
+        .lm-table tbody {
+          display: block;
+        }
+        .lm-table tbody tr {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          grid-template-areas:
+            "soc statut"
+            "miss miss"
+            "ref hon"
+            "date date"
+            "resp act";
+          gap: 10px 12px;
+          align-items: center;
+          padding: 16px;
+          border-bottom: 1px solid var(--ej-neutral-100);
+        }
+        .lm-table tbody tr:last-child {
+          border-bottom: none;
+        }
+        .lm-table td {
+          display: block;
+          padding: 0;
+          border-bottom: none;
+          min-width: 0;
+          background: none !important;
+        }
+        .lm-table td.c-soc { grid-area: soc; align-self: start; }
+        .lm-table td.c-statut { grid-area: statut; align-self: start; }
+        .lm-table td.c-miss { grid-area: miss; }
+        .lm-table td.c-ref { grid-area: ref; }
+        .lm-table td.c-hon { grid-area: hon; }
+        .lm-table td.c-date { grid-area: date; }
+        .lm-table td.c-resp { grid-area: resp; }
+        .lm-table td.c-act { grid-area: act; }
+        .lm-table td.c-hon:not(:empty)::after {
+          content: " HT / an";
+          font-family: var(--ej-font-body);
+          font-size: 12px;
+          font-weight: 400;
+          color: var(--ej-neutral-500);
+        }
+        .lm-date {
+          white-space: normal;
+        }
+        .lm-table td.is-empty {
+          display: none;
+        }
+        .lm-resp .n-full {
+          display: inline;
+        }
+        .toolbar .search {
+          flex: 1 1 100%;
+        }
+        .lm-resp .n-short {
+          display: none;
+        }
+        .lm-toast {
+          bottom: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body class="m-resp" data-active="lettres">
+    <div id="ej-header"></div>
+    <div class="app">
+      <div id="ej-sidebar"></div>
+      <div class="main">
+        <div class="page page-wide">
+          <div class="page-head m-wrap">
+            <div>
+              <div class="m-eyebrow">Missions &amp; conformité</div>
+              <h1 class="page-title">Lettres de mission</h1>
+              <p class="page-desc">Contractualisez chaque mission client, puis suivez les signatures et les renouvellements.</p>
+            </div>
+            <div class="m-actions">
+              <a class="btn btn-secondary" href="#" title="Écran non maquetté"><span class="ms">library</span>Modèles et prestations</a>
+              <a class="btn btn-primary" href="lettre-mission.html"><span class="ms">add</span>Nouvelle lettre de mission</a>
+            </div>
+          </div>
+
+          <div class="stats" id="lm-stats"></div>
+
+          <div class="lm-total" id="lm-total"></div>
+
+          <div class="quick-filters lm-filters" id="lm-filters" role="group" aria-label="Filtrer les lettres"></div>
+
+          <div class="toolbar">
+            <label class="search">
+              <span class="ms">search</span>
+              <input type="text" id="lm-search" placeholder="Société, SIREN ou référence" aria-label="Rechercher" />
+            </label>
+            <span class="lm-count" id="lm-count"></span>
+          </div>
+
+          <div class="data-table-wrap" id="lm-liste">
+            <div class="table-scroll">
+              <table class="data-table lm-table">
+                <thead>
+                  <tr>
+                    <th class="w-soc">Société</th>
+                    <th>Référence</th>
+                    <th class="w-miss">Missions</th>
+                    <th class="r w-hon">Honoraires annuels HT</th>
+                    <th>Statut</th>
+                    <th>Date</th>
+                    <th>Responsable</th>
+                    <th><span class="sr-only">Action</span></th>
+                  </tr>
+                </thead>
+                <tbody id="lm-rows"></tbody>
+              </table>
+            </div>
+            <div class="lm-empty" id="lm-empty" hidden>Aucune lettre ne correspond à ce filtre.</div>
+          </div>
+
+          <div class="m-note">
+            <span class="ms">info</span>
+            <span>Maquette : contenu de la lettre de mission et mentions obligatoires à faire valider par un professionnel (code de déontologie des experts-comptables).</span>
+          </div>
+        </div>
+        <div id="ej-footer"></div>
+      </div>
+    </div>
+
+    <div class="lm-toast" id="lm-toast" role="status" aria-live="polite"><span class="ms">check_circle</span><span id="lm-toast-txt"></span></div>
+
+    <script src="assets/ej-missions-data.js?v=17"></script>
+    <script>
+      (function () {
+        var E = window.EJM;
+        var esc = E.esc;
+        var TOTAL_SUIVIES = E.totalSocietes;
+        var AUJOURDHUI = parseDate(E.today);
+
+        var STATUT = {
+          signee: { cls: "badge-success", lab: "Signée" },
+          envoyee: { cls: "badge-progress", lab: "Envoyée" },
+          brouillon: { cls: "badge-neutral", lab: "Brouillon" },
+          a_renouveler: { cls: "badge-action", lab: "À renouveler" },
+          absente: { cls: "badge-action", lab: "Aucune lettre" },
+        };
+        var ORDRE = { absente: 0, a_renouveler: 1, envoyee: 2, brouillon: 3, signee: 4 };
+
+        function parseDate(s) {
+          var p = s.split("/");
+          return new Date(+p[2], +p[1] - 1, +p[0]);
+        }
+        function norm(s) {
+          return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+        }
+        function labGel(s) {
+          return s.lab.gel === "a_verifier";
+        }
+        function labIncomplet(s) {
+          return s.lab.statut === "incomplet" || s.lab.statut === "a_ouvrir";
+        }
+        function labBloque(s) {
+          return labIncomplet(s) || labGel(s);
+        }
+        function libelleLab(s) {
+          if (s.lab.statut === "a_ouvrir") return "LAB : dossier à ouvrir";
+          if (s.lab.statut === "incomplet") return labGel(s) ? "LAB : pièces manquantes, homonymie à lever" : "LAB : pièces manquantes";
+          return "LAB : homonymie gel des avoirs à lever";
+        }
+        /* Élision : « de Camille » mais « d'Étienne » */
+        function de(nom) {
+          var n = String(nom || "").trim();
+          if (!n) return "de";
+          var c = n.charAt(0).normalize("NFD").charAt(0).toLowerCase();
+          return "aeiouyh".indexOf(c) !== -1 ? "d'" + n : "de " + n;
+        }
+        function pluriel(n, un, plus) {
+          return n + " " + (n > 1 ? plus : un);
+        }
+
+        /* Données triées : actions à mener d'abord */
+        var lignes = E.societes
+          .map(function (s, i) { return { s: s, i: i }; })
+          .sort(function (a, b) {
+            var d = ORDRE[a.s.lm.statut] - ORDRE[b.s.lm.statut];
+            return d !== 0 ? d : a.i - b.i;
+          })
+          .map(function (x) { return x.s; });
+
+        function nb(statut) {
+          return E.societes.filter(function (s) { return s.lm.statut === statut; }).length;
+        }
+        var nbDossiers = E.societes.length;
+        var signees = E.societes.filter(function (s) { return s.lm.statut === "signee"; });
+        var envoyees = E.societes.filter(function (s) { return s.lm.statut === "envoyee"; });
+        var totalSignees = signees.reduce(function (t, s) { return t + s.lm.honoraires; }, 0);
+        var totalEnvoyees = envoyees.reduce(function (t, s) { return t + s.lm.honoraires; }, 0);
+
+        /* ---------- Tuiles ---------- */
+        var TUILES = [
+          { filtre: "signee", titre: "Signées", icone: "check_circle", n: nb("signee"),
+            regle: "Règle : lettre au statut « Signée ». ", lien: "Voir les lettres signées" },
+          { filtre: "envoyee", titre: "En attente de signature", icone: "send", n: nb("envoyee"),
+            regle: "Règle : lettre envoyée, signature du client attendue. ", lien: "Voir les lettres envoyées" },
+          { filtre: "a_renouveler", titre: "À renouveler", icone: "refresh_cw", n: nb("a_renouveler"),
+            regle: "Règle : échéance atteinte, lettre non reconduite à renouveler. ", lien: "Voir les lettres à renouveler" },
+          { filtre: "absente", titre: "Sociétés sans lettre", icone: "file_x", n: nb("absente"), attention: true,
+            regle: "Règle : dossier missions ouvert, aucune lettre rattachée. ", lien: "Voir les sociétés sans lettre" },
+        ];
+        document.getElementById("lm-stats").innerHTML = TUILES.map(function (t) {
+          return (
+            '<div class="card stat' + (t.attention ? " attention" : "") + '">' +
+            '<div class="stat-top"><span>' + t.titre + '</span><span class="ms">' + t.icone + "</span></div>" +
+            '<div class="stat-value">' + t.n + "</div>" +
+            '<div class="stat-rule">' + t.regle + "<strong>" + t.n + " sur " + nbDossiers + "</strong> sociétés du périmètre.</div>" +
+            '<a class="stat-link" href="#lm-liste" data-filter="' + t.filtre + '">' + t.lien + '<span class="ms">arrow_forward</span></a>' +
+            "</div>"
+          );
+        }).join("");
+
+        /* ---------- Honoraires ---------- */
+        document.getElementById("lm-total").innerHTML =
+          '<span class="ms">euro</span>' +
+          "<span>Honoraires annuels HT des lettres signées : <strong>" + E.euros(totalSignees) + "</strong></span>" +
+          '<span class="lm-total-sub">' + E.euros(totalEnvoyees) + " en attente de signature. Périmètre : " +
+          nbDossiers + " sociétés avec dossier missions sur " + TOTAL_SUIVIES + " suivies.</span>";
+
+        /* ---------- Filtres rapides ---------- */
+        var FILTRES = [
+          { id: "tout", lab: "Toutes", test: function () { return true; } },
+          { id: "signee", lab: "Signées", test: function (s) { return s.lm.statut === "signee"; } },
+          { id: "envoyee", lab: "En attente de signature", test: function (s) { return s.lm.statut === "envoyee"; } },
+          { id: "brouillon", lab: "Brouillons", test: function (s) { return s.lm.statut === "brouillon"; } },
+          { id: "a_renouveler", lab: "À renouveler", warn: true, test: function (s) { return s.lm.statut === "a_renouveler"; } },
+          { id: "absente", lab: "Sans lettre", warn: true, test: function (s) { return s.lm.statut === "absente"; } },
+          { id: "lab", lab: "LAB à compléter", warn: true, test: labBloque },
+        ];
+        var etat = { filtre: "tout", q: "" };
+
+        function renderFiltres() {
+          document.getElementById("lm-filters").innerHTML = FILTRES.map(function (f) {
+            var n = E.societes.filter(f.test).length;
+            var actif = etat.filtre === f.id;
+            var cls = "qf-pill" + (f.warn ? " warning" : "") + (actif ? (f.warn ? " active-warning" : " active") : "");
+            return '<button class="' + cls + '" type="button" data-filter="' + f.id + '" aria-pressed="' + actif + '">' +
+              f.lab + ' <span class="lm-n">' + n + "</span></button>";
+          }).join("");
+        }
+
+        /* ---------- Lignes ---------- */
+        function celluleDate(s) {
+          var l = s.lm;
+          var tard = l.echeance && parseDate(l.echeance) < AUJOURDHUI;
+          if (l.statut === "signee") {
+            return "Signée le " + l.signee +
+              '<span class="lm-date-sub' + (tard ? " late" : "") + '">Échéance ' + l.echeance + (tard ? " (dépassée)" : "") + "</span>";
+          }
+          if (l.statut === "envoyee") {
+            return "Envoyée le " + l.envoyee + '<span class="lm-date-sub">Échéance ' + l.echeance + "</span>";
+          }
+          if (l.statut === "a_renouveler") {
+            return "Échue le " + l.echeance + '<span class="lm-date-sub late">Signée le ' + l.signee + "</span>";
+          }
+          if (l.statut === "brouillon") {
+            return "Échéance prévue " + l.echeance;
+          }
+          return '<span class="muted">·</span>';
+        }
+        function cellulesMissions(s) {
+          var m = s.lm.missions;
+          if (!m.length) return '<div class="lm-miss none">Aucune mission définie</div>';
+          var h = m.slice(0, 2).map(function (x) { return "<div>" + esc(x) + "</div>"; }).join("");
+          if (m.length > 2) h += '<span class="lm-more">+' + (m.length - 2) + "</span>";
+          return '<div class="lm-miss">' + h + "</div>";
+        }
+        function action(s) {
+          var href = "lettre-mission.html?id=" + encodeURIComponent(s.id);
+          var st = s.lm.statut;
+          if (st === "envoyee") return '<button class="btn btn-secondary btn-sm" type="button" data-relance="' + esc(s.nom) + '">Relancer</button>';
+          if (st === "a_renouveler") return '<a class="btn btn-primary btn-sm" href="' + href + '">Renouveler</a>';
+          if (st === "absente") return '<a class="btn btn-primary btn-sm" href="' + href + '">Créer</a>';
+          return '<a class="btn btn-secondary btn-sm" href="' + href + '">Ouvrir</a>';
+        }
+        function ligne(s) {
+          var st = STATUT[s.lm.statut];
+          var href = "lettre-mission.html?id=" + encodeURIComponent(s.id);
+          var eq = E.equipe[s.resp];
+          var lab = "";
+          if (labBloque(s)) {
+            lab = '<div><a class="lm-lab" href="lab-dossier.html?id=' + encodeURIComponent(s.id) + '"><span class="ms">shield_alert</span>' +
+              esc(libelleLab(s)) + "</a></div>";
+          }
+          return (
+            '<tr data-href="' + href + '">' +
+            '<td class="c-soc"><a class="lm-soc" href="' + href + '">' + esc(s.nom) + "</a>" +
+            '<div class="lm-sub">' + esc(s.forme) + " · " + esc(s.activite) + "</div>" + lab + "</td>" +
+            '<td class="c-ref' + (s.lm.ref ? "" : " is-empty") + '">' + (s.lm.ref ? '<span class="lm-ref">' + esc(s.lm.ref) + "</span>" : '<span class="muted">·</span>') + "</td>" +
+            '<td class="c-miss">' + cellulesMissions(s) + "</td>" +
+            '<td class="c-hon' + (s.lm.honoraires != null ? "" : " is-empty") + '">' + (s.lm.honoraires != null ? E.euros(s.lm.honoraires) : '<span class="muted">·</span>') + "</td>" +
+            '<td class="c-statut"><span class="badge ' + st.cls + '" title="' + esc(E.LM_STATUT[s.lm.statut]) + '">' + st.lab + "</span></td>" +
+            '<td class="c-date' + (s.lm.statut === "absente" ? " is-empty" : "") + '"><div class="lm-date">' + celluleDate(s) + "</div></td>" +
+            '<td class="c-resp"><span class="lm-resp"><span class="avatar avatar-xs" style="background:' + eq.couleur + '">' + esc(s.resp) + '</span><span class="n-full">' + esc(eq.nom) + '</span><span class="n-short" title="' + esc(eq.nom) + '">' + esc(eq.nom.split(" ")[0] + " " + eq.nom.split(" ")[1].charAt(0) + ".") + "</span></span></td>" +
+            '<td class="c-act">' + action(s) + "</td>" +
+            "</tr>"
+          );
+        }
+
+        function render() {
+          var f = FILTRES.filter(function (x) { return x.id === etat.filtre; })[0];
+          var q = norm(etat.q.trim());
+          var liste = lignes.filter(function (s) {
+            if (!f.test(s)) return false;
+            if (!q) return true;
+            var hay = norm([s.nom, s.siren, s.lm.ref || "", s.forme, s.activite].join(" "));
+            if (hay.indexOf(q) !== -1) return true;
+            /* SIREN saisi avec ou sans espaces */
+            var qc = q.replace(/\s+/g, "");
+            return /^\d+$/.test(qc) && s.siren.replace(/\s+/g, "").indexOf(qc) !== -1;
+          });
+          document.getElementById("lm-rows").innerHTML = liste.map(ligne).join("");
+          document.getElementById("lm-empty").hidden = liste.length > 0;
+          document.getElementById("lm-count").textContent = pluriel(liste.length, "résultat", "résultats");
+          renderFiltres();
+        }
+
+        function setFiltre(id) {
+          etat.filtre = id;
+          render();
+        }
+
+        /* ---------- Événements ---------- */
+        var toastTimer;
+        function toast(msg) {
+          var t = document.getElementById("lm-toast");
+          document.getElementById("lm-toast-txt").textContent = msg;
+          t.classList.add("show");
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(function () { t.classList.remove("show"); }, 3200);
+        }
+
+        document.getElementById("lm-filters").addEventListener("click", function (e) {
+          var b = e.target.closest("[data-filter]");
+          if (b) setFiltre(b.getAttribute("data-filter"));
+        });
+        document.getElementById("lm-stats").addEventListener("click", function (e) {
+          var a = e.target.closest("a[data-filter]");
+          if (!a) return;
+          e.preventDefault();
+          setFiltre(a.getAttribute("data-filter"));
+          document.getElementById("lm-liste").scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+        document.getElementById("lm-search").addEventListener("input", function (e) {
+          etat.q = e.target.value;
+          render();
+        });
+        document.getElementById("lm-rows").addEventListener("click", function (e) {
+          var rel = e.target.closest("[data-relance]");
+          if (rel) {
+            e.stopPropagation();
+            toast("Relance envoyée au signataire " + de(rel.getAttribute("data-relance")) + ".");
+            return;
+          }
+          if (e.target.closest("a, button")) return;
+          var tr = e.target.closest("tr[data-href]");
+          if (tr) location.href = tr.getAttribute("data-href");
+        });
+
+        render();
+      })();
+    </script>
+    <script src="assets/ej-shell.js?v=17"></script>
+  </body>
+</html>

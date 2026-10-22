@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Dispositif LAB · Missions et conformité · Express Juridique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=16" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=17" />
+    <style>
+      /* ---- Page LAB : styles locaux (à mutualiser si besoin) ---- */
+      .lab-intro {
+        max-width: 620px;
+      }
+      .lab-value {
+        margin-bottom: 20px;
+      }
+      .lab-value a {
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        white-space: nowrap;
+      }
+      .lab-split {
+        margin: 14px 0 24px;
+        padding: 18px 20px 16px;
+      }
+      .lab-split-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+      }
+      .lab-split-head h2 {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .seg {
+        display: flex;
+        gap: 3px;
+        height: 12px;
+      }
+      .seg > span {
+        display: block;
+        height: 100%;
+        min-width: 6px;
+        border-radius: var(--ej-radius-full);
+      }
+      .seg .s-faible {
+        background: var(--ej-success-600);
+      }
+      .seg .s-standard {
+        background: var(--ej-info-600);
+      }
+      .seg .s-eleve {
+        background: var(--ej-warning-600);
+      }
+      .seg .s-na {
+        background: var(--ej-neutral-300);
+      }
+      .seg-legend {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 14px;
+      }
+      .seg-legend b {
+        display: block;
+        margin-top: 2px;
+        padding-left: 16px;
+        font-family: var(--ej-font-display);
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+        font-variant-numeric: tabular-nums;
+      }
+      .seg-legend b small {
+        font-family: var(--ej-font-body);
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--ej-neutral-500);
+        margin-left: 4px;
+      }
+
+      .lab-filters {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .lab-filters .toolbar {
+        margin-bottom: 0;
+        flex: 1;
+      }
+      .lab-count {
+        font-size: 14px;
+        color: var(--ej-neutral-500);
+        white-space: nowrap;
+      }
+      .qf-pill .n {
+        font-family: var(--ej-font-body);
+        font-weight: 500;
+        color: var(--ej-neutral-500);
+        font-variant-numeric: tabular-nums;
+      }
+      .quick-filters {
+        margin-bottom: 18px;
+      }
+
+      .lab-table tbody tr {
+        cursor: pointer;
+      }
+      .lab-table td {
+        vertical-align: middle;
+      }
+      .cell-soc a {
+        font-family: var(--ej-font-display);
+        font-weight: 600;
+        font-size: 14.5px;
+        color: var(--ej-primary-900);
+      }
+      .cell-soc a:hover {
+        color: var(--ej-action-600);
+      }
+      .cell-sub {
+        display: block;
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+        margin-top: 1px;
+      }
+      .cell-sub-warn {
+        color: var(--ej-warning-600);
+        font-weight: 500;
+      }
+      .be-cell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .be-n {
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+        color: var(--ej-neutral-900);
+      }
+      .be-flag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--ej-action-700);
+      }
+      .be-flag .ms {
+        font-size: 15px;
+      }
+      .be-flag.warn {
+        color: var(--ej-warning-600);
+      }
+      .resp {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+        font-size: 13.5px;
+      }
+      .open-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ej-action-600);
+        white-space: nowrap;
+      }
+      .open-link .ms {
+        font-size: 16px;
+        transition: transform var(--ej-transition-fast);
+      }
+      .lab-table tr:hover .open-link .ms {
+        transform: translateX(2px);
+      }
+      .lab-table th,
+      .lab-table td {
+        padding-left: 8px;
+        padding-right: 8px;
+      }
+      .cell-soc .cell-sub {
+        white-space: nowrap;
+      }
+      .stat-stack {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 3px;
+        min-width: 0;
+      }
+      .stat-stack .cell-sub {
+        margin-top: 0;
+      }
+      .lab-empty {
+        padding: 36px 20px;
+        text-align: center;
+        color: var(--ej-neutral-500);
+        font-size: 14px;
+      }
+
+      @media (max-width: 900px) {
+        .seg-legend {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .lab-filters {
+          flex-wrap: wrap;
+        }
+        .lab-filters .toolbar {
+          flex-basis: 100%;
+        }
+      }
+      /* Tableau transformé en cartes empilées sur petit écran */
+      @media (max-width: 760px) {
+        .lab-table,
+        .lab-table tbody,
+        .lab-table tr,
+        .lab-table td {
+          display: block;
+          width: 100%;
+        }
+        .lab-table thead {
+          display: none;
+        }
+        .lab-table tr {
+          padding: 14px 16px;
+          border-bottom: 1px solid var(--ej-neutral-200);
+        }
+        .lab-table tr:last-child {
+          border-bottom: none;
+        }
+        .lab-table td {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 5px 0;
+          border: none;
+          text-align: right;
+        }
+        .lab-table td::before {
+          content: attr(data-label);
+          flex-shrink: 0;
+          padding-top: 2px;
+          font-family: var(--ej-font-display);
+          font-size: 10.5px;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: var(--ej-neutral-500);
+          text-align: left;
+        }
+        .lab-table td.cell-soc {
+          display: block;
+          text-align: left;
+          padding-bottom: 8px;
+        }
+        .lab-table td.cell-soc::before,
+        .lab-table td.cell-open::before {
+          display: none;
+        }
+        .lab-table td.cell-open {
+          padding-top: 10px;
+          justify-content: flex-start;
+        }
+        .lab-table tbody tr:hover td {
+          background: transparent;
+        }
+        .be-cell {
+          justify-content: flex-end;
+        }
+        .cell-val {
+          text-align: right;
+        }
+        .stat-stack {
+          align-items: flex-end;
+        }
+        .m-actions {
+          width: 100%;
+        }
+        .m-actions .btn {
+          flex: 1 1 auto;
+        }
+      }
+      @media (max-width: 480px) {
+        .seg-legend b {
+          font-size: 18px;
+        }
+        .lab-value a {
+          white-space: normal;
+        }
+      }
+    </style>
+  </head>
+  <body class="m-resp" data-active="lab">
+    <div id="ej-header"></div>
+    <div class="app">
+      <div id="ej-sidebar"></div>
+      <div class="main">
+        <div class="page page-wide">
+          <div class="page-head m-wrap">
+            <div class="lab-intro">
+              <div class="m-eyebrow">Missions &amp; conformité</div>
+              <h1 class="page-title">Dispositif LAB</h1>
+              <p class="page-desc">
+                Les obligations de vigilance du cabinet sur ses clients : identification, bénéficiaires effectifs,
+                évaluation du risque et revues périodiques.
+              </p>
+            </div>
+            <div class="m-actions">
+              <a class="btn btn-secondary" href="#" title="Écran non maquetté"><span class="ms">sliders-horizontal</span>Paramétrer la grille de risque</a>
+              <button class="btn btn-secondary" type="button" title="Écran non maquetté"><span class="ms">download</span>Exporter</button>
+            </div>
+          </div>
+
+          <div class="alert alert-brand lab-value">
+            <span class="ms">database</span>
+            <div>
+              <strong>Pas de ressaisie.</strong> L'identité, les dirigeants et les bénéficiaires effectifs sont
+              pré-remplis depuis le DPJ (Dossier Permanent Juridique d'EJ). Le criblage PPE et gel des avoirs passe par
+              un connecteur KYC, dont le fournisseur reste à choisir.
+              <a href="connecteurs.html">Voir les connecteurs</a>
+            </div>
+          </div>
+
+          <div class="stats" id="stats"></div>
+
+          <div class="card lab-split">
+            <div class="lab-split-head">
+              <h2>Répartition par niveau de risque</h2>
+              <span class="xs muted" id="split-note"></span>
+            </div>
+            <div class="seg" id="seg" role="img"></div>
+            <div class="seg-legend" id="seg-legend"></div>
+          </div>
+
+          <div class="lab-filters" id="liste">
+            <div class="toolbar">
+              <label class="search">
+                <span class="ms">search</span>
+                <input type="text" id="q" placeholder="Rechercher par dénomination" autocomplete="off" />
+              </label>
+              <span class="lab-count" id="count"></span>
+            </div>
+          </div>
+          <div class="quick-filters" id="pills"></div>
+
+          <div class="data-table-wrap">
+            <div class="table-scroll">
+              <table class="data-table lab-table">
+                <thead>
+                  <tr>
+                    <th>Société</th>
+                    <th>Risque et vigilance</th>
+                    <th>Statut</th>
+                    <th>Bénéficiaires</th>
+                    <th>Prochaine revue</th>
+                    <th>Responsable</th>
+                    <th><span class="sr-only">Fiche</span></th>
+                  </tr>
+                </thead>
+                <tbody id="rows"></tbody>
+              </table>
+            </div>
+            <div class="lab-empty" id="empty" hidden>Aucun dossier ne correspond à ce filtre.</div>
+          </div>
+
+          <div class="m-note">
+            <span class="ms">info</span>
+            <span>
+              Maquette : libellés et règles LAB à faire valider par un professionnel (références : code monétaire et
+              financier, norme professionnelle LAB de l'Ordre).
+            </span>
+          </div>
+        </div>
+        <div id="ej-footer"></div>
+      </div>
+    </div>
+
+    <script src="assets/ej-missions-data.js?v=17"></script>
+    <script>
+      (function () {
+        var E = window.EJM,
+          esc = E.esc,
+          S = E.societes;
+
+        function d(s) {
+          var p = s.split("/");
+          return new Date(+p[2], +p[1] - 1, +p[0]);
+        }
+        var TODAY = d(E.today);
+        function jours(s) {
+          return Math.round((TODAY - d(s)) / 86400000);
+        }
+        function enRetard(s) {
+          return !!s.lab.prochaineRevue && d(s.lab.prochaineRevue) < TODAY;
+        }
+
+        var FILTRES = {
+          tous: { label: "Tous", test: function () { return true; } },
+          a_jour: { label: "À jour", test: function (s) { return s.lab.statut === "a_jour" && s.lab.gel !== "a_verifier"; } },
+          homonymie: { label: "Homonymie à lever", warn: true, test: function (s) { return s.lab.gel === "a_verifier"; } },
+          a_revoir: { label: "Revues échues", warn: true, test: function (s) { return s.lab.statut === "a_revoir"; } },
+          incomplet: { label: "Pièces manquantes", test: function (s) { return s.lab.statut === "incomplet"; } },
+          a_ouvrir: { label: "À ouvrir", test: function (s) { return s.lab.statut === "a_ouvrir"; } },
+          eleve: { label: "Risque élevé", test: function (s) { return s.lab.risque === "eleve"; } },
+          ppe: { label: "PPE", test: function (s) { return !!s.lab.ppe; } },
+        };
+        var ORDRE = ["tous", "a_jour", "a_revoir", "incomplet", "a_ouvrir", "eleve", "ppe", "homonymie"];
+
+        function nb(key) {
+          return S.filter(FILTRES[key].test).length;
+        }
+        var total = S.length;
+        var couverture = total + " sociétés du périmètre missions, sur " + E.totalSocietes + " suivies";
+        /* Faculté sous conditions : le libellé reste local à la page (EJM n'est pas modifié) */
+        var VIG = { faible: "Vigilance simplifiée possible", standard: E.VIGILANCE.standard, eleve: E.VIGILANCE.eleve };
+
+        /* ---------- Tuiles ---------- */
+        var TUILES = [
+          { key: "a_jour", titre: "À jour", icone: "circle-check", sub: "sur " + total + " dossiers",
+            regle: "Identification complète, prochaine revue postérieure au " + E.today + " et aucune homonymie à lever sur le gel des avoirs." },
+          { key: "a_revoir", titre: "Revues échues", icone: "history", sub: "à reprendre en priorité", attention: true,
+            regle: "Prochaine revue antérieure au " + E.today + ". Une revue échue prime sur les pièces manquantes." },
+          { key: "incomplet", titre: "Pièces manquantes", icone: "file-check", sub: "identification à compléter",
+            regle: "Pièces ou bénéficiaires effectifs manquants, revue non échue." },
+          { key: "a_ouvrir", titre: "Dossiers à ouvrir", icone: "folder-open", sub: "aucune diligence engagée",
+            regle: "Sociétés du périmètre missions dont le dossier LAB n'est pas encore ouvert." },
+        ];
+        document.getElementById("stats").innerHTML = TUILES.map(function (t) {
+          return (
+            '<div class="card stat' + (t.attention ? " attention" : "") + '">' +
+            '<div class="stat-top"><span>' + esc(t.titre) + '</span><span class="ms">' + t.icone + "</span></div>" +
+            '<div class="stat-value">' + nb(t.key) + "</div>" +
+            '<div class="stat-sub">' + esc(t.sub) + "</div>" +
+            '<div class="stat-rule"><strong>Règle :</strong> ' + esc(t.regle) + "<br />Couverture : " + esc(couverture) + ".</div>" +
+            '<a class="stat-link" href="#liste" data-filtre="' + t.key + '">Voir la liste <span class="ms">arrow_forward</span></a>' +
+            "</div>"
+          );
+        }).join("");
+
+        /* ---------- Répartition par risque ---------- */
+        var RISQUES = [
+          { k: "faible", cls: "risk-faible", lab: "Risque faible", seg: "s-faible" },
+          { k: "standard", cls: "risk-standard", lab: "Risque standard", seg: "s-standard" },
+          { k: "eleve", cls: "risk-eleve", lab: "Risque élevé", seg: "s-eleve" },
+          { k: null, cls: "risk-na", lab: "Non évalué", seg: "s-na" },
+        ];
+        var comptes = RISQUES.map(function (r) {
+          return S.filter(function (s) { return s.lab.risque === r.k; }).length;
+        });
+        var seg = document.getElementById("seg");
+        seg.setAttribute(
+          "aria-label",
+          "Répartition par niveau de risque : " +
+            RISQUES.map(function (r, i) { return comptes[i] + " " + r.lab.toLowerCase(); }).join(", ")
+        );
+        seg.innerHTML = RISQUES.map(function (r, i) {
+          return comptes[i] ? '<span class="' + r.seg + '" style="flex:' + comptes[i] + '"></span>' : "";
+        }).join("");
+        document.getElementById("seg-legend").innerHTML = RISQUES.map(function (r, i) {
+          return (
+            '<div><span class="risk ' + r.cls + '">' + r.lab + "</span><b>" + comptes[i] +
+            "<small>dossier" + (comptes[i] > 1 ? "s" : "") + "</small></b></div>"
+          );
+        }).join("");
+        document.getElementById("split-note").textContent = "Grille de risque définie par le cabinet";
+
+        /* ---------- Filtres ---------- */
+        var etat = { f: "tous", q: "" };
+        var pills = document.getElementById("pills");
+        function dessinerPills() {
+          pills.innerHTML = ORDRE.map(function (k) {
+            var f = FILTRES[k];
+            var actif = etat.f === k;
+            var cls = "qf-pill" + (f.warn ? " warning" : "") + (actif ? (f.warn ? " active-warning" : " active") : "");
+            return '<button type="button" class="' + cls + '" data-f="' + k + '" aria-pressed="' + actif + '">' +
+              esc(f.label) + ' <span class="n">' + nb(k) + "</span></button>";
+          }).join("");
+        }
+
+        /* ---------- Tableau ---------- */
+        function badge(s) {
+          var st = s.lab.statut, p = s.lab.pieces;
+          /* Une homonymie non levée interdit d'afficher « À jour » */
+          if (st === "a_jour" && s.lab.gel === "a_verifier") return '<span class="badge badge-action">Homonymie à lever</span>';
+          if (st === "a_jour") return '<span class="badge badge-success">' + E.LAB_STATUT.a_jour + "</span>";
+          if (st === "a_revoir") return '<span class="badge badge-action">' + E.LAB_STATUT.a_revoir + "</span>";
+          if (st === "incomplet")
+            return '<span class="badge badge-progress">' + E.LAB_STATUT.incomplet + " · " + p[0] + "/" + p[1] + "</span>";
+          return '<span class="badge badge-neutral">' + E.LAB_STATUT.a_ouvrir + "</span>";
+        }
+        function celluleStatut(s) {
+          var h = badge(s), p = s.lab.pieces;
+          if (s.lab.gel === "a_verifier" && s.lab.statut !== "a_jour")
+            h += '<span class="cell-sub"><span class="badge badge-action" title="Gel des avoirs : correspondance possible à lever">Homonymie à lever</span></span>';
+          if (s.lab.statut !== "incomplet" && s.lab.statut !== "a_ouvrir" && p[0] < p[1])
+            h += '<span class="cell-sub">Pièces reçues : ' + p[0] + "/" + p[1] + "</span>";
+          if (s.lab.statut === "a_ouvrir") h += '<span class="cell-sub">Pièces reçues : ' + p[0] + "/" + p[1] + "</span>";
+          return '<div class="stat-stack">' + h + "</div>";
+        }
+        function celluleRisque(s) {
+          if (!s.lab.risque) return '<span class="risk risk-na">Non évalué</span><span class="cell-sub">Vigilance à définir</span>';
+          return '<span class="risk risk-' + s.lab.risque + '">' + E.RISQUE[s.lab.risque] + '</span><span class="cell-sub">' + VIG[s.lab.risque] + "</span>";
+        }
+        function celluleBE(s) {
+          var h = '<span class="be-n">' + s.lab.be + "</span>";
+          if (!s.lab.be) h += '<span class="cell-sub" style="margin:0">à identifier</span>';
+          if (s.lab.ppe)
+            h += '<span class="be-flag" title="Personne politiquement exposée"><span class="ms">landmark</span>PPE</span>';
+          return '<div class="be-cell">' + h + "</div>";
+        }
+        function celluleRevue(s) {
+          if (!s.lab.prochaineRevue)
+            return '<span class="muted">Fixée à la validation</span><span class="cell-sub">Jamais validé</span>';
+          if (enRetard(s))
+            return "<strong class=\"strong\">" + s.lab.prochaineRevue + '</strong><span class="cell-sub cell-sub-warn">En retard de ' + jours(s.lab.prochaineRevue) + " j</span>";
+          return s.lab.prochaineRevue;
+        }
+        function celluleResp(s) {
+          var m = E.equipe[s.resp];
+          return '<span class="resp"><span class="avatar avatar-xs" style="background:' + m.couleur + '" aria-hidden="true">' + esc(s.resp) + "</span>" + esc(m.nom) + "</span>";
+        }
+        function ligne(s) {
+          var href = "lab-dossier.html?id=" + encodeURIComponent(s.id);
+          return (
+            '<tr data-href="' + esc(href) + '">' +
+            '<td class="cell-soc" data-label="Société"><a href="' + esc(href) + '">' + esc(s.nom) + "</a>" +
+            '<span class="cell-sub">SIREN ' + esc(s.siren) + " · " + esc(s.forme) + "</span></td>" +
+            '<td data-label="Risque" class="cell-val">' + celluleRisque(s) + "</td>" +
+            '<td data-label="Statut" class="cell-val">' + celluleStatut(s) + "</td>" +
+            '<td data-label="Bénéficiaires">' + celluleBE(s) + "</td>" +
+            '<td data-label="Prochaine revue" class="cell-val">' + celluleRevue(s) + "</td>" +
+            '<td data-label="Responsable">' + celluleResp(s) + "</td>" +
+            '<td class="cell-open"><a class="open-link" href="' + esc(href) + '" aria-label="Ouvrir la fiche LAB de ' + esc(s.nom) + '"><span class="ms">arrow_forward</span></a></td>' +
+            "</tr>"
+          );
+        }
+        function norm(t) {
+          return String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+        }
+        function dessiner() {
+          var q = norm(etat.q.trim());
+          var liste = S.filter(function (s) {
+            return FILTRES[etat.f].test(s) && (!q || norm(s.nom).indexOf(q) !== -1);
+          });
+          document.getElementById("rows").innerHTML = liste.map(ligne).join("");
+          document.getElementById("empty").hidden = liste.length > 0;
+          document.getElementById("count").textContent = liste.length + (liste.length > 1 ? " dossiers" : " dossier");
+          dessinerPills();
+        }
+
+        /* ---------- Événements ---------- */
+        pills.addEventListener("click", function (e) {
+          var b = e.target.closest("[data-f]");
+          if (!b) return;
+          etat.f = b.getAttribute("data-f");
+          dessiner();
+        });
+        document.getElementById("q").addEventListener("input", function (e) {
+          etat.q = e.target.value;
+          dessiner();
+        });
+        document.getElementById("stats").addEventListener("click", function (e) {
+          var a = e.target.closest("[data-filtre]");
+          if (!a) return;
+          e.preventDefault();
+          etat.f = a.getAttribute("data-filtre");
+          dessiner();
+          document.getElementById("liste").scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+        document.getElementById("rows").addEventListener("click", function (e) {
+          if (e.target.closest("a")) return;
+          var tr = e.target.closest("tr[data-href]");
+          if (tr) location.href = tr.getAttribute("data-href");
+        });
+
+        document.querySelectorAll('a[href="#"]').forEach(function (a) {
+          a.addEventListener("click", function (e) { e.preventDefault(); });
+        });
+
+        dessiner();
+      })();
+    </script>
+    <script src="assets/ej-shell.js?v=17"></script>
+  </body>
+</html>
