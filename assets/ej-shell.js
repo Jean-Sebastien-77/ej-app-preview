@@ -11,9 +11,9 @@
     { id: "suivi", label: "Suivi des actions", icon: "table_chart", href: "suivi-actions.html" },
     { id: "ifu", label: "Export IFU 2025", sub: "Assistance à la décla.", icon: "price_change", href: "export-ifu.html" },
     { section: "Missions & conformité" },
-    { id: "lettres", label: "Lettres de mission", icon: "file_pen_line", href: "lettres-mission.html" },
+    { id: "lettres", label: "Lettres de mission", icon: "file_pen_line", href: "lettres-mission.html", profils: ["ec", "mixte"] },
     { id: "lab", label: "Dispositif LAB", sub: "Lutte anti-blanchiment", icon: "shield_check", href: "lab.html" },
-    { id: "cac", label: "Missions CAC", sub: "Prochaine maquette", icon: "briefcase", href: "#", profils: ["cac", "mixte"], soon: true },
+    { id: "cac", label: "Missions CAC", sub: "Mandats et interventions", icon: "briefcase", href: "cac.html", profils: ["cac", "mixte"] },
     { section: "Administration" },
     { id: "connecteurs", label: "Connecteurs", icon: "cable", href: "connecteurs.html" },
     { id: "etiquettes", label: "Étiquettes", icon: "bookmarks", href: "etiquettes.html" },
@@ -51,10 +51,12 @@
   document.body.setAttribute("data-profil", profil);
   var profilLabel = PROFILS.filter(function (p) { return p.id === profil; })[0].label;
   window.EJ_PROFIL = profil;
+  /* Utilisateur connecté simulé : l'associée CAC en profil cac, sinon l'associé EC. */
+  var user = profil === "cac" ? { initiales: "CD", nom: "Claire Dubois" } : { initiales: "TG", nom: "Thomas Girard" };
 
   var css =
     ".dropdown{position:relative}" +
-    ".dropdown-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:220px;background:#fff;border:1px solid var(--ej-neutral-200);border-radius:var(--ej-radius-lg);box-shadow:var(--ej-shadow-lg);padding:6px;opacity:0;transform:translateY(-4px);pointer-events:none;transition:opacity 150ms ease,transform 150ms ease;z-index:80}" +
+    ".dropdown-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:220px;background:var(--ej-white);border:1px solid var(--ej-neutral-200);border-radius:var(--ej-radius-lg);box-shadow:var(--ej-shadow-lg);padding:6px;opacity:0;transform:translateY(-4px);pointer-events:none;transition:opacity 150ms ease,transform 150ms ease;z-index:80}" +
     ".dropdown.open .dropdown-menu{opacity:1;transform:none;pointer-events:auto}" +
     ".dropdown-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--ej-radius-md);font-size:14px;color:var(--ej-neutral-700)}" +
     ".dropdown-item .ms{font-size:18px;color:var(--ej-neutral-400)}" +
@@ -100,7 +102,7 @@
     "</div>" +
     '<span class="header-sep"></span>' +
     '<div class="dropdown" data-dropdown>' +
-    '<button class="header-user" type="button" aria-haspopup="true"><span class="avatar avatar-sm">TG</span>Thomas Girard<span class="ms">expand_more</span></button>' +
+    '<button class="header-user" type="button" aria-haspopup="true"><span class="avatar avatar-sm">' + user.initiales + "</span>" + user.nom + '<span class="ms">expand_more</span></button>' +
     '<div class="dropdown-menu">' +
     USER_MENU.map(function (m) {
       if (m.divider) return '<div class="dropdown-divider"></div>';

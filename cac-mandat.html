@@ -1,0 +1,1364 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Fiche mission CAC · Missions et conformité · Express Juridique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=16" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=19" />
+    <style>
+      /* ---- En-tête entité (repris de lab-dossier.html) ---- */
+      .soc-head {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 22px 24px 22px 64px;
+        margin-bottom: 16px;
+      }
+      .soc-motif {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 40px;
+      }
+      .soc-motif i {
+        position: absolute;
+        left: 0;
+        height: 8px;
+        border-radius: 0 var(--ej-radius-full) var(--ej-radius-full) 0;
+      }
+      .soc-motif .m1 {
+        top: 24px;
+        width: 40px;
+        background: var(--ej-logo-mint);
+      }
+      .soc-motif .m2 {
+        top: 38px;
+        width: 24px;
+        background: var(--ej-action-600);
+      }
+      .soc-name {
+        font-size: 24px;
+        line-height: 1.25;
+        font-weight: 700;
+        color: var(--ej-primary-900);
+      }
+      .soc-form {
+        font-size: 14px;
+        font-style: italic;
+        color: var(--ej-neutral-500);
+        margin-top: 2px;
+      }
+      .soc-greffe {
+        font-size: 14px;
+        color: var(--ej-neutral-600);
+        margin-top: 2px;
+      }
+      .soc-greffe strong {
+        font-weight: 700;
+        color: var(--ej-primary-900);
+      }
+      .soc-ids {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6px;
+        text-align: right;
+        font-size: 13px;
+        color: var(--ej-neutral-600);
+      }
+      .soc-ids .type {
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+
+      /* ---- Fiche mission CAC : styles locaux (à mutualiser si besoin) ---- */
+      .d-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .d-alerts {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+      .d-alerts:empty {
+        display: none;
+      }
+      .d-alerts .alert a {
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      #retour {
+        margin-bottom: 16px;
+      }
+      #retour:empty {
+        display: none;
+      }
+      .actions-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        padding: 14px 20px;
+        margin-bottom: 8px;
+      }
+      .actions-bar .hint {
+        margin-left: auto;
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+      }
+      .discret {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+        margin: 0 4px 20px;
+        font-size: 12.5px;
+        line-height: 1.5;
+        color: var(--ej-neutral-500);
+      }
+      .discret .ms {
+        font-size: 15px;
+        margin-top: 2px;
+      }
+      #absent {
+        margin-top: 8px;
+      }
+      .d-card {
+        scroll-margin-top: 72px;
+      }
+      .d-card .block-head {
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--ej-neutral-100);
+        align-items: center;
+      }
+      .d-card .block-head h2 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .d-card .block-head h2 .ms {
+        font-size: 20px;
+        color: var(--ej-action-600);
+      }
+      .d-body {
+        padding: 20px 22px 22px;
+      }
+      .kv-item dd {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .kv-item dd span.v {
+        word-break: break-word;
+      }
+      .val-sub {
+        display: block;
+        margin-top: 2px;
+        font-size: 12.5px;
+        font-weight: 400;
+        color: var(--ej-neutral-500);
+      }
+      .val-sub.warn {
+        color: var(--ej-warning-600);
+        font-weight: 500;
+      }
+      .d-note {
+        margin-top: 12px;
+        font-size: 12.5px;
+        line-height: 1.5;
+        color: var(--ej-neutral-500);
+      }
+      .sous-titre {
+        margin: 22px 0 8px;
+        padding-top: 18px;
+        border-top: 1px solid var(--ej-neutral-100);
+        font-family: var(--ej-font-display);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .sous-titre:first-child {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+      }
+      .rtable {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .rtable th {
+        background: var(--ej-neutral-50);
+        padding: 10px 16px;
+        text-align: left;
+        font-family: var(--ej-font-display);
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ej-neutral-500);
+        border-bottom: 1px solid var(--ej-hairline);
+        white-space: nowrap;
+      }
+      .rtable td {
+        padding: 12px 16px;
+        font-size: 14px;
+        border-bottom: 1px solid var(--ej-neutral-100);
+        vertical-align: middle;
+      }
+      .rtable tr:last-child td {
+        border-bottom: none;
+      }
+      .rtable .sub {
+        display: block;
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+        margin-top: 1px;
+      }
+      .rtable .nom {
+        font-weight: 600;
+        color: var(--ej-primary-900);
+        font-family: var(--ej-font-display);
+      }
+      .oui-non {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13.5px;
+        font-weight: 500;
+      }
+      .oui-non .ms {
+        font-size: 16px;
+      }
+      .oui-non.ok {
+        color: var(--ej-success-600);
+      }
+      .oui-non.warn {
+        color: var(--ej-warning-600);
+      }
+      .oui-non.muted {
+        color: var(--ej-neutral-500);
+      }
+      .vide {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 22px;
+        border: 1px dashed var(--ej-neutral-300);
+        border-radius: var(--ej-radius-lg);
+        background: var(--ej-neutral-50);
+      }
+      .vide strong {
+        font-family: var(--ej-font-display);
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .vide p {
+        font-size: 14px;
+        color: var(--ej-neutral-600);
+      }
+
+      /* Frise des exercices du mandat */
+      .frise {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .frise li {
+        flex: 1 1 118px;
+        min-width: 0;
+        padding: 10px 12px;
+        border: 1px solid var(--ej-neutral-200);
+        border-radius: var(--ej-radius-lg);
+        background: var(--ej-white);
+      }
+      .frise .an {
+        display: block;
+        font-family: var(--ej-font-display);
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .frise .clos {
+        display: block;
+        font-size: 12px;
+        color: var(--ej-neutral-500);
+      }
+      .frise .etat {
+        display: block;
+        margin-top: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--ej-neutral-600);
+      }
+      .frise .dern {
+        display: block;
+        margin-top: 2px;
+        font-size: 11.5px;
+        color: var(--ej-warning-600);
+      }
+      .frise li.passe {
+        background: var(--ej-neutral-50);
+      }
+      .frise li.passe .an {
+        color: var(--ej-neutral-600);
+      }
+      .frise li.cours {
+        border-color: var(--ej-action-600);
+        background: var(--ej-action-50);
+      }
+      .frise li.cours .etat {
+        color: var(--ej-action-700);
+      }
+      .frise li.venir {
+        border-style: dashed;
+        border-color: var(--ej-neutral-300);
+      }
+
+      /* Indicateurs de l'exercice */
+      .kpis {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        padding: 16px 18px;
+        border: 1px solid var(--ej-action-200);
+        border-radius: var(--ej-radius-lg);
+        background: var(--ej-action-50);
+      }
+      .kpi .overline {
+        display: block;
+        margin-bottom: 4px;
+      }
+      .kpi .val {
+        font-family: var(--ej-font-display);
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: var(--ej-primary-900);
+        font-variant-numeric: tabular-nums;
+      }
+      .kpi .val small {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--ej-neutral-500);
+      }
+      .kpi .meter {
+        margin: 8px 0 6px;
+        background: var(--ej-white);
+      }
+      .kpi .meter.over > span {
+        background: var(--ej-warning-600);
+      }
+      .kpi .sub {
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+      }
+      .kpi .sub.warn {
+        color: var(--ej-warning-600);
+        font-weight: 500;
+      }
+
+      /* Phases de la mission */
+      .steps {
+        list-style: none;
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .step {
+        --c: var(--ej-neutral-200);
+        padding-top: 10px;
+        border-top: 3px solid var(--c);
+        min-width: 0;
+      }
+      .step.done {
+        --c: var(--ej-success-600);
+      }
+      .step.cur {
+        --c: var(--ej-action-600);
+      }
+      .st-lib {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ej-neutral-500);
+      }
+      .st-lib .ms {
+        font-size: 16px;
+      }
+      .step.done .st-lib {
+        color: var(--ej-success-600);
+      }
+      .step.cur .st-lib {
+        color: var(--ej-action-700);
+      }
+      .st-sub {
+        display: block;
+        margin-top: 2px;
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+      }
+
+      /* Bandeau valeur EJ */
+      .valeur-ej {
+        margin-top: 18px;
+      }
+      .valeur-ej .alert > div {
+        min-width: 0;
+      }
+
+      /* Aperçu de la lettre de mission (repris de lettre-mission.html) */
+      .lm-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 14px 16px;
+        border: 1px solid var(--ej-neutral-200);
+        border-radius: var(--ej-radius-lg);
+        background: var(--ej-neutral-50);
+      }
+      .lm-head .t {
+        font-size: 14.5px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .lm-head .m {
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+      }
+      .lm-det {
+        margin-top: 14px;
+      }
+      .lm-det summary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        list-style: none;
+        padding: 8px 14px;
+        border: 1px solid var(--ej-neutral-300);
+        border-radius: var(--ej-radius-full);
+        font-size: 13.5px;
+        font-weight: 500;
+        color: var(--ej-primary-900);
+      }
+      .lm-det summary::-webkit-details-marker {
+        display: none;
+      }
+      .lm-det summary:hover {
+        background: var(--ej-neutral-50);
+      }
+      .lm-det summary .ms {
+        font-size: 16px;
+        color: var(--ej-action-600);
+      }
+      .lm-det .chev-d {
+        transition: transform var(--ej-transition-fast);
+      }
+      .lm-det[open] .chev-d {
+        transform: rotate(180deg);
+      }
+      .lm-desk {
+        margin-top: 14px;
+        padding: 18px;
+        border-radius: var(--ej-radius-lg);
+        background: var(--ej-neutral-100);
+      }
+      .lm-sheet {
+        max-width: 640px;
+        margin: 0 auto;
+        padding: 28px 26px 26px;
+        background: var(--ej-white);
+        border: 1px solid var(--ej-neutral-200);
+        border-radius: var(--ej-radius-sm);
+        box-shadow: var(--ej-shadow-md);
+        font-size: 11.5px;
+        line-height: 1.6;
+        color: var(--ej-neutral-800);
+      }
+      .lm-sheet p {
+        margin-top: 8px;
+      }
+      .lm-sh-top {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 8px 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--ej-primary-900);
+      }
+      .lm-sh-cab {
+        font-family: var(--ej-font-display);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        color: var(--ej-primary-900);
+      }
+      .lm-sh-mut {
+        color: var(--ej-neutral-500);
+      }
+      .lm-sh-meta {
+        text-align: right;
+        color: var(--ej-neutral-600);
+        font-variant-numeric: tabular-nums;
+      }
+      .lm-sh-dest {
+        margin: 16px 0 0 auto;
+        width: 62%;
+        min-width: 180px;
+      }
+      .lm-sh-dest strong {
+        font-weight: 600;
+        color: var(--ej-neutral-900);
+      }
+      .lm-sh-title {
+        margin-top: 20px;
+        font-family: var(--ej-font-display);
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: var(--ej-primary-900);
+      }
+      .lm-sheet h4 {
+        margin-top: 14px;
+        font-family: var(--ej-font-display);
+        font-size: 11.5px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .lm-sheet ul {
+        margin: 4px 0 0 16px;
+      }
+      .lm-sheet li + li {
+        margin-top: 2px;
+      }
+      .lm-sh-table {
+        width: 100%;
+        margin-top: 6px;
+        border-collapse: collapse;
+        font-variant-numeric: tabular-nums;
+      }
+      .lm-sh-table td {
+        padding: 4px 0;
+        border-bottom: 1px solid var(--ej-neutral-100);
+        vertical-align: top;
+      }
+      .lm-sh-table td:last-child {
+        text-align: right;
+        white-space: nowrap;
+        padding-left: 12px;
+      }
+      .lm-sh-sign {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 18px;
+      }
+      .lm-sh-sign > div {
+        padding-top: 8px;
+        border-top: 1px solid var(--ej-neutral-300);
+        color: var(--ej-neutral-600);
+      }
+      .lm-sh-sign strong {
+        display: block;
+        font-weight: 600;
+        color: var(--ej-neutral-900);
+      }
+      .lm-sh-valid {
+        margin-top: 16px;
+        padding-top: 10px;
+        border-top: 1px dashed var(--ej-neutral-300);
+        font-style: italic;
+        color: var(--ej-neutral-500);
+      }
+
+      /* Check-list d'acceptation */
+      .accept {
+        display: flex;
+        flex-direction: column;
+      }
+      .accept .it {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--ej-neutral-100);
+      }
+      .accept .it:first-child {
+        padding-top: 0;
+      }
+      .accept .it .etat {
+        width: 24px;
+        height: 24px;
+        font-size: 22px;
+      }
+      .accept .it .etat.ok {
+        color: var(--ej-success-600);
+      }
+      .accept .it .etat.att {
+        color: var(--ej-neutral-400);
+      }
+      .accept .lib {
+        font-size: 14.5px;
+        font-weight: 500;
+        color: var(--ej-neutral-900);
+      }
+      .accept .det {
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+      }
+      .accept .det.warn {
+        color: var(--ej-warning-600);
+      }
+      .accept-bas {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px 16px;
+        margin-top: 16px;
+      }
+      .accept-bas .bilan {
+        font-size: 13.5px;
+        font-weight: 500;
+        color: var(--ej-neutral-700);
+      }
+
+      /* Journal */
+      .journal {
+        list-style: none;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .journal::before {
+        content: "";
+        position: absolute;
+        left: 15px;
+        top: 8px;
+        bottom: 8px;
+        width: 2px;
+        background: var(--ej-neutral-200);
+      }
+      .journal li {
+        position: relative;
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+      }
+      .j-ico {
+        position: relative;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--ej-white);
+        border: 1px solid var(--ej-hairline);
+        color: var(--ej-action-600);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .j-ico .ms {
+        font-size: 16px;
+      }
+      .j-ico.warn {
+        color: var(--ej-warning-600);
+      }
+      .j-date {
+        font-size: 12.5px;
+        font-style: italic;
+        color: var(--ej-action-600);
+      }
+      .j-txt {
+        font-size: 14px;
+        color: var(--ej-neutral-900);
+      }
+      .j-who {
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+      }
+
+      @media (max-width: 900px) {
+        .kpis {
+          grid-template-columns: 1fr;
+          gap: 14px;
+        }
+        .steps {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+        .step {
+          padding: 0 0 0 12px;
+          border-top: none;
+          border-left: 3px solid var(--c);
+        }
+      }
+      @media (max-width: 760px) {
+        .soc-head {
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 20px 16px 18px 44px;
+          gap: 14px;
+        }
+        .soc-motif {
+          width: 24px;
+        }
+        .soc-motif .m1 {
+          width: 24px;
+        }
+        .soc-motif .m2 {
+          width: 14px;
+        }
+        .soc-name {
+          font-size: 21px;
+        }
+        .soc-ids {
+          align-items: flex-start;
+          text-align: left;
+        }
+        .actions-bar {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .actions-bar .btn {
+          width: 100%;
+          justify-content: center;
+          white-space: normal;
+          text-align: center;
+        }
+        .actions-bar .hint {
+          margin-left: 0;
+        }
+        .d-body {
+          padding: 16px 16px 18px;
+        }
+        .d-card .block-head {
+          padding: 16px 16px 12px;
+          flex-wrap: wrap;
+          align-items: flex-start;
+        }
+        .d-card .block-head .btn {
+          width: 100%;
+          justify-content: center;
+        }
+        .rtable,
+        .rtable tbody,
+        .rtable tr,
+        .rtable td {
+          display: block;
+          width: 100%;
+        }
+        .rtable thead {
+          display: none;
+        }
+        .rtable tr {
+          padding: 12px 0;
+          border-bottom: 1px solid var(--ej-neutral-200);
+        }
+        .rtable tr:last-child {
+          border-bottom: none;
+        }
+        .rtable td {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 4px 0;
+          border: none;
+          text-align: right;
+        }
+        .rtable td::before {
+          content: attr(data-label);
+          flex-shrink: 0;
+          padding-top: 2px;
+          font-family: var(--ej-font-display);
+          font-size: 10.5px;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: var(--ej-neutral-500);
+          text-align: left;
+        }
+        .rtable td.cell-main {
+          display: block;
+          text-align: left;
+          padding-bottom: 6px;
+        }
+        .rtable td.cell-main::before {
+          display: none;
+        }
+        .lm-desk {
+          padding: 12px;
+        }
+        .lm-sheet {
+          padding: 20px 16px 18px;
+        }
+        .lm-sh-meta {
+          text-align: left;
+        }
+        .lm-sh-dest {
+          width: 100%;
+        }
+        .lm-sh-sign {
+          grid-template-columns: 1fr;
+        }
+        .accept-bas .btn {
+          width: 100%;
+          justify-content: center;
+        }
+        .m-note {
+          margin-top: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body class="m-resp" data-active="cac">
+    <div id="ej-header"></div>
+    <div class="app">
+      <div id="ej-sidebar"></div>
+      <div class="main">
+        <div class="page">
+          <a class="back-link" href="cac.html"><span class="ms">chevron_left</span>Missions CAC</a>
+
+          <div class="card d-card" id="absent" hidden>
+            <div class="d-body">
+              <div class="vide">
+                <strong>Mission introuvable</strong>
+                <p>Aucune mission CAC ne correspond à l'identifiant « <span id="absent-id"></span> ».</p>
+                <a class="btn btn-secondary btn-sm" href="cac.html"><span class="ms">chevron_left</span>Retour aux missions CAC</a>
+              </div>
+            </div>
+          </div>
+
+          <div id="contenu">
+            <div class="card soc-head" id="head"></div>
+            <div class="d-alerts" id="alerts"></div>
+            <div id="retour" aria-live="polite"></div>
+
+            <div class="card actions-bar" id="actions"></div>
+            <p class="discret">
+              <span class="ms">lock</span>
+              <span>Cette fiche est interne au cabinet de commissariat aux comptes (CAC) : elle n'est jamais visible de l'entité contrôlée.</span>
+            </p>
+
+            <div class="d-stack" id="sections"></div>
+          </div>
+
+          <div class="m-note">
+            <span class="ms">info</span>
+            <span id="note-maquette">
+              Maquette : durées, phases, délais et libellés à faire valider par un commissaire aux comptes. Les
+              entités contrôlées sont distinctes des clients d'expertise comptable du cabinet. Données fictives.
+            </span>
+          </div>
+        </div>
+        <div id="ej-footer"></div>
+      </div>
+    </div>
+
+    <script src="assets/ej-missions-data.js?v=19"></script>
+    <script>
+      /* Rendu au DOMContentLoaded : ej-shell.js (chargé après) pose data-profil sur le body avant cet événement */
+      document.addEventListener("DOMContentLoaded", function () {
+        var E = window.EJM,
+          esc = E.esc,
+          profil = document.body.dataset.profil || "ec";
+
+        /* ---------- Mission affichée (sans paramètre : vertalis ; id inconnu : état « introuvable ») ---------- */
+        var id = new URLSearchParams(location.search).get("id");
+        var m = id === null ? E.findMandat("vertalis") : E.findMandat(id);
+        document.querySelectorAll('a[href="#"]').forEach(function (a) {
+          a.addEventListener("click", function (e) { e.preventDefault(); });
+        });
+        if (!m) {
+          document.title = "Mission introuvable · Missions CAC · Express Juridique";
+          document.getElementById("contenu").hidden = true;
+          var abs = document.getElementById("absent");
+          abs.hidden = false;
+          document.getElementById("absent-id").textContent = id;
+          return;
+        }
+        document.title = m.nom + " · Mission CAC · Express Juridique";
+        document.getElementById("note-maquette").textContent =
+          "Maquette : durées, phases, délais et libellés à faire valider par un commissaire aux comptes. " +
+          (profil === "cac" ? "" : "Les entités contrôlées sont distinctes des clients d'expertise comptable du cabinet. ") +
+          "Données fictives. Sigles : AG, assemblée générale ; CAC, commissaire aux comptes ; LAB, lutte contre le blanchiment ; ALPE, audit légal petite entreprise.";
+        var L = m.lab;
+
+        /* ---------- Enrichissement local (fictif, cohérent avec EJM) ----------
+           [siège, capital, représentant légal (nom), qualité] */
+        var FORMES = {
+          SA: "société anonyme",
+          SAS: "société par actions simplifiée",
+          Association: "",
+        };
+        var FICHES = {
+          vertalis: ["11 avenue de l'Industrie, 69007 Lyon", "4 800 000 €", "Gilles Perrot", "Président-directeur général"],
+          nordia: ["Zone logistique de la Plaine, 59810 Lesquin", "1 200 000 €", "Fabrice Leclerc", "Président"],
+          "clinique-parc": ["4 avenue du Parc, 37000 Tours", "2 000 000 €", "Laurent Besson", "Président"],
+          halios: ["7 quai Kléber, 67000 Strasbourg", "9 600 000 €", "Gérard Vasseur", "Président-directeur général"],
+          dorval: ["Zone artisanale des Chênes, 72000 Le Mans", "150 000 €", "Régis Dorval", "Président"],
+          brioche: ["18 rue du Moulin, 76000 Rouen", "400 000 €", "Sylvain Berthier", "Président"],
+          soleil: ["3 rue des Tilleuls, 87000 Limoges", "", "Monique Faure", "Présidente de l'association"],
+          marees: ["2 boulevard de la Plage, 17000 La Rochelle", "600 000 €", "Anne-Sophie Maillard", "Présidente"],
+          technopole: ["21 avenue de la Technopole, 34000 Montpellier", "85 000 €", "Yanis Belkacem", "Président"],
+        };
+        var F = FICHES[m.id] || FICHES.vertalis;
+        var estAsso = m.forme === "Association";
+        var consolide = /consolid/i.test(m.activite);
+        var contr = m.type === "contractuel";
+        var alpe = m.type === "alpe";
+        var NB = { 1: "un", 2: "deux", 3: "trois", 4: "quatre", 5: "cinq", 6: "six" };
+
+        /* ---------- Dates ---------- */
+        function dt(x) {
+          var p = x.split("/");
+          return new Date(+p[2], +p[1] - 1, +p[0]);
+        }
+        function fmt(date) {
+          function z(n) { return (n < 10 ? "0" : "") + n; }
+          return z(date.getDate()) + "/" + z(date.getMonth() + 1) + "/" + date.getFullYear();
+        }
+        function plusJours(x, n) {
+          var date = dt(x);
+          date.setDate(date.getDate() + n);
+          return fmt(date);
+        }
+        function ecartJours(x) {
+          return Math.round((TODAY - dt(x)) / 86400000);
+        }
+        function de(nom) {
+          return /^[AEIOUYHÉÈÊÀÂÎÔÛ]/i.test(nom) ? "d'" + nom : "de " + nom;
+        }
+        var TODAY = dt(E.today);
+
+        /* ---------- Données dérivées ---------- */
+        var anExo = +m.ex.clos.split("/")[2];
+        var finMandat = !contr && m.dernier === anExo;
+        var finMandatDate = m.cloture + "/" + m.dernier;
+        var nbExo = m.dernier - m.premier + 1;
+        var budget = m.ex.heures[0], reel = m.ex.heures[1];
+        var depasse = reel > budget;
+        var pctH = budget ? Math.round((reel / budget) * 100) : 0;
+        var PH = ["acceptation", "planification", "interim", "final", "rapports"];
+        var phIdx = m.ex.phase === "emis" ? PH.length : PH.indexOf(m.ex.phase);
+        var enAcceptation = m.ex.phase === "acceptation";
+        var signataire = E.equipe[m.signataire];
+        var equipe = [m.signataire].concat(m.equipe);
+        var lmSignee = m.lm.statut === "signee";
+        var lmEnvoyee = m.lm.statut === "envoyee";
+        var indep = m.independance;
+        var labRevue = L.statut === "a_revoir" && !!L.prochaineRevue;
+        var labRetard = labRevue && dt(L.prochaineRevue) < TODAY ? ecartJours(L.prochaineRevue) : 0;
+        var labIncomplet = L.statut === "incomplet";
+        var cocacNom = m.cocac ? m.cocac.replace(/\s*\(cocommissaire\)\s*/i, "") : "";
+        var dansPortefeuilleEC = profil !== "cac" && E.societes.some(function (s) { return s.siren === m.siren; });
+        var VIG = { faible: "Vigilance simplifiée possible", standard: E.VIGILANCE.standard, eleve: E.VIGILANCE.eleve };
+
+        /* Le signataire conduit l'acceptation, la planification et les rapports ; les auditeurs de l'équipe
+           font l'intérim et le final (le signataire seul si l'équipe est vide). */
+        function membres(lib) {
+          if (/rapport|accept|planif|prise de conn/i.test(lib)) return [m.signataire];
+          return m.equipe.length ? m.equipe : [m.signataire];
+        }
+        function nomsMembres(codes) {
+          return codes.map(function (k) { return E.equipe[k].nom; }).join(", ");
+        }
+        /* Interventions de l'exercice en cours (celles d'un exercice antérieur vont seulement à l'historique) */
+        var intEx = m.interventions.filter(function (x) { return (x[4] || anExo) === anExo; });
+        var intAnt = m.interventions.filter(function (x) { return (x[4] || anExo) !== anExo; });
+        function srcRNE() { return '<span class="source"><span class="ms">landmark</span>RNE · INPI</span>'; }
+        function badgePhase() {
+          var ph = m.ex.phase;
+          var cls = ph === "acceptation" ? "badge-action" : ph === "emis" ? "badge-success" : "badge-progress";
+          return '<span class="badge ' + cls + '">' + E.PHASE[ph] + "</span>";
+        }
+        function risqueHtml() {
+          return L.risque
+            ? '<span class="risk risk-' + L.risque + '">' + E.RISQUE[L.risque] + "</span>"
+            : '<span class="risk risk-na">Non évalué</span>';
+        }
+
+        /* ---------- En-tête ---------- */
+        var libForme = FORMES[m.forme] ? ", " + FORMES[m.forme] : "";
+        document.getElementById("head").innerHTML =
+          '<div class="soc-motif" aria-hidden="true"><i class="m1"></i><i class="m2"></i></div>' +
+          "<div>" +
+          '<div class="soc-name">' + esc(m.nom) + "</div>" +
+          '<div class="soc-form">' + esc(m.forme) + esc(libForme) + " · " + esc(m.activite) + "</div>" +
+          '<div class="soc-greffe">SIREN : <strong>' + esc(m.siren) + "</strong> · Signataire : <strong>" + esc(signataire.nom) + "</strong></div>" +
+          "</div>" +
+          '<div class="soc-ids"><span class="type">' + esc(E.TYPE_MANDAT[m.type]) + "</span>" +
+          "<span>Exercice clos le " + m.ex.clos + "</span>" + badgePhase() + "</div>";
+
+        /* ---------- Alertes contextuelles ---------- */
+        var al = [];
+        if (enAcceptation) {
+          var manque = [];
+          if (L.statut !== "a_jour") manque.push("l'identification LAB (" + L.pieces[0] + " pièce" + (L.pieces[0] > 1 ? "s" : "") + " sur " + L.pieces[1] + ")");
+          if (indep.statut !== "a_jour") manque.push("la déclaration d'indépendance de l'équipe");
+          al.push('<div class="alert alert-brand"><span class="ms">clipboard-check</span><div><strong>Mission en cours d\'acceptation.</strong> À réunir avant d\'accepter : ' +
+            (manque.length ? manque.join(", ") : "tous les éléments sont réunis") + '. <a href="#acceptation">Voir la check-list</a>.</div></div>');
+        }
+        if (!lmSignee) {
+          if (enAcceptation && !lmEnvoyee) {
+            al.push('<div class="alert alert-info"><span class="ms">file-pen-line</span><div><strong>Lettre de mission : à établir après l\'acceptation.</strong> ' +
+              'La mission ne démarre pas avant l\'acceptation, puis la signature de la lettre. <a href="#lettre">Voir la lettre</a>.</div></div>');
+          } else {
+            al.push('<div class="alert alert-warning"><span class="ms">file-pen-line</span><div><strong>Lettre de mission non signée.</strong> ' +
+              (lmEnvoyee ? "Envoyée le " + m.lm.date + " (réf. " + esc(m.lm.ref) + "), en attente de signature. " : "La lettre reste à établir. ") +
+              'La mission ne démarre pas avant la signature. <a href="#lettre">Voir la lettre</a>.</div></div>');
+          }
+        }
+        if (depasse) {
+          al.push('<div class="alert alert-warning"><span class="ms">timer</span><div><strong>Dépassement d\'heures : ' + reel + " h réalisées pour " + budget + " h budgétées (+" + (reel - budget) + " h, " + (pctH - 100) + " % de plus).</strong> " +
+            'Justifier l\'écart, puis voir s\'il faut revoir le budget ou les honoraires avec l\'entité. <a href="#exercice">Voir l\'exercice</a>.</div></div>');
+        }
+        if (indep.statut === "a_renouveler") {
+          al.push('<div class="alert alert-warning"><span class="ms">shield-check</span><div><strong>Déclaration d\'indépendance à renouveler.</strong> La dernière déclaration de l\'équipe date du ' + indep.date + '. À renouveler avant de poursuivre la mission. <a href="#independance">Voir l\'indépendance</a>.</div></div>');
+        } else if (indep.statut === "a_faire") {
+          al.push('<div class="alert alert-warning"><span class="ms">shield-check</span><div><strong>Déclaration d\'indépendance à faire.</strong> Aucune déclaration de l\'équipe n\'est enregistrée pour cette entité. <a href="#independance">Voir l\'indépendance</a>.</div></div>');
+        }
+        if (labRevue) {
+          al.push('<div class="alert alert-warning"><span class="ms">history</span><div><strong>Dossier LAB à revoir' + (labRetard ? " : revue échue depuis le " + L.prochaineRevue + " (" + labRetard + " jours)" : "") + ".</strong> Reprendre l'évaluation, compléter les pièces manquantes (" + L.pieces[0] + " sur " + L.pieces[1] + ' reçues) et faire valider la revue. <a href="lab-dossier.html?id=' + encodeURIComponent(m.id) + '">Ouvrir le dossier LAB</a>.</div></div>');
+        } else if (labIncomplet && !enAcceptation) {
+          al.push('<div class="alert alert-info"><span class="ms">file-check</span><div><strong>Identification LAB incomplète : ' + L.pieces[0] + " pièces sur " + L.pieces[1] + '.</strong> <a href="lab-dossier.html?id=' + encodeURIComponent(m.id) + '">Ouvrir le dossier LAB</a>.</div></div>');
+        }
+        if (finMandat) {
+          al.push('<div class="alert alert-info"><span class="ms">calendar-clock</span><div><strong>Fin de mandat.</strong> Le mandat prend fin à l\'issue de l\'assemblée générale (AG) qui statuera sur les comptes de l\'exercice clos le ' + finMandatDate +
+            (m.ag ? " (AG prévue le " + m.ag + ")" : "") + ". Le renouvellement est proposé par l\'organe de l\'entité, pas par le cabinet : préparer, avec l\'entité, le renouvellement ou la fin de mission.</div></div>");
+        }
+        document.getElementById("alerts").innerHTML = al.join("");
+
+        /* ---------- Barre d'actions ---------- */
+        document.getElementById("actions").innerHTML =
+          '<a class="btn btn-primary" href="#" title="Écran non maquetté"><span class="ms">calendar-plus</span>Planifier une intervention</a>' +
+          (finMandat ? '<a class="btn btn-secondary" href="#" title="Écran non maquetté"><span class="ms">repeat</span>Préparer le renouvellement ou la fin de mission</a>' : "") +
+          '<a class="btn btn-secondary" href="#" title="Écran non maquetté"><span class="ms">download</span>Exporter la fiche</a>' +
+          (!lmSignee ? '<span class="hint">' + (enAcceptation && !lmEnvoyee ? "La mission ne démarre pas avant l\'acceptation, puis la signature de la lettre." : "La mission ne démarre pas avant la signature de la lettre.") + "</span>" : "");
+
+        /* ---------- Sections ---------- */
+        function carte(ico, titre, desc, action, corps, anchor) {
+          return (
+            '<section class="card d-card" id="' + anchor + '">' +
+            '<div class="block-head"><div><h2><span class="ms">' + ico + "</span>" + esc(titre) + "</h2>" +
+            (desc ? "<p>" + esc(desc) + "</p>" : "") + "</div>" + (action || "") + "</div>" +
+            '<div class="d-body">' + corps + "</div></section>"
+          );
+        }
+        function kv(k, v, sub, src) {
+          return "<dt>" + k + '</dt><dd class="kv-item"><span class="v">' + v + "</span>" + (sub ? sub : "") + (src || "") + "</dd>";
+        }
+        var out = [];
+
+        /* 1. Mandat */
+        var rows = "";
+        rows += kv("Type de mission", esc(E.TYPE_MANDAT[m.type]));
+        rows += kv("Exercices couverts", contr
+          ? "Un exercice : clos le " + m.cloture + "/" + m.premier
+          : m.premier + " à " + m.dernier + " (" + NB[nbExo] + " exercices)",
+          contr ? "" : '<span class="val-sub">Exercices clos du ' + m.cloture + "/" + m.premier + " au " + finMandatDate + "</span>");
+        rows += kv("Nomination", m.nomination ? m.nomination : "Mission contractuelle, pas de nomination par l'AG");
+        if (contr) {
+          rows += kv("Fin de la mission", "À l'émission du rapport d'audit contractuel", '<span class="val-sub">Durée limitée à l\'exercice clos le ' + m.ex.clos + "</span>");
+        } else {
+          var apres = m.dernier - anExo;
+          rows += kv("Fin de mandat", "À l'issue de l'assemblée générale (AG) qui statuera sur les comptes de l'exercice clos le " + finMandatDate,
+            finMandat
+              ? '<span class="val-sub warn">Exercice en cours : c\'est le dernier du mandat</span>'
+              : '<span class="val-sub">' + apres + " exercice" + (apres > 1 ? "s" : "") + " à venir après l'exercice en cours</span>");
+        }
+        if (cocacNom) rows += kv("Cocommissaire aux comptes", esc(cocacNom), '<span class="val-sub">Travaux coordonnés avec le cabinet</span>');
+        rows += kv("Signataire", esc(signataire.nom), '<span class="val-sub">' + esc(signataire.role) + "</span>");
+        rows += kv("Équipe", m.equipe.length
+          ? m.equipe.map(function (k) { return esc(E.equipe[k].nom) + " (" + esc(E.equipe[k].role.toLowerCase()) + ")"; }).join(", ")
+          : "Aucun auditeur affecté à ce stade, en plus de " + esc(signataire.nom));
+        rows += kv("Siège social", esc(F[0]), "", srcRNE());
+        rows += kv("Représentant légal", esc(F[2]) + ", " + esc(F[3].charAt(0).toLowerCase() + F[3].slice(1)));
+        if (!estAsso) rows += kv("Capital social", esc(F[1]), "", srcRNE());
+
+        var frise = "";
+        for (var y = m.premier; y <= m.dernier; y++) {
+          var cls = y < anExo ? "passe" : y === anExo ? "cours" : "venir";
+          var etat = y < anExo ? "Contrôlé" : y === anExo ? "En cours de contrôle" : "À venir";
+          frise += '<li class="' + cls + '"><span class="an">' + y + '</span><span class="clos">Clos le ' + m.cloture + '</span><span class="etat">' + etat + "</span>" +
+            (y === m.dernier && !contr ? '<span class="dern">Dernier du mandat</span>' : "") + "</li>";
+        }
+        out.push(carte("briefcase", contr ? "Mission" : "Mandat", E.TYPE_MANDAT[m.type], "",
+          '<dl class="kv">' + rows + "</dl>" +
+          '<h3 class="sous-titre">' + (contr ? "Exercice couvert" : "Exercices du mandat") + "</h3>" +
+          '<ol class="frise" aria-label="' + (contr ? "Exercice couvert" : "Exercices du mandat") + '">' + frise + "</ol>", "mandat"));
+
+        /* 2. Exercice en cours */
+        var PH_LIB = { acceptation: "Acceptation", planification: "Planification", interim: "Intérim", final: "Final", rapports: "Rapports" };
+        var PH_RE = { acceptation: /accept/i, planification: /planif|prise de conn/i, interim: /int[ée]rim/i, final: /final/i, rapports: /rapport/i };
+        function periode(x) {
+          return x[1].slice(0, 5) + " au " + x[2];
+        }
+        var steps = PH.map(function (p, i) {
+          var cls = i < phIdx ? "done" : i === phIdx ? "cur" : "todo";
+          var ico = cls === "done" ? "circle-check" : cls === "cur" ? "clock" : "circle";
+          var match = intEx.filter(function (x) { return PH_RE[p].test(x[0]); })[0];
+          var pre = match ? (match[3] === "prevu" ? "Prévue : " : match[3] === "en_cours" ? "En cours : " : "") : "";
+          var sub = match ? pre + periode(match) : cls === "done" ? "Étape passée" : cls === "cur" ? "En cours" : "À planifier";
+          return '<li class="step ' + cls + '"' + (cls === "cur" ? ' aria-current="step"' : "") + '><span class="st-lib"><span class="ms">' + ico + "</span>" + PH_LIB[p] + '</span><span class="st-sub">' + esc(sub) + "</span></li>";
+        }).join("");
+
+        var STATUT_INT = { fait: ["badge-success", "Réalisée"], en_cours: ["badge-progress", "En cours"], prevu: ["badge-neutral", "Prévue"] };
+        var interv = '<div class="table-scroll"><table class="rtable"><thead><tr><th>Intervention</th><th>Période</th><th>Membre</th><th>Statut</th></tr></thead><tbody>' +
+          intEx.map(function (x) {
+            var st = STATUT_INT[x[3]];
+            return "<tr>" +
+              '<td class="cell-main" data-label="Intervention"><span class="nom">' + esc(x[0]) + "</span></td>" +
+              '<td data-label="Période">du ' + x[1] + " au " + x[2] + "</td>" +
+              '<td data-label="Membre">' + esc(nomsMembres(membres(x[0]))) + "</td>" +
+              '<td data-label="Statut"><span class="badge ' + st[0] + '">' + st[1] + "</span></td></tr>";
+          }).join("") + "</tbody></table></div>";
+
+        var hParBudget = budget ? Math.round(m.honoraires / budget) : 0;
+        var hParReel = reel ? Math.round(m.honoraires / reel) : 0;
+        var kpis =
+          '<div class="kpis">' +
+          '<div class="kpi"><span class="overline">Avancement</span><div class="val">' + m.ex.avancement + ' <small>%</small></div>' +
+          '<div class="meter" role="progressbar" aria-label="Avancement de la mission" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + m.ex.avancement + '"><span style="width:' + m.ex.avancement + '%"></span></div>' +
+          '<div class="sub">Phase : ' + E.PHASE[m.ex.phase].toLowerCase() + "</div></div>" +
+          '<div class="kpi"><span class="overline">Heures réalisées</span><div class="val">' + reel + ' h <small>sur ' + budget + " h</small></div>" +
+          '<div class="meter' + (depasse ? " over" : "") + '" role="progressbar" aria-label="Heures réalisées sur le budget" aria-valuemin="0" aria-valuemax="' + budget + '" aria-valuenow="' + reel + '"><span style="width:' + Math.min(100, pctH) + '%"></span></div>' +
+          '<div class="sub' + (depasse ? " warn" : "") + '">' + (depasse ? "Budget dépassé de " + (reel - budget) + " h" : pctH + " % du budget consommé") + "</div></div>" +
+          '<div class="kpi"><span class="overline">Honoraires' + (contr ? "" : " de l'exercice") + '</span><div class="val">' + esc(E.euros(m.honoraires)) + ' <small>HT</small></div>' +
+          '<div class="sub" style="margin-top:14px">' + hParBudget + " € par heure budgétée" + (depasse ? ", " + hParReel + " € par heure réalisée" : "") + "</div></div>" +
+          "</div>";
+        out.push(carte("gauge", "Exercice en cours", "Exercice clos le " + m.ex.clos, "",
+          kpis +
+          '<h3 class="sous-titre">Phases de la mission</h3><ol class="steps" aria-label="Phases de la mission">' + steps + "</ol>" +
+          '<h3 class="sous-titre">Interventions</h3>' + interv +
+          (intAnt.length ? '<p class="d-note">Les interventions d\'un exercice antérieur (' + intAnt.map(function (x) { return esc(x[0]); }).join(", ") + ") figurent dans l'historique.</p>" : ""), "exercice"));
+
+        /* 3. Échéances et rapports */
+        var kvE = "";
+        if (contr) {
+          kvE += kv("Assemblée générale", "Sans objet pour cette mission", '<span class="val-sub">Audit contractuel : pas d\'AG d\'approbation fixée</span>');
+          kvE += kv("Remise du rapport", "À convenir avec l'entité", '<span class="val-sub">Levée de fonds en cours : calendrier à caler avec la direction</span>');
+        } else {
+          kvE += kv("AG d'approbation prévue", m.ag ? m.ag : "Non fixée", '<span class="val-sub">Comptes de l\'exercice clos le ' + m.ex.clos + "</span>");
+          kvE += kv("Mise à disposition des rapports",
+            "Avant l'AG", '<span class="val-sub">Délai selon la forme de l\'entité et ses statuts, à vérifier</span>');
+        }
+        var RAP = [];
+        var etatRap = m.ex.phase === "emis" ? ["badge-success", "Émis"] : m.ex.phase === "rapports" ? ["badge-progress", "En préparation"] : ["badge-neutral", "À émettre"];
+        if (contr) {
+          RAP.push(["Rapport d'audit contractuel", "Rapport sur l'audit des comptes de l'exercice clos le " + m.ex.clos + ", selon le périmètre et la destination convenus avec l'entité."]);
+        } else {
+          var conj = cocacNom ? " Établi conjointement avec le cocommissaire aux comptes, " + cocacNom + "." : "";
+          RAP.push(["Rapport sur les comptes annuels", "Opinion sur les comptes de l'exercice clos le " + m.ex.clos + "." + conj]);
+          if (consolide) RAP.push(["Rapport sur les comptes consolidés", "Certification des comptes consolidés du groupe." + conj]);
+          RAP.push(["Rapport spécial sur les conventions" + (estAsso ? "" : " réglementées"),
+            (alpe ? "Conventions conclues ou poursuivies dans l'exercice, sauf dispense de l'entité (à valider)."
+              : "À vérifier selon la forme" + (estAsso ? " et les statuts de l'association." : " : conventions conclues ou poursuivies dans l'exercice.")) + conj]);
+          RAP.push(["Vérifications spécifiques", (estAsso ? "Dont l'utilisation des subventions publiques et l'information des financeurs, à confirmer." : "Dont la cohérence du rapport de gestion et des documents adressés aux associés, à confirmer selon la forme.") + conj]);
+          if (alpe) RAP.push(["Rapport aux dirigeants sur les risques financiers, comptables et de gestion", "Remis aux dirigeants de l'entité, adapté à sa taille et à ses risques."]);
+        }
+        var tabRap = '<div class="table-scroll"><table class="rtable"><thead><tr><th>Rapport</th><th>Contenu</th><th>État</th></tr></thead><tbody>' +
+          RAP.map(function (r) {
+            return "<tr>" +
+              '<td class="cell-main" data-label="Rapport"><span class="nom">' + esc(r[0]) + "</span></td>" +
+              '<td data-label="Contenu">' + esc(r[1]) + "</td>" +
+              '<td data-label="État"><span class="badge ' + etatRap[0] + '">' + etatRap[1] + "</span></td></tr>";
+          }).join("") + "</tbody></table></div>";
+        out.push(carte("calendar-check", "Échéances et rapports", contr ? "Rapport d'audit contractuel" : "Rapports à émettre avant l'AG", "",
+          '<dl class="kv">' + kvE + "</dl>" +
+          '<h3 class="sous-titre">Rapports à émettre</h3>' + tabRap +
+          (alpe ? '<p class="d-note">L\'entité peut être dispensée de certains rapports, dont celui sur les conventions réglementées (à valider).</p>' : "") +
+          '<div class="valeur-ej"><div class="alert alert-brand"><span class="ms">sparkles</span><div><strong>Valeur Express Juridique (proposition).</strong> ' +
+          "Lorsque l'entité ou son expert-comptable utilise Express Juridique et partage ces données en lecture seule, la date d'AG, les conventions réglementées et les décisions déjà saisies dans ses formalités pourraient être reprises ici, sans ressaisie. Le cabinet de commissariat aux comptes n'y saisit rien.</div></div></div>", "echeances"));
+
+        /* 4. Lettre de mission CAC */
+        var LM_BADGE = { signee: "badge-success", envoyee: "badge-progress", a_etablir: "badge-neutral" };
+        var LM_LIB = { signee: "Signée", envoyee: "Envoyée pour signature", a_etablir: "À établir" };
+        var lmMeta = m.lm.statut === "a_etablir" ? "Lettre à établir" :
+          esc(m.lm.ref) + (lmSignee ? " · signée le " + m.lm.date : " · envoyée le " + m.lm.date + ", en attente de signature");
+        var btnRelance = lmEnvoyee
+          ? '<button class="btn btn-secondary btn-sm" type="button" id="relance"><span class="ms">send</span>Relancer la signature</button>'
+          : "";
+        var titreLM = m.type === "legal" ? "Lettre de mission · commissariat aux comptes"
+          : m.type === "alpe" ? "Lettre de mission · audit légal d'une petite entreprise"
+          : "Lettre de mission · audit contractuel";
+        var n = 0;
+        function titre(t) { n++; return "<h4>" + n + ". " + t + "</h4>"; }
+        var sheet = '<div class="lm-sh-top"><div><div class="lm-sh-cab">' + esc(E.cabinet) + '</div><div class="lm-sh-mut">Cabinet de commissariat aux comptes</div></div>' +
+          '<div class="lm-sh-meta">' + (m.lm.statut === "a_etablir" ? "Réf. à l'enregistrement" : "Réf. " + esc(m.lm.ref)) + "<br>Le " + (m.lm.date || E.today) + "</div></div>" +
+          '<div class="lm-sh-dest"><strong>' + esc(m.nom) + "</strong> · " + esc(m.forme) + "<br>SIREN " + esc(m.siren) + "<br>À l'attention " + esc(de(F[2])) + ", " + esc(F[3].charAt(0).toLowerCase() + F[3].slice(1)) + "</div>" +
+          '<h3 class="lm-sh-title">' + titreLM + "</h3>" +
+          "<p><strong>Objet :</strong> " + (contr ? "audit contractuel des comptes de l'exercice clos le " + m.ex.clos
+            : (alpe ? "mission d'audit légal d'une petite entreprise (ALPE) pour les exercices " : "mission de commissariat aux comptes pour les exercices ") + m.premier + " à " + m.dernier +
+              (consolide ? ", y compris la certification des comptes consolidés" : "")) + ".</p>" +
+          "<p>Madame, Monsieur,</p><p>Nous vous confirmons les termes et conditions de la mission que vous nous confiez.</p>";
+        sheet += titre("Objet et nature de la mission");
+        if (contr) {
+          sheet += "<p>Nous réalisons, à la demande " + esc(de(m.nom)) + ", un audit contractuel des comptes de l'exercice clos le " + m.ex.clos + ", selon le périmètre et pour la destination convenus avec vous. Cette mission ne constitue pas un mandat légal et donne lieu à un rapport d'audit contractuel.</p>";
+        } else {
+          sheet += "<ul><li>Certification des comptes annuels de l'exercice, afin d'exprimer une opinion sur leur régularité et leur sincérité.</li>" +
+            (consolide ? "<li>Certification des comptes consolidés du groupe.</li>" : "") +
+            "<li>Vérifications et informations spécifiques prévues par les textes, selon la forme de l'entité.</li>" +
+            (alpe ? "<li>Rapport aux dirigeants sur les risques financiers, comptables et de gestion.</li>" : "") +
+            (estAsso ? "" : alpe ? "<li>L'entité peut être dispensée de certains rapports, dont celui sur les conventions réglementées (à valider).</li>"
+              : "<li>Rapport spécial sur les conventions réglementées, selon la forme.</li>") +
+            (cocacNom ? "<li>Rapports établis conjointement avec le cocommissaire aux comptes, " + esc(cocacNom) + ", et coordination des travaux.</li>" : "") + "</ul>";
+        }
+        sheet += titre("Durée");
+        sheet += "<p>" + (contr
+          ? "La mission porte sur l'exercice clos le " + m.ex.clos + ". Elle prend fin avec la remise du rapport d'audit contractuel."
+          : "La mission porte sur " + NB[nbExo] + " exercices, de l'exercice " + m.premier + " à l'exercice " + m.dernier + ", à compter de la nomination du " + m.nomination + ".") + "</p>";
+        sheet += titre("Calendrier prévisionnel de l'exercice en cours");
+        sheet += "<p>Calendrier de l'exercice clos le " + m.ex.clos + ", mis à jour chaque année.</p>";
+        sheet += "<ul>" + intEx.map(function (x) { return "<li>" + esc(x[0]) + " : du " + x[1] + " au " + x[2] + "</li>"; }).join("") + "</ul>";
+        if (m.ag) sheet += "<p>Assemblée générale d'approbation prévue le " + m.ag + ".</p>";
+        sheet += titre("Équipe de l'exercice en cours");
+        sheet += "<p>Signataire : " + esc(signataire.nom) + ", " + esc(signataire.role.toLowerCase()) + ". " +
+          (m.equipe.length
+            ? "Équipe : " + m.equipe.map(function (k) { return esc(E.equipe[k].nom) + ", " + esc(E.equipe[k].role.toLowerCase()); }).join(" ; ") + "."
+            : "Aucun auditeur supplémentaire affecté à ce stade.") + "</p>";
+        sheet += titre("Honoraires");
+        sheet += '<table class="lm-sh-table"><tr><td>Honoraires ' + (contr ? "de la mission" : "annuels") + ' HT<small>Exercice en cours, pour un budget de ' + budget + " heures</small></td><td>" + esc(E.euros(m.honoraires)) + "</td></tr></table>";
+        sheet += titre("Obligations réciproques");
+        sheet += "<ul><li>Le cabinet exécute sa mission selon les normes d'exercice professionnel, dans le respect du secret professionnel et de son indépendance.</li>" +
+          "<li>L'entité met à disposition, dans les délais convenus, les documents, informations et accès nécessaires à la mission.</li>" +
+          "<li>L'entité informe le cabinet des événements significatifs survenus pendant la période.</li></ul>";
+        sheet += '<div class="lm-sh-sign"><div><strong>Pour le cabinet</strong>' + esc(signataire.nom) + "<br>" + (lmSignee ? "Signée le " + m.lm.date : "Signature à venir") + "</div>" +
+          "<div><strong>Pour l'entité</strong>" + esc(F[2]) + "<br>" + (lmSignee ? "Signée le " + m.lm.date : "En attente de signature") + "</div></div>";
+        sheet += '<p class="lm-sh-valid">Contenu à valider (normes d\'exercice professionnel). Formulations génériques de maquette.</p>';
+
+        out.push(carte("file-pen-line", "Lettre de mission CAC", "", btnRelance,
+          '<div class="lm-head"><div><div class="t">' + esc(titreLM) + '</div><div class="m">' + lmMeta + '</div></div>' +
+          '<span class="badge ' + LM_BADGE[m.lm.statut] + '">' + LM_LIB[m.lm.statut] + "</span></div>" +
+          (contr ? "" : '<p class="d-note">La lettre porte sur la durée du mandat, soit les exercices ' + m.premier + " à " + m.dernier + ". Dans l\'aperçu, le calendrier, l\'équipe et les honoraires sont ceux de l\'exercice en cours, mis à jour chaque année.</p>") +
+          '<details class="lm-det"><summary><span class="ms">file-text</span>Aperçu de la lettre<span class="ms chev-d">chevron-down</span></summary>' +
+          '<div class="lm-desk"><div class="lm-sheet">' + sheet + "</div></div></details>", "lettre"));
+
+        /* 5. Indépendance et acceptation */
+        var indBadge = indep.statut === "a_jour" ? '<span class="badge badge-success">' + E.INDEP.a_jour + "</span>"
+          : '<span class="badge badge-action">' + E.INDEP[indep.statut] + "</span>";
+        var tabInd = '<div class="table-scroll"><table class="rtable"><thead><tr><th>Membre</th><th>Rôle</th><th>Déclaration annuelle</th><th>Date</th></tr></thead><tbody>' +
+          equipe.map(function (k) {
+            var p = E.equipe[k];
+            return "<tr>" +
+              '<td class="cell-main" data-label="Membre"><span class="nom">' + esc(p.nom) + "</span></td>" +
+              '<td data-label="Rôle">' + esc(p.role) + "</td>" +
+              '<td data-label="Déclaration">' + indBadge + "</td>" +
+              '<td data-label="Date">' + (indep.date ? indep.date : '<span class="muted">Aucune</span>') + "</td></tr>";
+          }).join("") + "</tbody></table></div>";
+        var autres = dansPortefeuilleEC
+          ? '<span class="oui-non warn"><span class="ms">triangle-alert</span>Entité cliente du cabinet : incompatibilité à examiner</span>'
+          : '<span class="oui-non muted"><span class="ms">circle-dashed</span>À confirmer</span>';
+        var corpsInd =
+          '<h3 class="sous-titre">Déclaration annuelle de l\'équipe</h3>' + tabInd +
+          '<h3 class="sous-titre">Services autres que la certification</h3>' +
+          '<div>' + autres + "</div>" +
+          (profil === "cac"
+            ? '<p class="d-note">Aucune mission comptable ni juridique du cabinet pour cette entité, à confirmer. Les autres services éventuels sont à consigner par le signataire.</p>'
+            : '<p class="d-note">Aucun service comptable ni juridique fourni par le cabinet à cette entité (à confirmer). ' +
+              (dansPortefeuilleEC ? "L'entité figure dans le portefeuille d'expertise comptable du cabinet (rapprochement par SIREN)." : "Rapprochement par SIREN : l'entité ne figure pas dans le portefeuille d'expertise comptable du cabinet. Les autres services éventuels sont à consigner par le signataire.") + "</p>");
+        if (enAcceptation) {
+          var items = [
+            { ok: L.statut === "a_jour", lib: "Identification LAB",
+              det: L.statut === "a_jour" ? "Dossier à jour." : L.pieces[0] + " pièces reçues sur " + L.pieces[1] + (L.be ? ", " + L.be + " bénéficiaire effectif identifié" : ", bénéficiaires effectifs à identifier") + ", risque non évalué." },
+            { ok: indep.statut === "a_jour", lib: "Indépendance de l'équipe",
+              det: indep.statut === "a_jour" ? "Déclaration à jour." : "Déclaration de l'équipe à faire avant d'accepter." },
+            { ok: budget > 0 && equipe.length > 0, lib: "Budget et équipe",
+              det: budget + " h budgétées, " + E.euros(m.honoraires) + " HT. Équipe : " + signataire.nom + ", signataire" +
+                (m.equipe.length ? ", avec " + nomsMembres(m.equipe) : ", sans auditeur supplémentaire à ce stade") + "." },
+          ];
+          var nOk = items.filter(function (i) { return i.ok; }).length;
+          corpsInd =
+            '<h3 class="sous-titre">Check-list d\'acceptation</h3><div class="accept">' +
+            items.map(function (i) {
+              return '<div class="it"><span class="ms etat ' + (i.ok ? "ok" : "att") + '">' + (i.ok ? "circle-check" : "circle-dashed") + "</span>" +
+                '<div><div class="lib">' + esc(i.lib) + '</div><div class="det' + (i.ok ? "" : " warn") + '">' + esc(i.det) + "</div></div></div>";
+            }).join("") + "</div>" +
+            '<div class="accept-bas"><span class="bilan">' + nOk + " élément" + (nOk > 1 ? "s" : "") + " réuni" + (nOk > 1 ? "s" : "") + " sur " + items.length + '</span>' +
+            '<button class="btn btn-primary btn-sm" type="button" disabled title="Disponible quand les ' + NB[items.length] + ' éléments sont réunis"><span class="ms">badge-check</span>Accepter la mission</button></div>' +
+            '<p class="d-note">' + (m.lm.statut === "a_etablir" ? "Lettre de mission : à établir après l'acceptation." : "Lettre de mission : " + LM_LIB[m.lm.statut].toLowerCase() + (m.lm.ref ? " (réf. " + esc(m.lm.ref) + ")" : "") + ".") + "</p>" +
+            corpsInd;
+        }
+        out.push(carte("shield-check", "Indépendance et acceptation", enAcceptation ? "À réunir avant d'accepter la mission" : "Déclaration annuelle et services autres que la certification", "", corpsInd, enAcceptation ? "acceptation" : "independance"));
+
+        /* 6. Vigilance LAB */
+        var enRetardLab = labRetard > 0;
+        var kvL = "";
+        kvL += kv("Niveau de risque", risqueHtml());
+        kvL += kv("Vigilance", L.risque ? VIG[L.risque] : "À définir après l'évaluation");
+        var labBadge = L.statut === "a_jour" ? '<span class="badge badge-success">' + E.LAB_STATUT.a_jour + "</span>"
+          : L.statut === "a_revoir" ? '<span class="badge badge-action">' + E.LAB_STATUT.a_revoir + "</span>"
+          : '<span class="badge badge-progress">' + E.LAB_STATUT[L.statut] + " · " + L.pieces[0] + "/" + L.pieces[1] + "</span>";
+        kvL += kv("Dossier", labBadge);
+        kvL += kv("Pièces reçues", L.pieces[0] + " sur " + L.pieces[1]);
+        kvL += kv("Bénéficiaires effectifs",
+          L.beDefaut ? "Bénéficiaire effectif retenu : le représentant légal, à défaut" : L.be + " identifié" + (L.be > 1 ? "s" : ""),
+          L.beDefaut ? '<span class="val-sub">Retenu à défaut d\'autre bénéficiaire effectif identifié</span>' : (L.ppe ? '<span class="val-sub">Au moins une personne politiquement exposée : vigilance complémentaire</span>' : ""));
+        kvL += kv("Criblage", L.criblage ? "Dernier passage le " + L.criblage : "Non effectué",
+          L.criblage ? '<span class="val-sub">Gel des avoirs : ' + (L.gel === "ok" ? "aucune correspondance" : "homonymie à lever") + "</span>" : "");
+        kvL += kv("Dernière revue", L.derniereRevue ? L.derniereRevue : "Jamais validé");
+        kvL += kv("Prochaine revue", L.prochaineRevue ? L.prochaineRevue : "Fixée à la validation",
+          enRetardLab ? '<span class="val-sub warn">Échue depuis ' + labRetard + " jours</span>" : "");
+        out.push(carte("scan-search", "Vigilance LAB", "Résumé du dossier de lutte contre le blanchiment", '<a class="btn btn-secondary btn-sm" href="lab-dossier.html?id=' + encodeURIComponent(m.id) + '"><span class="ms">arrow-right</span>Ouvrir le dossier LAB</a>',
+          '<dl class="kv">' + kvL + "</dl>", "lab"));
+
+        /* 7. Historique */
+        var J = [];
+        function ajoute(d, i, t, w, warn) {
+          if (dt(d) <= TODAY) J.push({ d: d, n: J.length, i: i, t: t, w: w, warn: !!warn });
+        }
+        if (m.nomination) ajoute(m.nomination, "stamp", "Nomination comme commissaire aux comptes " + de(m.nom) + ".", esc(signataire.nom));
+        if (L.ouverture) ajoute(L.ouverture, "folder-open", "Ouverture du dossier LAB et identification de l'entité.", esc(signataire.nom));
+        if (m.lm.date) ajoute(m.lm.date, lmSignee ? "file-pen-line" : "send", lmSignee ? "Lettre de mission signée (réf. " + m.lm.ref + ")." : "Lettre de mission envoyée pour signature (réf. " + m.lm.ref + ").", esc(signataire.nom));
+        if (indep.date) ajoute(indep.date, "shield-check", "Déclaration d'indépendance de l'équipe" + (indep.statut === "a_renouveler" ? " (à renouveler)." : "."), esc(equipe.map(function (k) { return E.equipe[k].nom; }).join(", ")), indep.statut === "a_renouveler");
+        if (L.derniereRevue) ajoute(L.derniereRevue, "badge-check", "Revue du dossier LAB validée.", esc(E.equipe[E.responsableLab(profil)].nom) + ", responsable LAB");
+        if (L.criblage) ajoute(L.criblage, "scan-search", "Criblage continu : " + (L.gel === "ok" ? "aucune correspondance sur le gel des avoirs." : "correspondance possible, à lever."), "Connecteur KYC", L.gel !== "ok");
+        if (labRetard) ajoute(L.prochaineRevue, "history", "Revue LAB échue : notification envoyée au responsable du dossier.", "EJ", true);
+        m.interventions.forEach(function (x) {
+          if (x[3] === "fait") ajoute(x[2], "clipboard-check", "Intervention réalisée : " + x[0] + ".", esc(nomsMembres(membres(x[0]))));
+          else if (x[3] === "en_cours") ajoute(x[1], "timer", "Intervention commencée : " + x[0] + ".", esc(nomsMembres(membres(x[0]))));
+        });
+        J.sort(function (a, b) { return dt(b.d) - dt(a.d) || b.n - a.n; });
+        out.push(carte("history", "Historique", "Journal daté de la mission.", "",
+          '<ul class="journal" id="journal">' + J.map(function (j) {
+            return '<li><span class="j-ico' + (j.warn ? " warn" : "") + '"><span class="ms">' + j.i + "</span></span>" +
+              '<div><div class="j-date">' + j.d + '</div><div class="j-txt">' + esc(j.t) + '</div><div class="j-who">' + j.w + "</div></div></li>";
+          }).join("") + "</ul>", "historique"));
+
+        document.getElementById("sections").innerHTML = out.join("");
+
+        /* ---------- Interactions de maquette ---------- */
+        var retour = document.getElementById("retour");
+        var bR = document.getElementById("relance");
+        if (bR)
+          bR.addEventListener("click", function () {
+            retour.innerHTML = '<div class="alert alert-success"><span class="ms">circle-check</span><div>Relance de signature envoyée à ' + esc(F[2]) + " pour la lettre " + esc(m.lm.ref) + " (maquette).</div></div>";
+            bR.disabled = true;
+            bR.innerHTML = '<span class="ms">circle-check</span>Relance envoyée';
+          });
+      });
+    </script>
+    <script src="assets/ej-shell.js?v=19"></script>
+  </body>
+</html>

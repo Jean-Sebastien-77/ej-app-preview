@@ -9,6 +9,9 @@
     JM: { nom: "Julien Moreau", role: "Collaborateur comptable", couleur: "var(--ej-accent-600)" },
     EG: { nom: "Élodie Garcia", role: "Juriste", couleur: "var(--ej-warning-600)" },
     NB: { nom: "Nadia Benali", role: "Collaboratrice comptable", couleur: "var(--ej-action-700)" },
+    CD: { nom: "Claire Dubois", role: "Associée, commissaire aux comptes", couleur: "var(--ej-primary-500)" },
+    LF: { nom: "Léa Fontaine", role: "Auditrice", couleur: "var(--ej-neutral-600)" },
+    JD: { nom: "Jean Dupond", role: "Auditeur", couleur: "var(--ej-accent-600)" },
   };
 
   /* lab.risque : faible | standard | eleve | null (pas encore évalué)
@@ -23,9 +26,9 @@
      lm.echeance : fin de la période en cours (lettres à tacite reconduction, prise d'effet à la signature)
      lm.reconduction : false si la lettre n'est pas reconduite (statut a_renouveler)
      lm.honoraires : forfait annuel HT en euros (null si pas de lettre)
-     cac : réservé aux missions CAC (prochaine maquette). Une société dont le cabinet
-     présente les comptes ne peut pas être aussi son client CAC (incompatibilité
-     à faire confirmer par un professionnel) : les clients CAC seront des sociétés distinctes. */
+     cac : toujours false. Une société dont le cabinet présente les comptes ne peut pas
+     être aussi contrôlée par lui (incompatibilité à faire confirmer par un professionnel) :
+     les entités contrôlées sont dans MANDATS, plus bas. */
   var SOCIETES = [
     { id: "paprika", nom: "PAPRIKA CANTINE", siren: "795 294 481", forme: "SAS", activite: "Restauration", resp: "LP", cloture: "30/06",
       lab: { ouverture: "01/10/2025", criblage: "18/10/2026", risque: "standard", statut: "a_revoir", derniereRevue: "12/10/2025", prochaineRevue: "12/10/2026", be: 2, ppe: false, gel: "ok", pieces: [5, 6] },
@@ -83,6 +86,77 @@
       lm: { statut: "signee", ref: "LM-2025-029", signee: "10/04/2025", echeance: "31/03/2027", honoraires: 4300, missions: ["Présentation des comptes annuels"] }, cac: false },
   ];
 
+
+  /* ---------- Missions CAC (profil commissaire aux comptes ou mixte) ----------
+     Entités DISTINCTES des clients EC ci-dessus : le cabinet ne tient pas leur
+     comptabilité et ne fait pas leur juridique (incompatibilités, à faire confirmer).
+     type : legal (mandat légal, six exercices) | alpe (audit légal petites entreprises, trois exercices)
+            | contractuel (audit contractuel, un exercice)
+     premier / dernier : premier et dernier exercice du mandat (année de clôture)
+     ex : exercice en cours de contrôle. phase : acceptation | planification | interim | final | rapports | emis
+     heures : [budget, réalisées] · interventions : [libellé, du, au, statut fait|en_cours|prevu]
+     ag : date prévue de l'AG d'approbation (null si non fixée)
+     lm : lettre de mission CAC (signee | envoyee | a_etablir) ; établie après l'acceptation de la mission
+     independance : déclaration annuelle de l'équipe (a_jour | a_renouveler | a_faire)
+     lab : même structure que les dossiers EC (lab.html les affiche en profil CAC ou mixte) ;
+     beDefaut : true si le bénéficiaire effectif retenu est le représentant légal, à défaut (association) */
+  var MANDATS = [
+    { id: "vertalis", nom: "VERTALIS SA", siren: "412 386 950", forme: "SA", activite: "Chimie de spécialité", cloture: "31/12", signataire: "CD", equipe: ["LF"], cocac: null,
+      type: "legal", premier: 2021, dernier: 2026, nomination: "18/06/2021", honoraires: 31200,
+      ex: { clos: "31/12/2026", phase: "interim", avancement: 15, heures: [260, 38] },
+      interventions: [["Prise de connaissance et planification", "05/10/2026", "09/10/2026", "fait"], ["Intérim", "16/11/2026", "27/11/2026", "prevu"], ["Final", "08/02/2027", "19/02/2027", "prevu"]],
+      ag: "17/06/2027", lm: { statut: "signee", ref: "LM-CAC-2021-003", date: "06/09/2021" }, independance: { statut: "a_jour", date: "05/01/2026" },
+      lab: { ouverture: "02/06/2021", criblage: "18/10/2026", risque: "standard", statut: "a_jour", derniereRevue: "12/01/2026", prochaineRevue: "12/01/2028", be: 2, ppe: false, gel: "ok", pieces: [6, 6] } },
+    { id: "nordia", nom: "NORDIA LOGISTIQUE", siren: "523 904 117", forme: "SAS", activite: "Transport et entreposage", cloture: "30/06", signataire: "CD", equipe: ["JD"], cocac: null,
+      type: "legal", premier: 2024, dernier: 2029, nomination: "12/12/2023", honoraires: 25200,
+      ex: { clos: "30/06/2026", phase: "rapports", avancement: 85, heures: [210, 228] },
+      interventions: [["Intérim", "11/05/2026", "15/05/2026", "fait"], ["Final", "21/09/2026", "02/10/2026", "fait"], ["Rapports", "26/10/2026", "13/11/2026", "prevu"]],
+      ag: "15/12/2026", lm: { statut: "signee", ref: "LM-CAC-2023-011", date: "08/01/2024" }, independance: { statut: "a_jour", date: "04/07/2026" },
+      lab: { ouverture: "20/11/2023", criblage: "18/10/2026", risque: "standard", statut: "a_jour", derniereRevue: "04/07/2026", prochaineRevue: "04/07/2028", be: 1, ppe: false, gel: "ok", pieces: [5, 5] } },
+    { id: "clinique-parc", nom: "CLINIQUE DU PARC", siren: "389 211 641", forme: "SAS", activite: "Établissement de santé", cloture: "31/12", signataire: "CD", equipe: ["LF"], cocac: null,
+      type: "legal", premier: 2023, dernier: 2028, nomination: "22/06/2023", honoraires: 36000,
+      ex: { clos: "31/12/2026", phase: "planification", avancement: 10, heures: [300, 25] },
+      interventions: [["Planification", "19/10/2026", "23/10/2026", "en_cours"], ["Intérim", "30/11/2026", "11/12/2026", "prevu"], ["Final", "15/03/2027", "26/03/2027", "prevu"]],
+      ag: "24/06/2027", lm: { statut: "signee", ref: "LM-CAC-2023-007", date: "11/09/2023" }, independance: { statut: "a_renouveler", date: "10/01/2025" },
+      lab: { ouverture: "30/05/2023", criblage: "18/10/2026", risque: "standard", statut: "a_jour", derniereRevue: "15/01/2026", prochaineRevue: "15/01/2028", be: 2, ppe: false, gel: "ok", pieces: [6, 6] } },
+    { id: "halios", nom: "GROUPE HALIOS", siren: "301 775 483", forme: "SA", activite: "Holding, comptes consolidés", cloture: "31/12", signataire: "CD", equipe: ["LF", "JD"], cocac: "ARVEL AUDIT (cocommissaire)",
+      type: "legal", premier: 2022, dernier: 2027, nomination: "21/06/2022", honoraires: 52000,
+      ex: { clos: "31/12/2026", phase: "interim", avancement: 40, heures: [420, 160] },
+      interventions: [["Planification avec le cocommissaire", "14/09/2026", "18/09/2026", "fait"], ["Intérim", "12/10/2026", "23/10/2026", "en_cours"], ["Final et consolidation", "22/02/2027", "12/03/2027", "prevu"]],
+      ag: "10/06/2027", lm: { statut: "signee", ref: "LM-CAC-2022-002", date: "05/09/2022" }, independance: { statut: "a_jour", date: "08/01/2026" },
+      lab: { ouverture: "02/05/2022", criblage: "18/10/2026", risque: "eleve", statut: "a_jour", derniereRevue: "08/01/2026", prochaineRevue: "08/01/2027", be: 2, ppe: true, gel: "ok", pieces: [8, 8] } },
+    { id: "dorval", nom: "ATELIERS DORVAL", siren: "448 120 396", forme: "SAS", activite: "Menuiserie industrielle", cloture: "30/09", signataire: "CD", equipe: ["JD"], cocac: null,
+      type: "alpe", premier: 2025, dernier: 2027, nomination: "17/03/2025", honoraires: 7400,
+      ex: { clos: "30/09/2026", phase: "final", avancement: 30, heures: [70, 12] },
+      interventions: [["Intérim", "08/09/2026", "10/09/2026", "fait"], ["Final", "23/11/2026", "27/11/2026", "prevu"], ["Rapport", "07/12/2026", "11/12/2026", "prevu"]],
+      ag: "18/03/2027", lm: { statut: "signee", ref: "LM-CAC-2025-004", date: "02/04/2025" }, independance: { statut: "a_jour", date: "06/01/2026" },
+      lab: { ouverture: "24/02/2025", criblage: "18/10/2026", risque: "faible", statut: "a_jour", derniereRevue: "24/02/2025", prochaineRevue: "24/02/2028", be: 1, ppe: false, gel: "ok", pieces: [5, 5] } },
+    { id: "brioche", nom: "BRIOCHE & CIE", siren: "507 642 813", forme: "SAS", activite: "Boulangerie industrielle", cloture: "31/12", signataire: "CD", equipe: ["JD"], cocac: null,
+      type: "alpe", premier: 2024, dernier: 2026, nomination: "20/06/2024", honoraires: 6300,
+      ex: { clos: "31/12/2026", phase: "planification", avancement: 5, heures: [60, 4] },
+      interventions: [["Intérim", "07/12/2026", "09/12/2026", "prevu"], ["Final", "15/03/2027", "19/03/2027", "prevu"]],
+      ag: "22/06/2027", lm: { statut: "signee", ref: "LM-CAC-2024-006", date: "02/09/2024" }, independance: { statut: "a_jour", date: "06/01/2026" },
+      lab: { ouverture: "03/06/2024", criblage: "18/10/2026", risque: "faible", statut: "a_jour", derniereRevue: "03/06/2024", prochaineRevue: "03/06/2027", be: 2, ppe: false, gel: "ok", pieces: [5, 5] } },
+    { id: "soleil", nom: "ASSOCIATION SOLEIL D'ARGENT", siren: "781 450 227", forme: "Association", activite: "Aide à domicile, subventions publiques", cloture: "31/12", signataire: "CD", equipe: ["JD"], cocac: null,
+      type: "legal", premier: 2021, dernier: 2026, nomination: "26/06/2021", honoraires: 9500,
+      ex: { clos: "31/12/2026", phase: "planification", avancement: 5, heures: [90, 6] },
+      interventions: [["Intérim", "14/12/2026", "16/12/2026", "prevu"], ["Final", "05/04/2027", "09/04/2027", "prevu"]],
+      ag: "26/06/2027", lm: { statut: "signee", ref: "LM-CAC-2021-009", date: "14/09/2021" }, independance: { statut: "a_jour", date: "05/01/2026" },
+      lab: { ouverture: "10/06/2021", criblage: "18/10/2026", risque: "faible", statut: "a_jour", derniereRevue: "15/01/2025", prochaineRevue: "15/01/2028", be: 1, beDefaut: true, ppe: false, gel: "ok", pieces: [5, 5] } },
+    { id: "marees", nom: "HÔTEL LES MARÉES", siren: "622 918 304", forme: "SAS", activite: "Hôtellerie", cloture: "31/12", signataire: "CD", equipe: ["LF"], cocac: null,
+      type: "legal", premier: 2025, dernier: 2030, nomination: "19/06/2025", honoraires: 18600,
+      ex: { clos: "31/12/2026", phase: "planification", avancement: 0, heures: [150, 0] },
+      interventions: [["Rapports exercice 2025", "26/05/2026", "29/05/2026", "fait", 2025], ["Planification", "09/11/2026", "13/11/2026", "prevu"], ["Final", "29/03/2027", "09/04/2027", "prevu"]],
+      ag: "29/06/2027", lm: { statut: "signee", ref: "LM-CAC-2025-008", date: "01/09/2025" }, independance: { statut: "a_jour", date: "06/01/2026" },
+      lab: { ouverture: "02/06/2025", criblage: "18/10/2026", risque: "eleve", statut: "a_revoir", derniereRevue: "02/06/2025", prochaineRevue: "02/06/2026", be: 3, ppe: false, gel: "ok", pieces: [7, 8] } },
+    { id: "technopole", nom: "TECHNOPOLE 21", siren: "915 307 269", forme: "SAS", activite: "Logiciels, levée de fonds en cours", cloture: "31/12", signataire: "CD", equipe: [], cocac: null,
+      type: "contractuel", premier: 2026, dernier: 2026, nomination: null, honoraires: 14000,
+      ex: { clos: "31/12/2026", phase: "acceptation", avancement: 0, heures: [110, 0] },
+      interventions: [["Acceptation de la mission", "12/10/2026", "30/10/2026", "en_cours"]],
+      ag: null, lm: { statut: "a_etablir", ref: null, date: null }, independance: { statut: "a_faire", date: null },
+      lab: { ouverture: "12/10/2026", criblage: "12/10/2026", risque: null, statut: "incomplet", derniereRevue: null, prochaineRevue: null, be: 1, ppe: false, gel: "ok", pieces: [3, 6] } },
+  ];
+
   /* Bibliothèque de prestations (lettres de mission). Prix indicatifs du cabinet fictif. */
   var PRESTATIONS = [
     { id: "presentation", famille: "Comptable", libelle: "Présentation des comptes annuels", base: "Forfait annuel", prix: 2800 },
@@ -115,6 +189,18 @@
     cabinet: "CABINET DELMAS EXPERTISE",
     equipe: EQUIPE,
     societes: SOCIETES,
+    /* Responsable LAB du cabinet, qui valide les revues : un seul par cabinet.
+       Cabinet EC ou mixte : Thomas Girard. Cabinet CAC seul (profil cac) : Claire Dubois. */
+    responsableLab: function (profil) {
+      return profil === "cac" ? "CD" : "TG";
+    },
+    mandats: MANDATS,
+    findMandat: function (id) {
+      return MANDATS.filter(function (m) { return m.id === id; })[0] || null;
+    },
+    TYPE_MANDAT: { legal: "Mandat légal · six exercices", alpe: "Audit légal petite entreprise · trois exercices", contractuel: "Audit contractuel" },
+    PHASE: { acceptation: "Acceptation", planification: "Planification", interim: "Intérim", final: "Final", rapports: "Rapports", emis: "Rapports émis" },
+    INDEP: { a_jour: "Déclaration à jour", a_renouveler: "Déclaration à renouveler", a_faire: "Déclaration à faire" },
     prestations: PRESTATIONS,
     modeles: MODELES,
     totalSocietes: 135,

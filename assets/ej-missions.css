@@ -310,8 +310,8 @@
     font-size: 0;
     gap: 0;
   }
-  body.m-resp .header-profil {
-    max-width: 150px;
+  body.m-resp .header-profil .hp-label {
+    max-width: 104px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

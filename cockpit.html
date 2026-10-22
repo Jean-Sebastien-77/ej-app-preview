@@ -9,8 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="assets/ej-app.css?v=17" />
-    <link rel="stylesheet" href="assets/ej-missions.css?v=17" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=18" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=19" />
     <style>
       /* Cockpit · styles locaux (préfixe cp-). Aucune nouvelle couleur : tokens ej-app.css. */
       .page.cp-page {
@@ -625,6 +625,10 @@
         color: var(--ej-action-800);
         font-size: 12px;
         font-weight: 600;
+      }
+      .cp-fchip-off {
+        font-weight: 400;
+        color: var(--ej-neutral-600);
       }
       .cp-fchip button {
         width: 22px;
@@ -1324,6 +1328,39 @@
         margin-bottom: 18px;
       }
 
+      /* Cabinet mixte : onglets groupés (expertise comptable, commissariat aux comptes) */
+      .cp-tabgrp {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 2px 0 12px;
+        font-family: var(--ej-font-display);
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        color: var(--ej-neutral-500);
+      }
+      .cp-tabgrp:first-child {
+        padding-left: 0;
+      }
+      .cp-tabgrp:not(:first-child),
+      .cp-tabsep {
+        flex-shrink: 0;
+        margin: 10px 0 10px 8px;
+        border-left: 1px solid var(--ej-neutral-300);
+      }
+      .cp-dr-sec .form-group + .cp-checks {
+        margin-top: 14px;
+      }
+      .cp-unit {
+        /* l'unité commence par une espace insécable (« 18 h », « 28 % ») */
+        font-size: 0.6em;
+        font-weight: 600;
+        color: var(--ej-neutral-600);
+      }
+
       /* Mobile */
       @media (max-width: 900px) {
         body.m-resp .cp-head-actions {
@@ -1627,7 +1664,7 @@
       <div class="cp-dr-foot" id="cp-dr-foot"></div>
     </aside>
 
-    <script src="assets/ej-missions-data.js?v=17"></script>
+    <script src="assets/ej-missions-data.js?v=19"></script>
     <script>
       (function () {
         "use strict";
@@ -1640,7 +1677,16 @@
         var TODAY = new Date(2026, 9, 19);
         var H90 = new Date(2026, 9, 19 + 90);
         var CALC = "19/10/2026 à 07:00";
-        var ME = "Thomas Girard";
+        /* Profil de cabinet simulé : même lecture que ej-shell.js (chargé après ce script ; un changement de profil recharge la page) */
+        var PROFIL = (function () {
+          var p = "ec";
+          try {
+            var s = localStorage.getItem("ej-profil");
+            if (s === "cac" || s === "mixte") p = s;
+          } catch (e) {}
+          return p;
+        })();
+        var ME = PROFIL === "cac" ? "Claire Dubois" : "Thomas Girard";
         var MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
         var MOIS_C = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
         var MOIS_N = ["janvier", "fevrier", "mars", "avril", "mai", "juin", "juillet", "aout", "septembre", "octobre", "novembre", "decembre"];
@@ -1898,16 +1944,18 @@
         }
 
         /* ---------- Période (mois ou trimestre) ---------- */
-        function yearFor(m) {
-          /* fenêtre de douze mois : les neuf derniers mois et les trois prochains */
+        function yearFor(m, cac) {
+          /* fenêtre de douze mois : les neuf derniers mois et les trois prochains (EC) ;
+             missions CAC : tournée vers l'avant, les trois derniers mois et les neuf prochains (« février » = février 2027) */
+          if (cac) return m < TODAY.getMonth() - 3 ? TODAY.getFullYear() + 1 : TODAY.getFullYear();
           return m < TODAY.getMonth() - 8 ? TODAY.getFullYear() + 1 : TODAY.getFullYear();
         }
-        function perMonth(m, y) {
-          if (y == null) y = yearFor(m);
+        function perMonth(m, y, cac) {
+          if (y == null) y = yearFor(m, cac);
           return { key: y + "-" + pad(m + 1), from: new Date(y, m, 1), to: new Date(y, m + 1, 0), label: MOIS[m] + " " + y };
         }
-        function perQuarter(q, y) {
-          if (y == null) y = yearFor(q * 3 - 1);
+        function perQuarter(q, y, cac) {
+          if (y == null) y = yearFor(q * 3 - 1, cac);
           return { key: y + "-T" + q, from: new Date(y, (q - 1) * 3, 1), to: new Date(y, q * 3, 0), label: "T" + q + " " + y + " (" + MOIS[(q - 1) * 3] + " à " + MOIS[q * 3 - 1] + ")" };
         }
         function periodFromKey(k) {
@@ -1915,32 +1963,36 @@
           if (!m) return null;
           return m[2] ? perQuarter(+m[3], +m[1]) : perMonth(+m[3] - 1, +m[1]);
         }
+        /* Menu Période : EC de février à janvier ; CAC de juillet 2026 à juin 2027 (AG et fins de mandat) ; mixte : les deux */
         function periodChoices() {
           var out = [];
-          for (var i = -8; i <= 3; i++) {
+          var from = PROFIL === "cac" ? -3 : -8;
+          var to = PROFIL === "ec" ? 3 : 8;
+          for (var i = from; i <= to; i++) {
             var d = new Date(TODAY.getFullYear(), TODAY.getMonth() + i, 1);
             out.push(perMonth(d.getMonth(), d.getFullYear()));
           }
-          [1, 2, 3, 4].forEach(function (q) {
+          (PROFIL === "cac" ? [3, 4] : [1, 2, 3, 4]).forEach(function (q) {
             out.push(perQuarter(q, 2026));
           });
           out.push(perQuarter(1, 2027));
+          if (PROFIL !== "ec") out.push(perQuarter(2, 2027));
           return out;
         }
         function curQ() {
           return Math.floor(TODAY.getMonth() / 3) + 1;
         }
-        function parsePeriod(t) {
+        function parsePeriod(t, cac) {
           var m;
           if (/ (ce|du|le) trimestre (en cours |actuel )?|trimestre en cours /.test(t) && !/ trimestre prochain | prochain trimestre /.test(t)) return perQuarter(curQ(), TODAY.getFullYear());
           if (/ trimestre prochain | prochain trimestre /.test(t)) return curQ() === 4 ? perQuarter(1, TODAY.getFullYear() + 1) : perQuarter(curQ() + 1, TODAY.getFullYear());
-          if ((m = / t([1-4])( (20\d\d))? /.exec(t))) return perQuarter(+m[1], m[3] ? +m[3] : null);
+          if ((m = / t([1-4])( (20\d\d))? /.exec(t))) return perQuarter(+m[1], m[3] ? +m[3] : null, cac);
           if ((m = / (premier|1er|deuxieme|second|2e|troisieme|3e|quatrieme|4e) trimestre( (20\d\d))? /.exec(t)))
-            return perQuarter({ premier: 1, "1er": 1, deuxieme: 2, second: 2, "2e": 2, troisieme: 3, "3e": 3, quatrieme: 4, "4e": 4 }[m[1]], m[3] ? +m[3] : null);
+            return perQuarter({ premier: 1, "1er": 1, deuxieme: 2, second: 2, "2e": 2, troisieme: 3, "3e": 3, quatrieme: 4, "4e": 4 }[m[1]], m[3] ? +m[3] : null, cac);
           if (/ (mois prochain|prochain mois) /.test(t)) return perMonth((TODAY.getMonth() + 1) % 12, TODAY.getMonth() === 11 ? TODAY.getFullYear() + 1 : TODAY.getFullYear());
           if (/ (mois dernier|dernier mois) /.test(t)) return perMonth((TODAY.getMonth() + 11) % 12, TODAY.getMonth() === 0 ? TODAY.getFullYear() - 1 : TODAY.getFullYear());
           if (/ (ce mois|ce mois ci|mois en cours) /.test(t)) return perMonth(TODAY.getMonth(), TODAY.getFullYear());
-          if ((m = new RegExp(" (" + MOIS_N.join("|") + ")( (20\\d\\d))? ").exec(t))) return perMonth(MOIS_N.indexOf(m[1]), m[3] ? +m[3] : null);
+          if ((m = new RegExp(" (" + MOIS_N.join("|") + ")( (20\\d\\d))? ").exec(t))) return perMonth(MOIS_N.indexOf(m[1]), m[3] ? +m[3] : null, cac);
           return null;
         }
         /* Période exprimée mais non gérée (semaine, année, date précise) : rendue telle que saisie */
@@ -1986,6 +2038,16 @@
           E.societes.forEach(function (s) {
             if (names.indexOf(s.nom) === -1) names.push(s.nom);
           });
+          /* Profil CAC ou mixte : entités contrôlées et cocommissaire masqués aussi */
+          if (PROFIL !== "ec") {
+            (E.mandats || []).forEach(function (m) {
+              if (names.indexOf(m.nom) === -1) names.push(m.nom);
+            });
+            names.push("ARVEL AUDIT");
+            [["nordia", "NORDIA LOGISTIQUE"], ["halios", "GROUPE HALIOS"], ["dorval", "ATELIERS DORVAL"], ["brioche", "BRIOCHE & CIE"], ["soleil d'argent", "ASSOCIATION SOLEIL D'ARGENT"], ["les marees", "HÔTEL LES MARÉES"], ["technopole", "TECHNOPOLE 21"], ["arvel", "ARVEL AUDIT"]].forEach(function (a) {
+              add(a[0], "soc", a[1]);
+            });
+          }
           names.forEach(function (n) {
             add(n, "soc", n);
             var tok = fold(n).replace(/[^a-z0-9+&' ]/g, " ").split(/\s+/).filter(Boolean);
@@ -2081,12 +2143,16 @@
         }
 
         /* ---------- État ---------- */
-        var F = { formes: [], createur: null, periode: null };
+        /* types et signataire : filtres des missions CAC (profil cac ou mixte) */
+        var F = { formes: [], createur: null, periode: null, types: [], signataire: null };
         function cloneF(f) {
-          return { formes: f.formes.slice(), createur: f.createur, periode: f.periode };
+          return { formes: f.formes.slice(), createur: f.createur, periode: f.periode, types: (f.types || []).slice(), signataire: f.signataire || null };
         }
         function sameF(a, b) {
-          return a.formes.join() === b.formes.join() && a.createur === b.createur && (a.periode ? a.periode.key : "") === (b.periode ? b.periode.key : "");
+          return (
+            a.formes.join() === b.formes.join() && a.createur === b.createur && (a.periode ? a.periode.key : "") === (b.periode ? b.periode.key : "") &&
+            (a.types || []).join() === (b.types || []).join() && (a.signataire || null) === (b.signataire || null)
+          );
         }
         var DEFAULT_ORDER = {
           file: ["todo"],
@@ -2094,8 +2160,18 @@
           avancement: ["pipeline", "liste"],
           echeances: ["calendrier", "noncalc"],
           missions: ["lettres", "lab"],
+          mandats: ["cac_fins", "cac_conf"],
+          audit: ["cac_phases", "cac_missions", "cac_interv"],
+          echcac: ["cac_chrono", "cac_hors"],
         };
         var BLOCK_NAMES = {
+          cac_fins: "Fins de mandat à préparer",
+          cac_conf: "Acceptation et conformité",
+          cac_phases: "Avancement par phase",
+          cac_missions: "Missions du portefeuille",
+          cac_interv: "Interventions des 30 prochains jours",
+          cac_chrono: "Les six prochains mois",
+          cac_hors: "Ce que la chronologie ne montre pas",
           todo: "À faire aujourd’hui",
           etapes: "Avancement par étape",
           liste: "Liste des dossiers",
@@ -2110,7 +2186,7 @@
         Object.keys(DEFAULT_ORDER).forEach(function (k) {
           ORDER[k] = DEFAULT_ORDER[k].slice();
         });
-        var S = { model: "file", pins: [], more: {}, campStage: null, opsStage: null, journal: [], hc: [], jid: 0, savedLoaded: false, lastQ: null, lastB: null };
+        var S = { model: PROFIL === "cac" ? "mandats" : "file", pins: [], more: {}, campStage: null, opsStage: null, phaseStage: null, journal: [], hc: [], jid: 0, savedLoaded: false, lastQ: null, lastB: null };
         var pending = null;
         var thinkTimer = null;
 
@@ -2557,8 +2633,449 @@
             },
           },
         };
-        var BASE_IDS = Object.keys(IND);
-        var DIM_LABEL = { forme: "forme juridique", createur: "créé par", periode: "période (mois ou trimestre)" };
+        var EC_IDS = Object.keys(IND);
+
+        /* ---------- Missions CAC (module Missions CAC, 2027, provisoire) : EJM.mandats ----------
+           Entités contrôlées distinctes des clients EC. Tout est calculé depuis EJM.mandats à la date de référence. */
+        var MAND = E.mandats || [];
+        /* Mêmes bornes que cac.html : date de référence + 30 et + 60 jours */
+        var D30 = new Date(TODAY.getTime() + 30 * 864e5);
+        var D60 = new Date(TODAY.getTime() + 60 * 864e5);
+        var H6 = addMonths(TODAY, 6);
+        var TYPE_KEYS = ["legal", "alpe", "contractuel"];
+        var TYPE_C = { legal: "Mandat légal", alpe: "Audit légal petite entreprise", contractuel: "Audit contractuel" };
+        var LMC = { signee: "Signée", envoyee: "Envoyée pour signature", a_etablir: "À établir" };
+        var SRC_CAC = "Module Missions CAC, 2027, provisoire";
+        /* Palette des phases identique à cac.html (.ph-*) : barre segmentée identique sur les deux pages */
+        var PHASES = [
+          { k: "acceptation", color: "var(--ej-neutral-300)" },
+          { k: "planification", color: "var(--ej-action-300)" },
+          { k: "interim", color: "var(--ej-action-500)" },
+          { k: "final", color: "var(--ej-action-700)" },
+          { k: "rapports", color: "var(--ej-primary-900)" },
+          { k: "emis", color: "var(--ej-success-600)" },
+        ];
+        PHASES.forEach(function (p) {
+          p.label = E.PHASE[p.k];
+        });
+        function sigName(m) {
+          var p = E.equipe[m.signataire];
+          return p ? p.nom : String(m.signataire);
+        }
+        var SIGNATAIRES = [];
+        MAND.forEach(function (m) {
+          if (SIGNATAIRES.indexOf(sigName(m)) === -1) SIGNATAIRES.push(sigName(m));
+        });
+        function passT(m) {
+          return !F.types || !F.types.length || F.types.indexOf(m.type) !== -1;
+        }
+        function passSig(m) {
+          return !F.signataire || sigName(m) === F.signataire;
+        }
+        /* Période : un événement daté, ou une intervention qui croise la période */
+        function passPR(a, b) {
+          return !F.periode || (a <= F.periode.to && b >= F.periode.from);
+        }
+        function mandBase() {
+          return MAND.filter(function (m) {
+            return passT(m) && passSig(m);
+          });
+        }
+        function exYear(m) {
+          return +m.ex.clos.split("/")[2];
+        }
+        /* Fin de mandat : l'exercice contrôlé est le dernier du mandat (audit contractuel exclu : une mission, pas un mandat) */
+        function isFin(m) {
+          return m.type !== "contractuel" && m.dernier === exYear(m);
+        }
+        function agDate(m) {
+          return m.ag ? parse(m.ag) : null;
+        }
+        function mandHref(m) {
+          return "cac-mandat.html?id=" + encodeURIComponent(m.id);
+        }
+        function mandByName(n) {
+          return MAND.filter(function (m) {
+            return m.nom === n;
+          })[0] || null;
+        }
+        function socHref(n) {
+          var m = mandByName(n);
+          return m ? mandHref(m) : "societe.html";
+        }
+        function typesLabel(ts) {
+          return ts.map(function (k) {
+            return TYPE_C[k];
+          }).join(", ");
+        }
+        function nb(n) {
+          return n.toLocaleString("fr-FR").replace(/\s/g, "\u00a0");
+        }
+        function phaseBadge(m) {
+          var k = m.ex.phase;
+          return '<span class="badge ' + (k === "emis" ? "badge-success" : k === "acceptation" ? "badge-neutral" : "badge-progress") + '">' + esc(E.PHASE[k]) + " · " + m.ex.avancement + " %</span>";
+        }
+        /* Ligne de liste CAC : toujours terminée par l'ouverture de la mission */
+        function mandRow(m, motif, o) {
+          o = o || {};
+          return {
+            soc: m.nom,
+            forme: m.forme,
+            motif: o.lead ? motif : esc(TYPE_C[m.type]) + " · exercice clos le " + esc(m.ex.clos) + (motif ? " · " + motif : ""),
+            badge: o.badge != null ? o.badge : phaseBadge(m),
+            meta: o.meta || "",
+            verb: o.verb || "Ouvrir la mission",
+            href: mandHref(m),
+          };
+        }
+        function cacCov() {
+          return "les " + MAND.length + " missions du module (maquette), entités distinctes des clients EC";
+        }
+        /* Interventions d'audit : l'acceptation de la mission n'en est pas une (elle reste dans « En acceptation »).
+           5e élément facultatif : exercice concerné, quand ce n'est pas l'exercice en cours de contrôle. */
+        function isAccept(i) {
+          return /^Acceptation/.test(i[0]);
+        }
+        function intervs() {
+          var o = [];
+          mandBase().forEach(function (m) {
+            m.interventions.forEach(function (i) {
+              if (isAccept(i)) return;
+              o.push({ m: m, lib: i[0], from: parse(i[1]), to: parse(i[2]), st: i[3], ex: i[4] || null });
+            });
+          });
+          return o;
+        }
+        function intervEx(i) {
+          return i.ex ? "exercice " + i.ex : "exercice clos le " + esc(i.m.ex.clos);
+        }
+        function intervRow(i, o) {
+          o = o || {};
+          var cours = i.st === "en_cours";
+          return mandRow(i.m, (o.pre || "") + esc(i.lib) + " du " + fmt(i.from) + " au " + fmt(i.to) + " · " + intervEx(i), {
+            lead: true,
+            badge: cours ? '<span class="badge badge-progress">En cours</span>' : '<span class="badge badge-neutral">Prévue</span>',
+            meta: o.meta != null ? o.meta : cours ? "Fin prévue le " + fmt(i.to) : "Dans " + daysTo(i.from) + " j",
+            verb: cours ? "Suivre l’intervention" : "Préparer l’intervention",
+          });
+        }
+        function cacEchItems() {
+          var items = [];
+          intervs().forEach(function (i) {
+            if (i.st === "fait") return;
+            var d = i.st === "en_cours" || i.from < TODAY ? i.to : i.from; /* intervention en cours : placée à sa fin prévue */
+            if (d < TODAY || d > H6 || !passP(d)) return;
+            var r = intervRow(i, { pre: i.st === "en_cours" ? "En cours : " : "", meta: "" });
+            items.push({ d: d, kind: "interv", row: r });
+          });
+          mandBase().forEach(function (m) {
+            var ag = agDate(m);
+            if (!ag || ag < TODAY || ag > H6 || !passP(ag)) return;
+            items.push({
+              d: ag,
+              kind: "ag",
+              row: mandRow(m, "AG d’approbation des comptes clos le " + esc(m.ex.clos) + (isFin(m) ? " · dernière AG du mandat" : ""), {
+                lead: true,
+                badge: '<span class="badge badge-brand">AG</span>',
+                verb: m.ex.phase === "emis" ? "Ouvrir la mission" : "Préparer les rapports",
+              }),
+            });
+            if (isFin(m))
+              items.push({
+                d: ag,
+                kind: "fin",
+                row: mandRow(m, "Fin du mandat (exercices " + m.premier + " à " + m.dernier + ") à l’issue de cette AG", {
+                  lead: true,
+                  badge: '<span class="badge badge-brand">Fin de mandat</span>',
+                  verb: "Préparer la fin de mandat",
+                }),
+              });
+          });
+          items.sort(function (a, b) {
+            return a.d - b.d;
+          });
+          return items;
+        }
+        function finRows() {
+          return mandBase().filter(function (m) {
+            return isFin(m) && (!F.periode || (!!m.ag && passP(agDate(m))));
+          }).sort(function (a, b) {
+            return (agDate(a) || H6) - (agDate(b) || H6);
+          });
+        }
+        function labCacRow(m) {
+          var l = m.lab;
+          var risk = l.risque ? '<span class="risk risk-' + l.risque + '">' + E.RISQUE[l.risque] + "</span>" : '<span class="risk risk-na">Non évalué</span>';
+          var motif = l.statut === "incomplet" ? "pièces reçues : " + l.pieces[0] + " sur " + l.pieces[1] : l.statut === "a_ouvrir" ? "dossier jamais ouvert" : l.prochaineRevue ? "revue prévue le " + l.prochaineRevue : "revue à planifier";
+          return mandRow(m, esc(E.LAB_STATUT[l.statut]) + " · " + motif, { lead: true, badge: risk, verb: l.statut === "a_ouvrir" ? "Ouvrir le dossier LAB" : "Revoir le dossier LAB" });
+        }
+        /* Lettre CAC sans référence : établie après l'acceptation de la mission */
+        function lmSansRef(m) {
+          return m.ex.phase === "acceptation" ? "lettre à établir après l’acceptation" : "lettre à établir";
+        }
+        var CD = ["type", "signataire"];
+        var CDP = ["type", "signataire", "periode"];
+        var CAC_IND = {
+          cac_entites: {
+            label: "Entités contrôlées", short: "Entités contrôlées", dims: CD,
+            rule: "entité pour laquelle le cabinet détient un mandat ou une mission d’audit en cours (mandat légal, audit légal petite entreprise, audit contractuel). Entités distinctes des clients EC.",
+            calc: function () {
+              var b = mandBase();
+              var n = { legal: 0, alpe: 0, contractuel: 0 };
+              b.forEach(function (m) {
+                n[m.type]++;
+              });
+              return {
+                v: b.length,
+                sub: n.legal + " " + pl(n.legal, "mandat légal", "mandats légaux") + " · " + n.alpe + " " + pl(n.alpe, "audit", "audits") + " petite entreprise · " + n.contractuel + " " + pl(n.contractuel, "contractuel", "contractuels"),
+                cov: cacCov(),
+                rows: b.map(function (m) {
+                  return mandRow(m, m.ag ? "AG le " + esc(m.ag) : "date d’AG non renseignée");
+                }),
+              };
+            },
+          },
+          cac_fin_mandat: {
+            label: "Fins de mandat à préparer", short: "Fins de mandat", dims: CDP, perNote: "mois de l’AG qui statue sur le dernier exercice",
+            rule: "mandat légal ou audit légal petite entreprise dont l’exercice en cours de contrôle est le dernier exercice du mandat. Le mandat prend fin à l’issue de l’AG qui statue sur les comptes de cet exercice : renouvellement ou fin à préparer avec l’entité. Audit contractuel exclu (une mission, pas un mandat).",
+            calc: function () {
+              var l = finRows();
+              var ags = l.filter(function (m) {
+                return m.ag;
+              }).map(agDate);
+              var sub = !l.length ? "aucun dernier exercice en contrôle" : ags.length ? "fin à l’issue des AG " + (ags.length === 1 ? "du " + fmt(ags[0]) : "du " + fmt(ags[0]) + " au " + fmt(ags[ags.length - 1])) : "date d’AG non renseignée";
+              return {
+                v: l.length,
+                sub: sub,
+                cov: cacCov(),
+                rows: l.map(function (m) {
+                  var ag = agDate(m);
+                  return mandRow(m, "dernier exercice du mandat (exercices " + m.premier + " à " + m.dernier + ") · fin à l’issue de l’AG " + (ag ? "du " + fmt(ag) : "non encore datée"), {
+                    meta: ag ? "AG dans " + daysTo(ag) + " j" : "",
+                    verb: "Préparer la fin de mandat",
+                  });
+                }),
+              };
+            },
+          },
+          cac_acceptation: {
+            label: "Missions en acceptation", short: "En acceptation", dims: CD,
+            rule: "mission à la phase « Acceptation » : acceptation à finaliser avant les travaux (indépendance, dossier LAB, lettre de mission).",
+            calc: function () {
+              var l = mandBase().filter(function (m) {
+                return m.ex.phase === "acceptation";
+              });
+              return {
+                v: l.length,
+                sub: l.length ? "à finaliser avant les travaux" : "aucune mission en acceptation",
+                cov: cacCov(),
+                rows: l.map(function (m) {
+                  return mandRow(m, "indépendance : " + esc(E.INDEP[m.independance.statut].toLowerCase()) + " · lettre de mission : " + esc(LMC[m.lm.statut].toLowerCase()) + " · LAB : " + esc(E.LAB_STATUT[m.lab.statut].toLowerCase()), { verb: "Finaliser l’acceptation" });
+                }),
+              };
+            },
+          },
+          cac_indep: {
+            label: "Déclarations d’indépendance à renouveler ou à faire", short: "Indépendance", dims: CD,
+            rule: "déclaration annuelle d’indépendance de l’équipe de mission au statut « à renouveler » ou « à faire ».",
+            calc: function () {
+              var l = mandBase().filter(function (m) {
+                return m.independance.statut !== "a_jour";
+              });
+              var ren = l.filter(function (m) {
+                return m.independance.statut === "a_renouveler";
+              }).length;
+              return {
+                v: l.length,
+                sub: ren + " à renouveler · " + (l.length - ren) + " à faire",
+                cov: cacCov(),
+                rows: l.map(function (m) {
+                  var eq = [sigName(m)].concat(m.equipe.map(function (k) {
+                    return E.equipe[k] ? E.equipe[k].nom : k;
+                  }));
+                  return mandRow(m, (m.independance.date ? "dernière déclaration le " + esc(m.independance.date) : "aucune déclaration pour cette mission") + " · équipe : " + esc(eq.join(", ")), {
+                    badge: '<span class="badge badge-action">' + esc(E.INDEP[m.independance.statut]) + "</span>",
+                    verb: "Recueillir les déclarations",
+                  });
+                }),
+              };
+            },
+          },
+          cac_lm: {
+            label: "Lettres de mission CAC non signées", short: "Lettres CAC", dims: CD,
+            rule: "lettre de mission CAC au statut autre que « Signée » : envoyée pour signature ou à établir.",
+            calc: function () {
+              var l = mandBase().filter(function (m) {
+                return m.lm.statut !== "signee";
+              });
+              return {
+                v: l.length,
+                sub: l.length ? "non signées : envoyées ou à établir" : "toutes signées",
+                cov: cacCov(),
+                rows: l.map(function (m) {
+                  return mandRow(m, (m.lm.ref ? "lettre " + esc(m.lm.ref) + (m.lm.statut === "envoyee" && m.lm.date ? " envoyée le " + esc(m.lm.date) : "") : lmSansRef(m)), {
+                    badge: '<span class="badge ' + (m.lm.statut === "envoyee" ? "badge-progress" : "badge-error") + '">' + esc(LMC[m.lm.statut]) + "</span>",
+                    verb: m.lm.statut === "envoyee" ? "Relancer la signature" : "Établir la lettre",
+                  });
+                }),
+              };
+            },
+          },
+          cac_lab: {
+            label: "Dossiers LAB des entités contrôlées à revoir", short: "LAB à revoir", dims: CD,
+            rule: "dossier LAB d’une entité contrôlée dont la revue est échue, les pièces incomplètes ou qui reste à ouvrir. Compté à part des dossiers LAB des clients EC.",
+            calc: function () {
+              var l = mandBase().filter(function (m) {
+                return m.lab.statut !== "a_jour";
+              });
+              return { v: l.length, sub: "entités contrôlées seulement", cov: cacCov(), rows: l.map(labCacRow) };
+            },
+          },
+          cac_interv_30j: {
+            label: "Interventions des 30 prochains jours", short: "Interventions 30 j", dims: CDP, perNote: "intervention qui croise la période",
+            rule: "intervention prévue ou en cours entre le " + fmt(TODAY) + " et le " + fmt(D30) + " (dates qui croisent cette période). L’acceptation de la mission n’est pas une intervention d’audit : elle est comptée dans « Missions en acceptation ».",
+            calc: function () {
+              var l = intervs().filter(function (i) {
+                return i.st !== "fait" && i.from <= D30 && i.to >= TODAY && passPR(i.from, i.to);
+              }).sort(function (a, b) {
+                return a.from - b.from;
+              });
+              var c = l.filter(function (i) {
+                return i.st === "en_cours";
+              }).length;
+              return { v: l.length, sub: c + " en cours · " + (l.length - c) + " " + pl(l.length - c, "prévue", "prévues"), cov: cacCov(), rows: l.map(function (i) {
+                return intervRow(i);
+              }) };
+            },
+          },
+          cac_rapports_60j: {
+            label: "Rapports à émettre avant une AG sous 60 jours", short: "Rapports avant AG", dims: CDP, perNote: "mois de l’AG",
+            rule: "rapports pas encore émis et assemblée générale prévue entre le " + fmt(TODAY) + " et le " + fmt(D60) + " (même règle que le portefeuille CAC). Horizon de 60 jours choisi pour le cockpit, pas un délai légal : le délai de remise des rapports avant l’AG est à écrire avec le juriste EJ.",
+            calc: function () {
+              var l = mandBase().filter(function (m) {
+                var ag = agDate(m);
+                return m.ex.phase !== "emis" && ag && ag >= TODAY && ag <= D60 && passP(ag);
+              }).sort(function (a, b) {
+                return agDate(a) - agDate(b);
+              });
+              return {
+                v: l.length,
+                sub: "AG d’ici le " + fmt(D60),
+                cov: cacCov(),
+                rows: l.map(function (m) {
+                  /* intervention « Rapport(s) » de l'exercice en cours de contrôle (5e élément = exercice, s'il est donné) */
+                  var r = m.interventions.filter(function (i) {
+                    return /^Rapport/.test(i[0]) && i[3] !== "fait" && (!i[4] || +i[4] === exYear(m));
+                  })[0];
+                  return mandRow(m, "AG prévue le " + esc(m.ag) + (r ? " · intervention « " + esc(r[0]) + " » du " + r[1] + " au " + r[2] : ""), { meta: "AG dans " + daysTo(agDate(m)) + " j", verb: "Préparer les rapports" });
+                }),
+              };
+            },
+          },
+          cac_h_depass: {
+            label: "Heures au-delà du budget", short: "Heures hors budget", unit: " h", dims: CD,
+            rule: "somme des heures réalisées au-delà du budget sur l’exercice en cours de contrôle, pour les missions dont les heures réalisées dépassent le budget. Le portefeuille CAC compte ces missions (« Missions au-delà du budget d’heures »).",
+            calc: function () {
+              var l = mandBase().filter(function (m) {
+                return m.ex.heures[1] > m.ex.heures[0];
+              });
+              var h = 0;
+              l.forEach(function (m) {
+                h += m.ex.heures[1] - m.ex.heures[0];
+              });
+              return {
+                v: h,
+                sub: l.length ? l.length + " " + pl(l.length, "mission", "missions") : "aucune mission au-delà du budget",
+                cov: cacCov(),
+                rows: l.map(function (m) {
+                  return mandRow(m, m.ex.heures[1] + " h réalisées pour " + m.ex.heures[0] + " h budgétées", { meta: late("+" + (m.ex.heures[1] - m.ex.heures[0]) + " h") });
+                }),
+              };
+            },
+          },
+          cac_h_ratio: {
+            label: "Heures réalisées sur budget", short: "Heures réalisées", unit: " %", dims: CD,
+            rule: "heures réalisées divisées par les heures budgétées, toutes missions, exercice en cours de contrôle. À lire avec la phase : un exercice en planification consomme encore peu d’heures.",
+            calc: function () {
+              var b = mandBase();
+              var hb = 0;
+              var hr = 0;
+              b.forEach(function (m) {
+                hb += m.ex.heures[0];
+                hr += m.ex.heures[1];
+              });
+              return {
+                v: hb ? Math.round((hr / hb) * 100) : 0,
+                sub: nb(hr) + " h sur " + nb(hb) + " h budgétées",
+                cov: cacCov(),
+                rows: b.slice().sort(function (x, y) {
+                  return y.ex.heures[1] / y.ex.heures[0] - x.ex.heures[1] / x.ex.heures[0];
+                }).map(function (m) {
+                  var p = m.ex.heures[0] ? Math.round((m.ex.heures[1] / m.ex.heures[0]) * 100) : 0;
+                  return mandRow(m, m.ex.heures[1] + " h sur " + m.ex.heures[0] + " h (" + p + " %)", { meta: m.ex.heures[1] > m.ex.heures[0] ? late("au-delà du budget") : "" });
+                }),
+              };
+            },
+          },
+          cac_ech_6m: {
+            label: "Échéances CAC des six prochains mois", short: "Échéances 6 mois", dims: CDP, perNote: "mois de l’échéance",
+            rule: "interventions prévues ou en cours (placées à leur fin prévue), AG d’approbation et fins de mandat (AG qui statue sur le dernier exercice du mandat), du " + fmt(TODAY) + " au " + fmt(H6) + ".",
+            calc: function () {
+              var items = cacEchItems();
+              var n = { interv: 0, ag: 0, fin: 0 };
+              items.forEach(function (i) {
+                n[i.kind]++;
+              });
+              return {
+                v: items.length,
+                sub: n.interv + " " + pl(n.interv, "intervention", "interventions") + " · " + n.ag + " AG · " + n.fin + " " + pl(n.fin, "fin", "fins") + " de mandat",
+                cov: cacCov(),
+                rows: items.map(function (i) {
+                  return i.row;
+                }),
+              };
+            },
+          },
+          cac_sans_ag: {
+            label: "Missions sans date d’AG", short: "Sans date d’AG", dims: CD,
+            rule: "mission dont la date d’AG d’approbation n’est pas renseignée dans le module : rapports non datables, et fin de mandat non datable pour un mandat légal ou un audit légal petite entreprise (un audit contractuel n’a pas de mandat).",
+            calc: function () {
+              var l = mandBase().filter(function (m) {
+                return !m.ag;
+              });
+              return { v: l.length, sub: "échéances non datables", cov: cacCov(), rows: l.map(function (m) {
+                return mandRow(m, "date d’AG non renseignée · " + (m.type === "contractuel" ? "rapport non datable" : "rapports et fin de mandat non datables"), { verb: "Compléter la mission" });
+              }) };
+            },
+          },
+        };
+        var CAC_IDS = Object.keys(CAC_IND);
+        CAC_IDS.forEach(function (k) {
+          var d = CAC_IND[k];
+          d.ver = "cible";
+          d.etat = "mod";
+          d.src = SRC_CAC;
+          d.cac = true;
+          IND[k] = d;
+        });
+        /* Catalogue proposé selon le profil : EC seul, CAC seul, ou les deux */
+        var BASE_IDS = PROFIL === "cac" ? CAC_IDS : PROFIL === "mixte" ? EC_IDS.concat(CAC_IDS) : EC_IDS;
+        var N_DIMS = PROFIL === "mixte" ? 5 : 3;
+        var DIMS_TXT =
+          PROFIL === "cac"
+            ? "Le cockpit CAC filtre par type de mission, signataire et période (mois ou trimestre)."
+            : PROFIL === "mixte"
+            ? "Le cockpit filtre par forme juridique, « créé par » et période (mois ou trimestre) ; les modèles CAC par type de mission, signataire et période."
+            : "Le cockpit filtre par forme juridique, « créé par » et période (mois ou trimestre).";
+        var DIM_LABEL = { forme: "forme juridique", createur: "créé par", periode: "période (mois ou trimestre)", type: "type de mission", signataire: "signataire" };
+        /* Cabinet mixte : LAB et lettres comptés séparément, libellés sans ambiguïté */
+        if (PROFIL === "mixte") {
+          ["lm_sans_sig", "lm_renouveler", "lab_a_revoir", "lab_renforcee", "lab_sans_be"].forEach(function (k) {
+            IND[k].label += " · clients EC";
+          });
+          IND.lab_a_revoir.short = "LAB clients EC";
+          IND.cac_lab.short = "LAB entités CAC";
+        }
 
         function lmRow(s) {
           var st = s.lm.statut;
@@ -2652,6 +3169,8 @@
           if (f.formes.length) out.push(d.dims.indexOf("forme") !== -1 ? "<strong>Filtre</strong> : forme " + esc(f.formes.join(", ")) : "<strong>Filtre forme</strong> : non applicable");
           if (f.createur) out.push(d.dims.indexOf("createur") !== -1 ? "<strong>Filtre</strong> : créé par " + esc(f.createur) : "<strong>Filtre créé par</strong> : non applicable (indicateur par société)");
           if (f.periode) out.push(d.dims.indexOf("periode") !== -1 ? "<strong>Période</strong> : " + esc(f.periode.label) + (d.perNote ? " (" + d.perNote + ")" : "") : "<strong>Filtre période</strong> : non applicable");
+          if (f.types && f.types.length) out.push(d.dims.indexOf("type") !== -1 ? "<strong>Filtre</strong> : type " + esc(typesLabel(f.types)) : "<strong>Filtre type de mission</strong> : non applicable");
+          if (f.signataire) out.push(d.dims.indexOf("signataire") !== -1 ? "<strong>Filtre</strong> : signataire " + esc(f.signataire) : "<strong>Filtre signataire</strong> : non applicable");
           return out;
         }
         function ruleLines(d, r, f, withCalc) {
@@ -2672,7 +3191,7 @@
               ? '<span class="cp-pinmark">' + ms("pin") + '<button type="button" class="icon-btn" data-cp-unpin="' + id + '" aria-label="Retirer la tuile épinglée ' + esc(d.label) + '" title="Retirer du cockpit">' + ms("close") + "</button></span>"
               : "") +
             "</div>" +
-            '<div class="stat-value' + (r.v === 0 ? " cp-zero" : "") + '">' + r.v + "</div>" +
+            '<div class="stat-value' + (r.v === 0 ? " cp-zero" : "") + '">' + r.v + (d.unit ? '<span class="cp-unit">' + d.unit + "</span>" : "") + "</div>" +
             '<div class="stat-sub">' + (d.etat === "hyp" ? '<span class="cp-etat hyp">Hypothèse</span>' : "") + r.sub + "</div>" +
             '<div class="cp-tfoot"><button type="button" class="stat-link" data-cp-list="' + id + '">Voir la liste' + ms("arrow_right") + "</button>" +
             '<details class="cp-rule"><summary>Règle et couverture' + ms("chevron_down") + '</summary><div class="stat-rule">' + ruleLines(d, r, F, false).join("<br>") + "</div></details></div></div>"
@@ -2704,14 +3223,21 @@
         }
 
         /* ---------- Modèles ---------- */
-        var MODELS = [
-          { id: "file", label: "File du jour", full: "Ma file du jour", ver: "v0", icon: "list_checks", desc: "Ce qui attend une action, société par société, de l’échéance la plus proche aux dossiers immobiles." },
-          { id: "campagne", label: "Campagne", full: "Campagne d’approbation des comptes", ver: "v0", icon: "stamp", desc: "Les approbations des comptes de l’année, de la préparation au dépôt." },
-          { id: "avancement", label: "Avancement", full: "Avancement des opérations", ver: "v0", icon: "layers", desc: "Toutes les opérations en cours, par étape, et celles qui n’avancent plus." },
-          { id: "echeances", label: "Échéances", full: "Calendrier des échéances", ver: "v0", icon: "calendar_clock", desc: "Les dates à tenir dans les 90 prochains jours, et ce qui ne se calcule pas encore." },
-          { id: "missions", label: "Missions", full: "Missions & conformité", ver: "cible", icon: "shield_check", desc: "Vision cible : modules annoncés de mars à mai 2027 (provisoire). Chiffres sur les " + E.societes.length + " dossiers de la maquette, pas sur les " + E.totalSocietes + " sociétés." },
-          { id: "nouveau", label: "Nouveau", full: "Nouveau tableau", ver: "v2", icon: "plus", desc: "Composer un tableau sur page blanche, en trois temps." },
+        var MODELS_EC = [
+          { id: "file", grp: "ec", label: "File du jour", full: "Ma file du jour", ver: "v0", icon: "list_checks", desc: "Ce qui attend une action, société par société, de l’échéance la plus proche aux dossiers immobiles." },
+          { id: "campagne", grp: "ec", label: "Campagne", full: "Campagne d’approbation des comptes", ver: "v0", icon: "stamp", desc: "Les approbations des comptes de l’année, de la préparation au dépôt." },
+          { id: "avancement", grp: "ec", label: "Avancement", full: "Avancement des opérations", ver: "v0", icon: "layers", desc: "Toutes les opérations en cours, par étape, et celles qui n’avancent plus." },
+          { id: "echeances", grp: "ec", label: "Échéances", full: "Calendrier des échéances", ver: "v0", icon: "calendar_clock", desc: "Les dates à tenir dans les 90 prochains jours, et ce qui ne se calcule pas encore." },
+          { id: "missions", grp: "ec", label: "Missions", full: "Missions & conformité", ver: "cible", icon: "shield_check", desc: "Vision cible : modules annoncés de mars à mai 2027 (provisoire). Chiffres sur les " + E.societes.length + " dossiers de la maquette, pas sur les " + E.totalSocietes + " sociétés." + (PROFIL === "mixte" ? " Clients EC seulement : les entités contrôlées sont dans les modèles CAC." : "") },
         ];
+        var CAC_DESC = "Vision cible : module Missions CAC annoncé en 2027 (provisoire), sur les " + MAND.length + " entités contrôlées de la maquette.";
+        var MODELS_CAC = [
+          { id: "mandats", grp: "cac", label: "Mandats", full: "Mandats CAC", ver: "cible", icon: "briefcase", desc: CAC_DESC },
+          { id: "audit", grp: "cac", label: PROFIL === "mixte" ? "Audit" : "Campagne d’audit", full: "Campagne d’audit", ver: "cible", icon: "clipboard_check", desc: CAC_DESC },
+          { id: "echcac", grp: "cac", label: "Échéances CAC", full: "Échéances CAC", ver: "cible", icon: "calendar_range", desc: CAC_DESC },
+        ];
+        var MODEL_NEW = { id: "nouveau", label: "Nouveau", full: "Nouveau tableau", ver: "v2", icon: "plus", desc: "Composer un tableau sur page blanche, en trois temps." };
+        var MODELS = (PROFIL === "cac" ? MODELS_CAC : PROFIL === "mixte" ? MODELS_EC.concat(MODELS_CAC) : MODELS_EC).concat([MODEL_NEW]);
         function modelOf(id) {
           return MODELS.filter(function (m) {
             return m.id === id;
@@ -2723,9 +3249,12 @@
           avancement: ["ops_en_cours", "ops_30j", "sig_15j", "dec_manquante"],
           echeances: ["ech_90j", "camp_ag_retard", "camp_depot_retard", "camp_sans_cloture"],
           missions: ["lm_sans_sig", "lm_renouveler", "lab_a_revoir", "lab_renforcee"],
+          mandats: ["cac_fin_mandat", "cac_acceptation", "cac_indep", "cac_lm", "cac_lab"],
+          audit: ["cac_interv_30j", "cac_rapports_60j", "cac_h_depass", "cac_h_ratio"],
+          echcac: ["cac_ech_6m", "cac_interv_30j", "cac_rapports_60j", "cac_fin_mandat"],
           nouveau: [],
         };
-        var ATT = { file: "docs_a_signer", campagne: "camp_ag_retard", avancement: "ops_30j", echeances: "camp_depot_retard", missions: "lm_sans_sig" };
+        var ATT = { file: "docs_a_signer", campagne: "camp_ag_retard", avancement: "ops_30j", echeances: "camp_depot_retard", missions: "lm_sans_sig", mandats: "cac_indep", audit: "cac_h_depass", echcac: "cac_rapports_60j" };
 
         /* File du jour : une ligne par société, triée par urgence datée */
         var ACT_RANK = { "Relancer les signataires": 0, "Lancer la signature": 1, "Déposer au Guichet unique": 2, "Préparer l’échéance": 3, "Compléter la date de décision": 4, "Suivre la signature": 5, "Reprendre le formulaire": 6 };
@@ -2955,7 +3484,7 @@
             '<div class="cp-row"><div><div class="cp-row-soc">Sociétés sans date de clôture</div><div class="cp-row-motif">Aucune échéance d’AG calculable. Dont ' + sc.sub.replace("dont ", "") + ".</div></div><div class=\"cp-row-side\">" + etatTag("dpj") + '<span class="cp-row-meta">' + sc.v + "</span></div>" + seeBtnVerb("camp_sans_cloture", "Voir la liste") + "</div>" +
             '<div class="cp-row"><div><div class="cp-row-soc">Sociétés civiles</div><div class="cp-row-motif">Règle propre à définir avec le juriste EJ : pas de dépôt des comptes au greffe.</div></div><div class="cp-row-side">' + etatTag("ex") + '<span class="cp-row-meta">' + cv + "</span></div>" + seeBtnVerb("camp_civiles", "Voir la liste") + "</div>" +
             '<div class="cp-row"><div><div class="cp-row-soc">Formalités sans date de décision</div><div class="cp-row-motif">La décision ne peut pas être placée dans le calendrier.</div></div><div class="cp-row-side">' + etatTag("ex") + '<span class="cp-row-meta">' + dec.v + "</span></div>" + seeBtnVerb("dec_manquante", "Voir la liste") + "</div>" +
-            '<div class="cp-row"><div><div class="cp-row-soc">Fins de mandat (dirigeants, commissaires aux comptes)</div><div class="cp-row-motif">Promises par le DPJ. Non affichées tant qu’EJ n’a pas mesuré combien de sociétés les renseignent : un calendrier incomplet sans le dire ferait rater des échéances.</div></div><div class="cp-row-side">' + etatTag("dpj") + "</div><span></span></div>" +
+            '<div class="cp-row"><div><div class="cp-row-soc">Fins de mandat (dirigeants, commissaires aux comptes)</div><div class="cp-row-motif">Promises par le DPJ. Non affichées tant qu’EJ n’a pas mesuré combien de sociétés les renseignent : un calendrier incomplet sans le dire ferait rater des échéances.' + (PROFIL === "mixte" ? " Les fins des mandats que détient le cabinet sont dans le modèle « Échéances CAC »." : "") + '</div></div><div class="cp-row-side">' + etatTag("dpj") + "</div><span></span></div>" +
             '<div class="cp-row"><div><div class="cp-row-soc">Opérations planifiées hors formalité</div><div class="cp-row-motif">Aucune donnée dans EJ aujourd’hui.</div></div><div class="cp-row-side"><span class="cp-etat mod">Non disponible</span></div><span></span></div>';
           return {
             calendrier: block(
@@ -2981,25 +3510,177 @@
             ),
             lab: block(
               "lab",
-              "Dossiers LAB à revoir <span class=\"cp-count\">" + lab.length + "</span>",
+              "Dossiers LAB à revoir" + (PROFIL === "mixte" ? " · clients EC" : "") + " <span class=\"cp-count\">" + lab.length + "</span>",
               "Revues échues, pièces manquantes, dossiers à ouvrir.",
               '<a class="btn btn-secondary btn-sm" href="lab.html">Dispositif LAB' + ms("arrow_right") + "</a>",
-              lab.length ? lab.map(rowHtml).join("") : '<div class="cp-empty">Aucun dossier à revoir avec ces filtres.</div>'
+              (PROFIL === "mixte" ? '<div class="cp-block-note">' + ms("info") + "<span>Clients EC seulement. Les dossiers LAB des entités contrôlées sont comptés à part, dans le modèle « Mandats ».</span></div>" : "") +
+                (lab.length ? lab.map(rowHtml).join("") : '<div class="cp-empty">Aucun dossier à revoir avec ces filtres.</div>')
             ),
           };
         }
+        /* ---------- Modèles CAC ---------- */
+        function cacLink() {
+          return '<a class="btn btn-secondary btn-sm" href="cac.html">Portefeuille CAC' + ms("arrow_right") + "</a>";
+        }
+        /* Acceptation et conformité : une ligne par entité, ses points ouverts */
+        function confGroups() {
+          var out = [];
+          mandBase().forEach(function (m) {
+            var acts = [];
+            if (m.ex.phase === "acceptation") acts.push({ verb: "Finaliser l’acceptation", what: "mission en acceptation" });
+            if (m.independance.statut !== "a_jour")
+              acts.push({ verb: "Recueillir les déclarations d’indépendance", what: esc(E.INDEP[m.independance.statut].toLowerCase()) + (m.independance.date ? " (dernière le " + esc(m.independance.date) + ")" : "") });
+            if (m.lm.statut !== "signee") acts.push({ verb: m.lm.statut === "envoyee" ? "Relancer la lettre de mission" : "Établir la lettre de mission", what: m.lm.ref ? "lettre " + esc(LMC[m.lm.statut].toLowerCase()) + " · " + esc(m.lm.ref) : lmSansRef(m) });
+            if (m.lab.statut !== "a_jour") acts.push({ verb: "Revoir le dossier LAB", what: esc(E.LAB_STATUT[m.lab.statut].toLowerCase()) + (m.lab.statut === "incomplet" ? " (" + m.lab.pieces[0] + " pièces sur " + m.lab.pieces[1] + ")" : m.lab.prochaineRevue ? " (revue prévue le " + esc(m.lab.prochaineRevue) + ")" : "") });
+            if (acts.length) out.push({ m: m, acts: acts });
+          });
+          return out.sort(function (a, b) {
+            return b.acts.length - a.acts.length;
+          });
+        }
+        function confRow(g) {
+          var m = g.m;
+          var n = g.acts.length;
+          return (
+            '<div class="cp-row"><div><div class="cp-row-soc">' + esc(m.nom) + '<span class="cp-forme">' + esc(m.forme) + '</span><span class="cp-nact">' + n + " " + pl(n, "point", "points") + "</span></div>" +
+            '<ul class="cp-acts">' + g.acts.map(function (a) {
+              return "<li><span><b>" + a.verb + "</b> · " + a.what + "</span></li>";
+            }).join("") + "</ul></div>" +
+            '<div class="cp-row-side">' + phaseBadge(m) + '<span class="cp-row-meta">' + esc(TYPE_C[m.type]) + "</span></div>" +
+            '<a class="btn btn-secondary btn-sm cp-verb" href="' + esc(mandHref(m)) + '">' + g.acts[0].verb + ms("arrow_right") + "</a></div>"
+          );
+        }
+        function blocksMandats() {
+          var fin = IND.cac_fin_mandat.calc();
+          var conf = confGroups();
+          var nPts = 0;
+          conf.forEach(function (g) {
+            nPts += g.acts.length;
+          });
+          var contr = mandBase().filter(function (m) {
+            return m.type === "contractuel";
+          }).length;
+          return {
+            cac_fins: block(
+              "cac_fins",
+              "Fins de mandat à préparer <span class=\"cp-count\">" + fin.v + "</span>",
+              "L’exercice en cours de contrôle est le dernier du mandat : le mandat prend fin à l’issue de l’AG qui statue sur ces comptes.",
+              cacLink(),
+              (fin.rows.length ? fin.rows.map(rowHtml).join("") : '<div class="cp-empty">Aucun mandat dans son dernier exercice avec ces filtres.</div>') +
+                (contr ? '<div class="cp-block-rule"><strong>Hors règle</strong> : ' + contr + " " + pl(contr, "audit contractuel", "audits contractuels") + " (une mission, pas un mandat).</div>" : "")
+            ),
+            cac_conf: block(
+              "cac_conf",
+              "Acceptation et conformité <span class=\"cp-count\">" + conf.length + " " + pl(conf.length, "entité", "entités") + " · " + nPts + " " + pl(nPts, "point", "points") + "</span>",
+              "Une ligne par entité contrôlée : acceptation, indépendance, lettre de mission CAC, dossier LAB.",
+              cacLink(),
+              (PROFIL === "mixte" ? '<div class="cp-block-note">' + ms("info") + "<span>Entités contrôlées seulement. Les dossiers LAB et les lettres des clients EC sont comptés à part, dans le modèle « Missions ».</span></div>" : "") +
+                (conf.length ? conf.map(confRow).join("") : '<div class="cp-empty">Aucun point ouvert avec ces filtres.</div>')
+            ),
+          };
+        }
+        function blocksAudit() {
+          var b = mandBase();
+          var counts = {};
+          b.forEach(function (m) {
+            counts[m.ex.phase] = (counts[m.ex.phase] || 0) + 1;
+          });
+          var list = b.filter(function (m) {
+            return !S.phaseStage || m.ex.phase === S.phaseStage;
+          }).sort(function (x, y) {
+            return (agDate(x) || new Date(2100, 0, 1)) - (agDate(y) || new Date(2100, 0, 1));
+          });
+          var iv = IND.cac_interv_30j.calc();
+          var lbl = S.phaseStage ? "Phase « " + E.PHASE[S.phaseStage] + " »" : "Missions du portefeuille";
+          return {
+            cac_phases: block(
+              "cac_phases",
+              "Avancement par phase",
+              b.length + " " + pl(b.length, "mission", "missions") + ", de l’acceptation aux rapports émis. Cliquez une phase pour filtrer la liste.",
+              cacLink(),
+              seg(PHASES, counts, S.phaseStage, "data-cp-phase") +
+                '<div class="cp-block-rule"><strong>Règle</strong> : phase de l’exercice en cours de contrôle et avancement déclarés par l’équipe dans le module Missions CAC. <strong>Couverture</strong> : ' + cacCov() + ".</div>"
+            ),
+            cac_missions: block(
+              "cac_missions",
+              esc(lbl) + ' <span class="cp-count">' + list.length + "</span>",
+              "Triées par date d’AG. Heures réalisées sur budget de l’exercice en cours de contrôle.",
+              S.phaseStage ? '<button type="button" class="btn btn-tertiary btn-sm" data-cp-phase="">' + ms("close") + "Toutes les phases</button>" : "",
+              list.length
+                ? list.map(function (m) {
+                    var over = m.ex.heures[1] > m.ex.heures[0];
+                    return rowHtml(mandRow(m, m.ag ? "AG le " + esc(m.ag) : "date d’AG non renseignée", { meta: over ? late(m.ex.heures[1] + " h sur " + m.ex.heures[0] + " h") : m.ex.heures[1] + " h sur " + m.ex.heures[0] + " h" }));
+                  }).join("")
+                : '<div class="cp-empty">Aucune mission à cette phase avec ces filtres.</div>'
+            ),
+            cac_interv: block(
+              "cac_interv",
+              "Interventions des 30 prochains jours <span class=\"cp-count\">" + iv.v + "</span>",
+              "Du " + fmt(TODAY) + " au " + fmt(D30) + ". Interventions en cours ou prévues.",
+              "",
+              iv.rows.length ? iv.rows.map(rowHtml).join("") : '<div class="cp-empty">Aucune intervention dans les 30 prochains jours avec ces filtres.</div>'
+            ),
+          };
+        }
+        function blocksEchCac() {
+          var items = cacEchItems();
+          var body = "";
+          var cur = "";
+          items.forEach(function (i) {
+            var mk = i.d.getFullYear() + "-" + i.d.getMonth();
+            if (mk !== cur) {
+              cur = mk;
+              body += '<div class="cp-month">' + MOIS[i.d.getMonth()] + " " + i.d.getFullYear() + "</div>";
+            }
+            var r = i.row;
+            body +=
+              '<div class="cp-row cp-cal"><div class="cp-day"><b>' + i.d.getDate() + "</b><span>" + MOIS_C[i.d.getMonth()] + "</span></div>" +
+              '<div><div class="cp-row-soc">' + esc(r.soc) + (r.forme ? '<span class="cp-forme">' + esc(r.forme) + "</span>" : "") + '</div><div class="cp-row-motif">' + r.motif + "</div></div>" +
+              '<div class="cp-row-side">' + (r.badge || "") + (r.meta ? '<span class="cp-row-meta">' + r.meta + "</span>" : "") + "</div>" +
+              '<a class="btn btn-secondary btn-sm cp-verb" href="' + esc(r.href) + '">' + r.verb + ms("arrow_right") + "</a></div>";
+          });
+          if (!items.length) body = '<div class="cp-empty">Aucune échéance CAC dans les six prochains mois avec ces filtres.</div>';
+          var later = mandBase().filter(function (m) {
+            return isFin(m) && (!m.ag || agDate(m) > H6);
+          });
+          var sansAg = IND.cac_sans_ag.calc();
+          var hors =
+            '<div class="cp-row"><div><div class="cp-row-soc">Fins de mandat après le ' + fmt(H6) + '</div><div class="cp-row-motif">' +
+            (later.length ? "AG " + later.map(function (m) {
+              return "du " + esc(m.ag || "non datée") + " (" + esc(m.nom) + ")";
+            }).join(", ") + ". À préparer dès maintenant avec l’entité." : "Aucune.") +
+            '</div></div><div class="cp-row-side"><span class="cp-etat mod">Module 2027</span><span class="cp-row-meta">' + later.length + "</span></div>" + seeBtnVerb("cac_fin_mandat", "Voir la liste") + "</div>" +
+            '<div class="cp-row"><div><div class="cp-row-soc">Missions sans date d’AG</div><div class="cp-row-motif">Rapports non datables, et fin de mandat pour un mandat (un audit contractuel n’en a pas) : la mission n’apparaît pas dans la chronologie.</div></div><div class="cp-row-side"><span class="cp-etat mod">Module 2027</span><span class="cp-row-meta">' + sansAg.v + "</span></div>" + seeBtnVerb("cac_sans_ag", "Voir la liste") + "</div>" +
+            '<div class="cp-row"><div><div class="cp-row-soc">Délai de remise des rapports avant l’AG</div><div class="cp-row-motif">Règle à écrire avec le juriste EJ. Le cockpit affiche un horizon de 60 jours, pas un délai légal.</div></div><div class="cp-row-side"><span class="cp-etat hyp">À définir</span></div><span></span></div>';
+          return {
+            cac_chrono: block(
+              "cac_chrono",
+              "Les six prochains mois <span class=\"cp-count\">" + items.length + "</span>",
+              "Du " + fmt(TODAY) + " au " + fmt(H6) + (F.periode ? ", période " + esc(F.periode.label) : "") + ". Interventions, AG d’approbation et fins de mandat des entités contrôlées.",
+              cacLink(),
+              body
+            ),
+            cac_hors: block("cac_hors", "Ce que la chronologie ne montre pas", "Dire ce qui manque plutôt que l’omettre.", "", hors),
+          };
+        }
         function visionHtml() {
+          var cac = PROFIL === "cac";
           return (
             '<section class="cp-vision" aria-labelledby="cp-vision-title">' +
             '<div class="cp-vision-head"><h2 id="cp-vision-title">Nouveau tableau sur page blanche</h2>' + verTag("v2") + "</div>" +
             "<p>À la manière de Pigment : vous décrivez le tableau voulu, l’IA propose un plan, vous le relisez, puis le tableau se construit à partir du catalogue d’indicateurs certifiés, enrichi par les demandes hors catalogue reçues en V1. Aperçu non fonctionnel.</p>" +
             '<div class="cp-vgrid">' +
-            '<div class="cp-vstep"><h3><span class="cp-vnum">1</span>Demander</h3><p>Une phrase, comme à un collègue.</p><div class="cp-vfake" aria-hidden="true">« Un tableau pour suivre les cessions de titres de l’année, par mois, avec les dossiers en signature. »</div></div>' +
+            '<div class="cp-vstep"><h3><span class="cp-vnum">1</span>Demander</h3><p>Une phrase, comme à un collègue.</p><div class="cp-vfake" aria-hidden="true">' + (cac ? "« Un tableau des interventions de l’hiver, par mois, avec les missions au-delà du budget. »" : "« Un tableau pour suivre les cessions de titres de l’année, par mois, avec les dossiers en signature. »") + "</div></div>" +
             '<div class="cp-vstep"><h3><span class="cp-vnum">2</span>Planifier</h3><p>L’IA propose un plan que vous relisez avant toute construction.</p><ul class="cp-vplan">' +
-            "<li>" + ms("check") + "Indicateur : cessions de titres par mois (formalités)</li>" +
-            "<li>" + ms("check") + "Composant : histogramme sur 12 mois</li>" +
-            "<li>" + ms("check") + "Liste : cessions au statut « En signature »</li>" +
-            "<li>" + ms("ban") + "Prix de cession : hors catalogue, non affiché</li></ul></div>" +
+            (cac
+              ? "<li>" + ms("check") + "Indicateur : interventions par mois (module Missions CAC)</li>" +
+                "<li>" + ms("check") + "Composant : chronologie sur six mois</li>" +
+                "<li>" + ms("check") + "Liste : missions au-delà du budget</li>" +
+                "<li>" + ms("ban") + "Rentabilité des mandats : hors catalogue, non affichée</li></ul></div>"
+              : "<li>" + ms("check") + "Indicateur : cessions de titres par mois (formalités)</li>" +
+                "<li>" + ms("check") + "Composant : histogramme sur 12 mois</li>" +
+                "<li>" + ms("check") + "Liste : cessions au statut « En signature »</li>" +
+                "<li>" + ms("ban") + "Prix de cession : hors catalogue, non affiché</li></ul></div>") +
             '<div class="cp-vstep"><h3><span class="cp-vnum">3</span>Construire</h3><p>Le tableau se monte bloc par bloc ; chaque bloc se supprime à la main et reste dans l’historique.</p><div class="cp-ghosts" aria-hidden="true">' +
             '<div class="cp-ghost"><i class="cp-gv"></i><i></i></div><div class="cp-ghost"><i class="cp-gv"></i><i></i></div><div class="cp-ghost cp-wide"><i></i><i></i><i></i></div></div></div>' +
             "</div>" +
@@ -3011,13 +3692,26 @@
         /* ---------- Rendu ---------- */
         function renderSub() {
           document.getElementById("cp-sub").innerHTML =
-            ms("circle_user") + "<strong>" + esc(ME) + "</strong> · Associé · modèle par défaut : File du jour (Campagne au printemps)";
+            PROFIL === "cac"
+              ? ms("circle_user") + "<strong>" + esc(ME) + "</strong> · Associée, commissaire aux comptes · modèle par défaut : Mandats"
+              : PROFIL === "mixte"
+              ? ms("circle_user") + "<strong>" + esc(ME) + "</strong> · Associé · cabinet mixte : File du jour par défaut, modèles CAC à la suite"
+              : ms("circle_user") + "<strong>" + esc(ME) + "</strong> · Associé · modèle par défaut : File du jour (Campagne au printemps)";
         }
         function renderTabs() {
+          var grp = null;
+          var GRP = { ec: "Expertise comptable", cac: "Commissariat aux comptes" };
           document.getElementById("cp-tabs").innerHTML = MODELS.map(function (m) {
             var on = m.id === S.model;
+            var head = "";
+            if (PROFIL === "mixte" && m.grp !== grp) {
+              grp = m.grp;
+              head = grp ? '<span class="cp-tabgrp" aria-hidden="true">' + GRP[grp] + "</span>" : '<span class="cp-tabsep" aria-hidden="true"></span>';
+            }
             return (
-              '<button class="tab' + (on ? " active" : "") + '" type="button" role="tab" id="cp-tab-' + m.id + '" aria-selected="' + on + '" aria-controls="cp-blocks" tabindex="' + (on ? "0" : "-1") + '" data-cp-model="' + m.id + '" title="' + esc(m.full) + '">' +
+              head +
+              '<button class="tab' + (on ? " active" : "") + '" type="button" role="tab" id="cp-tab-' + m.id + '" aria-selected="' + on + '" aria-controls="cp-blocks" tabindex="' + (on ? "0" : "-1") + '" data-cp-model="' + m.id + '" title="' + esc(PROFIL === "mixte" && m.grp ? GRP[m.grp] + " · " + m.full : m.full) + '"' +
+              (PROFIL === "mixte" && m.grp ? ' aria-label="' + esc(GRP[m.grp] + " : " + m.label + (m.ver === "v0" ? "" : ", " + VER[m.ver])) + '"' : "") + ">" +
               ms(m.icon) + esc(m.label) + (m.ver === "v0" ? "" : verTag(m.ver, true)) + "</button>"
             );
           }).join("");
@@ -3040,18 +3734,29 @@
         function renderIntro() {
           var m = modelOf(S.model);
           var meta =
-            '<span class="cp-mh-meta">' + ms("clock") + "<span>Calculé le " + CALC + "</span><span>·</span>" + seeBtn("soc_suivies", "Sociétés suivies : " + TOTAL) + "</span>";
-          var intro = '<span class="cp-mh-desc' + (S.model === "missions" ? " cp-keep" : "") + '">' + esc(m.desc) + "</span>" + meta;
+            '<span class="cp-mh-meta">' + ms("clock") + "<span>Calculé le " + CALC + "</span><span>·</span>" +
+            (m.grp === "cac" || PROFIL === "cac" ? seeBtn("cac_entites", "Entités contrôlées : " + MAND.length) : seeBtn("soc_suivies", "Sociétés suivies : " + TOTAL)) + "</span>";
+          var intro = '<span class="cp-mh-desc' + (S.model === "missions" || m.grp === "cac" ? " cp-keep" : "") + '">' + esc(m.desc) + "</span>" + meta;
           if (S.model === "campagne")
             intro =
               '<div class="cp-camp-pick" role="group" aria-label="Campagne"><button class="qf-pill active" type="button" aria-pressed="true">Campagne 2026 · AG avant le 31/12/2026</button><button class="qf-pill" type="button" disabled title="S’ouvre en janvier 2027">Campagne 2027 · ouvre en janvier</button></div>' + meta;
           document.getElementById("cp-intro").innerHTML = intro;
         }
+        /* Cabinet mixte : un filtre actif sans effet sur le modèle affiché est signalé sur sa puce */
+        function chipOff(dim) {
+          if (PROFIL !== "mixte" || S.model === "nouveau") return "";
+          var used = TILE_IDS[S.model].concat(S.pins).some(function (id) {
+            return IND[id].dims.indexOf(dim) !== -1;
+          });
+          return used ? "" : '<span class="cp-fchip-off"> · sans effet sur ce modèle</span>';
+        }
         function renderActive() {
           var h = "";
-          if (F.formes.length) h += '<span class="cp-fchip">Forme : ' + esc(F.formes.join(", ")) + '<button type="button" data-cp-rmf="formes" aria-label="Retirer le filtre forme juridique">' + ms("close") + "</button></span>";
-          if (F.createur) h += '<span class="cp-fchip">Créé par : ' + esc(F.createur) + '<button type="button" data-cp-rmf="createur" aria-label="Retirer le filtre créé par">' + ms("close") + "</button></span>";
-          if (F.periode) h += '<span class="cp-fchip">Période : ' + esc(F.periode.label) + '<button type="button" data-cp-rmf="periode" aria-label="Retirer le filtre période">' + ms("close") + "</button></span>";
+          if (F.formes.length) h += '<span class="cp-fchip">Forme : ' + esc(F.formes.join(", ")) + chipOff("forme") + '<button type="button" data-cp-rmf="formes" aria-label="Retirer le filtre forme juridique">' + ms("close") + "</button></span>";
+          if (F.createur) h += '<span class="cp-fchip">Créé par : ' + esc(F.createur) + chipOff("createur") + '<button type="button" data-cp-rmf="createur" aria-label="Retirer le filtre créé par">' + ms("close") + "</button></span>";
+          if (F.periode) h += '<span class="cp-fchip">Période : ' + esc(F.periode.label) + chipOff("periode") + '<button type="button" data-cp-rmf="periode" aria-label="Retirer le filtre période">' + ms("close") + "</button></span>";
+          if (F.types && F.types.length) h += '<span class="cp-fchip">Type : ' + esc(typesLabel(F.types)) + chipOff("type") + '<button type="button" data-cp-rmf="types" aria-label="Retirer le filtre type de mission">' + ms("close") + "</button></span>";
+          if (F.signataire) h += '<span class="cp-fchip">Signataire : ' + esc(F.signataire) + chipOff("signataire") + '<button type="button" data-cp-rmf="signataire" aria-label="Retirer le filtre signataire">' + ms("close") + "</button></span>";
           if (h) h = "<span>Filtres actifs</span>" + h;
           if (S.savedLoaded) h += '<span class="cp-fchip">Vue enregistrée<button type="button" data-cp-reset-saved aria-label="Revenir à la vue par défaut">' + ms("close") + "</button></span>";
           document.getElementById("cp-active").innerHTML = h;
@@ -3082,6 +3787,9 @@
           if (model === "avancement") return blocksAvancement();
           if (model === "echeances") return blocksEcheances();
           if (model === "missions") return blocksMissions();
+          if (model === "mandats") return blocksMandats();
+          if (model === "audit") return blocksAudit();
+          if (model === "echcac") return blocksEchCac();
           return {};
         }
         function renderBlocks() {
@@ -3140,7 +3848,8 @@
           var body =
             '<div class="cp-dr-sec"><div class="stat-rule">' + ruleLines(d, r, f, true).join("<br>") + "</div></div>" +
             '<div class="cp-dr-list">' + r.rows.map(rowHtml).join("") + "</div>";
-          openDrawer("Liste exacte · " + r.v + " " + pl(r.v, "ligne", "lignes"), esc(d.label) + " " + verTag(d.ver), body, "", "list");
+          var nl = d.unit ? r.rows.length : r.v;
+          openDrawer("Liste exacte · " + nl + " " + pl(nl, "ligne", "lignes"), esc(d.label) + " " + verTag(d.ver), body, "", "list");
         }
         var PRINCIPES = [
           ["wand_sparkles", "L’IA compose, EJ calcule : l’IA traduit une demande en indicateurs d’un catalogue fermé, le moteur d’EJ calcule. L’IA ne produit ni chiffre ni requête libre."],
@@ -3161,9 +3870,10 @@
               return "<li>" + ms(p[0]) + "<span>" + p[1] + "</span></li>";
             }).join("") + "</ul></div>" +
             '<div class="cp-dr-sec"><p>L’IA ne calcule rien. Elle choisit un indicateur de ce catalogue fermé, certifié par EJ, et le moteur d’EJ le calcule avec les droits de la personne connectée. Une demande hors catalogue reçoit une réponse honnête et enrichit la liste des indicateurs à créer.</p></div>';
+          if (PROFIL !== "ec") groups.push(["cac", "Module Missions CAC (2027, provisoire, vision cible)"]);
           groups.forEach(function (g) {
             var ids = BASE_IDS.filter(function (id) {
-              return IND[id].etat === g[0];
+              return g[0] === "cac" ? !!IND[id].cac : IND[id].etat === g[0] && !IND[id].cac;
             });
             if (!ids.length) return;
             body += '<div class="cp-cat-group">' + g[1] + "</div>";
@@ -3177,7 +3887,11 @@
             });
           });
           body +=
-            '<div class="cp-cat-group">Hors catalogue</div><div class="cp-cat-item"><p><strong>Absents d’EJ, jamais affichés</strong> : chiffre d’affaires, trésorerie et effectif salarié des clients ; collaborateur affecté, durée de traitement, activité par personne.</p>' +
+            '<div class="cp-cat-group">Hors catalogue</div><div class="cp-cat-item"><p><strong>Absents d’EJ, jamais affichés</strong> : ' +
+            (PROFIL === "cac" ? "" : "chiffre d’affaires, trésorerie et effectif salarié des clients ; collaborateur affecté, durée de traitement, activité par personne") +
+            (PROFIL === "ec" ? "" : (PROFIL === "mixte" ? " ; " : "") + "coûts du cabinet, taux horaires et rentabilité des mandats CAC ; temps passé par personne") +
+            ".</p>" +
+            (PROFIL === "ec" ? "" : "<p><strong>Indicateurs CAC à créer</strong> : honoraires des missions (donnée présente dans le module Missions CAC) ; retard d’une intervention ou d’un rapport (pas encore d’échéance certifiée à laquelle comparer).</p>") +
             "<p><strong>Demandes transmises à EJ pendant cette session</strong> : " + (S.hc.length ? S.hc.map(function (q) {
               return "« " + esc(q) + " »";
             }).join(" ; ") : "aucune") + "</p></div>";
@@ -3197,7 +3911,7 @@
 
         /* ---------- Personnaliser (V0 : filtrer, réordonner, sauvegarder) ---------- */
         function openPerso() {
-          draft = { formes: F.formes.slice(), createur: F.createur, periode: F.periode ? F.periode.key : "", order: S.model === "nouveau" ? [] : ORDER[S.model].slice() };
+          draft = { formes: F.formes.slice(), createur: F.createur, periode: F.periode ? F.periode.key : "", types: (F.types || []).slice(), signataire: F.signataire || null, order: S.model === "nouveau" ? [] : ORDER[S.model].slice() };
           drawPerso();
         }
         function drawPerso(focusKey) {
@@ -3217,13 +3931,30 @@
                 );
               }).join("") + "</ol>"
             : "<p>Ce modèle n’a pas de blocs à réordonner. Les indicateurs restent en tête.</p>";
-          var body =
-            '<div class="cp-dr-sec"><h3>Filtres</h3><fieldset class="cp-checks"><legend>Forme juridique</legend>' +
+          var ecF =
+            '<fieldset class="cp-checks"><legend>Forme juridique</legend>' +
             FORMES.map(function (f) {
               return '<label class="check"><input type="checkbox" data-cp-pf="' + f + '"' + (draft.formes.indexOf(f) !== -1 ? " checked" : "") + " />" + f + "</label>";
             }).join("") +
-            '</fieldset><div class="form-group"><label class="form-label" for="cp-p-crea">Créé par</label><select class="form-input" id="cp-p-crea">' + opts + '</select><span class="form-helper">Le « créé par » est la seule donnée de personne dans EJ aujourd’hui. Il ne filtre pas les indicateurs par société (campagne, échéances).</span></div>' +
-            '<div class="form-group"><label class="form-label" for="cp-p-per">Période</label><select class="form-input" id="cp-p-per">' + popts + '</select><span class="form-helper">Mois de l’échéance (campagne, échéances). Sans effet sur la file du jour, l’avancement et les missions.</span></div></div>' +
+            '</fieldset><div class="form-group"><label class="form-label" for="cp-p-crea">Créé par</label><select class="form-input" id="cp-p-crea">' + opts + '</select><span class="form-helper">Le « créé par » est la seule donnée de personne dans EJ aujourd’hui. Il ne filtre pas les indicateurs par société (campagne, échéances).</span></div>';
+          var sopts = '<option value="">Tous les signataires</option>' + SIGNATAIRES.map(function (n) {
+            return '<option value="' + esc(n) + '"' + (draft.signataire === n ? " selected" : "") + ">" + esc(n) + (n === ME ? " (vous)" : "") + "</option>";
+          }).join("");
+          var cacF =
+            '<fieldset class="cp-checks"><legend>Type de mission' + (PROFIL === "mixte" ? " (modèles CAC)" : "") + "</legend>" +
+            TYPE_KEYS.map(function (k) {
+              return '<label class="check"><input type="checkbox" data-cp-pt="' + k + '"' + (draft.types.indexOf(k) !== -1 ? " checked" : "") + " />" + TYPE_C[k] + "</label>";
+            }).join("") +
+            '</fieldset><div class="form-group"><label class="form-label" for="cp-p-sig">Signataire' + (PROFIL === "mixte" ? " (modèles CAC)" : "") + '</label><select class="form-input" id="cp-p-sig">' + sopts + '</select><span class="form-helper">Associé signataire du mandat, d’après le module Missions CAC.</span></div>';
+          var perHelp =
+            PROFIL === "cac"
+              ? "Mois de l’événement (intervention, AG, fin de mandat). Sans effet sur l’acceptation, l’indépendance, les lettres, le LAB et les heures."
+              : PROFIL === "mixte"
+              ? "Mois de l’échéance (campagne, échéances) ou de l’événement CAC (intervention, AG, fin de mandat). Sans effet sur les autres indicateurs."
+              : "Mois de l’échéance (campagne, échéances). Sans effet sur la file du jour, l’avancement et les missions.";
+          var body =
+            '<div class="cp-dr-sec"><h3>Filtres</h3>' + (PROFIL === "cac" ? "" : ecF) + (PROFIL === "ec" ? "" : cacF) +
+            '<div class="form-group"><label class="form-label" for="cp-p-per">Période</label><select class="form-input" id="cp-p-per">' + popts + '</select><span class="form-helper">' + perHelp + "</span></div></div>" +
             '<div class="cp-dr-sec"><h3>Ordre des blocs · ' + esc(m.full) + "</h3>" + order + "</div>" +
             '<div class="cp-dr-sec"><h3>Sauvegarde</h3><p>Dans EJ, votre cockpit sera retrouvé à chaque connexion. Dans cette maquette, il est gardé dans ce navigateur.</p></div>';
           var foot =
@@ -3238,18 +3969,20 @@
         }
         function applyPerso(save) {
           var prev = { F: cloneF(F), model: S.model, order: S.model === "nouveau" ? null : ORDER[S.model].slice() };
-          var nextF = { formes: draft.formes.slice(), createur: draft.createur, periode: periodFromKey(draft.periode) };
+          var nextF = { formes: draft.formes.slice(), createur: draft.createur, periode: periodFromKey(draft.periode), types: draft.types.slice(), signataire: draft.signataire };
           var parts = [];
           if (nextF.formes.join() !== F.formes.join()) parts.push(nextF.formes.length ? "forme " + nextF.formes.join(", ") : "filtre forme retiré");
           if (nextF.createur !== F.createur) parts.push(nextF.createur ? "créé par " + nextF.createur : "filtre créé par retiré");
           if ((nextF.periode ? nextF.periode.key : "") !== (F.periode ? F.periode.key : "")) parts.push(nextF.periode ? "période " + nextF.periode.label : "filtre période retiré");
+          if (nextF.types.join() !== (F.types || []).join()) parts.push(nextF.types.length ? "type " + typesLabel(nextF.types) : "filtre type de mission retiré");
+          if (nextF.signataire !== (F.signataire || null)) parts.push(nextF.signataire ? "signataire " + nextF.signataire : "filtre signataire retiré");
           if (prev.order && draft.order.join() !== prev.order.join()) parts.push("ordre des blocs de « " + modelOf(S.model).full + " »");
           F = nextF;
           if (prev.order) ORDER[S.model] = draft.order.slice();
           if (parts.length) log("Vous", "Personnalisation : " + parts.join(" ; "), "perso", prev);
           if (save) {
             try {
-              localStorage.setItem("ej-cockpit-vue", JSON.stringify({ formes: F.formes, createur: F.createur, periode: F.periode ? F.periode.key : null, order: ORDER, pins: S.pins }));
+              localStorage.setItem("ej-cockpit-vue", JSON.stringify({ formes: F.formes, createur: F.createur, periode: F.periode ? F.periode.key : null, types: F.types, signataire: F.signataire, order: ORDER, pins: S.pins }));
               log("Vous", "Vue enregistrée comme vue par défaut", "save", null);
             } catch (e) {}
           }
@@ -3337,7 +4070,7 @@
         }
 
         /* ---------- IA simulée : interprétation sur catalogue fermé ---------- */
-        var SUGG = [
+        var SUGG_EC = [
           { fn: "Modifier", q: "Montre seulement les SAS et SARL" },
           { fn: "Modifier", q: "Seulement les formalités créées par Laura Perrin" },
           { fn: "Période", q: "Montre les AG de décembre" },
@@ -3345,6 +4078,15 @@
           { fn: "Question", q: "Combien de sociétés n’ont pas de lettre de mission signée ?" },
           { fn: "Hors catalogue", q: "Quel est le chiffre d’affaires moyen de mes clients ?" },
         ];
+        var SUGG_CAC = [
+          { fn: "Question", q: "Quels mandats arrivent à échéance ?" },
+          { fn: "Modifier", q: "Montre seulement les audits légaux petites entreprises" },
+          { fn: "Question", q: "Combien d’heures au-delà du budget ?" },
+          { fn: "Période", q: "Montre les interventions de novembre" },
+          { fn: "Modifier", q: "Seulement les mandats signés par Claire Dubois" },
+          { fn: "Hors catalogue", q: "Quel est le taux de rentabilité de mes mandats ?" },
+        ];
+        var SUGG = PROFIL === "cac" ? SUGG_CAC : PROFIL === "mixte" ? [SUGG_EC[0], SUGG_CAC[0], SUGG_EC[3], SUGG_CAC[1], SUGG_CAC[2], SUGG_CAC[5]] : SUGG_EC;
         function suggHtml(list) {
           return list.map(function (s) {
             return '<button type="button" class="cp-chip" data-cp-sugg="' + esc(s.q) + '"><span class="cp-fn">' + esc(s.fn) + "</span>" + esc(s.q) + "</button>";
@@ -3356,6 +4098,48 @@
         /* Données absentes d'EJ (jamais estimées) et mesure d'activité (hors périmètre avant V2) */
         var HC_ABS = /( chiffre d affaires | le ca | du ca | ca moyen| ca annuel| rentabilit| marge| benefice| resultat net| tresorerie| effectifs? salaries?| effectif moyen| nombre de salaries| salaries | masse salariale| dividende| valorisation)/;
         var HC_ACT = /( productivit| temps passe| duree de traitement| charge de travail| par collaborateur)/;
+        /* Missions CAC : coûts et rentabilité absents du module proposé (heures et honoraires seulement) */
+        var HC_CAC = /( rentabilit| marge| couts?| taux horaires?)/;
+        /* Honoraires : présents dans le module Missions CAC, indicateur à créer au catalogue */
+        var HON_RE = / honoraires?/;
+        /* « Rapport de gestion » n'est pas un rapport CAC : rapport CAC, d'audit, sur les comptes, certification */
+        var RAP_GEST = / rapports? de gestion/;
+        var RAP_CAC = /( rapports? (cac|d audit|du commissaire|des commissaires|sur les comptes|de certification|a emettre)| certification| emission des rapports)/;
+        var CAC_KW = /( cac | commissa| mandats?| audits?| entites? controlees?| interventions?| independance| heures | phases?| signataires?)/;
+        function cacKw(t) {
+          return CAC_KW.test(t) || (RAP_CAC.test(t) && !RAP_GEST.test(t));
+        }
+        /* Retard : aucun indicateur CAC de retard (pas encore dans le catalogue) */
+        var LATE_RE = /( retard| hors delai| en souffrance)/;
+        /* Signaux d'une demande EC : forme juridique (à part), dépôt, formalité, créé par, retard */
+        var EC_SIG = /( depots?| deposes?| deposer| formalites?| cre(e|ee|es|ees) par )/;
+        var CAC_LATE_OBJ = /( cac | commissa| mandats?| audits?| interventions?| controles?)/;
+        var EC_LATE_OBJ = /( ag | agoa | assemblees?| approbations?| depots?| deposes?| comptes | formalites?| signatures?)/;
+        /* Contexte CAC de la demande. Cabinet mixte : mots CAC explicites d'abord ; une demande EC (forme, dépôt,
+           formalité, créé par, retard) reste EC même depuis un onglet CAC ; sinon l'onglet actif décide. */
+        function isCacCtx(t, ecSig) {
+          if (PROFIL === "ec") return false;
+          if (PROFIL === "cac") return true;
+          if (cacKw(t)) return true;
+          if (ecSig) return false;
+          var m = modelOf(S.model);
+          return !!m && m.grp === "cac";
+        }
+        var C_RULES_CAC = [
+          ["cac_fin_mandat", / fins? de mandats? /, null],
+          ["cac_fin_mandat", / mandats? /, /( echeance| arrivent| expir| se terminent| terminent| renouvel| dernier exercice| prennent fin| finissent)/],
+          ["cac_h_depass", / heures? /, /( au dela| depass| hors budget| en trop)/],
+          ["cac_h_ratio", /( heures?| budget )/, null],
+          ["cac_rapports_60j", PROFIL === "cac" ? /( rapports? (?!de gestion)| certification)/ : RAP_CAC, null],
+          ["cac_acceptation", / acceptation/, null],
+          ["cac_indep", / independance/, null],
+          ["cac_lm", / lettres? de mission/, null],
+          ["cac_lab", /( lab | blanchiment| vigilance)/, null],
+          ["cac_sans_ag", /( ag | assemblees?)/, /( sans | pas de | non renseign| manqu| inconnue?)/],
+          ["cac_interv_30j", / interventions? /, /( 30 | trente | prochains? jours| mois prochain| semaines?| bientot| a venir)/],
+          ["cac_ech_6m", /( echeances?| calendrier| chronologie| interventions?| six mois| 6 mois| ag | assemblees?)/, null],
+          ["cac_entites", /( entites?| mandats?| missions?| portefeuille)/, null],
+        ];
         var C_RULES = [
           ["lm_renouveler", / lettres? de mission /, /( renouvel| reconduit)/],
           ["lm_renouveler", / lettres? /, /( renouvel| reconduit)/],
@@ -3382,12 +4166,44 @@
           ["ops_en_cours", /( operations? en cours | dossiers en cours )/, null],
           ["soc_suivies", /( societes suivies| portefeuille| combien de societes | nombre de societes )/, null],
         ];
-        function matchC(t) {
-          for (var i = 0; i < C_RULES.length; i++) {
-            var r = C_RULES[i];
+        function matchIn(rules, t) {
+          for (var i = 0; i < rules.length; i++) {
+            var r = rules[i];
             if (r[1].test(t) && (!r[2] || r[2].test(t))) return r[0];
           }
           return null;
+        }
+        /* Règles CAC : jamais sur une demande de retard (aucun indicateur CAC de retard) */
+        function matchCac(t) {
+          return LATE_RE.test(t) ? null : matchIn(C_RULES_CAC, t);
+        }
+        /* Catalogue du profil : EC seul, CAC seul, ou les deux. Cabinet mixte : CAC d'abord si la demande cite
+           les missions CAC ; sinon une règle EC complète a la priorité, même depuis un onglet CAC. */
+        function matchC(t, cacQ) {
+          if (PROFIL === "ec") return matchIn(C_RULES, t);
+          if (PROFIL === "cac") return matchCac(t);
+          var ec = matchIn(C_RULES, t);
+          if (cacQ && cacKw(t)) return matchCac(t) || ec;
+          return ec || matchCac(t);
+        }
+        /* Cabinet mixte : même question dans l'autre module, proposée en complément (jamais à la place) */
+        var ALT_SKIP = ["cac_entites", "cac_ech_6m", "soc_suivies"];
+        function altOf(id, t, P) {
+          /* seulement pour une question ambiguë : ni mot CAC explicite, ni signal EC */
+          if (PROFIL !== "mixte" || P.formesRaw.length || P.createur || P.ecSig || cacKw(t)) return null;
+          var o = IND[id].cac ? matchIn(C_RULES, t) : matchCac(t);
+          return o && ALT_SKIP.indexOf(o) === -1 ? o : null;
+        }
+        /* Types de mission CAC cités dans la demande */
+        function findTypes(t) {
+          var o = [];
+          var pe = /( petites? entreprises?| alpe )/.test(t);
+          var mandLeg = / mandats? lega(l|ux) /.test(t);
+          var auditLeg = / audits? lega(l|ux) /.test(t);
+          if (mandLeg || (auditLeg && !pe)) o.push("legal");
+          if (pe || (auditLeg && !mandLeg)) o.push("alpe");
+          if (/ contractuel/.test(t)) o.push("contractuel");
+          return o;
         }
         function findFormes(raw) {
           var out = [];
@@ -3444,30 +4260,79 @@
           else if (pers.length) affect = pers[0];
           else if (/( j ai cree| mes formalites| mes depots| mes operations)/.test(t)) createur = ME;
           if (affect === null && /( attribu| affecte| assigne| en charge de| suivie?s? par | geree?s? par | mes dossiers | mon portefeuille )/.test(t)) affect = / mes dossiers | mon portefeuille /.test(t) ? ME : "";
-          var periode = parsePeriod(t);
+          /* Profils cac et mixte : « qui suit… », « qui intervient… » est aussi une question sur les personnes */
+          if (affect === null && PROFIL !== "ec" && / qui (suit|suivent|gere|gerent|s occupe|s occupent|intervient|interviennent|travaille|travaillent) /.test(t)) affect = "";
+          /* Contexte avant la période : un mois sans année se lit vers l'avant pour les missions CAC */
+          var ecSig = PROFIL === "mixte" && (formes.length > 0 || EC_SIG.test(t) || LATE_RE.test(t));
+          var cacQ = isCacCtx(t, ecSig);
+          var periode = parsePeriod(t, cacQ);
           var noms = residualSpans(raw, spans).map(function (r) {
             return raw.slice(r.s, r.e);
           });
-          return { raw: raw, t: t, socs: socs, pers: pers, noms: noms, formes: formes, conv: fr.conv, createur: createur, affect: affect, periode: periode, periodeKo: periode ? null : parsePeriodKo(t, clean) };
+          var formesRaw = formes.slice();
+          var types = [];
+          var signataire = null;
+          var xko = [];
+          var mesMandats = false;
+          if (PROFIL !== "ec") {
+            types = findTypes(t);
+            if (pers.length && / sign/.test(t)) {
+              signataire = pers[0];
+              createur = null;
+              affect = null;
+            } else if (PROFIL === "mixte" && affect !== null) {
+              /* cabinet mixte : réponse sur les deux modules (équipe de mission CAC, collaborateur EC), voir answerAffect */
+            } else if (cacQ && affect !== null) {
+              /* l'équipe de mission existe dans le module, mais le cockpit CAC filtre par signataire */
+              if (pers.length) xko.push("équipe de mission « " + pers[0] + " » (le cockpit CAC filtre par signataire)");
+              else if (affect === ME) signataire = ME;
+              else xko.push("équipe de mission (le cockpit CAC filtre par signataire)");
+              affect = null;
+            } else if (/ mes mandats /.test(t) || (cacQ && / mes missions /.test(t))) {
+              if (PROFIL === "cac") signataire = ME;
+              else mesMandats = true;
+            }
+            if (/( secteurs? | par activite )/.test(t)) xko.push("secteur d’activité (donnée de la fiche de l’entité, pas une dimension du cockpit)");
+            if (PROFIL === "cac") {
+              if (formes.length) xko.push("forme juridique " + formes.join(", ") + " (non disponible dans le profil commissaire aux comptes)");
+              if (createur) xko.push("créé par " + createur + " (donnée des formalités, pas des missions CAC)");
+              formes = [];
+              createur = null;
+            }
+          }
+          return { raw: raw, t: t, socs: socs, pers: pers, noms: noms, formes: formes, formesRaw: formesRaw, conv: fr.conv, createur: createur, affect: affect, periode: periode, periodeKo: periode ? null : parsePeriodKo(t, clean), cacQ: cacQ, ecSig: ecSig, types: types, signataire: signataire, xko: xko, mesMandats: mesMandats };
         }
         var RESET_RE = /( reinitialis| retir\w* (les |le )?filtres?| enlev\w* (les |le )?filtres?| supprim\w* (les |le )?filtres?| sans filtre| tout le cabinet| tous les filtres)/;
         function interpret(raw) {
           var P = parseQ(raw);
           var t = P.t;
           if (HC_ACT.test(t)) return { type: "hc", kind: "act", P: P };
+          if (P.cacQ && HC_CAC.test(t)) return { type: "hc", kind: "cac", P: P };
+          if (P.cacQ && HON_RE.test(t)) return { type: "hc", kind: "hon", P: P };
           if (HC_ABS.test(t)) return { type: "hc", kind: "abs", P: P };
           if (P.affect !== null) return { type: "affect", P: P };
+          if (P.mesMandats) return { type: "sigme", P: P };
+          /* Retard : aucun indicateur CAC de retard. Profil CAC : demande EC (forme, dépôt, formalité) non disponible,
+             sinon « pas encore dans le catalogue ». Mixte : retard d'une intervention, d'un rapport, d'un mandat seulement. */
+          if (PROFIL !== "ec" && LATE_RE.test(t)) {
+            if (PROFIL === "cac") return { type: "hc", kind: P.formesRaw.length || EC_SIG.test(t) ? "ec" : "cacLate", P: P };
+            var cacObj = CAC_LATE_OBJ.test(t) || (/ rapports? /.test(t) && !RAP_GEST.test(t));
+            if (cacObj && !P.formesRaw.length && !EC_LATE_OBJ.test(t)) return { type: "hc", kind: "cacLate", P: P };
+          }
           var isQ = /( combien | quel | quels | quelle | quelles | lesquel| qui | liste | nombre )/.test(t) || raw.indexOf("?") !== -1;
-          var c = matchC(t);
-          var hasF = P.formes.length || P.createur || P.periode;
-          if (c && (isQ || !hasF)) return { type: "c", id: c, P: P };
+          var c = matchC(t, P.cacQ);
+          if (!c && PROFIL === "cac" && matchIn(C_RULES, t)) return { type: "hc", kind: "ec", P: P };
+          var hasF = P.formes.length || P.createur || P.periode || P.types.length || P.signataire;
+          if (c && (isQ || !hasF)) return { type: "c", id: c, P: P, alt: altOf(c, t, P) };
           if (isQ && P.formes.length && /( combien | nombre )/.test(t)) return { type: "c", id: "soc_suivies", P: P };
           if (RESET_RE.test(t)) return { type: "b", change: { reset: true }, P: P };
-          if (hasF || P.socs.length || P.noms.length || P.periodeKo) {
+          if (hasF || P.socs.length || P.noms.length || P.periodeKo || P.xko.length) {
             var ch = {};
             if (P.formes.length) ch.formes = P.formes.slice();
             if (P.createur) ch.createur = P.createur;
             if (P.periode) ch.periode = P.periode;
+            if (P.types.length) ch.types = P.types.slice();
+            if (P.signataire) ch.signataire = P.signataire;
             return { type: "b", change: ch, P: P };
           }
           if (isQ) return { type: "hc", kind: "cat", P: P };
@@ -3481,7 +4346,7 @@
           if (m.per) parts.push(m.per + " " + pl(m.per, "personne", "personnes"));
           if (m.nom) parts.push(m.nom + " " + pl(m.nom, "nom propre non reconnu", "noms propres non reconnus"));
           return (
-            '<p class="cp-sent">' + ms("lock") + "<span>Envoyé au modèle : « " + m.html + " » et le catalogue (" + BASE_IDS.length + " indicateurs, 3 dimensions de filtre)." +
+            '<p class="cp-sent">' + ms("lock") + "<span>Envoyé au modèle : « " + m.html + " » et le catalogue (" + BASE_IDS.length + " indicateurs, " + N_DIMS + " dimensions de filtre)." +
             (parts.length ? " Masqué avant l’envoi : " + parts.join(", ") + "." : "") +
             " Aucune société, aucun nom de client.</span></p>"
           );
@@ -3518,16 +4383,17 @@
         function respond(raw) {
           var it = interpret(raw);
           if (it.type === "b") return planB(raw, it.change, it.P);
-          if (it.type === "c") return answerC(raw, it.id, it.P);
+          if (it.type === "c") return answerC(raw, it.id, it.P, it.alt);
           if (it.type === "hc") return answerHC(raw, it.kind);
           if (it.type === "affect") return answerAffect(raw, it.P);
+          if (it.type === "sigme") return answerSigMe(raw);
           out(
             '<div class="cp-msg" tabindex="-1">' + qLine(raw) + '<div class="cp-msg-lead">' + ms("info") + "Je n’ai pas reconnu d’indicateur ni de filtre du catalogue dans votre demande.</div>" +
             "<p>Je réponds seulement à partir des indicateurs certifiés par EJ, sans estimation. Essayez une de ces demandes, ou ouvrez le catalogue.</p>" +
             '<div class="cp-sugg">' + suggHtml(SUGG.slice(0, 4)) + '</div><div class="cp-btns"><button type="button" class="btn btn-secondary btn-sm" data-cp-open="catalogue">' + ms("list_checks") + "Voir le catalogue</button>" + closeBtn() + "</div>" + sentLine(raw) + "</div>"
           );
         }
-        var SPEC_ID = { file: "ma_file_du_jour", campagne: "campagne_approbation", avancement: "avancement_operations", echeances: "calendrier_echeances", missions: "missions_conformite", nouveau: "nouveau_tableau" };
+        var SPEC_ID = { file: "ma_file_du_jour", campagne: "campagne_approbation", avancement: "avancement_operations", echeances: "calendrier_echeances", missions: "missions_conformite", mandats: "mandats_cac", audit: "campagne_audit", echcac: "echeances_cac", nouveau: "nouveau_tableau" };
         function koList(P) {
           var ko = [];
           P.socs.forEach(function (n) {
@@ -3537,6 +4403,9 @@
             ko.push("« " + n + " » (ni société du portefeuille ni utilisateur du cabinet)");
           });
           if (P.periodeKo) ko.push("période « " + P.periodeKo + " » (le cockpit filtre par mois ou par trimestre)");
+          (P.xko || []).forEach(function (x) {
+            ko.push(x);
+          });
           return ko;
         }
         function dimsOfChange(change) {
@@ -3544,10 +4413,14 @@
           if (change.formes) d.push("forme");
           if (change.createur) d.push("createur");
           if (change.periode) d.push("periode");
+          if (change.types) d.push("type");
+          if (change.signataire) d.push("signataire");
           return d;
         }
-        function modelsFor(dims) {
+        /* Modèles où ces dimensions s'appliquent ; grp (cabinet mixte) : seulement les modèles EC ou CAC */
+        function modelsFor(dims, grp) {
           return MODELS.filter(function (m) {
+            if (grp && m.grp !== grp) return false;
             return TILE_IDS[m.id].some(function (id) {
               return dims.some(function (x) {
                 return IND[id].dims.indexOf(x) !== -1;
@@ -3555,31 +4428,127 @@
             });
           });
         }
+        function partTxt(change, x) {
+          if (x === "forme") return "forme juridique = " + change.formes.join(", ");
+          if (x === "createur") return "créé par = " + change.createur + (change.createur === ME ? " (vous)" : "");
+          if (x === "periode") return "période = " + change.periode.label;
+          if (x === "type") return "type de mission = " + typesLabel(change.types);
+          return "signataire = " + change.signataire + (change.signataire === ME ? " (vous)" : "");
+        }
+        var EC_DIMS = ["forme", "createur"];
+        var CAC_DIMS = ["type", "signataire"];
+        /* Période demandée pour des interventions, des AG ou des échéances, pas pour des fins de mandat */
+        var PER_OBJ = /( interventions?| ag | assemblees?| echeances?| rapports?| calendrier| planning)/;
+        var PER_FIN = /( fins? de mandats?| mandats?)/;
+        /* Filtres sans effet sur le modèle courant (profils cac et mixte) : listés, jamais appliqués.
+           Mixte : forme et créé par sur un modèle CAC, type et signataire sur un modèle EC, période d'une demande
+           explicitement EC ou CAC sur un modèle de l'autre groupe. Mandats : période d'interventions, d'AG ou
+           d'échéances. Signataire : sans effet quand toutes les missions ont le même. */
+        function offDims(change, dims, P) {
+          var off = [];
+          if (PROFIL === "ec" || change.reset || S.model === "nouveau") return off;
+          var cur = modelOf(S.model);
+          var ids = TILE_IDS[S.model].concat(S.pins);
+          function used(x) {
+            return ids.some(function (id) {
+              return IND[id].dims.indexOf(x) !== -1;
+            });
+          }
+          var sigOne = dims.indexOf("signataire") !== -1 && SIGNATAIRES.length === 1 && change.signataire === SIGNATAIRES[0];
+          if (PROFIL === "mixte") {
+            (cur.grp === "cac" ? EC_DIMS : CAC_DIMS).forEach(function (x) {
+              if (dims.indexOf(x) !== -1 && !used(x) && !(x === "signataire" && sigOne))
+                off.push({ d: x, grp: cur.grp === "cac" ? "ec" : "cac", why: (cur.grp === "cac" ? "les modèles CAC" : "les modèles EC") + " ne se filtrent pas par " + DIM_LABEL[x] });
+            });
+            var qg = cacKw(P.t) ? "cac" : P.ecSig ? "ec" : null;
+            if (dims.indexOf("periode") !== -1 && qg && qg !== cur.grp)
+              off.push({ d: "periode", grp: qg, mand: qg === "cac" && PER_OBJ.test(P.t) && !PER_FIN.test(P.t), why: qg === "cac" ? "la demande porte sur les missions CAC" : "la demande porte sur les clients EC" });
+          }
+          if (S.model === "mandats" && dims.indexOf("periode") !== -1 && PER_OBJ.test(P.t) && !PER_FIN.test(P.t) && !off.some(function (o) {
+            return o.d === "periode";
+          }))
+            off.push({ d: "periode", grp: "cac", mand: true, why: "sur « Mandats CAC », la période ne filtre que les fins de mandat, par mois de l’AG qui statue sur le dernier exercice ; pas les interventions, les AG ni les échéances" });
+          if (sigOne)
+            off.push({ d: "signataire", grp: null, why: "toutes les missions sont signées par " + SIGNATAIRES[0] + ", ce filtre ne change aucun chiffre" });
+          return off;
+        }
         function planB(raw, change, P) {
           var ko = koList(P);
           var curDims = [];
           if (F.formes.length) curDims.push("forme");
           if (F.createur) curDims.push("createur");
           if (F.periode) curDims.push("periode");
+          if (F.types && F.types.length) curDims.push("type");
+          if (F.signataire) curDims.push("signataire");
           var dims = change.reset ? curDims : dimsOfChange(change);
           S.lastB = { raw: raw, change: change, P: P };
-          var koHtml = ko.length ? '<p><strong>Filtre non disponible</strong> : ' + esc(ko.join(" ; ")) + ". Le cockpit filtre par forme juridique, « créé par » et période (mois ou trimestre). Pour une société, ouvrez sa fiche depuis la liste.</p>" : "";
+          var koHtml = ko.length ? '<p><strong>Filtre non disponible</strong> : ' + esc(ko.join(" ; ")) + ". " + DIMS_TXT + " Pour " + (PROFIL === "cac" ? "une entité, ouvrez sa mission" : "une société, ouvrez sa fiche") + " depuis la liste.</p>" : "";
+          var off = dims.length ? offDims(change, dims, P) : [];
+          var offTxt = off.map(function (o) {
+            return partTxt(change, o.d) + " (" + o.why + ")";
+          });
+          if (off.length) {
+            var what0 = dims.map(function (x) {
+              return partTxt(change, x);
+            }).join(" et ");
+            var ch2 = {};
+            Object.keys(change).forEach(function (k) {
+              ch2[k] = change[k];
+            });
+            off.forEach(function (o) {
+              delete ch2[{ forme: "formes", createur: "createur", periode: "periode", type: "types", signataire: "signataire" }[o.d]];
+            });
+            change = ch2;
+            dims = dimsOfChange(change);
+            if (!dims.length) {
+              /* Rien ne s'applique ici : on dit pourquoi et on propose le modèle où la demande a un sens */
+              pending = null;
+              var interv = / interventions? /.test(P.t);
+              var where0 = [];
+              off.forEach(function (o) {
+                if (!o.grp) return;
+                modelsFor([o.d], PROFIL === "mixte" ? o.grp : null).forEach(function (m) {
+                  if (m.id === S.model || (o.mand && m.id === "mandats") || where0.indexOf(m) !== -1) return;
+                  where0.push(m);
+                });
+              });
+              var rank = interv ? { audit: 0, echcac: 1 } : { echcac: 0, audit: 1 };
+              where0.sort(function (a, b) {
+                return (a.id in rank ? rank[a.id] : 2) - (b.id in rank ? rank[b.id] : 2);
+              });
+              out(
+                '<div class="cp-msg cp-msg-warn" tabindex="-1">' + qLine(raw) +
+                '<div class="cp-msg-lead">' + ms("info") + "<span>Filtre non appliqué sur « " + esc(modelOf(S.model).full) + " » : " + esc(what0) + ".</span></div>" +
+                "<p>" + esc(off.map(function (o) {
+                  return o.why.charAt(0).toUpperCase() + o.why.slice(1);
+                }).join(". ")) + "." + (where0.length ? " Il s’applique aux modèles : " + where0.map(function (m) {
+                  return "« " + esc(m.label) + " »";
+                }).join(", ") + "." : "") + "</p>" + koHtml +
+                '<div class="cp-btns">' + where0.map(function (m) {
+                  return '<button type="button" class="btn btn-secondary btn-sm" data-cp-replan="' + m.id + '">' + ms(m.icon) + "Ouvrir « " + esc(m.label) + " » avec ce filtre</button>";
+                }).join("") + closeBtn() + "</div>" + sentLine(raw) + "</div>"
+              );
+              return;
+            }
+          }
           if (!dims.length) {
             pending = null;
             out(
               '<div class="cp-msg cp-msg-warn" tabindex="-1">' + qLine(raw) +
               '<div class="cp-msg-lead">' + ms("info") + "<span>" + (change.reset ? "Aucun filtre actif : rien à retirer." : "Filtre non disponible : " + esc(ko.join(" ; ")) + ".") + "</span></div>" +
-              (change.reset ? "" : "<p>Le cockpit filtre par forme juridique, « créé par » et période (mois ou trimestre). Je n’applique rien plutôt qu’un filtre approximatif.</p>") +
-              '<div class="cp-btns">' + (P.socs.length ? '<a class="btn btn-secondary btn-sm" href="societe.html">' + ms("storefront") + "Ouvrir la fiche société</a>" : "") + closeBtn() + "</div>" + sentLine(raw) + "</div>"
+              (change.reset ? "" : "<p>" + DIMS_TXT + " Je n’applique rien plutôt qu’un filtre approximatif.</p>") +
+              '<div class="cp-btns">' + (P.socs.length ? '<a class="btn btn-secondary btn-sm" href="' + esc(socHref(P.socs[0])) + '">' + ms("storefront") + (mandByName(P.socs[0]) ? "Ouvrir la mission" : "Ouvrir la fiche société") + "</a>" : "") + closeBtn() + "</div>" + sentLine(raw) + "</div>"
             );
             return;
           }
           var next = change.reset
-            ? { formes: [], createur: null, periode: null }
+            ? { formes: [], createur: null, periode: null, types: [], signataire: null }
             : {
                 formes: change.formes ? change.formes.slice() : F.formes.slice(),
                 createur: change.createur !== undefined ? change.createur : F.createur,
                 periode: change.periode !== undefined ? change.periode : F.periode,
+                types: change.types ? change.types.slice() : (F.types || []).slice(),
+                signataire: change.signataire !== undefined ? change.signataire : F.signataire || null,
               };
           var ids = TILE_IDS[S.model].concat(S.pins.filter(function (p) {
             return TILE_IDS[S.model].indexOf(p) === -1;
@@ -3593,7 +4562,8 @@
             if (hit) concerned++;
             var before = d.calc().v;
             var after = withF(next, d.calc).v;
-            return '<li class="' + (hit ? "" : "cp-off") + '"><span>' + esc(d.label) + '</span><span class="cp-delta">' + (hit ? before + " → " + after : "non concerné") + "</span></li>";
+            var u = d.unit ? d.unit : "";
+            return '<li class="' + (hit ? "" : "cp-off") + '"><span>' + esc(d.label) + '</span><span class="cp-delta">' + (hit ? before + u + " → " + after + u : "non concerné") + "</span></li>";
           });
           var what = change.reset
             ? "retirer tous les filtres"
@@ -3601,6 +4571,8 @@
                 change.formes ? "forme juridique = " + change.formes.join(", ") : "",
                 change.createur ? "créé par = " + change.createur + (change.createur === ME ? " (vous)" : "") : "",
                 change.periode ? "période = " + change.periode.label : "",
+                change.types ? "type de mission = " + typesLabel(change.types) : "",
+                change.signataire ? "signataire = " + change.signataire + (change.signataire === ME ? " (vous)" : "") : "",
               ].filter(Boolean).join(" et ");
           var dimTxt = dims.map(function (x) {
             return DIM_LABEL[x];
@@ -3608,7 +4580,7 @@
           if (!concerned) {
             /* Filtre sans effet : pas d'Appliquer, on dit pourquoi et où il s'applique */
             pending = null;
-            var where = modelsFor(dims).filter(function (m) {
+            var where = modelsFor(dims, PROFIL === "mixte" && modelOf(S.model).grp ? modelOf(S.model).grp : null).filter(function (m) {
               return m.id !== S.model;
             });
             out(
@@ -3628,6 +4600,8 @@
             if (change.formes) spec.filtres.forme = change.formes;
             if (change.createur) spec.filtres.cree_par = P.pers.length ? "[personne 1]" : "[utilisateur connecté]";
             if (change.periode) spec.filtres.periode = change.periode.key;
+            if (change.types) spec.filtres.type_mission = change.types;
+            if (change.signataire) spec.filtres.signataire = P.pers.length ? "[personne 1]" : "[utilisateur connecté]";
           }
           var specTxt = esc(JSON.stringify(spec).replace(/,/g, ", ").replace(/:/g, ": "));
           var notes = [];
@@ -3640,7 +4614,12 @@
             return IND[id].camp;
           })) notes.push("Sociétés civiles : hors campagne, règle propre à définir avec le juriste EJ. Les indicateurs de campagne ne les comptent pas.");
           if (P.conv.length) notes.push(convNote(P.conv));
+          if (change.signataire) {
+            if (P.pers.length) notes.push("Le nom est remplacé par « [personne 1] » avant l’envoi au modèle, puis retrouvé par EJ.");
+            if (SIGNATAIRES.indexOf(change.signataire) === -1) notes.push(change.signataire + " ne signe aucune mission du portefeuille CAC : les listes concernées seront vides. Le filtre reste applicable.");
+          }
           if (concerned < items.length) notes.push("Les indicateurs « non concernés » ne se filtrent pas par " + dimTxt + " et restent au total du cabinet.");
+          if (off.length) notes.push("Sans effet sur ce modèle, non appliqué : " + offTxt.join(" ; ") + ".");
           pending = { raw: raw, next: next, what: what };
           out(
             '<div class="cp-msg" tabindex="-1">' + qLine(raw) +
@@ -3670,7 +4649,7 @@
         }
         /* Précisions de la question : appliquées si l'indicateur les gère, sinon signalées */
         function qFilter(d, P) {
-          var Q = { f: cloneF(F), ok: [], ko: koList(P), civOnly: null, civDropped: [] };
+          var Q = { f: cloneF(F), ok: [], ko: koList(P), civOnly: null, civDropped: [], noop: [] };
           if (P.formes.length) {
             if (d.dims.indexOf("forme") !== -1) {
               var fs = P.formes.slice();
@@ -3700,9 +4679,25 @@
               Q.ok.push("période " + P.periode.label);
             } else Q.ko.unshift("période " + P.periode.label);
           }
+          if (P.types && P.types.length) {
+            if (d.dims.indexOf("type") !== -1) {
+              Q.f.types = P.types.slice();
+              Q.ok.push("type " + typesLabel(P.types));
+            } else Q.ko.unshift("type de mission " + typesLabel(P.types));
+          }
+          if (P.signataire) {
+            if (d.dims.indexOf("signataire") !== -1) {
+              /* une seule valeur possible : la précision ne change rien, on le dit */
+              if (SIGNATAIRES.length === 1 && P.signataire === SIGNATAIRES[0]) Q.noop.push("toutes les missions sont signées par " + SIGNATAIRES[0]);
+              else {
+                Q.f.signataire = P.signataire;
+                Q.ok.push("signataire " + P.signataire);
+              }
+            } else Q.ko.unshift("signataire " + P.signataire);
+          }
           return Q;
         }
-        function answerC(raw, id, P) {
+        function answerC(raw, id, P, alt) {
           var d = IND[id];
           var Q = qFilter(d, P);
           if (Q.civOnly) return answerCivil(raw, Q.civOnly);
@@ -3717,8 +4712,8 @@
                 return DIM_LABEL[x];
               }).join(", ")) : "aucune dimension") + ". Je ne remplace pas votre question par un total.</p>" +
               "<p><strong>Indicateur global" + (Q.ok.length ? " (" + esc(Q.ok.join(", ")) + ")" : "") + " : " + esc(d.label) + " ?</strong></p>" +
-              '<div class="cp-btns"><button type="button" class="btn btn-secondary btn-sm" data-cp-list="' + id + '" data-cp-useq>Voir l’indicateur global (' + r.v + ")</button>" +
-              (P.socs.length ? '<a class="btn btn-tertiary btn-sm" href="societe.html">' + ms("storefront") + "Fiche de " + esc(P.socs[0]) + "</a>" : "") + closeBtn() + "</div>" +
+              '<div class="cp-btns"><button type="button" class="btn btn-secondary btn-sm" data-cp-list="' + id + '" data-cp-useq>Voir l’indicateur global (' + r.v + (d.unit || "") + ")</button>" +
+              (P.socs.length ? '<a class="btn btn-tertiary btn-sm" href="' + esc(socHref(P.socs[0])) + '">' + ms("storefront") + (mandByName(P.socs[0]) ? "Mission " : "Fiche de ") + esc(P.socs[0]) + "</a>" : "") + closeBtn() + "</div>" +
               sentLine(raw) + "</div>"
             );
             return;
@@ -3727,18 +4722,24 @@
           if (Q.ok.length) lines.push("<strong>Précisions de votre question appliquées</strong> : " + esc(Q.ok.join(" ; ")));
           if (Q.civDropped.length) lines.push("<strong>Sociétés civiles</strong> : " + esc(Q.civDropped.join(", ")) + " hors campagne, règle propre à définir avec le juriste EJ");
           if (P.conv.length) lines.push(esc(convNote(P.conv)));
+          if (Q.noop.length) lines.push("<strong>Précision sans effet</strong> : " + esc(Q.noop.join(" ; ")));
+          var altBtn = "";
+          if (alt && IND[alt]) {
+            var ra = IND[alt].calc();
+            altBtn = '<button type="button" class="btn btn-tertiary btn-sm" data-cp-list="' + alt + '">' + (IND[alt].cac ? "Côté CAC : " : "Côté EC : ") + esc(IND[alt].short) + " (" + ra.v + (IND[alt].unit || "") + ")</button>";
+          }
           var shown = r.rows.slice(0, 5);
           var pinned = S.pins.indexOf(id) !== -1;
           out(
             '<div class="cp-msg" tabindex="-1">' + qLine(raw) +
-            '<div class="cp-msg-lead">' + ms("list_checks") + "<span>" + esc(d.label) + (Q.ok.length ? " (" + esc(Q.ok.join(", ")) + ")" : "") + " : " + r.v + " " + verTag(d.ver) + "</span></div>" +
+            '<div class="cp-msg-lead">' + ms("list_checks") + "<span>" + esc(d.label) + (Q.ok.length ? " (" + esc(Q.ok.join(", ")) + ")" : "") + " : " + r.v + (d.unit || "") + " " + verTag(d.ver) + "</span></div>" +
             (d.ver === "cible" ? "<p>Indicateur du catalogue cible : il sera calculé par EJ quand le module sera livré. Ici, sur les données de la maquette.</p>" : "") +
             '<div class="cp-ans-rule">' + lines.join("<br>") + "</div>" +
             (shown.length ? '<div class="cp-ans-list">' + shown.map(rowHtml).join("") + "</div>" : "") +
             '<div class="cp-btns">' +
             (pinned ? '<button type="button" class="btn btn-secondary btn-sm" disabled>' + ms("pin") + "Déjà épinglé</button>" : '<button type="button" class="btn btn-primary btn-sm" data-cp-pin="' + id + '">' + ms("pin") + "Épingler au cockpit</button>") +
-            '<button type="button" class="btn btn-secondary btn-sm" data-cp-list="' + id + '" data-cp-useq>Voir la liste complète (' + r.v + ")</button>" +
-            closeBtn() + "</div>" +
+            '<button type="button" class="btn btn-secondary btn-sm" data-cp-list="' + id + '" data-cp-useq>Voir la liste complète (' + (d.unit ? r.rows.length + " " + pl(r.rows.length, "ligne", "lignes") : r.v) + ")</button>" +
+            altBtn + closeBtn() + "</div>" +
             (Q.ok.length && !pinned ? '<p class="cp-ans-rule">La tuile épinglée suit les filtres du cockpit, pas les précisions de cette question.</p>' : "") +
             sentLine(raw) + "</div>"
           );
@@ -3759,6 +4760,39 @@
         function answerAffect(raw, P) {
           var who = P.affect && P.affect !== ME ? P.affect : null;
           var note = who ? personNote(who) : "";
+          if (PROFIL === "mixte") {
+            /* Cabinet mixte : le module CAC connaît l'équipe de mission, EJ ne connaît pas de collaborateur affecté aux formalités */
+            var signe = who ? MAND.filter(function (m) {
+              return sigName(m) === who;
+            }) : [];
+            var team = who ? MAND.filter(function (m) {
+              return m.equipe.some(function (k) {
+                return E.equipe[k] && E.equipe[k].nom === who;
+              });
+            }) : [];
+            var cacTxt =
+              "<strong>Missions CAC</strong> : le module Missions CAC connaît le signataire et l’équipe de chaque mission. Le cockpit filtre par signataire" +
+              (SIGNATAIRES.length === 1 ? " (toutes les missions sont signées par " + esc(SIGNATAIRES[0]) + ")" : "") + " ; l’équipe de mission n’est pas encore une dimension du cockpit." +
+              (who
+                ? signe.length
+                  ? " " + esc(who) + " signe " + signe.length + " " + pl(signe.length, "mission", "missions") + "."
+                  : team.length
+                  ? " " + esc(who) + " fait partie de l’équipe de " + team.length + " " + pl(team.length, "mission", "missions") + " : " + esc(team.map(function (m) {
+                      return m.nom;
+                    }).join(", ")) + "."
+                  : " " + esc(who) + " ne figure dans l’équipe d’aucune mission CAC."
+                : "");
+            out(
+              '<div class="cp-msg cp-msg-warn" tabindex="-1">' + qLine(raw) +
+              '<div class="cp-msg-lead">' + ms("user_x") + "<span>Missions CAC : équipe de mission connue, filtre par signataire. Formalités : Express Juridique ne connaît pas encore de collaborateur affecté.</span></div>" +
+              "<p>" + cacTxt + "</p>" +
+              "<p><strong>Formalités et clients EC</strong> : l’affectation d’un collaborateur à une société ou à une formalité est une question posée à EJ (question 5 du cadrage). Aujourd’hui, seule la personne qui a créé la formalité ou le dépôt est connue : filtre possible sur « créé par ».</p>" +
+              (note ? "<p>" + esc(note) + "</p>" : "") +
+              '<div class="cp-sugg">' + suggHtml([{ fn: "Modifier", q: "Seulement les formalités créées par " + (who || ME) }]) + "</div>" +
+              '<div class="cp-btns"><button type="button" class="btn btn-secondary btn-sm" data-cp-list="cac_entites">' + ms("list_checks") + "Voir les entités contrôlées (" + MAND.length + ")</button>" + closeBtn() + "</div>" + sentLine(raw) + "</div>"
+            );
+            return;
+          }
           out(
             '<div class="cp-msg cp-msg-warn" tabindex="-1">' + qLine(raw) +
             '<div class="cp-msg-lead">' + ms("user_x") + "<span>Express Juridique ne connaît pas encore de collaborateur affecté ; filtre possible sur « créé par ».</span></div>" +
@@ -3768,13 +4802,40 @@
             '<div class="cp-btns">' + closeBtn() + "</div>" + sentLine(raw) + "</div>"
           );
         }
+        /* Cabinet mixte, « mes mandats » : l'associé connecté ne signe aucune mission CAC */
+        function answerSigMe(raw) {
+          out(
+            '<div class="cp-msg cp-msg-warn" tabindex="-1">' + qLine(raw) +
+            '<div class="cp-msg-lead">' + ms("user_x") + "<span>" + esc(ME) + " (vous) ne signe aucun mandat CAC" + (SIGNATAIRES.length === 1 ? " : toutes les missions sont signées par " + esc(SIGNATAIRES[0]) : "") + ".</span></div>" +
+            "<p>Le cockpit CAC filtre par signataire. Un filtre sur vos mandats donnerait des listes vides : je ne l’applique pas.</p>" +
+            '<div class="cp-btns"><button type="button" class="btn btn-secondary btn-sm" data-cp-list="cac_entites">' + ms("list_checks") + "Voir les entités contrôlées (" + MAND.length + ")</button>" + closeBtn() + "</div>" + sentLine(raw) + "</div>"
+          );
+        }
         function answerHC(raw, kind) {
           if (S.hc.indexOf(raw) === -1) S.hc.push(raw);
           log("IA", "Demande hors catalogue transmise à EJ : « " + raw + " »", "hc", null);
           renderJournal();
-          var lead = kind === "abs" ? "Cette donnée n’existe pas dans Express Juridique." : kind === "act" ? "Mesure d’activité hors périmètre." : "Pas encore dans le catalogue certifié.";
+          var lead =
+            kind === "abs" ? "Cette donnée n’existe pas dans Express Juridique." : kind === "act" ? "Mesure d’activité hors périmètre." : kind === "cac" ? "Rentabilité des mandats : hors du catalogue certifié." : kind === "hon" ? "Honoraires des missions CAC : donnée présente dans le module Missions CAC, indicateur à créer au catalogue." : kind === "cacLate" ? "Retard des missions CAC : pas encore dans le catalogue." : kind === "ec" ? "Filtre non disponible dans le profil commissaire aux comptes : indicateur du cockpit expert-comptable." : "Pas encore dans le catalogue certifié.";
+          var alt =
+            kind === "cac"
+              ? '<button type="button" class="btn btn-secondary btn-sm" data-cp-list="cac_h_ratio">' + ms("list_checks") + "Heures réalisées sur budget</button>"
+              : kind === "hon"
+              ? '<a class="btn btn-secondary btn-sm" href="cac.html">' + ms("briefcase") + "Honoraires au portefeuille CAC</a>"
+              : kind === "cacLate"
+              ? '<button type="button" class="btn btn-secondary btn-sm" data-cp-list="cac_interv_30j">' + ms("list_checks") + "Interventions sous 30 jours</button>" +
+                '<button type="button" class="btn btn-secondary btn-sm" data-cp-list="cac_rapports_60j">' + ms("list_checks") + "Rapports avant AG</button>"
+              : "";
           var p =
-            kind === "abs"
+            kind === "hon"
+              ? "Le module Missions CAC proposé enregistre les honoraires de chaque mission, mais aucun indicateur certifié ne les additionne encore. Je ne calcule aucun total ; la demande est transmise à EJ pour créer l’indicateur. La rentabilité, elle, reste hors catalogue (pas de coûts du cabinet)."
+              : kind === "cacLate"
+              ? "Le module Missions CAC proposé suit des dates prévues (interventions, AG) et une phase déclarée par l’équipe, sans échéance certifiée à laquelle comparer : aucun indicateur ne mesure un retard. Je ne fais aucune estimation ; la demande est transmise à EJ."
+              : kind === "cac"
+              ? "Le module Missions CAC proposé suit les heures budgétées et réalisées et les honoraires de chaque mission, pas les coûts du cabinet (taux horaires, salaires). Je ne calcule aucun taux et ne fais aucune estimation ; la demande est transmise à EJ pour enrichir le catalogue."
+              : kind === "ec"
+              ? "Le catalogue de ce cabinet couvre les missions CAC : mandats, interventions, heures, échéances, acceptation et conformité. Je ne fais aucune estimation ; la demande est transmise à EJ."
+              : kind === "abs"
               ? "Chiffre d’affaires, trésorerie, effectif salarié : EJ ne les reçoit pas. Je ne fais aucune estimation."
               : kind === "act"
               ? "Mesurer l’activité par personne demande un historique des statuts et une affectation qu’EJ n’a pas, et un cadre social (information des salariés). Hors périmètre avant la V2."
@@ -3782,7 +4843,7 @@
           out(
             '<div class="cp-msg cp-msg-warn" tabindex="-1">' + qLine(raw) +
             '<div class="cp-msg-lead">' + ms("search_x") + "<span>" + lead + " Demande notée pour EJ.</span></div><p>" + p + "</p>" +
-            '<div class="cp-btns"><button type="button" class="btn btn-secondary btn-sm" data-cp-open="catalogue">' + ms("list_checks") + "Voir ce que le catalogue contient</button>" + closeBtn() + "</div>" + sentLine(raw) + "</div>"
+            '<div class="cp-btns">' + alt + '<button type="button" class="btn btn-secondary btn-sm" data-cp-open="catalogue">' + ms("list_checks") + "Voir ce que le catalogue contient</button>" + closeBtn() + "</div>" + sentLine(raw) + "</div>"
           );
         }
         function dismissAi() {
@@ -3794,13 +4855,10 @@
 
         /* ---------- Profil de cabinet ---------- */
         function renderProfil() {
+          /* Les modèles suivent le profil lu au chargement (PROFIL) ; ej-shell.js recharge la page à chaque changement. */
           var p = document.body.getAttribute("data-profil") || window.EJ_PROFIL || "ec";
-          var el = document.getElementById("cp-profil");
-          if (p === "cac")
-            el.innerHTML = '<div class="alert alert-info cp-profil-alert">' + ms("info") + "<div><strong>Cockpit CAC : prochaine maquette</strong> (mandats, échéances, interventions). Le cockpit expert-comptable reste visible ci-dessous.</div></div>";
-          else if (p === "mixte")
-            el.innerHTML = '<div class="alert alert-info cp-profil-alert">' + ms("info") + "<div><strong>Cabinet mixte.</strong> Les modèles CAC (mandats, échéances, interventions) s’ajouteront à cette liste avec la prochaine maquette.</div></div>";
-          else el.innerHTML = "";
+          if (p !== PROFIL) return; /* même lecture du stockage que le shell : ne diverge pas */
+          document.getElementById("cp-profil").innerHTML = "";
         }
 
         /* ---------- Vue enregistrée ---------- */
@@ -3809,11 +4867,16 @@
             var raw = localStorage.getItem("ej-cockpit-vue");
             if (!raw) return;
             var v = JSON.parse(raw);
-            if (v && Array.isArray(v.formes)) F.formes = v.formes.filter(function (f) {
+            /* Profil CAC : les filtres EC d'une vue enregistrée (forme, créé par) sont ignorés */
+            if (PROFIL !== "cac" && v && Array.isArray(v.formes)) F.formes = v.formes.filter(function (f) {
               return FORMES.indexOf(f) !== -1;
             });
-            if (v && typeof v.createur === "string" && personOf(v.createur)) F.createur = v.createur;
+            if (PROFIL !== "cac" && v && typeof v.createur === "string" && personOf(v.createur)) F.createur = v.createur;
             if (v && typeof v.periode === "string") F.periode = periodFromKey(v.periode);
+            if (PROFIL !== "ec" && v && Array.isArray(v.types)) F.types = v.types.filter(function (k) {
+              return TYPE_KEYS.indexOf(k) !== -1;
+            });
+            if (PROFIL !== "ec" && v && typeof v.signataire === "string" && SIGNATAIRES.indexOf(v.signataire) !== -1) F.signataire = v.signataire;
             if (v && v.order) Object.keys(DEFAULT_ORDER).forEach(function (k) {
               var o = v.order[k];
               if (Array.isArray(o) && o.length === DEFAULT_ORDER[k].length && o.every(function (x) {
@@ -3830,7 +4893,7 @@
           try {
             localStorage.removeItem("ej-cockpit-vue");
           } catch (e) {}
-          F = { formes: [], createur: null, periode: null };
+          F = { formes: [], createur: null, periode: null, types: [], signataire: null };
           Object.keys(DEFAULT_ORDER).forEach(function (k) {
             ORDER[k] = DEFAULT_ORDER[k].slice();
           });
@@ -3846,6 +4909,7 @@
           S.model = id;
           S.campStage = null;
           S.opsStage = null;
+          S.phaseStage = null;
           render();
           tabsFade(true);
         }
@@ -3902,8 +4966,10 @@
             var which = a.getAttribute("data-cp-rmf");
             if (which === "formes") F.formes = [];
             else if (which === "createur") F.createur = null;
+            else if (which === "types") F.types = [];
+            else if (which === "signataire") F.signataire = null;
             else F.periode = null;
-            log("Vous", which === "formes" ? "Filtre forme juridique retiré" : which === "createur" ? "Filtre créé par retiré" : "Filtre période retiré", "filtre", prev);
+            log("Vous", which === "formes" ? "Filtre forme juridique retiré" : which === "createur" ? "Filtre créé par retiré" : which === "types" ? "Filtre type de mission retiré" : which === "signataire" ? "Filtre signataire retiré" : "Filtre période retiré", "filtre", prev);
             render();
             document.getElementById("cp-ai-input").focus();
             return;
@@ -3920,6 +4986,12 @@
           if ((a = t.closest("[data-cp-stage]"))) {
             var st = a.getAttribute("data-cp-stage") || null;
             S.campStage = S.campStage === st ? null : st;
+            renderBlocks();
+            return;
+          }
+          if ((a = t.closest("[data-cp-phase]"))) {
+            var ph = a.getAttribute("data-cp-phase") || null;
+            S.phaseStage = S.phaseStage === ph ? null : ph;
             renderBlocks();
             return;
           }
@@ -3952,7 +5024,7 @@
             if (!draft) return;
             var act = a.getAttribute("data-cp-perso");
             if (act === "reset") {
-              draft = { formes: [], createur: null, periode: "", order: S.model === "nouveau" ? [] : DEFAULT_ORDER[S.model].slice() };
+              draft = { formes: [], createur: null, periode: "", types: [], signataire: null, order: S.model === "nouveau" ? [] : DEFAULT_ORDER[S.model].slice() };
               return drawPerso();
             }
             return applyPerso(act === "save");
@@ -3973,6 +5045,17 @@
             draft.formes.sort(function (a, b) {
               return FORMES.indexOf(a) - FORMES.indexOf(b);
             });
+          } else if (t.hasAttribute && t.hasAttribute("data-cp-pt")) {
+            var k = t.getAttribute("data-cp-pt");
+            draft.types = draft.types.filter(function (x) {
+              return x !== k;
+            });
+            if (t.checked) draft.types.push(k);
+            draft.types.sort(function (a, b) {
+              return TYPE_KEYS.indexOf(a) - TYPE_KEYS.indexOf(b);
+            });
+          } else if (t.id === "cp-p-sig") {
+            draft.signataire = t.value || null;
           } else if (t.id === "cp-p-crea") {
             draft.createur = t.value || null;
           } else if (t.id === "cp-p-per") {
@@ -4039,6 +5122,7 @@
 
         /* ---------- Démarrage (après ej-shell.js, qui pose data-profil) ---------- */
         document.getElementById("cp-sugg").innerHTML = suggHtml(SUGG);
+        if (PROFIL === "cac") document.getElementById("cp-ai-input").placeholder = "Demandez ou modifiez : « montre seulement les mandats légaux »";
         renderSub();
         loadSaved();
         render();
@@ -4048,6 +5132,6 @@
         });
       })();
     </script>
-    <script src="assets/ej-shell.js?v=17"></script>
+    <script src="assets/ej-shell.js?v=19"></script>
   </body>
 </html>

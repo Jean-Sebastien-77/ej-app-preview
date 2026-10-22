@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=16" />
-    <link rel="stylesheet" href="assets/ej-missions.css?v=17" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=19" />
     <style>
       /* ---- Page LAB : styles locaux (à mutualiser si besoin) ---- */
       .lab-intro {
@@ -17,6 +17,25 @@
       }
       .lab-value {
         margin-bottom: 20px;
+      }
+      .lab-perim {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        margin-top: 10px;
+        font-size: 13px;
+        line-height: 1.45;
+        color: var(--ej-neutral-600);
+      }
+      .lab-perim .ms {
+        flex-shrink: 0;
+        margin-top: 1px;
+        font-size: 16px;
+        color: var(--ej-action-600);
+      }
+      .lab-perim strong {
+        font-weight: 600;
+        color: var(--ej-primary-900);
       }
       .lab-value a {
         font-weight: 600;
@@ -112,6 +131,16 @@
       }
       .quick-filters {
         margin-bottom: 18px;
+      }
+      .quick-filters.mission-filters {
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .qf-label {
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--ej-neutral-500);
+        margin-right: 2px;
       }
 
       .lab-table tbody tr {
@@ -315,10 +344,11 @@
             <div class="lab-intro">
               <div class="m-eyebrow">Missions &amp; conformité</div>
               <h1 class="page-title">Dispositif LAB</h1>
-              <p class="page-desc">
+              <p class="page-desc" id="desc">
                 Les obligations de vigilance du cabinet sur ses clients : identification, bénéficiaires effectifs,
                 évaluation du risque et revues périodiques.
               </p>
+              <p class="lab-perim" id="perim"></p>
             </div>
             <div class="m-actions">
               <a class="btn btn-secondary" href="#" title="Écran non maquetté"><span class="ms">sliders-horizontal</span>Paramétrer la grille de risque</a>
@@ -329,9 +359,9 @@
           <div class="alert alert-brand lab-value">
             <span class="ms">database</span>
             <div>
-              <strong>Pas de ressaisie.</strong> L'identité, les dirigeants et les bénéficiaires effectifs sont
-              pré-remplis depuis le DPJ (Dossier Permanent Juridique d'EJ). Le criblage PPE et gel des avoirs passe par
-              un connecteur KYC, dont le fournisseur reste à choisir.
+              <strong>Pas de ressaisie.</strong> <span id="value-txt">L'identité, les dirigeants et les bénéficiaires effectifs sont
+              pré-remplis depuis le Dossier Permanent Juridique d'EJ (DPJ).</span> Le criblage des personnes politiquement exposées
+              (PPE) et le gel des avoirs passent par un connecteur KYC (connaissance du client), dont le fournisseur reste à choisir.
               <a href="connecteurs.html">Voir les connecteurs</a>
             </div>
           </div>
@@ -351,11 +381,12 @@
             <div class="toolbar">
               <label class="search">
                 <span class="ms">search</span>
-                <input type="text" id="q" placeholder="Rechercher par dénomination" autocomplete="off" />
+                <input type="text" id="q" placeholder="Rechercher par dénomination ou SIREN" autocomplete="off" />
               </label>
               <span class="lab-count" id="count"></span>
             </div>
           </div>
+          <div class="quick-filters mission-filters" id="pills-mission" hidden></div>
           <div class="quick-filters" id="pills"></div>
 
           <div class="data-table-wrap">
@@ -363,7 +394,7 @@
               <table class="data-table lab-table">
                 <thead>
                   <tr>
-                    <th>Société</th>
+                    <th id="th-soc">Société</th>
                     <th>Risque et vigilance</th>
                     <th>Statut</th>
                     <th>Bénéficiaires</th>
@@ -380,9 +411,9 @@
 
           <div class="m-note">
             <span class="ms">info</span>
-            <span>
+            <span id="note-ref">
               Maquette : libellés et règles LAB à faire valider par un professionnel (références : code monétaire et
-              financier, norme professionnelle LAB de l'Ordre).
+              financier, norme professionnelle LAB de l'Ordre des experts-comptables).
             </span>
           </div>
         </div>
@@ -390,12 +421,39 @@
       </div>
     </div>
 
-    <script src="assets/ej-missions-data.js?v=17"></script>
+    <script src="assets/ej-missions-data.js?v=19"></script>
     <script>
       (function () {
         var E = window.EJM,
-          esc = E.esc,
-          S = E.societes;
+          esc = E.esc;
+
+        /* ---------- Profil de cabinet (ec, cac, mixte) et périmètre affiché ----------
+           Le shell pose body[data-profil] après ce script : on lit donc la même clé du navigateur. */
+        var PROFIL = "ec";
+        try {
+          var sv = localStorage.getItem("ej-profil");
+          if (sv === "ec" || sv === "cac" || sv === "mixte") PROFIL = sv;
+        } catch (e) {}
+        var MIXTE = PROFIL === "mixte";
+        var MISSION = { ec: "Expertise comptable", cac: "Commissariat aux comptes" };
+        var PROFIL_LIB = { ec: "Expert-comptable", cac: "Commissaire aux comptes", mixte: "Cabinet mixte EC et CAC" };
+        var S = PROFIL === "ec" ? E.societes : PROFIL === "cac" ? E.mandats : E.societes.concat(E.mandats);
+        function estCAC(s) {
+          return E.mandats.indexOf(s) !== -1;
+        }
+        /* Élision : « d'AXIOME », « de KPL3D » (le h de HELIOS et d'HÔTEL est muet) */
+        function de(nom) {
+          return /^[aeiouyhàâäéèêëîïôöùûü]/i.test(nom) ? "d'" + nom : "de " + nom;
+        }
+        /* Référence LAB selon le profil (à faire valider, sans numéro d'article) */
+        var REF_EC = "norme professionnelle LAB de l'Ordre des experts-comptables";
+        var REF_CAC = "norme d'exercice professionnel relative à la lutte contre le blanchiment, Haute autorité de l'audit (H2A)";
+        document.getElementById("note-ref").textContent =
+          "Maquette : libellés et règles LAB à faire valider par un professionnel (références : code monétaire et financier, " +
+          (PROFIL === "ec" ? REF_EC : PROFIL === "cac" ? REF_CAC : REF_EC + ", " + REF_CAC) + ").";
+        function respId(s) {
+          return estCAC(s) ? s.signataire : s.resp;
+        }
 
         function d(s) {
           var p = s.split("/");
@@ -425,7 +483,33 @@
           return S.filter(FILTRES[key].test).length;
         }
         var total = S.length;
-        var couverture = total + " sociétés du périmètre missions, sur " + E.totalSocietes + " suivies";
+        var nEC = S.filter(function (s) { return !estCAC(s); }).length;
+        var nCAC = total - nEC;
+        var couverture =
+          PROFIL === "ec" ? total + " sociétés du périmètre missions, sur " + E.totalSocietes + " suivies" :
+          PROFIL === "cac" ? total + " entités contrôlées par le cabinet" :
+          total + " dossiers (" + nEC + " sociétés, " + nCAC + " entités contrôlées)";
+
+        /* Rappel du périmètre sous le titre, et textes adaptés au profil */
+        document.getElementById("perim").innerHTML =
+          '<span class="ms">eye</span><span><strong>Périmètre affiché :</strong> ' +
+          (PROFIL === "ec" ? nEC + " sociétés clientes en expertise comptable" :
+           PROFIL === "cac" ? nCAC + " entités contrôlées en commissariat aux comptes" :
+           total + " dossiers, soit " + nEC + " sociétés clientes en expertise comptable et " + nCAC + " entités contrôlées en commissariat aux comptes") +
+          ". Profil : " + PROFIL_LIB[PROFIL] + ".</span>";
+        if (PROFIL === "cac")
+          document.getElementById("desc").textContent =
+            "Les obligations de vigilance du cabinet sur les entités dont il est commissaire aux comptes : identification, bénéficiaires effectifs, évaluation du risque et revues périodiques.";
+        if (MIXTE)
+          document.getElementById("desc").textContent =
+            "Les obligations de vigilance du cabinet sur ses clients et sur les entités qu'il contrôle : identification, bénéficiaires effectifs, évaluation du risque et revues périodiques.";
+        if (PROFIL === "cac")
+          document.getElementById("value-txt").textContent =
+            "L'identité, les dirigeants et les bénéficiaires effectifs sont repris du dossier de la mission de commissariat aux comptes et des registres publics : registre national des entreprises (RNE), registre des bénéficiaires effectifs (RBE) et, pour les associations, répertoire national des associations (RNA).";
+        if (MIXTE)
+          document.getElementById("value-txt").textContent =
+            "Pour les clients d'expertise comptable, l'identité, les dirigeants et les bénéficiaires effectifs sont pré-remplis depuis le Dossier Permanent Juridique d'EJ (DPJ) ; pour les entités contrôlées, ils viennent du dossier de la mission de commissariat aux comptes et des registres publics : registre national des entreprises (RNE), registre des bénéficiaires effectifs (RBE) et, pour les associations, répertoire national des associations (RNA).";
+        document.getElementById("th-soc").textContent = PROFIL === "ec" ? "Société" : PROFIL === "cac" ? "Entité" : "Société ou entité";
         /* Faculté sous conditions : le libellé reste local à la page (EJM n'est pas modifié) */
         var VIG = { faible: "Vigilance simplifiée possible", standard: E.VIGILANCE.standard, eleve: E.VIGILANCE.eleve };
 
@@ -436,9 +520,10 @@
           { key: "a_revoir", titre: "Revues échues", icone: "history", sub: "à reprendre en priorité", attention: true,
             regle: "Prochaine revue antérieure au " + E.today + ". Une revue échue prime sur les pièces manquantes." },
           { key: "incomplet", titre: "Pièces manquantes", icone: "file-check", sub: "identification à compléter",
-            regle: "Pièces ou bénéficiaires effectifs manquants, revue non échue." },
+            regle: "Pièces ou bénéficiaires effectifs manquants, revue non échue." +
+              (PROFIL === "ec" ? "" : " Pour une entité en phase d'acceptation, la mission n'est pas acceptée tant que l'identification n'est pas complète.") },
           { key: "a_ouvrir", titre: "Dossiers à ouvrir", icone: "folder-open", sub: "aucune diligence engagée",
-            regle: "Sociétés du périmètre missions dont le dossier LAB n'est pas encore ouvert." },
+            regle: (PROFIL === "ec" ? "Sociétés du périmètre missions" : PROFIL === "cac" ? "Entités contrôlées" : "Sociétés et entités du périmètre") + " dont le dossier LAB n'est pas encore ouvert." },
         ];
         document.getElementById("stats").innerHTML = TUILES.map(function (t) {
           return (
@@ -480,15 +565,33 @@
         document.getElementById("split-note").textContent = "Grille de risque définie par le cabinet";
 
         /* ---------- Filtres ---------- */
-        var etat = { f: "tous", q: "" };
+        var etat = { f: "tous", q: "", m: "tous" };
         var pills = document.getElementById("pills");
+        var pillsM = document.getElementById("pills-mission");
+        function parMission(s) {
+          return etat.m === "tous" || (etat.m === "cac") === estCAC(s);
+        }
+        /* Les pastilles de statut comptent dans la mission choisie, pour égaler la liste affichée */
+        function nbListe(key) {
+          return S.filter(function (s) { return parMission(s) && FILTRES[key].test(s); }).length;
+        }
+        function dessinerMissions() {
+          if (!MIXTE) return;
+          pillsM.hidden = false;
+          var opts = [["tous", "Toutes les missions", total], ["ec", MISSION.ec, nEC], ["cac", MISSION.cac, nCAC]];
+          pillsM.innerHTML = '<span class="qf-label">Mission</span>' + opts.map(function (o) {
+            var actif = etat.m === o[0];
+            return '<button type="button" class="qf-pill' + (actif ? " active" : "") + '" data-m="' + o[0] + '" aria-pressed="' + actif + '">' +
+              esc(o[1]) + ' <span class="n">' + o[2] + "</span></button>";
+          }).join("");
+        }
         function dessinerPills() {
           pills.innerHTML = ORDRE.map(function (k) {
             var f = FILTRES[k];
             var actif = etat.f === k;
             var cls = "qf-pill" + (f.warn ? " warning" : "") + (actif ? (f.warn ? " active-warning" : " active") : "");
             return '<button type="button" class="' + cls + '" data-f="' + k + '" aria-pressed="' + actif + '">' +
-              esc(f.label) + ' <span class="n">' + nb(k) + "</span></button>";
+              esc(f.label) + ' <span class="n">' + nbListe(k) + "</span></button>";
           }).join("");
         }
 
@@ -519,6 +622,7 @@
         function celluleBE(s) {
           var h = '<span class="be-n">' + s.lab.be + "</span>";
           if (!s.lab.be) h += '<span class="cell-sub" style="margin:0">à identifier</span>';
+          else if (s.lab.beDefaut) h += '<span class="cell-sub" style="margin:0">· représentant légal, à défaut</span>';
           if (s.lab.ppe)
             h += '<span class="be-flag" title="Personne politiquement exposée"><span class="ms">landmark</span>PPE</span>';
           return '<div class="be-cell">' + h + "</div>";
@@ -531,21 +635,22 @@
           return s.lab.prochaineRevue;
         }
         function celluleResp(s) {
-          var m = E.equipe[s.resp];
-          return '<span class="resp"><span class="avatar avatar-xs" style="background:' + m.couleur + '" aria-hidden="true">' + esc(s.resp) + "</span>" + esc(m.nom) + "</span>";
+          var r = respId(s), m = E.equipe[r];
+          return '<span class="resp"><span class="avatar avatar-xs" style="background:' + m.couleur + '" aria-hidden="true">' + esc(r) + "</span>" + esc(m.nom) + "</span>";
         }
         function ligne(s) {
           var href = "lab-dossier.html?id=" + encodeURIComponent(s.id);
           return (
             '<tr data-href="' + esc(href) + '">' +
             '<td class="cell-soc" data-label="Société"><a href="' + esc(href) + '">' + esc(s.nom) + "</a>" +
-            '<span class="cell-sub">SIREN ' + esc(s.siren) + " · " + esc(s.forme) + "</span></td>" +
+            '<span class="cell-sub">SIREN ' + esc(s.siren) + " · " + esc(s.forme) + "</span>" +
+            (MIXTE ? '<span class="cell-sub">Mission : ' + MISSION[estCAC(s) ? "cac" : "ec"] + "</span>" : "") + "</td>" +
             '<td data-label="Risque" class="cell-val">' + celluleRisque(s) + "</td>" +
             '<td data-label="Statut" class="cell-val">' + celluleStatut(s) + "</td>" +
             '<td data-label="Bénéficiaires">' + celluleBE(s) + "</td>" +
             '<td data-label="Prochaine revue" class="cell-val">' + celluleRevue(s) + "</td>" +
             '<td data-label="Responsable">' + celluleResp(s) + "</td>" +
-            '<td class="cell-open"><a class="open-link" href="' + esc(href) + '" aria-label="Ouvrir la fiche LAB de ' + esc(s.nom) + '"><span class="ms">arrow_forward</span></a></td>' +
+            '<td class="cell-open"><a class="open-link" href="' + esc(href) + '" aria-label="Ouvrir la fiche LAB ' + esc(de(s.nom)) + '"><span class="ms">arrow_forward</span></a></td>' +
             "</tr>"
           );
         }
@@ -554,16 +659,27 @@
         }
         function dessiner() {
           var q = norm(etat.q.trim());
+          /* SIREN : avec ou sans espaces, complet ou partiel (« 412 386 », « 412386950 ») */
+          var qn = q.replace(/\s/g, "");
+          var chiffres = /^\d+$/.test(qn);
           var liste = S.filter(function (s) {
-            return FILTRES[etat.f].test(s) && (!q || norm(s.nom).indexOf(q) !== -1);
+            var trouve = !q || norm(s.nom).indexOf(q) !== -1 || (chiffres && s.siren.replace(/\s/g, "").indexOf(qn) !== -1);
+            return parMission(s) && FILTRES[etat.f].test(s) && trouve;
           });
           document.getElementById("rows").innerHTML = liste.map(ligne).join("");
           document.getElementById("empty").hidden = liste.length > 0;
           document.getElementById("count").textContent = liste.length + (liste.length > 1 ? " dossiers" : " dossier");
+          dessinerMissions();
           dessinerPills();
         }
 
         /* ---------- Événements ---------- */
+        pillsM.addEventListener("click", function (e) {
+          var b = e.target.closest("[data-m]");
+          if (!b) return;
+          etat.m = b.getAttribute("data-m");
+          dessiner();
+        });
         pills.addEventListener("click", function (e) {
           var b = e.target.closest("[data-f]");
           if (!b) return;
@@ -579,6 +695,7 @@
           if (!a) return;
           e.preventDefault();
           etat.f = a.getAttribute("data-filtre");
+          etat.m = "tous"; /* les tuiles comptent tout le périmètre du profil */
           dessiner();
           document.getElementById("liste").scrollIntoView({ behavior: "smooth", block: "start" });
         });
@@ -595,6 +712,6 @@
         dessiner();
       })();
     </script>
-    <script src="assets/ej-shell.js?v=17"></script>
+    <script src="assets/ej-shell.js?v=19"></script>
   </body>
 </html>

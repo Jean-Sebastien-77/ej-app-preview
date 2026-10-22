@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=16" />
-    <link rel="stylesheet" href="assets/ej-missions.css?v=17" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=19" />
     <style>
       /* ---- En-tête société (repris de societe.html) ---- */
       .soc-head {
@@ -112,6 +112,12 @@
       }
       .lm-right .chev {
         margin-left: 0;
+      }
+      .open-mission {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ej-action-600);
+        white-space: nowrap;
       }
       .lm-block {
         display: flex;
@@ -652,6 +658,7 @@
           <div class="d-alerts" id="alerts"></div>
           <div id="retour" aria-live="polite"></div>
           <div class="list-card lm-link" id="lm"></div>
+          <div class="list-card lm-link" id="mission" hidden></div>
 
           <div class="card actions-bar" id="actions"></div>
           <p class="discret">
@@ -667,9 +674,9 @@
 
           <div class="m-note">
             <span class="ms">info</span>
-            <span>
+            <span id="note-ref">
               Maquette : libellés et règles LAB à faire valider par un professionnel (références : code monétaire et
-              financier, norme professionnelle LAB de l'Ordre).
+              financier, norme professionnelle LAB de l'Ordre des experts-comptables).
             </span>
           </div>
         </div>
@@ -677,17 +684,57 @@
       </div>
     </div>
 
-    <script src="assets/ej-missions-data.js?v=17"></script>
+    <script src="assets/ej-missions-data.js?v=19"></script>
     <script>
       (function () {
         var E = window.EJM,
           esc = E.esc;
 
-        /* ---------- Société affichée (sans paramètre : helios ; id inconnu : état « introuvable ») ---------- */
+        /* ---------- Profil de cabinet (ec, cac, mixte) ----------
+           Le shell pose body[data-profil] après ce script : on lit donc la même clé du navigateur. */
+        var PROFIL = "ec";
+        try {
+          var sv = localStorage.getItem("ej-profil");
+          if (sv === "ec" || sv === "cac" || sv === "mixte") PROFIL = sv;
+        } catch (e) {}
+        /* Élision : « d'AXIOME », « de KPL3D » (le h de HELIOS et d'HÔTEL est muet) */
+        function de(nom) {
+          return /^[aeiouyhàâäéèêëîïôöùûü]/i.test(nom) ? "d'" + nom : "de " + nom;
+        }
+        /* Sigle développé à sa première occurrence visible (les textes sont générés dans l'ordre de la page) */
+        var SIGLES = {
+          DPJ: "Dossier Permanent Juridique d'EJ (DPJ)",
+          RNE: "registre national des entreprises (RNE)",
+          RBE: "registre des bénéficiaires effectifs (RBE)",
+          RNA: "répertoire national des associations (RNA)",
+          KYC: "KYC (connaissance du client)",
+          PPE: "personne politiquement exposée (PPE)",
+        };
+        var vus = {};
+        function sg(k, forme) {
+          if (vus[k]) return k;
+          vus[k] = true;
+          return forme || SIGLES[k];
+        }
+        /* Référence LAB selon le profil (à faire valider, sans numéro d'article) */
+        var REF_EC = "norme professionnelle LAB de l'Ordre des experts-comptables";
+        var REF_CAC = "norme d'exercice professionnel relative à la lutte contre le blanchiment, Haute autorité de l'audit (H2A)";
+        document.getElementById("note-ref").textContent =
+          "Maquette : libellés et règles LAB à faire valider par un professionnel (références : code monétaire et financier, " +
+          (PROFIL === "ec" ? REF_EC : PROFIL === "cac" ? REF_CAC : REF_EC + ", " + REF_CAC) + ").";
+
+        /* ---------- Dossier affiché (sans paramètre : premier dossier du périmètre du profil ; id inconnu : état « introuvable ») ---------- */
         var id = new URLSearchParams(location.search).get("id");
+        function parId(liste, k) {
+          return liste.filter(function (x) { return x.id === k; })[0];
+        }
+        /* Cherche d'abord parmi les sociétés clientes (expertise comptable), puis parmi les entités contrôlées (CAC) */
         var s = id === null
-          ? E.societes.filter(function (x) { return x.id === "helios"; })[0]
-          : E.societes.filter(function (x) { return x.id === id; })[0];
+          ? PROFIL === "cac" ? parId(E.mandats, "vertalis") : parId(E.societes, "helios")
+          : parId(E.societes, id) || parId(E.mandats, id);
+        var cac = !!s && E.mandats.indexOf(s) !== -1;
+        /* Dossier d'une mission que le profil n'exerce pas (ouvert par un lien direct) */
+        var horsProfil = (PROFIL === "cac" && !cac) || (PROFIL === "ec" && cac);
         document.querySelectorAll('a[href="#"]').forEach(function (a) {
           a.addEventListener("click", function (e) { e.preventDefault(); });
         });
@@ -715,7 +762,11 @@
           SCI: "société civile immobilière",
           SA: "société anonyme",
           SELARL: "société d'exercice libéral à responsabilité limitée",
+          Association: "association loi de 1901",
         };
+        function formeLib(x) {
+          return x.forme === "Association" ? FORMES.Association : x.forme + ", " + (FORMES[x.forme] || "");
+        }
         var FICHES = {
           paprika: ["14 quai de la Fosse, 44000 Nantes", "20 000 €", "Camille Rousseau, Présidente",
             [["Camille Rousseau", "60 % du capital et des droits de vote"], ["Hugo Lefèvre", "40 % du capital et des droits de vote"]]],
@@ -753,6 +804,30 @@
             [["Daniel Chevalier", "60 % du capital et des droits de vote"], ["Marie Chevalier", "40 % du capital et des droits de vote"]]],
           botanica: ["14 chemin des Serres, 44300 Nantes", "12 000 €", "Lucie Fabre, Présidente",
             [["Lucie Fabre", "100 % du capital et des droits de vote"]]],
+          /* Entités contrôlées (commissariat aux comptes) */
+          vertalis: ["11 avenue de l'Industrie, 69007 Lyon", "4 800 000 €", "Gilles Perrot, Président-directeur général",
+            [["Gilles Perrot", "41 % du capital et des droits de vote"], ["Anne Perrot", "33 % du capital et des droits de vote"]]],
+          nordia: ["Zone logistique de la Plaine, 59810 Lesquin", "1 200 000 €", "Fabrice Leclerc, Président",
+            [["Fabrice Leclerc", "80 % du capital et des droits de vote"]],
+            [["Laure Gillet", "20 %"]]],
+          "clinique-parc": ["4 avenue du Parc, 37000 Tours", "2 000 000 €", "Laurent Besson, Président",
+            [["Laurent Besson", "52 % du capital et des droits de vote"], ["Valérie Aubry", "30 % du capital et des droits de vote"]],
+            [["Marc Hervé", "18 %"]]],
+          halios: ["7 quai Kléber, 67000 Strasbourg", "9 600 000 €", "Gérard Vasseur, Président-directeur général",
+            [["Gérard Vasseur", "44 % du capital et des droits de vote"], ["Hélène Courtois", "31 % du capital et des droits de vote"]]],
+          dorval: ["Zone artisanale des Chênes, 72000 Le Mans", "150 000 €", "Régis Dorval, Président",
+            [["Régis Dorval", "85 % du capital et des droits de vote"]],
+            [["Odile Dorval", "15 %"]]],
+          brioche: ["18 rue du Moulin, 76000 Rouen", "400 000 €", "Sylvain Berthier, Président",
+            [["Sylvain Berthier", "55 % du capital et des droits de vote"], ["Corinne Berthier", "45 % du capital et des droits de vote"]]],
+          soleil: ["3 rue des Tilleuls, 87000 Limoges", null, "Monique Faure, Présidente de l'association",
+            [["Monique Faure", "Représentant légal, à défaut (présidente de l'association)"]]],
+          marees: ["2 boulevard de la Plage, 17000 La Rochelle", "600 000 €", "Anne-Sophie Maillard, Présidente",
+            [["Anne-Sophie Maillard", "34 % du capital et des droits de vote"], ["Denis Maillard", "28 % du capital et des droits de vote"], ["Laurent Pichon", "27 % du capital et des droits de vote"]],
+            [["Ophélie Pichon", "11 %"]]],
+          technopole: ["21 avenue de la Technopole, 34000 Montpellier", "85 000 €", "Yanis Belkacem, Président",
+            [["Yanis Belkacem", "62 % du capital et des droits de vote"]],
+            [["Fonds d'amorçage Littoral", "20 %"], ["Inès Moulin", "18 %"]]],
         };
         var F = FICHES[s.id] || FICHES.helios;
         var BE = F[3];
@@ -762,9 +837,14 @@
         var dirRole = dirParts.slice(1).join(",").trim();
         var dirEstBE = BE.some(function (b) { return b[0] === dirNom; });
         var indirect = BE.some(function (b) { return /indirect/.test(b[1]); });
-        var holding = s.activite === "Holding animatrice";
-        var SEUIL = "Seuil : plus de 25 % du capital ou des droits de vote, ou contrôle par un autre moyen ; à défaut, le représentant légal.";
-        /* Motifs d'ajustement de la périodicité (décision de l'associé) */
+        var holding = /^Holding/.test(s.activite);
+        var holdingAnimatrice = s.activite === "Holding animatrice";
+        var association = s.forme === "Association";
+        var beDefaut = !!s.lab.beDefaut;
+        var SEUIL = association
+          ? "Pas de capital. Bénéficiaire effectif : la personne physique qui contrôle les organes de direction ; à défaut, le ou les représentants légaux (à valider)."
+          : "Seuil : plus de 25 % du capital ou des droits de vote, ou contrôle par un autre moyen ; à défaut, le représentant légal.";
+        /* Motifs d'ajustement de la périodicité (décision de l'associé ou de l'associée) */
         var MOTIFS = { paprika: "activité à forte part d'espèces", helios: "PPE parmi les bénéficiaires effectifs" };
 
         /* ---------- Dates ---------- */
@@ -802,7 +882,6 @@
         }
         var GRILLE_MOIS = { faible: 36, standard: 24, eleve: 12 };
         var ecart = !!(L.risque && mois && GRILLE_MOIS[L.risque] !== mois);
-        var motif = MOTIFS[s.id] || "décision de l'associé";
 
         /* ---------- États dérivés ---------- */
         var homonymie = L.gel === "a_verifier";
@@ -812,8 +891,16 @@
         var homNom = BE.length ? BE[BE.length - 1][0] : dirNom;
         var ppeNom = L.ppe && BE.length ? BE[0][0] : null;
 
-        function srcDPJ(x) { return '<span class="source"><span class="ms">database</span>DPJ · mis à jour le ' + x + "</span>"; }
-        function srcRNE() { return '<span class="source"><span class="ms">landmark</span>RNE · INPI</span>'; }
+        /* Entité contrôlée : pas de DPJ (le cabinet ne tient pas son juridique), la source est le dossier de la mission CAC */
+        function srcDPJ(x) {
+          return cac
+            ? '<span class="source"><span class="ms">briefcase</span>Dossier de la mission CAC · mis à jour le ' + x + "</span>"
+            : '<span class="source"><span class="ms">database</span>DPJ · mis à jour le ' + x + "</span>";
+        }
+        /* Association : répertoire des associations et Journal officiel, pas le RNE */
+        function srcReg() {
+          return '<span class="source"><span class="ms">landmark</span>' + (association ? "RNA · Journal officiel" : "RNE · INPI") + "</span>";
+        }
         function badgeLab() {
           var h;
           if (L.statut === "a_jour" && homonymie) return '<span class="badge badge-action">Homonymie à lever</span>';
@@ -829,54 +916,95 @@
             ? '<span class="risk risk-' + L.risque + '">' + E.RISQUE[L.risque] + "</span>"
             : '<span class="risk risk-na">Non évalué</span>';
         }
-        var resp = E.equipe[s.resp];
-        var associe = E.equipe.TG; /* associé et responsable LAB du cabinet (fictif) */
-        var respEstAssocie = s.resp === "TG";
+        var respCode = cac ? s.signataire : s.resp; /* entité contrôlée : le responsable est le signataire */
+        var resp = E.equipe[respCode];
+        /* Responsable LAB du cabinet : il valide les revues de tous les dossiers (EC et CAC) ; il dépend du profil */
+        var respLab = E.responsableLab(PROFIL);
+        var associe = E.equipe[respLab];
+        var respEstAssocie = respCode === respLab;
+        var accord = /^Associée/.test(associe.role) ? "associée" : "associé";
+        var lAssocie = "l'" + accord;
+        var motif = MOTIFS[s.id] || "décision de " + lAssocie;
 
         /* ---------- En-tête ---------- */
         document.getElementById("head").innerHTML =
           '<div class="soc-motif" aria-hidden="true"><i class="m1"></i><i class="m2"></i></div>' +
           "<div>" +
           '<div class="soc-name">' + esc(s.nom) + "</div>" +
-          '<div class="soc-form">' + esc(s.forme) + ", " + esc(FORMES[s.forme] || "") + " · " + esc(s.activite) + "</div>" +
-          '<div class="soc-greffe">SIREN : <strong>' + esc(s.siren) + "</strong> · Responsable : <strong>" + esc(resp.nom) + "</strong></div>" +
+          '<div class="soc-form">' + esc(formeLib(s)) + " · " + esc(s.activite) + "</div>" +
+          '<div class="soc-greffe">SIREN : <strong>' + esc(s.siren) + "</strong> · " + (cac ? "Mission : <strong>commissariat aux comptes</strong> · " : "") + "Responsable : <strong>" + esc(resp.nom) + "</strong></div>" +
           "</div>" +
           '<div class="soc-ids">' + risqueHtml() +
           "<span>" + (L.risque ? VIG[L.risque] : "Vigilance à définir") + "</span>" + badgeLab() + "</div>";
 
         /* ---------- Alertes ---------- */
         var al = [];
+        if (horsProfil)
+          al.push('<div class="alert alert-info"><span class="ms">info</span><div><strong>' + (cac
+            ? "Ce dossier relève de la mission de commissariat aux comptes, hors du profil expert-comptable."
+            : "Ce dossier relève de la mission d'expertise comptable, hors du profil commissaire aux comptes.") + "</strong></div></div>");
         if (homonymie)
           al.push('<div class="alert alert-warning"><span class="ms">triangle-alert</span><div><strong>Gel des avoirs : homonymie à lever.</strong> Le criblage du ' + L.criblage + " a remonté une correspondance possible sur " + esc(homNom) + ". Vérifiez la date et le lieu de naissance, puis documentez la levée : le dossier ne peut pas être validé tant que l'homonymie n'est pas levée.</div></div>");
         if (L.statut === "a_revoir")
-          al.push('<div class="alert alert-warning"><span class="ms">history</span><div><strong>Revue échue depuis le ' + L.prochaineRevue + " (" + retardJ + " jours).</strong> Reprenez l'évaluation, vérifiez le criblage continu puis faites valider la revue par l'associé.</div></div>");
+          al.push('<div class="alert alert-warning"><span class="ms">history</span><div><strong>Revue échue depuis le ' + L.prochaineRevue + " (" + retardJ + " jours).</strong> Reprenez l'évaluation, vérifiez le criblage continu puis faites valider la revue par " + lAssocie + ".</div></div>");
         if (L.statut === "incomplet")
           al.push('<div class="alert alert-info"><span class="ms">file-check</span><div><strong>Identification incomplète : ' + L.pieces[0] + " pièce" + (L.pieces[0] > 1 ? "s" : "") + " reçue" + (L.pieces[0] > 1 ? "s" : "") + " sur " + L.pieces[1] + ".</strong> " + (L.be === 0 ? "Les bénéficiaires effectifs ne sont pas encore identifiés. " : "") + "Relancez le client pour les pièces manquantes.</div></div>");
         if (L.statut === "a_ouvrir")
-          al.push('<div class="alert alert-brand"><span class="ms">folder-open</span><div><strong>Dossier LAB à ouvrir.</strong> Identité et dirigeant peuvent être pré-remplis depuis le DPJ. Il reste à identifier les bénéficiaires effectifs, lancer le criblage, évaluer le risque et recueillir les pièces.</div></div>');
+          al.push('<div class="alert alert-brand"><span class="ms">folder-open</span><div><strong>Dossier LAB à ouvrir.</strong> Identité et dirigeant peuvent être pré-remplis depuis le ' + sg("DPJ") + ". Il reste à identifier les bénéficiaires effectifs, lancer le criblage, évaluer le risque et recueillir les pièces.</div></div>");
         document.getElementById("alerts").innerHTML = al.join("");
 
         /* ---------- Lien lettre de mission ---------- */
         var LM = s.lm;
-        var LM_BADGE = { signee: "badge-success", envoyee: "badge-progress", brouillon: "badge-neutral", a_renouveler: "badge-action", absente: "badge-action" };
-        var lmMeta = LM.statut === "absente" ? "Aucune lettre de mission pour cette société" :
-          esc(LM.ref) + (LM.signee && LM.statut === "signee" ? " · signée le " + LM.signee : "") +
-          (LM.envoyee ? " · envoyée le " + LM.envoyee : "") +
-          (LM.statut === "a_renouveler" ? " · échue le " + LM.echeance : "") +
-          (LM.honoraires ? " · " + E.euros(LM.honoraires) + " HT par an" : "");
-        var blocage = "";
-        if (incomplete) {
-          blocage = LM.statut === "envoyee"
-            ? "Une lettre est déjà partie le " + LM.envoyee + " : complétez l'identification avant la signature. Les prochains envois restent bloqués tant que l'identification n'est pas complète."
-            : "L'envoi de la lettre de mission est bloqué tant que l'identification n'est pas complète.";
+        var LM_BADGE = { signee: "badge-success", envoyee: "badge-progress", brouillon: "badge-neutral", a_renouveler: "badge-action", absente: "badge-action", a_etablir: "badge-action" };
+        var LM_LIB = { signee: E.LM_STATUT.signee, envoyee: E.LM_STATUT.envoyee, brouillon: E.LM_STATUT.brouillon, a_renouveler: E.LM_STATUT.a_renouveler, absente: E.LM_STATUT.absente, a_etablir: "À établir" };
+        var lmMeta, blocage = "", lmHref;
+        if (cac) {
+          /* Lettre de mission CAC : m.lm = { statut, ref, date }, consultée dans la fiche de la mission */
+          lmHref = "cac-mandat.html?id=" + encodeURIComponent(s.id) + "#lettre";
+          lmMeta = LM.statut === "a_etablir" ? "Lettre de mission CAC à établir" :
+            esc(LM.ref || "") + (LM.statut === "signee" ? " · signée le " + LM.date : " · envoyée le " + LM.date) +
+            (s.honoraires ? " · " + E.euros(s.honoraires) + " HT" + (s.type === "contractuel" ? " pour la mission" : " par exercice") : "");
+          if (incomplete)
+            blocage = LM.statut === "envoyee"
+              ? "Mission non acceptée tant que l'identification n'est pas complète. Une lettre de mission a déjà été envoyée le " + LM.date + " : complétez l'identification avant la signature."
+              : "Mission non acceptée tant que l'identification n'est pas complète.";
+          var ph = E.PHASE[s.ex.phase];
+          document.getElementById("mission").hidden = false;
+          document.getElementById("mission").innerHTML =
+            '<a class="list-row" href="cac-mandat.html?id=' + encodeURIComponent(s.id) + '">' +
+            '<span class="list-icon"><span class="ms">briefcase</span></span>' +
+            '<div class="lm-main"><span class="row-title">Mission de commissariat aux comptes</span><span class="row-meta">' +
+            esc(E.TYPE_MANDAT[s.type]) + " · exercice clos le " + s.ex.clos + " · " + esc(ph) + "</span></div>" +
+            '<div class="lm-right"><span class="open-mission">Voir la mission CAC</span><span class="ms chev">arrow_forward</span></div>' +
+            "</a>";
+        } else {
+          lmHref = "lettre-mission.html?id=" + encodeURIComponent(s.id);
+          lmMeta = LM.statut === "absente" ? "Aucune lettre de mission pour cette société" :
+            esc(LM.ref) + (LM.signee && LM.statut === "signee" ? " · signée le " + LM.signee : "") +
+            (LM.envoyee ? " · envoyée le " + LM.envoyee : "") +
+            (LM.statut === "a_renouveler" ? " · échue le " + LM.echeance : "") +
+            (LM.honoraires ? " · " + E.euros(LM.honoraires) + " HT par an" : "");
+          if (incomplete) {
+            blocage = LM.statut === "envoyee"
+              ? "Une lettre est déjà partie le " + LM.envoyee + " : complétez l'identification avant la signature. Les prochains envois restent bloqués tant que l'identification n'est pas complète."
+              : "L'envoi de la lettre de mission est bloqué tant que l'identification n'est pas complète.";
+          }
         }
         document.getElementById("lm").innerHTML =
-          '<a class="list-row" href="lettre-mission.html?id=' + encodeURIComponent(s.id) + '">' +
+          '<a class="list-row" href="' + esc(lmHref) + '">' +
           '<span class="list-icon"><span class="ms">file-pen-line</span></span>' +
-          '<div class="lm-main"><span class="row-title">Lettre de mission</span><span class="row-meta">' + lmMeta + "</span></div>" +
-          '<div class="lm-right"><span class="badge ' + LM_BADGE[LM.statut] + '">' + E.LM_STATUT[LM.statut] + '</span><span class="ms chev">arrow_forward</span></div>' +
+          '<div class="lm-main"><span class="row-title">Lettre de mission' + (cac ? " CAC" : "") + '</span><span class="row-meta">' + lmMeta + "</span></div>" +
+          '<div class="lm-right"><span class="badge ' + LM_BADGE[LM.statut] + '">' + LM_LIB[LM.statut] + '</span><span class="ms chev">arrow_forward</span></div>' +
           "</a>" +
           (blocage ? '<div class="lm-block"><span class="ms">lock</span><span>' + esc(blocage) + "</span></div>" : "");
+
+        /* Mission que le profil n'exerce pas : aucun lien vers la lettre de mission ni vers la mission */
+        if (horsProfil)
+          ["lm", "mission"].forEach(function (k) {
+            var el = document.getElementById(k);
+            el.innerHTML = "";
+            el.hidden = true;
+          });
 
         /* ---------- Barre d'actions ---------- */
         var raisons = [];
@@ -885,9 +1013,9 @@
         var aJourNonEchue = !raisons.length && !enRetard && !!L.prochaineRevue;
         var validerOff = raisons.length > 0 || aJourNonEchue;
         var hint;
-        if (raisons.length) hint = "Validation impossible : " + raisons.join(" et ") + ". Réservée à l'associé.";
-        else if (aJourNonEchue) hint = "Revue à jour jusqu'au " + L.prochaineRevue + ". Validation réservée à l'associé : " + associe.nom + ".";
-        else hint = "Validation réservée à l'associé : " + associe.nom + ".";
+        if (raisons.length) hint = "Validation impossible : " + raisons.join(" et ") + ". Réservée à " + lAssocie + ".";
+        else if (aJourNonEchue) hint = "Revue à jour jusqu'au " + L.prochaineRevue + ". Validation réservée à " + lAssocie + " : " + associe.nom + ".";
+        else hint = "Validation réservée à " + lAssocie + " : " + associe.nom + ".";
         document.getElementById("actions").innerHTML =
           '<button class="btn btn-primary" type="button" id="valider" aria-describedby="hint-valider" title="' + esc(hint) + '"' + (validerOff ? " disabled" : "") + '><span class="ms">badge-check</span>Valider la revue</button>' +
           (homonymie ? '<button class="btn btn-secondary" type="button" id="lever"><span class="ms">scan-search</span>Lever l\'homonymie</button>' : "") +
@@ -912,14 +1040,14 @@
         function kv(k, v, src) {
           return '<dt>' + k + '</dt><dd class="kv-item"><span class="v">' + v + "</span>" + src + "</dd>";
         }
-        out.push(carte("building-2", "Identification", "Données de la société, pré-remplies depuis le DPJ ou le registre.", "",
+        out.push(carte("building-2", "Identification", cac ? "Données de l'entité, reprises du " + sg(association ? "RNA" : "RNE") + " et du dossier de la mission CAC." : "Données de la société, pré-remplies depuis le " + sg("DPJ") + " ou le " + sg("RNE") + ".", "",
           '<dl class="kv">' +
           kv("Dénomination", esc(s.nom), srcDPJ(dpj)) +
-          kv("SIREN", esc(s.siren), srcRNE()) +
-          kv("Forme juridique", esc(s.forme) + ", " + esc(FORMES[s.forme] || ""), srcRNE()) +
-          kv("Siège social", esc(F[0]), srcRNE()) +
+          kv("SIREN", esc(s.siren), srcReg()) +
+          kv("Forme juridique", esc(formeLib(s)), srcReg()) +
+          kv("Siège social", esc(F[0]), srcReg()) +
           kv("Dirigeant", esc(F[2]), srcDPJ(dpj)) +
-          kv("Capital social", esc(F[1]), srcRNE()) +
+          (F[1] ? kv("Capital social", esc(F[1]), srcReg()) : "") +
           kv("Activité", esc(s.activite), srcDPJ(dpj)) +
           "</dl>", "identification"));
 
@@ -928,11 +1056,15 @@
         if (SOUS_SEUIL.length)
           notes += '<p class="xs muted">Associés sous le seuil : ' + SOUS_SEUIL.length + " (" +
             SOUS_SEUIL.map(function (x) { return esc(x[0]) + " " + esc(x[1]); }).join(", ") + "), non bénéficiaires effectifs.</p>";
+        var descBE = BE.length
+          ? BE.length + " bénéficiaire" + (BE.length > 1 ? "s" : "") + " effectif" + (BE.length > 1 ? "s" : "") + " identifié" + (BE.length > 1 ? "s" : "") +
+            (association ? ", d'après les statuts et la composition du bureau" : ", repris du " + sg("RBE"))
+          : "Personnes qui détiennent ou contrôlent la société";
         var corpsBE;
         if (!BE.length) {
           corpsBE =
             '<div class="vide"><strong>Aucun bénéficiaire effectif identifié</strong>' +
-            "<p>Sans bénéficiaire effectif, le dossier ne peut pas être complété. EJ propose les personnes détenant plus de 25 % du capital ou des droits de vote, ou exerçant un contrôle par un autre moyen, d'après le DPJ et le registre des bénéficiaires effectifs (RBE).</p>" +
+            "<p>Sans bénéficiaire effectif, le dossier ne peut pas être complété. EJ propose les personnes détenant plus de 25 % du capital ou des droits de vote, ou exerçant un contrôle par un autre moyen, d'après le " + sg("DPJ") + " et le " + sg("RBE") + ".</p>" +
             '<button class="btn btn-primary btn-sm" type="button"><span class="ms">user-round-search</span>Identifier depuis le DPJ et le RBE</button></div>' + notes;
         } else {
           corpsBE =
@@ -942,36 +1074,38 @@
                 "<tr>" +
                 '<td class="cell-main" data-label="Nom"><span class="nom">' + esc(b[0]) + "</span></td>" +
                 '<td data-label="Détention">' + esc(b[1]) + "</td>" +
-                '<td data-label="Source"><span class="source"><span class="ms">landmark</span>RBE · INPI, ' + base + "</span></td>" +
+                '<td data-label="Source">' + (association
+                  ? '<span class="source"><span class="ms">file-text</span>Statuts et composition du bureau</span>'
+                  : '<span class="source"><span class="ms">landmark</span>RBE · INPI, ' + base + "</span>") + "</td>" +
                 "</tr>"
               );
             }).join("") + "</tbody></table></div>" + notes;
         }
-        out.push(carte("users", "Bénéficiaires effectifs", BE.length ? BE.length + " bénéficiaire" + (BE.length > 1 ? "s" : "") + " effectif" + (BE.length > 1 ? "s" : "") + " identifié" + (BE.length > 1 ? "s" : "") : "Personnes qui détiennent ou contrôlent la société", "", corpsBE, "beneficiaires"));
+        out.push(carte("users", "Bénéficiaires effectifs", descBE, "", corpsBE, "beneficiaires"));
 
         /* 3. Criblage PPE et gel des avoirs (société, dirigeant, bénéficiaires effectifs) */
         var btnCriblage = '<button class="btn btn-secondary btn-sm" type="button" id="criblage"><span class="ms">' + (criblee ? "refresh-cw" : "scan-search") + "</span>" + (criblee ? "Relancer le criblage" : "Lancer le criblage") + "</button>";
-        var cribles = [{ nom: s.nom, role: "Société", soc: true }];
-        cribles.push({ nom: dirNom, role: (dirRole ? dirRole.charAt(0).toUpperCase() + dirRole.slice(1) : "Dirigeant") + (dirEstBE ? " et bénéficiaire effectif" : "") });
+        var cribles = [{ nom: s.nom, role: association ? "Association" : cac ? "Entité contrôlée" : "Société", soc: true }];
+        cribles.push({ nom: dirNom, role: (dirRole ? dirRole.charAt(0).toUpperCase() + dirRole.slice(1) : "Dirigeant") + (dirEstBE ? (beDefaut ? " et bénéficiaire effectif à défaut" : " et bénéficiaire effectif") : "") });
         BE.forEach(function (b) { if (b[0] !== dirNom) cribles.push({ nom: b[0], role: "Bénéficiaire effectif" }); });
         if (!BE.length) cribles.push({ nom: "Bénéficiaires effectifs", role: "Non identifiés", be0: true });
         function cellulePPE(c) {
-          if (c.be0) return '<span class="oui-non muted"><span class="ms">circle-dashed</span>Criblage des BE non effectué</span>';
+          if (c.be0) return '<span class="oui-non muted"><span class="ms">circle-dashed</span>Criblage des bénéficiaires effectifs non effectué</span>';
           if (!criblee) return '<span class="oui-non muted"><span class="ms">circle-dashed</span>Non criblé</span>';
           if (c.soc) return '<span class="muted">Sans objet</span>';
           if (c.nom === ppeNom) return '<span class="oui-non ppe"><span class="ms">landmark</span>PPE</span>';
           return '<span class="oui-non ok"><span class="ms">circle-check</span>Non PPE</span>';
         }
         function celluleGel(c) {
-          if (c.be0) return '<span class="oui-non muted"><span class="ms">circle-dashed</span>Criblage des BE non effectué</span>';
+          if (c.be0) return '<span class="oui-non muted"><span class="ms">circle-dashed</span>Criblage des bénéficiaires effectifs non effectué</span>';
           if (!criblee) return '<span class="oui-non muted"><span class="ms">circle-dashed</span>Non criblé</span>';
           if (homonymie && c.nom === homNom) return '<span class="oui-non warn"><span class="ms">triangle-alert</span>Homonymie à lever</span>';
           return '<span class="oui-non ok"><span class="ms">circle-check</span>Aucune correspondance</span>';
         }
         var noteCriblage = criblee
-          ? "Criblage continu via le connecteur KYC (fournisseur à choisir), dernier passage le " + L.criblage + "." + (BE.length ? "" : " Les bénéficiaires effectifs ne peuvent être criblés qu'une fois identifiés.")
-          : "Aucun criblage effectué. Il couvre la société, le dirigeant et les bénéficiaires effectifs, via le connecteur KYC (fournisseur à choisir).";
-        out.push(carte("scan-search", "Criblage PPE et gel des avoirs", criblee ? "Criblage continu, dernier passage le " + L.criblage : "Criblage non effectué", btnCriblage,
+          ? "Criblage continu via le connecteur " + sg("KYC") + ", dont le fournisseur reste à choisir ; dernier passage le " + L.criblage + "." + (BE.length ? "" : " Les bénéficiaires effectifs ne peuvent être criblés qu'une fois identifiés.")
+          : "Aucun criblage effectué. Il couvre la société, le dirigeant et les bénéficiaires effectifs, via le connecteur " + sg("KYC") + ", dont le fournisseur reste à choisir.";
+        out.push(carte("scan-search", "Criblage des " + sg("PPE", "personnes politiquement exposées (PPE)") + " et gel des avoirs", criblee ? "Criblage continu, dernier passage le " + L.criblage : "Criblage non effectué", btnCriblage,
           '<div class="table-scroll"><table class="rtable"><thead><tr><th>Personne</th><th>Rôle</th><th>Contrôle PPE</th><th>Gel des avoirs</th></tr></thead><tbody>' +
           cribles.map(function (c) {
             return (
@@ -988,11 +1122,11 @@
         /* 4. Évaluation du risque (grille du cabinet) puis obligations légales */
         var N = ["Faible", "Standard", "Élevé"], NC = ["risk-faible", "risk-standard", "risk-eleve"];
         var LV = {
-          secteur: s.id === "cap-esterel" ? 2 : s.id === "kalipso" ? 2 : { paprika: 1, helios: 1, orvea: 1, mercier: 1, "urban-fit": 1, sotrab: 1 }[s.id] || 0,
-          flux: { helios: 1, kpl3d: 1, orvea: 1, "groupe-bmr": 1, neolab: 1, kalipso: 2 }[s.id] || 0,
+          secteur: { "cap-esterel": 2, kalipso: 2, marees: 2, paprika: 1, helios: 1, orvea: 1, mercier: 1, "urban-fit": 1, sotrab: 1, vertalis: 1, nordia: 1, "clinique-parc": 1, halios: 1 }[s.id] || 0,
+          flux: { helios: 1, kpl3d: 1, orvea: 1, "groupe-bmr": 1, neolab: 1, kalipso: 2, vertalis: 1, nordia: 1, halios: 1, marees: 1 }[s.id] || 0,
           detention: indirect ? 1 : 0,
           distance: s.id === "orvea" ? 1 : 0,
-          operations: { paprika: 1, helios: 1, kpl3d: 1, "cap-esterel": 1, "azur-holding": 1, "urban-fit": 1, "groupe-bmr": 1, kalipso: 1, sotrab: 1 }[s.id] || 0,
+          operations: { paprika: 1, helios: 1, kpl3d: 1, "cap-esterel": 1, "azur-holding": 1, "urban-fit": 1, "groupe-bmr": 1, kalipso: 1, sotrab: 1, "clinique-parc": 1, halios: 1, marees: 1 }[s.id] || 0,
         };
         var CRITERES = [
           { k: "secteur", lib: "Secteur d'activité", poids: "Fort",
@@ -1000,7 +1134,7 @@
           { k: "flux", lib: "Pays et flux", poids: "Fort",
             v: ["Activité et flux en France", "Flux avec l'Union européenne", "Flux avec des pays tiers à risque"] },
           { k: "detention", lib: "Structure de détention", poids: "Moyen",
-            v: [holding ? "Détention directe, holding animatrice" : "Détention directe par des personnes physiques", "Détention en partie indirecte (un bénéficiaire effectif via une société)", ""] },
+            v: [association ? "Association sans capital : représentant légal retenu à défaut de bénéficiaire effectif" : holdingAnimatrice ? "Détention directe, holding animatrice" : holding ? "Détention directe, holding de tête d'un groupe" : "Détention directe par des personnes physiques", "Détention en partie indirecte (un bénéficiaire effectif via une société)", ""] },
           { k: "distance", lib: "Relation à distance", poids: "Moyen",
             v: ["Relation en face à face", "Relation à distance, sans rencontre", ""] },
           { k: "operations", lib: "Nature et montant des opérations", poids: "Moyen",
@@ -1013,7 +1147,7 @@
           return '<tr><td class="cell-main" data-label="Critère"><span class="nom">' + c.lib + '</span></td><td data-label="Valeur retenue">' + c.v[n] + '</td><td data-label="Poids">' + c.poids + '</td><td data-label="Niveau"><span class="risk ' + NC[n] + '">' + N[n] + "</span></td></tr>";
         }).join("");
         var perVal;
-        if (mois) perVal = chaque(mois) + (ecart ? '<span class="val-sub">Ajustée par l\'associé (grille : ' + libPeriode(GRILLE_MOIS[L.risque]) + ") : " + esc(motif) + "</span>" : "");
+        if (mois) perVal = chaque(mois) + (ecart ? '<span class="val-sub">Ajustée par ' + lAssocie + ' (grille : ' + libPeriode(GRILLE_MOIS[L.risque]) + ") : " + esc(motif) + "</span>" : "");
         else if (L.risque) perVal = chaque(GRILLE_MOIS[L.risque]) + '<span class="val-sub">Selon la grille du cabinet, fixée à la validation</span>';
         else perVal = '<span class="muted">À définir après l\'évaluation</span>';
         var resultat = L.risque
@@ -1026,7 +1160,7 @@
         var obPPE, obGel;
         if (L.ppe) obPPE = '<span class="oui-non ppe"><span class="ms">landmark</span>PPE identifiée</span>';
         else if (beCribles) obPPE = '<span class="oui-non ok"><span class="ms">circle-check</span>Aucune PPE identifiée</span>';
-        else obPPE = '<span class="oui-non muted"><span class="ms">circle-dashed</span>Criblage des BE non effectué</span>';
+        else obPPE = '<span class="oui-non muted"><span class="ms">circle-dashed</span>Criblage des bénéficiaires effectifs non effectué</span>';
         if (homonymie) obGel = '<span class="oui-non warn"><span class="ms">triangle-alert</span>Homonymie à lever</span>';
         else if (!criblee) obGel = '<span class="oui-non muted"><span class="ms">circle-dashed</span>Non criblé</span>';
         else obGel = '<span class="oui-non ok"><span class="ms">circle-check</span>Aucune correspondance, dernier passage le ' + L.criblage + "</span>";
@@ -1037,22 +1171,30 @@
         out.push(carte("scale", "Évaluation du risque", "Les critères sont ceux de la grille du cabinet.", "",
           '<div class="table-scroll"><table class="rtable"><thead><tr><th>Critère</th><th>Valeur retenue</th><th>Poids</th><th>Niveau</th></tr></thead><tbody>' + ligneCrit + "</tbody></table></div>" +
           resultat +
-          '<div class="grille-note"><span class="t">Cette grille est celle du cabinet ' + esc(E.cabinet) + ' : le cabinet fixe ses critères, leur poids et la périodicité des revues. Ce n\'est pas une règle EJ.</span><a href="#" title="Écran non maquetté">Paramétrer la grille</a></div>' +
+          '<div class="grille-note"><span class="t">Cette grille est celle du ' + esc(E.cabinet) + ' : le cabinet fixe ses critères, leur poids et la périodicité des revues. Ce n\'est pas une règle EJ.</span><a href="#" title="Écran non maquetté">Paramétrer la grille</a></div>' +
           oblig, "evaluation"));
 
         /* 5. Pièces justificatives (liste adaptée au dossier, nombre attendu = lab.pieces[1]) */
         var P = L.pieces;
-        var LISTE = [
-          ["Extrait RNE ou Kbis", "de moins de 3 mois"],
-          ["Statuts à jour", ""],
-          ["Pièce d'identité du dirigeant", ""],
-          ["Pièces d'identité des bénéficiaires effectifs", "une par bénéficiaire"],
-          ["Justificatif de domicile du siège", ""],
-        ];
+        var LISTE = association
+          ? [
+              ["Statuts à jour", ""],
+              ["Composition du bureau", "procès-verbal de la dernière assemblée"],
+              ["Publication au Journal officiel", "déclaration de l'association"],
+              ["Pièce d'identité du représentant légal", "la présidente de l'association"],
+              ["Justificatif de domicile du siège", ""],
+            ]
+          : [
+              ["Extrait RNE ou Kbis", "de moins de 3 mois"],
+              ["Statuts à jour", ""],
+              ["Pièce d'identité du dirigeant", ""],
+              ["Pièces d'identité des bénéficiaires effectifs", "une par bénéficiaire"],
+              ["Justificatif de domicile du siège", ""],
+            ];
         if (P[1] > 5) LISTE.push(["Origine des fonds", "selon le cas"]);
         var cand = [];
         if (indirect) cand.push(["Organigramme de détention", "exigé : détention indirecte"]);
-        else if (holding) cand.push(["Organigramme du groupe", "filiales animées, pour la holding animatrice"]);
+        else if (holding) cand.push(["Organigramme du groupe", holdingAnimatrice ? "filiales animées, pour la holding animatrice" : "périmètre des comptes consolidés"]);
         if (L.ppe || L.risque === "eleve") cand.push(["Origine du patrimoine", "à documenter en cas de PPE ou de risque élevé"]);
         cand.push(["Dernier bilan", "pour le profil d'activité"]);
         var attendues = LISTE.concat(cand.slice(0, Math.max(0, P[1] - LISTE.length))).slice(0, P[1]);
@@ -1064,7 +1206,7 @@
         var piecesHtml = attendues.map(function (p, i) {
           var recue = i < P[0];
           var det = p[1] ? esc(p[1]) : "";
-          if (i === 3 && !BE.length) det = "en attente de l'identification des bénéficiaires effectifs";
+          if (i === 3 && !BE.length && !association) det = "en attente de l'identification des bénéficiaires effectifs";
           return (
             '<div class="piece">' +
             (recue ? '<span class="ms etat recu">circle-check</span>' : '<span class="ms etat manque">circle-dashed</span>') +
@@ -1080,13 +1222,13 @@
 
         /* 6. Diligences et historique (dates tirées de lab.ouverture, lab.criblage et lab.derniereRevue) */
         var J = [];
-        function nomAssocie() { return esc(associe.nom) + " (associé)"; }
+        function nomAssocie() { return esc(associe.nom) + " (" + accord + ")"; }
         function ajoute(d, i, t, w, warn) { J.push({ d: d, i: i, t: t, w: w, warn: !!warn, n: J.length }); }
         if (!L.ouverture) {
           ajoute(AJOUT, "folder-open", "Société ajoutée au portefeuille. Dossier LAB à ouvrir.", "Ajout automatique");
           ajoute(AJOUT, "database", "Pré-remplissage proposé depuis le DPJ : identité et dirigeant.", "EJ");
         } else {
-          ajoute(L.ouverture, "folder-open", "Ouverture du dossier et pré-remplissage depuis le DPJ.", esc(resp.nom));
+          ajoute(L.ouverture, "folder-open", cac ? "Ouverture du dossier et pré-remplissage depuis les registres et le dossier de la mission CAC." : "Ouverture du dossier et pré-remplissage depuis le DPJ.", esc(resp.nom));
           if (L.risque) {
             var dEval = L.derniereRevue && dt(L.derniereRevue) >= dt(L.ouverture) ? L.derniereRevue : L.ouverture;
             ajoute(dEval, "scale", "Évaluation du risque : " + E.RISQUE[L.risque].toLowerCase() + ", " + VIG[L.risque].toLowerCase() + ".", esc(resp.nom));
@@ -1133,7 +1275,7 @@
         var bL = document.getElementById("lever");
         if (bL)
           bL.addEventListener("click", function () {
-            message("alert-warning", "triangle-alert", "<strong>Lever l'homonymie de " + esc(homNom) + ".</strong> Comparez la date et le lieu de naissance de la personne criblée avec ceux de la personne figurant sur la liste de gel. Si elles ne correspondent pas, documentez la levée dans le dossier : éléments consultés, conclusion, auteur et date. Si la correspondance est confirmée, ou en cas de doute, ne validez pas la revue et suivez la procédure du cabinet, hors de cette fiche (maquette).");
+            message("alert-warning", "triangle-alert", "<strong>Lever l'homonymie " + esc(de(homNom)) + ".</strong> Comparez la date et le lieu de naissance de la personne criblée avec ceux de la personne figurant sur la liste de gel. Si elles ne correspondent pas, documentez la levée dans le dossier : éléments consultés, conclusion, auteur et date. Si la correspondance est confirmée, ou en cas de doute, ne validez pas la revue et suivez la procédure du cabinet, hors de cette fiche (maquette).");
           });
         document.getElementById("escalader").addEventListener("click", function () {
           if (respEstAssocie) message("alert-info", "notebook-pen", "Analyse consignée au dossier (maquette). " + esc(associe.nom) + " étant à la fois responsable du dossier et responsable LAB, aucune transmission n'est nécessaire.");
@@ -1150,6 +1292,6 @@
         });
       })();
     </script>
-    <script src="assets/ej-shell.js?v=17"></script>
+    <script src="assets/ej-shell.js?v=19"></script>
   </body>
 </html>
