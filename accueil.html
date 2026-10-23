@@ -52,57 +52,6 @@
         color: var(--ej-neutral-500);
       }
 
-      /* ---------- Indicateurs ---------- */
-      .kpis {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 14px;
-        margin-bottom: 28px;
-      }
-      .kpi {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        padding: 18px 20px;
-        position: relative;
-      }
-      .kpi-top {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--ej-neutral-600);
-      }
-      .kpi-top .ms {
-        font-size: 18px;
-        color: var(--ej-neutral-400);
-        transition: color var(--ej-transition-fast), transform var(--ej-transition-fast);
-      }
-      a.kpi:hover .kpi-top .ms {
-        color: var(--ej-action-600);
-        transform: translateX(2px);
-      }
-      .kpi-value {
-        font-family: var(--ej-font-display);
-        font-size: 34px;
-        font-weight: 600;
-        letter-spacing: -0.02em;
-        line-height: 1.1;
-        color: var(--ej-primary-900);
-      }
-      .kpi-sub {
-        font-size: 12.5px;
-        color: var(--ej-neutral-500);
-      }
-      .kpi.alert {
-        background: linear-gradient(180deg, var(--ej-attention-100), #fff 75%);
-        border-color: var(--ej-attention-500);
-      }
-      .kpi.alert .kpi-value {
-        color: var(--ej-attention-600);
-      }
-
       /* ---------- Grille ---------- */
       .home-grid {
         display: grid;
@@ -533,43 +482,20 @@
       }
     </style>
   </head>
-  <body data-active="accueil">
+  <body data-active="accueil" data-home-tab="accueil">
     <div id="ej-header"></div>
     <div class="app">
       <div id="ej-sidebar"></div>
       <div class="main">
         <div class="page home">
+          <div id="ej-home-tabs"></div>
           <div class="hello">
             <div>
               <div class="hello-eyebrow">Lundi 19 octobre 2026</div>
               <h1>Bonjour Thomas</h1>
-              <p>Voici l'essentiel de l'activité du cabinet Delmas Expertise aujourd'hui.</p>
+              <p>Votre parcours, ce qui attend une action et les nouveautés. Les indicateurs du cabinet sont dans l'onglet Cockpit.</p>
             </div>
             <a class="btn btn-primary" href="nouvelle-formalite.html"><span class="ms">add</span>Nouvelle formalité</a>
-          </div>
-
-          <!-- Suivi d'activité -->
-          <div class="kpis">
-            <a class="card kpi" href="formalites.html">
-              <span class="kpi-top">Formalités en cours<span class="ms">arrow_forward</span></span>
-              <span class="kpi-value">20</span>
-              <span class="kpi-sub">sur 164 formalités au total</span>
-            </a>
-            <a class="card kpi alert" href="suivi-actions.html">
-              <span class="kpi-top">Actions requises<span class="ms">arrow_forward</span></span>
-              <span class="kpi-value">5</span>
-              <span class="kpi-sub">documents à signer</span>
-            </a>
-            <a class="card kpi" href="suivi-actions.html">
-              <span class="kpi-top">Prêts à déposer<span class="ms">arrow_forward</span></span>
-              <span class="kpi-value">8</span>
-              <span class="kpi-sub">dépôts INPI · 3 signatures en cours</span>
-            </a>
-            <a class="card kpi" href="societes.html">
-              <span class="kpi-top">Sociétés suivies<span class="ms">arrow_forward</span></span>
-              <span class="kpi-value">135</span>
-              <span class="kpi-sub">154 souscriptions actives</span>
-            </a>
           </div>
 
           <div class="home-grid">
@@ -669,6 +595,14 @@
       ];
 
       var done = STEPS.filter(function (s) { return s.done; }).length;
+      (function () {
+        var last = null;
+        try { last = localStorage.getItem("ej-home-tab"); } catch (e) {}
+        if (done === STEPS.length && last === "cockpit" && !/[?&]tab=/.test(location.search)) location.replace("cockpit.html");
+      })();
+      document.addEventListener("DOMContentLoaded", function () {
+        if (document.body.getAttribute("data-profil") === "cac") document.querySelector(".hello h1").textContent = "Bonjour Claire";
+      });
       var firstTodo = STEPS.findIndex(function (s) { return !s.done; });
       document.getElementById("progress").style.width = Math.round((done / STEPS.length) * 100) + "%";
       document.getElementById("progress-label").textContent = done + " sur " + STEPS.length + " découvertes";
@@ -720,6 +654,6 @@
         );
       }).join("");
     </script>
-    <script src="assets/ej-shell.js?v=20"></script>
+    <script src="assets/ej-shell.js?v=21"></script>
   </body>
 </html>

@@ -5,7 +5,6 @@
 (function () {
   var NAV = [
     { id: "accueil", label: "Accueil", icon: "home", href: "accueil.html" },
-    { id: "cockpit", label: "Cockpit", sub: "Tableaux de bord et IA", icon: "layout_dashboard", href: "cockpit.html" },
     { id: "formalites", label: "Formalités", icon: "topic", href: "formalites.html" },
     { id: "societes", label: "Sociétés", icon: "storefront", href: "societes.html" },
     { id: "suivi", label: "Suivi des actions", icon: "table_chart", href: "suivi-actions.html" },
@@ -35,6 +34,8 @@
   ];
 
   var active = document.body.getAttribute("data-active") || "";
+  /* Accueil et Cockpit sont deux onglets d'une même entrée de menu. */
+  if (active === "cockpit") active = "accueil";
 
   /* Profil de cabinet simulé (maquette) : ec, cac ou mixte. Gardé dans le
      navigateur ; les pages lisent document.body.dataset.profil. */
@@ -71,7 +72,10 @@
     ".sidebar-item.soon{color:var(--ej-neutral-400);cursor:default}" +
     ".sidebar-item.soon:hover{background:none;color:var(--ej-neutral-400)}" +
     ".sidebar-item.soon .ms{color:var(--ej-neutral-300)}" +
-    ".menu-btn{display:none}";
+    ".menu-btn{display:none}" +
+    ".home-tabs{margin-bottom:20px}" +
+    ".home-tabs .tab{font-size:15px;padding:12px 16px 13px}" +
+    ".home-tabs .tab .ms{font-size:19px}";
   var style = document.createElement("style");
   style.textContent = css;
   document.head.appendChild(style);
@@ -141,7 +145,24 @@
     '</nav><span class="version">stage-v0.29-rejistre</span></footer>' +
     '<button class="help-bubble" type="button" aria-label="Aide et contact"><span class="ms">chat</span></button>';
 
+  var homeTab = document.body.getAttribute("data-home-tab");
+  var homeTabs = "";
+  if (homeTab) {
+    try { localStorage.setItem("ej-home-tab", homeTab); } catch (e) {}
+    homeTabs =
+      '<nav class="tabs home-tabs" aria-label="Accueil">' +
+      [
+        { id: "accueil", label: "Accueil", icon: "home", href: "accueil.html?tab=accueil" },
+        { id: "cockpit", label: "Cockpit", icon: "layout_dashboard", href: "cockpit.html" },
+      ].map(function (t) {
+        var on = t.id === homeTab;
+        return '<a class="tab' + (on ? " active" : "") + '" href="' + t.href + '"' + (on ? ' aria-current="page"' : "") + '><span class="ms">' + t.icon + "</span>" + t.label + "</a>";
+      }).join("") +
+      "</nav>";
+  }
+
   replace("ej-header", header);
+  replace("ej-home-tabs", homeTabs);
   replace("ej-sidebar", sidebar);
   replace("ej-footer", footer);
 

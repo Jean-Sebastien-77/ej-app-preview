@@ -55,7 +55,7 @@
         margin-left: -8px;
         border-radius: var(--ej-radius-md);
         font-family: var(--ej-font-display);
-        font-size: 24px;
+        font-size: 21px;
         font-weight: 600;
         letter-spacing: -0.015em;
         color: var(--ej-primary-900);
@@ -2256,12 +2256,13 @@
       }
     </style>
   </head>
-  <body class="m-resp" data-active="cockpit">
+  <body class="m-resp" data-active="cockpit" data-home-tab="cockpit">
     <div id="ej-header"></div>
     <div class="app">
       <div id="ej-sidebar"></div>
       <main class="main" id="main">
         <div class="page cv-page" id="cv-page">
+          <div id="ej-home-tabs"></div>
           <header class="cv-head">
             <h1 class="cv-h1" id="cv-h1"></h1>
             <div class="cv-actions" id="cv-actions"></div>
@@ -6582,6 +6583,6 @@
         document.addEventListener("DOMContentLoaded", init);
       })();
     </script>
-    <script src="assets/ej-shell.js?v=20"></script>
+    <script src="assets/ej-shell.js?v=21"></script>
   </body>
 </html>
