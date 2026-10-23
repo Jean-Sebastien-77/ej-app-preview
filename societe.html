@@ -188,6 +188,38 @@
       .tl-pill .tl-date {
         color: var(--ej-neutral-400);
       }
+
+      /* ---- Société introuvable / chronologie vide (page appelée avec ?id=) ---- */
+      .soc-absent {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 40px 24px;
+        text-align: center;
+      }
+      .soc-absent .ms {
+        font-size: 32px;
+        color: var(--ej-neutral-400);
+      }
+      .soc-absent .btn {
+        margin-top: 12px;
+      }
+      .timeline.tl-solo {
+        padding-left: 0;
+      }
+      .timeline.tl-solo::before {
+        display: none;
+      }
+      .tl-vide {
+        padding: 20px;
+        border: 1px dashed var(--ej-neutral-300);
+        border-radius: var(--ej-radius-lg);
+        font-size: 14px;
+        font-style: italic;
+        color: var(--ej-neutral-500);
+        text-align: center;
+      }
     </style>
   </head>
   <body data-active="societes">
@@ -195,25 +227,25 @@
     <div class="app">
       <div id="ej-sidebar"></div>
       <div class="main">
-        <div class="page page-narrow">
+        <div class="page page-narrow" id="soc-page">
           <a class="back-link" href="societes.html"><span class="ms">chevron_left</span>Mes sociétés</a>
 
-          <div class="card soc-head">
+          <div class="card soc-head" id="soc-head">
             <div class="soc-motif" aria-hidden="true"><i class="m1"></i><i class="m2"></i></div>
             <div>
-              <div class="soc-name">PAPRIKA CANTINE</div>
-              <div class="soc-form">SAS, société par actions simplifiée</div>
-              <div class="soc-greffe">Greffe : <strong>NANTES</strong></div>
+              <div class="soc-name" id="soc-name">PAPRIKA CANTINE</div>
+              <div class="soc-form" id="soc-form">SAS, société par actions simplifiée</div>
+              <div class="soc-greffe" id="soc-greffe">Greffe : <strong>NANTES</strong></div>
             </div>
-            <div class="soc-ids">
+            <div class="soc-ids" id="soc-ids">
               <div class="soc-siren">SIREN : <strong>795 294 481</strong></div>
               <div>Date d'immatriculation : <strong>01/08/2024</strong></div>
             </div>
           </div>
 
           <div class="tabs">
-            <a class="tab active" href="societe.html">Formalités</a>
-            <a class="tab" href="societe-registres.html">Registres</a>
+            <a class="tab active" id="tab-formalites" href="societe.html">Formalités</a>
+            <a class="tab" id="tab-registres" href="societe-registres.html">Registres</a>
             <a class="tab tab-spacer" href="#"><span class="ms">settings</span>Paramètres</a>
           </div>
 
@@ -223,7 +255,7 @@
             <span class="ms">add</span>Ajouter une nouvelle formalité à cette société
           </a>
 
-          <div class="timeline">
+          <div class="timeline" id="soc-timeline">
             <div class="tl-item">
               <a class="card tl-card" href="formalite.html">
                 <div>
@@ -261,5 +293,132 @@
     </div>
 
     <script src="assets/ej-shell.js?v=19"></script>
+
+    <script>
+      /* Sans paramètre : la page reste celle de PAPRIKA CANTINE, telle quelle (aucune donnée chargée).
+         Avec ?id=<id DPJ> : charge les données fictives et remplace l'en-tête et la chronologie. */
+      (function () {
+        var m = /[?&]id=([^&#]*)/.exec(location.search);
+        if (!m) return;
+        var id;
+        try {
+          id = decodeURIComponent(m[1].replace(/\+/g, " "));
+        } catch (e) {
+          id = m[1];
+        }
+
+        function esc(s) {
+          return String(s == null ? "" : s)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+        }
+        function $(i) {
+          return document.getElementById(i);
+        }
+        function pad(n) {
+          return (n < 10 ? "0" : "") + n;
+        }
+        function fmt(d) {
+          return pad(d.getDate()) + "/" + pad(d.getMonth() + 1) + "/" + d.getFullYear();
+        }
+
+        var FORMES = {
+          SAS: "SAS, société par actions simplifiée",
+          SARL: "SARL, société à responsabilité limitée",
+          SA: "SA, société anonyme",
+          SCI: "SCI, société civile immobilière",
+          SCP: "SCP, société civile professionnelle",
+          SCCV: "SCCV, société civile de construction vente",
+          SELARL: "SELARL, société d'exercice libéral à responsabilité limitée",
+        };
+        /* Villes du siège sans greffe de tribunal de commerce propre : greffe du ressort */
+        var GREFFES = { "Boulogne-Billancourt": "Nanterre", Cergy: "Pontoise", "Saint-Raphaël": "Fréjus" };
+
+        function introuvable() {
+          document.title = "Société introuvable · Express Juridique";
+          $("soc-page").innerHTML =
+            '<a class="back-link" href="societes.html"><span class="ms">chevron_left</span>Mes sociétés</a>' +
+            '<div class="card soc-absent">' +
+            '<span class="ms" aria-hidden="true">search</span>' +
+            '<h2 class="section-title" style="margin:0">Société introuvable</h2>' +
+            '<p class="page-desc">' +
+              (id ? "Aucune société ne correspond à l’identifiant «\u00a0" + esc(id) + "\u00a0»." : "Aucune société n’est précisée dans l’adresse de la page.") +
+              "</p>" +
+            '<a class="btn btn-secondary" href="societes.html">Retour à Mes sociétés</a>' +
+            "</div>";
+        }
+
+        function afficher() {
+          var D = window.EJDPJ;
+          var f = D && D.byId ? D.byId(id) : null;
+          if (!f) return introuvable();
+
+          document.title = f.nom + " · Formalités · Express Juridique";
+          $("soc-name").textContent = f.nom;
+          $("soc-form").textContent = FORMES[f.forme] || f.forme;
+
+          var ville = f.siege && f.siege.ville ? f.siege.ville : "";
+          var greffe = ville ? (GREFFES[ville] || ville).toUpperCase() : "";
+          $("soc-greffe").innerHTML = greffe ? "Greffe : <strong>" + esc(greffe) + "</strong>" : "";
+
+          $("soc-ids").innerHTML =
+            '<div class="soc-siren">SIREN : <strong>' + esc(f.siren || "En cours de création") + "</strong></div>" +
+            "<div>Date d'immatriculation : <strong>" + esc(f.immatriculation || "En attente") + "</strong></div>";
+
+          $("tab-formalites").href = "societe.html?id=" + encodeURIComponent(f.id);
+          $("tab-registres").href = "societe-registres.html?id=" + encodeURIComponent(f.id);
+
+          /* Chronologie : formalités de EJC (rapprochement par nom), puis l'ajout de la société */
+          var C = window.EJC;
+          var forms = C && C.formalites
+            ? C.formalites
+                .filter(function (x) {
+                  return x.soc === f.nom;
+                })
+                .sort(function (a, b) {
+                  return b.cree - a.cree;
+                })
+            : [];
+          var ec = C && C.byName ? C.byName[f.nom] : null;
+          var html = forms
+            .map(function (x) {
+              return (
+                '<div class="tl-item"><a class="card tl-card" href="formalite.html"><div>' +
+                '<div class="tl-date">' + esc(fmt(x.cree)) + "</div>" +
+                '<div class="tl-text"><strong>1 opération :</strong> ' + esc(x.type) + "</div>" +
+                '</div><span class="ms chev">chevron_right</span></a></div>'
+              );
+            })
+            .join("");
+          if (ec && ec.ajout) {
+            html +=
+              '<div class="tl-item tl-end"><span class="tl-pill"><span class="tl-date">' + esc(fmt(ec.ajout)) +
+              "</span>Ajout de la société sur Express-Juridique</span></div>";
+          } else if (!forms.length) {
+            html = '<div class="tl-vide">Aucune formalité pour cette société.</div>';
+          }
+          var tl = $("soc-timeline");
+          tl.innerHTML = html;
+          if (!forms.length && !(ec && ec.ajout)) tl.className = "timeline tl-solo";
+        }
+
+        /* Chargement séquentiel des données, dans l'ordre */
+        var SRC = ["assets/ej-missions-data.js?v=19", "assets/ej-cockpit-data.js?v=2", "assets/ej-dpj-data.js?v=2"];
+        function charger(i) {
+          if (i >= SRC.length) return afficher();
+          var el = document.createElement("script");
+          el.src = SRC[i];
+          el.onload = function () {
+            charger(i + 1);
+          };
+          el.onerror = introuvable;
+          document.head.appendChild(el);
+        }
+        charger(0);
+      })();
+    </script>
   </body>
 </html>

@@ -575,6 +575,7 @@
 
   /* ---------- Schéma des champs interrogeables ---------- */
   var OPS_TXT = ["=", "!=", "contient", "est_vide", "non_vide"];
+  var OPS_TXT_G = ["=", "!=", "contient", "aucun", "est_vide", "non_vide"]; /* champ texte d'un groupe de personnes */
   var OPS_LISTE = ["=", "!="];
   var OPS_NUM = ["=", "!=", ">", ">=", "<", "<=", "entre", "est_vide", "non_vide"];
   var OPS_DATE = ["=", "!=", ">", ">=", "<", "<=", "avant", "apres", "entre", "est_vide", "non_vide"];
@@ -625,29 +626,29 @@
     },
     get: function (f) { return f.cloture; },
   });
-  def("dirigeant.nom", "Dirigeant : nom", "texte", OPS_TXT, "Dirigeants", { grp: "dirigeant", pget: function (p) { return p.nom; } });
-  def("dirigeant.fonction", "Dirigeant : fonction", "texte", OPS_TXT, "Dirigeants", { grp: "dirigeant", pget: function (p) { return p.fonction; }, fmt: capFirst });
+  def("dirigeant.nom", "Dirigeant : nom", "texte", OPS_TXT_G, "Dirigeants", { grp: "dirigeant", pget: function (p) { return p.nom; } });
+  def("dirigeant.fonction", "Dirigeant : fonction", "texte", OPS_TXT_G, "Dirigeants", { grp: "dirigeant", pget: function (p) { return p.fonction; }, fmt: capFirst });
   def("dirigeant.debut", "Dirigeant : début de mandat", "date", OPS_DATE, "Dirigeants", { grp: "dirigeant", pget: function (p) { return p.debut; } });
   def("dirigeant.fin", "Dirigeant : fin de mandat", "date", OPS_DATE, "Dirigeants", {
     grp: "dirigeant",
     pget: function (p) { return p.fin; },
     fmt: function (v) { return v || "durée indéterminée"; },
   });
-  def("dirigeant.detail", "Dirigeants et mandats", "texte", ["contient"], "Dirigeants", {
+  def("dirigeant.detail", "Dirigeants et mandats", "texte", ["contient", "aucun"], "Dirigeants", {
     grp: "dirigeant",
     pget: function (p) { return p.nom + ", " + p.fonction.toLowerCase() + (p.fin ? " (jusqu'au " + p.fin + ")" : ""); },
   });
-  def("associe.nom", "Associé : nom", "texte", OPS_TXT, "Associés", { grp: "associe", pget: function (p) { return p.nom; } });
+  def("associe.nom", "Associé : nom", "texte", OPS_TXT_G, "Associés", { grp: "associe", pget: function (p) { return p.nom; } });
   def("associe.pct", "Associé : part du capital", "pourcentage", OPS_NUM, "Associés", { grp: "associe", pget: function (p) { return p.pct; }, fmt: fmtPct });
-  def("associe.detail", "Associés et parts du capital", "texte", ["contient"], "Associés", {
+  def("associe.detail", "Associés et parts du capital", "texte", ["contient", "aucun"], "Associés", {
     grp: "associe",
     pget: function (p) { return p.nom + " " + fmtPct(p.pct); },
   });
   def("nbAssocies", "Nombre d'associés", "nombre", OPS_NUM, "Associés", { get: function (f) { return f.associes.length ? f.associes.length : null; } });
-  def("personne.nom", "Personne (dirigeant ou associé)", "texte", ["=", "contient", "est_vide", "non_vide"], "Personnes", { grp: "personne", pget: function (p) { return p.nom; } });
-  def("personne.role", "Rôle de la personne", "texte", ["contient"], "Personnes", { grp: "personne", pget: function (p) { return p.role; } });
+  def("personne.nom", "Personne (dirigeant ou associé)", "texte", OPS_TXT_G, "Personnes", { grp: "personne", pget: function (p) { return p.nom; } });
+  def("personne.role", "Rôle de la personne", "texte", ["contient", "aucun"], "Personnes", { grp: "personne", pget: function (p) { return p.role; } });
   def("cac.present", "Commissaire aux comptes : présent", "liste", OPS_LISTE, "Commissariat aux comptes", { valeurs: ["oui", "non"], get: function (f) { return f.cac ? "oui" : "non"; } });
-  def("cac.cabinet", "Commissaire aux comptes : cabinet", "texte", OPS_TXT, "Commissariat aux comptes", { grp: "cac", pget: function (p) { return p.cabinet; } });
+  def("cac.cabinet", "Commissaire aux comptes : cabinet", "texte", OPS_TXT_G, "Commissariat aux comptes", { grp: "cac", pget: function (p) { return p.cabinet; } });
   def("cac.fin", "Commissaire aux comptes : fin de mandat", "date", OPS_DATE, "Commissariat aux comptes", { grp: "cac", pget: function (p) { return p.fin; } });
   def("derniereAG", "Dernière AG d'approbation", "date", OPS_DATE, "Événements", { get: function (f) { return f.derniereAG; } });
   def("derniereModifStatuts", "Dernière modification statutaire", "date", OPS_DATE, "Événements", { get: function (f) { return f.derniereModifStatuts; } });
@@ -656,7 +657,24 @@
     dirigeant: { list: function (f) { return f.dirigeants; }, nomField: "dirigeant.nom", motif: "sans dirigeant renseigné au DPJ", cac: false },
     associe: { list: function (f) { return f.associes; }, nomField: "associe.nom", motif: "sans associé renseigné au DPJ", cac: false },
     personne: { list: grpPersonnes, nomField: "personne.nom", motif: "sans dirigeant ni associé renseigné au DPJ", cac: false },
-    cac: { list: function (f) { return f.cac ? [f.cac] : []; }, nomField: "cac.cabinet", motif: "", cac: true },
+    cac: { list: function (f) { return f.cac ? [f.cac] : []; }, nomField: "cac.cabinet", motif: "sans commissaire aux comptes au DPJ", cac: true },
+  };
+
+  /* Motifs affichés quand une société ne peut pas être évaluée sur un champ simple (donnée absente du DPJ) */
+  var MOTIFS = {
+    nom: "sans dénomination renseignée au DPJ",
+    forme: "sans forme juridique renseignée au DPJ",
+    siren: "sans SIREN (société en cours de création)",
+    "siege.ville": "sans siège renseigné au DPJ",
+    "siege.departement": "sans siège renseigné au DPJ",
+    capital: "sans capital renseigné au DPJ",
+    activite: "sans activité renseignée au DPJ",
+    immatriculation: "sans date d'immatriculation (société en cours de création)",
+    cloture: "sans date de clôture renseignée au DPJ",
+    nbAssocies: "sans associé renseigné au DPJ",
+    "cac.present": "sans information sur le commissariat aux comptes au DPJ",
+    derniereAG: "sans dernière AG connue au DPJ",
+    derniereModifStatuts: "sans modification statutaire connue au DPJ",
   };
 
   /* ---------- Conversion et test de valeurs ---------- */
@@ -740,6 +758,15 @@
   }
 
   /* ---------- Évaluation ---------- */
+  /* Critère négatif sur un groupe : « ≠ » et « aucun » portent sur l'ensemble du groupe, pas sur une personne.
+     Il est vrai si AUCUN membre ne vérifie l'égalité (« ≠ ») ou la correspondance (« aucun », qui vaut « ne contient pas »). */
+  function isNeg(c) {
+    return c.op === "aucun" || c.op === "!=";
+  }
+  function negHit(c, p) {
+    var d = FIELD[c.field];
+    return testVal(d, d.pget(p), c.op === "aucun" ? "contient" : "=", c.value);
+  }
   function evalGroup(f, grp, clauses) {
     var G = GROUPS[grp];
     var list = G.list(f);
@@ -761,13 +788,25 @@
       if (miss) return { res: "missing", field: miss, matched: [] };
       return { res: true, matched: [] };
     }
-    var matched = list.filter(function (p) {
-      return clauses.every(function (c) {
-        var d = FIELD[c.field];
-        return testVal(d, d.pget(p), c.op, c.value);
+    /* critères positifs : ils s'appliquent à la même personne ; critères négatifs : sur tout le groupe */
+    var pos = clauses.filter(function (c) {
+      return !isNeg(c);
+    });
+    var neg = clauses.filter(isNeg);
+    var matched = pos.length
+      ? list.filter(function (p) {
+          return pos.every(function (c) {
+            var d = FIELD[c.field];
+            return testVal(d, d.pget(p), c.op, c.value);
+          });
+        })
+      : list.slice();
+    var negOk = neg.every(function (c) {
+      return !list.some(function (p) {
+        return negHit(c, p);
       });
     });
-    return { res: matched.length > 0, matched: matched };
+    return { res: matched.length > 0 && negOk, matched: matched };
   }
 
   /* Valeur affichée (select) ou de tri */
@@ -866,10 +905,11 @@
           if (!exclusMap[fld]) {
             var dd = FIELD[fld];
             var G = dd.grp ? GROUPS[dd.grp] : null;
-            exclusMap[fld] = { field: fld, label: dd.label, count: 0, motif: G && G.motif ? G.motif : "sans « " + dd.label.toLowerCase() + " » au DPJ" };
+            exclusMap[fld] = { field: fld, label: dd.label, count: 0, ids: [], motif: G && G.motif ? G.motif : MOTIFS[fld] || "donnée non renseignée au DPJ" };
             exclusOrder.push(fld);
           }
           exclusMap[fld].count++;
+          exclusMap[fld].ids.push(f.id);
           return;
         }
       }
@@ -973,6 +1013,36 @@
     return a.localeCompare(b, "fr");
   });
 
+  /* Prénoms des personnes (masquage côté page) : liste dédoublonnée */
+  var FIRSTSEEN = {};
+  var FIRSTNAMES = [];
+  PERSONS.forEach(function (n) {
+    var fn = n.split(" ")[0];
+    if (fn && !FIRSTSEEN[fn]) {
+      FIRSTSEEN[fn] = 1;
+      FIRSTNAMES.push(fn);
+    }
+  });
+  FIRSTNAMES.sort(function (a, b) {
+    return a.localeCompare(b, "fr");
+  });
+
+  /* Dirigeants et bénéficiaires effectifs des entités CAC (EJM.mandats), copiés de FICHES (lab-dossier.html).
+     Hors DPJ : ces noms ne sont pas dans persons, mais la page doit aussi pouvoir les masquer. */
+  var CAC_PERSONS = [
+    ["Gilles Perrot", "vertalis"], ["Anne Perrot", "vertalis"],
+    ["Fabrice Leclerc", "nordia"], ["Laure Gillet", "nordia"],
+    ["Laurent Besson", "clinique-parc"], ["Valérie Aubry", "clinique-parc"], ["Marc Hervé", "clinique-parc"],
+    ["Gérard Vasseur", "halios"], ["Hélène Courtois", "halios"],
+    ["Régis Dorval", "dorval"], ["Odile Dorval", "dorval"],
+    ["Sylvain Berthier", "brioche"], ["Corinne Berthier", "brioche"],
+    ["Monique Faure", "soleil"],
+    ["Anne-Sophie Maillard", "marees"], ["Denis Maillard", "marees"], ["Laurent Pichon", "marees"], ["Ophélie Pichon", "marees"],
+    ["Yanis Belkacem", "technopole"], ["Inès Moulin", "technopole"],
+  ].map(function (p) {
+    return { nom: p[0], mandatId: p[1] };
+  });
+
   /* ---------- Couverture par champ (qualité du DPJ) ---------- */
   function couverture() {
     var tot = SOCS.length;
@@ -1007,6 +1077,8 @@
     run: run,
     examples: EXAMPLES,
     persons: PERSONS,
+    firstNames: FIRSTNAMES,
+    cacPersons: CAC_PERSONS,
     couverture: couverture,
     fold: fold,
   };

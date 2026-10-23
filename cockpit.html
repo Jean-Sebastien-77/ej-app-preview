@@ -1520,6 +1520,73 @@
         color: var(--ej-action-600);
       }
 
+      .cv-msg-a > .cv-sent:first-child {
+        margin: 0 0 10px;
+      }
+      /* Résultats en cartes (moins de 600 px) */
+      .cv-rcards,
+      .cv-rsort {
+        display: none;
+      }
+      .cv-rcards {
+        list-style: none;
+        margin-top: 10px;
+        gap: 8px;
+      }
+      .cv-rcard {
+        padding: 10px 12px;
+        border: 1px solid var(--ej-neutral-100);
+        border-radius: var(--ej-radius-md);
+        font-size: 13px;
+      }
+      .cv-rcard > a {
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .cv-rcard dl {
+        margin-top: 6px;
+        display: grid;
+        gap: 4px;
+      }
+      .cv-rcard dl > div {
+        display: grid;
+        grid-template-columns: minmax(96px, 38%) minmax(0, 1fr);
+        gap: 8px;
+      }
+      .cv-rcard dt {
+        color: var(--ej-neutral-500);
+        font-size: 12px;
+      }
+      .cv-rcard dd {
+        color: var(--ej-neutral-800);
+        overflow-wrap: anywhere;
+      }
+      .cv-rsort {
+        margin-top: 10px;
+        align-items: center;
+        gap: 8px;
+        font-size: 12.5px;
+        color: var(--ej-neutral-600);
+      }
+      .cv-rsort select {
+        width: auto;
+        min-width: 170px;
+        min-height: 36px;
+        padding: 4px 32px 4px 10px;
+        font-size: 13px;
+      }
+      @media (max-width: 599px) {
+        .cv-dpj .cv-rt-wrap {
+          display: none;
+        }
+        .cv-dpj .cv-rcards {
+          display: grid;
+        }
+        .cv-dpj .cv-rsort {
+          display: flex;
+        }
+      }
+
       /* ---------- Réponse du DPJ ---------- */
       .cv-dpj .cv-sent {
         margin: 0 0 10px;
@@ -1561,6 +1628,15 @@
       .cv-chip.is-all {
         border-color: var(--ej-neutral-200);
         background: var(--ej-neutral-50);
+      }
+      .cv-chip.is-neg {
+        border-style: dashed;
+        border-color: var(--ej-neutral-400);
+        background: var(--ej-white);
+      }
+      .cv-chip.is-neg .cv-chip-k {
+        font-weight: 600;
+        color: var(--ej-primary-900);
       }
       .cv-chip-b {
         display: inline-flex;
@@ -2121,6 +2197,56 @@
           height: 32px;
         }
       }
+      /* Téléphone : assistant plein écran, un seul défilement, saisie collée en bas du fil (visible au-dessus du clavier) */
+      @media (max-width: 600px) {
+        .cv-ai,
+        .cv-ai.is-xl {
+          top: 0;
+          bottom: auto;
+          left: 0;
+          right: 0;
+          width: 100vw;
+          height: 100vh;
+          height: 100dvh;
+          overflow-y: auto;
+          overscroll-behavior: contain;
+          border: 0;
+          border-radius: 0;
+          transform: none;
+        }
+        .cv-ai:not([hidden]) {
+          display: block;
+        }
+        .cv-ai .cv-ai-head {
+          position: sticky;
+          top: 0;
+          z-index: 4;
+          background: var(--ej-white);
+        }
+        .cv-ai .cv-ai-body {
+          overflow: visible;
+          min-height: calc(100dvh - 230px);
+          padding: 14px 16px;
+        }
+        .cv-ai .cv-ai-form {
+          position: sticky;
+          bottom: 0;
+          z-index: 4;
+          background: var(--ej-white);
+          border-top: 1px solid var(--ej-neutral-100);
+          padding: 8px 12px calc(6px + env(safe-area-inset-bottom));
+        }
+        .cv-ai .cv-ai-foot {
+          padding: 6px 16px 12px;
+        }
+        .cv-ai.show-side .cv-ai-side {
+          position: fixed;
+          top: 55px;
+          left: 0;
+          right: 0;
+          bottom: 0;
+        }
+      }
       @media (prefers-reduced-motion: reduce) {
         .cv-new,
         .cv-flash {
@@ -2178,7 +2304,8 @@
         <li data-step="plan"><span class="cv-step-n" aria-hidden="true">2</span>Planifier</li>
         <li data-step="build"><span class="cv-step-n" aria-hidden="true">3</span>Construire</li>
       </ol>
-      <div class="cv-ai-body" id="cv-ai-body" aria-live="polite"></div>
+      <div class="cv-ai-body" id="cv-ai-body"></div>
+      <p class="sr-only" id="cv-ai-live" aria-live="polite" aria-atomic="true"></p>
       <details class="cv-journal" id="cv-journal"><summary>Journal (0)</summary><ol></ol></details>
       <form class="cv-ai-form" id="cv-ai-form">
         <div class="cv-modes" role="group" aria-label="Usage de l'assistant">
@@ -2216,7 +2343,7 @@
 
     <script src="assets/ej-missions-data.js?v=19"></script>
     <script src="assets/ej-cockpit-data.js?v=2"></script>
-    <script src="assets/ej-dpj-data.js?v=1"></script>
+    <script src="assets/ej-dpj-data.js?v=2"></script>
     <script src="assets/ej-charts.js?v=2"></script>
     <script>
       (function () {
@@ -3199,8 +3326,8 @@
         var editing = null;
         var PH = { dpj: "Posez une question sur les sociétés du DPJ", compose: "Ajouter, transformer, filtrer, créer un tableau" };
         var FOOT = {
-          dpj: "L'IA traduit la question ; EJ interroge le DPJ. Aucune donnée nominative n'est envoyée au modèle.",
-          compose: "L'IA compose avec le catalogue certifié ; EJ calcule. Aucune donnée nominative n'est envoyée au modèle.",
+          dpj: "L'IA traduit la question ; EJ interroge le DPJ. Les noms de personnes et de sociétés connus d'EJ, e-mails, téléphones et identifiants sont masqués avant l'envoi au modèle.",
+          compose: "L'IA compose avec le catalogue certifié ; EJ calcule. Les noms de personnes et de sociétés connus d'EJ, e-mails, téléphones et identifiants sont masqués avant l'envoi au modèle.",
         };
         /* Sur mobile, l'assistant couvre l'écran ; agrandi, c'est une fenêtre : boîte de dialogue modale (focus piégé, page figée) */
         function aiModal() {
@@ -3349,15 +3476,23 @@
           if (m.r === "h" && typeof m.h === "string") return { r: "h", h: cleanHtml(m.h) };
           if (m.r === "sw") return { r: "sw", id: String(m.id || mid()).slice(0, 40), to: m.to === "compose" ? "compose" : "dpj", raw: String(m.raw || "").slice(0, 400), done: !!m.done };
           if (m.r !== "dpj" || typeof m.raw !== "string") return null;
-          var KINDS = ["query", "hors", "be", "cac", "noperson", "homonyme", "nosoc"];
+          var KINDS = ["query", "hors", "be", "cac", "cacper", "noperson", "homonyme", "nosoc"];
           var o = { r: "dpj", id: String(m.id || mid()).slice(0, 40), raw: m.raw.slice(0, 400), kind: KINDS.indexOf(m.kind) !== -1 ? m.kind : "query", all: !!m.all, pinned: { liste: !!(m.pinned && m.pinned.liste), chiffre: !!(m.pinned && m.pinned.chiffre) } };
           o.parts = (Array.isArray(m.parts) ? m.parts : []).slice(0, 80).map(function (p) { return p && typeof p.m === "string" ? { m: p.m.slice(0, 40) } : { t: String((p && p.t) || "").slice(0, 400) }; });
           ["what", "name", "tag"].forEach(function (k) { if (typeof m[k] === "string") o[k] = m[k].slice(0, 120); });
           if (Array.isArray(m.list)) o.list = m.list.filter(function (x) { return typeof x === "string"; }).slice(0, 12);
+          o.first = !!m.first;
           if (Array.isArray(m.mandats)) o.mandats = m.mandats.filter(function (x) { return typeof x === "string" && window.EJM.findMandat && window.EJM.findMandat(x); }).slice(0, 4);
           if (o.kind === "query") {
             o.q = cleanQ(m.q) || { where: [], select: [], sort: { field: "nom", dir: "asc" } };
-            o.unk = (Array.isArray(m.unk) ? m.unk : []).slice(0, 8).map(function (u) { return { text: String((u && u.text) || "").slice(0, 120), why: u && typeof u.why === "string" ? u.why.slice(0, 160) : "", generic: !!(u && u.generic) }; });
+            o.unk = (Array.isArray(m.unk) ? m.unk : []).slice(0, 8).map(function (u) {
+              var x = { text: String((u && u.text) || "").slice(0, 120), why: u && typeof u.why === "string" ? u.why.slice(0, 160) : "", generic: !!(u && u.generic), neg: !!(u && u.neg) };
+              if (u && typeof u.sugg === "string" && typeof u.typed === "string") {
+                x.sugg = u.sugg.slice(0, 60);
+                x.typed = u.typed.slice(0, 60);
+              }
+              return x;
+            });
             o.persons = (Array.isArray(m.persons) ? m.persons : []).slice(0, 8).map(function (x) { return { tag: String((x && x.tag) || "").slice(0, 40), name: String((x && x.name) || "").slice(0, 120), soc: !!(x && x.soc) }; });
             o.follow = !!m.follow;
             o.stripped = (Array.isArray(m.stripped) ? m.stripped : []).filter(function (x) { return typeof x === "string"; }).slice(0, 8);
@@ -3468,10 +3603,15 @@
             (m.to === "dpj" ? "J'ai compris une question sur le DPJ." : "J'ai compris une demande de composition du cockpit.") + "</span>" +
             (m.done ? "" : '<button type="button" class="cv-link" data-reask="' + esc(m.id) + '">' + (m.to === "dpj" ? "Basculer en composition ?" : "Interroger le DPJ ?") + "</button>") + "</p>";
         }
+        /* Élément qui défile : le fil, ou tout le panneau sur téléphone (saisie collée en bas) */
+        function aiScroller() {
+          return window.matchMedia && window.matchMedia("(max-width: 600px)").matches ? $("cv-ai") : $("cv-ai-body");
+        }
         function renderThread() {
           var body = $("cv-ai-body");
           body.innerHTML = CONV.length ? CONV.map(msgHtml).join("") : emptyHtml();
-          body.scrollTop = CONV.length ? body.scrollHeight : 0;
+          var sc0 = aiScroller();
+          sc0.scrollTop = CONV.length ? sc0.scrollHeight : 0;
           renderConvList();
           syncModeUI();
         }
@@ -3484,11 +3624,13 @@
           if (th && th.parentNode) body.insertBefore(document.createRange().createContextualFragment(msgHtml(m)), th);
           else body.insertAdjacentHTML("beforeend", msgHtml(m));
           var el = th ? th.previousElementSibling : body.lastElementChild;
-          if (m.r !== "u" && m.r !== "sw" && el && el.offsetHeight > body.clientHeight - 40) {
+          var sc = aiScroller();
+          if (m.r !== "u" && m.r !== "sw" && el && el.offsetHeight > sc.clientHeight - 40) {
             var q = el.previousElementSibling;
             while (q && !q.classList.contains("cv-msg-u")) q = q.previousElementSibling;
-            body.scrollTop = (q || el).offsetTop - 12;
-          } else body.scrollTop = body.scrollHeight;
+            var head = sc === body ? 0 : $("cv-ai").querySelector(".cv-ai-head").offsetHeight;
+            sc.scrollTop += (q || el).getBoundingClientRect().top - sc.getBoundingClientRect().top - head - 12;
+          } else sc.scrollTop = sc.scrollHeight;
           CC.at = Date.now();
           if (!CC.title && m.r === "u") CC.title = m.t.length > 60 ? m.t.slice(0, 58) + "…" : m.t;
           saveConvs();
@@ -3496,6 +3638,8 @@
         }
         function push(html) {
           addMsg({ r: "h", h: html });
+          var h3 = /<h3>([\s\S]*?)<\/h3>/.exec(html);
+          announce(h3 ? h3[1].replace(/<span class="ms">[^<]*<\/span>/g, "").replace(/<[^>]*>/g, "").replace(/&#39;/g, "'").replace(/&amp;/g, "&").trim() : "Réponse de l'assistant");
         }
         function updMsg(m) {
           var el = $("cv-ai-body").querySelector('[data-mid="' + m.id + '"]');
@@ -3513,11 +3657,14 @@
           });
           saveConvs();
         }
+        /* Ligne « Envoyé au modèle » : même masquage (DX.mask) et même place, en haut, dans les deux usages */
+        function partsLine(parts) {
+          var n = parts.filter(function (x) { return x.m; }).length;
+          var txt = parts.map(function (x) { return x.m ? '<mark class="cv-mask">' + esc(x.m) + "</mark>" : esc(x.t); }).join("");
+          return '<p class="cv-masked cv-sent">' + ms("eye_off") + "<span>Envoyé au modèle" + (n ? " (" + n + " " + (n > 1 ? "éléments masqués" : "élément masqué") + ")" : "") + " : « " + txt + " »</span></p>";
+        }
         function maskedLine(raw) {
-          var m = C.mask(raw);
-          var n = m.soc + m.per + m.nom + m.pat;
-          var txt = m.parts.map(function (p) { return p.m ? '<mark class="cv-mask">' + esc(p.m) + "</mark>" : esc(p.t); }).join("");
-          return '<p class="cv-masked">' + ms("eye_off") + "<span>Envoyé au modèle" + (n ? " (" + n + " " + (n > 1 ? "éléments masqués" : "élément masqué") + ")" : "") + " : « " + txt + " »</span></p>";
+          return partsLine(DX.mask(raw).parts);
         }
 
         /* ---------- Usage : choisi par le sélecteur, deviné quand c'est évident ---------- */
@@ -3567,7 +3714,8 @@
           var tid = "th" + ++pid;
           var body = $("cv-ai-body");
           body.insertAdjacentHTML("beforeend", '<p class="cv-thinking" id="' + tid + '">' + (d.mode === "dpj" ? "L'IA traduit la question, EJ interroge le DPJ…" : "L'IA compose avec le catalogue certifié…") + "</p>");
-          body.scrollTop = body.scrollHeight;
+          var sc1 = aiScroller();
+          sc1.scrollTop = sc1.scrollHeight;
           var sb = $("cv-ai-send");
           sb.disabled = true;
           setTimeout(function () {
@@ -3688,15 +3836,22 @@
         }
         /* Critères trouvés dans la demande : sociétés, personnes, noms inconnus, identifiants (texte retiré pour l'analyse) */
         function crit(raw) {
-          var M = C.mask(raw);
-          var o = { socs: [], pers: [], noms: [], pats: [] };
+          /* même masquage que la ligne « Envoyé au modèle » : personnes du DPJ, du cabinet, des entités CAC, sociétés, identifiants */
+          var M = DX.mask(raw);
+          var o = { socs: [], pers: [], dpers: [], noms: [], pats: [], villes: DX.citiesIn(raw) };
           var clean = "";
           var last = 0;
-          M.found.forEach(function (f) {
-            if (f.type === "soc") o.socs.push(f.text);
-            else if (f.type === "per") { if (o.pers.indexOf(f.id) === -1) o.pers.push(f.id); }
-            else if (f.type === "nom") o.noms.push(f.text);
-            else if (o.pats.indexOf(f.lab) === -1) o.pats.push(f.lab);
+          M.spans.forEach(function (f) {
+            var text = raw.slice(f.s, f.e);
+            if (f.type === "soc") o.socs.push(text);
+            else if (f.type === "per" && f.kind === "user") { if (o.pers.indexOf(f.id) === -1) o.pers.push(f.id); }
+            else if (f.type === "per" && f.kind === "homonyme" && (f.list || []).filter(function (n) { return C.PEOPLE.indexOf(n) !== -1; }).length === 1) {
+              var u1 = f.list.filter(function (n) { return C.PEOPLE.indexOf(n) !== -1; })[0];
+              if (o.pers.indexOf(u1) === -1) o.pers.push(u1);
+            }
+            else if (f.type === "per") { if (o.dpers.indexOf(text) === -1) o.dpers.push(text); }
+            else if (f.type === "nom") o.noms.push(text);
+            else if (o.pats.indexOf(f.kind) === -1) o.pats.push(f.kind);
             clean += raw.slice(last, f.s) + " ";
             last = f.e;
           });
@@ -3726,6 +3881,8 @@
             else na.push("créé par « " + p + " »" + (dims.indexOf("createur") === -1 ? " (cet indicateur n'est pas rattaché à un créateur)" : " (aucune formalité créée par cette personne)"));
           });
           cr.socs.forEach(function (x) { na.push("société « " + x + " » (pas de filtre par société dans le catalogue)"); });
+          cr.dpers.forEach(function (x) { na.push("personne « " + x + " » (pas de filtre par dirigeant ou associé dans le catalogue)"); });
+          cr.villes.forEach(function (x) { na.push("ville « " + x + " » (localisation non certifiée dans le catalogue)"); });
           cr.noms.forEach(function (x) { na.push("« " + x + " » (nom non reconnu)"); });
           cr.pats.forEach(function (x) { na.push(x + " (pas un critère du catalogue)"); });
           var per = periodeIn(t);
@@ -3735,7 +3892,7 @@
           }
           var pna = periodeNA(t, opts.n1);
           if (pna) na.push(pna);
-          NOFILTER.forEach(function (x) { if (x[0].test(t)) na.push(x[1]); });
+          NOFILTER.forEach(function (x, i) { if (x[0].test(t) && !(i === 2 && cr.villes.length)) na.push(x[1]); });
           return { f: f, na: na };
         }
         function fLabel(f) {
@@ -3773,7 +3930,7 @@
           return replyNone(raw);
         }
         function card(icon, title, inner, raw) {
-          return '<div class="cv-msg-a"><h3>' + ms(icon) + esc(title) + "</h3>" + inner + (raw ? maskedLine(raw) : "") + "</div>";
+          return '<div class="cv-msg-a">' + (raw ? maskedLine(raw) : "") + "<h3>" + ms(icon) + esc(title) + "</h3>" + inner + "</div>";
         }
         function replyHors(raw, what, where) {
           setSteps("ask");
@@ -3890,12 +4047,14 @@
             else steps.push({ na: true, t: "Filtre non disponible : créé par « " + p + " »", m: "Aucune formalité de ce tableau n'a été créée par cette personne, ou l'indicateur n'a pas de créateur." });
           });
           cr.socs.forEach(function (x) { steps.push({ na: true, t: "Filtre non disponible : société « " + x + " »", m: "Le catalogue ne filtre pas par société." }); });
+          cr.dpers.forEach(function (x) { steps.push({ na: true, t: "Filtre non disponible : personne « " + x + " »", m: "Le catalogue ne filtre pas par dirigeant ou associé." }); });
+          cr.villes.forEach(function (x) { steps.push({ na: true, t: "Filtre non disponible : ville « " + x + " »", m: "Localisation non certifiée dans le catalogue." }); });
           cr.noms.forEach(function (x) { steps.push({ na: true, t: "Filtre non disponible : « " + x + " »", m: "Nom non reconnu." }); });
           cr.pats.forEach(function (x) { steps.push({ na: true, t: "Filtre non disponible : " + x, m: "Pas un critère du catalogue." }); });
           var pna = periodeNA(tc);
           if (pna) steps.push({ na: true, t: "Filtre non disponible : " + pna, m: "Périodes possibles : 6, 12 ou 24 mois." });
-          NOFILTER.forEach(function (x) {
-            if (x[0].test(tc)) steps.push({ na: true, t: "Filtre non disponible : " + x[1], m: "Aucun total n'est calculé sur ce critère." });
+          NOFILTER.forEach(function (x, i) {
+            if (x[0].test(tc) && !(i === 2 && cr.villes.length)) steps.push({ na: true, t: "Filtre non disponible : " + x[1], m: "Aucun total n'est calculé sur ce critère." });
           });
           if (!Object.keys(nf).length) {
             push(card("circle_alert", "Filtre non disponible", '<ul class="cv-plan">' + (steps.length ? steps : [{ na: true, t: "Je ne reconnais pas de filtre certifié dans cette demande", m: "Filtres du catalogue : période, forme juridique, créé par ; en CAC : type de mission, signataire." }]).map(function (s) {
@@ -4116,6 +4275,7 @@
             msg = "Rien à annuler : le tableau n'existe plus";
           } else if (fx.k === "add") {
             b.widgets = b.widgets.filter(function (w) { return fx.uids.indexOf(w.uid) === -1; });
+            if (fx.pin) unpinMsg(fx.pin);
           } else if (fx.k === "viz") {
             b.widgets.forEach(function (w) { if (w.uid === fx.uid && w.viz === fx.to) w.viz = fx.from; });
           } else if (fx.k === "remove") {
@@ -4132,6 +4292,32 @@
           renderAll();
           renderJournal();
           toast(msg);
+        }
+        /* Épinglage annulé depuis le journal : le bouton de la réponse redevient « Épingler » */
+        function unpinMsg(pn) {
+          if (pn.q) {
+            var q = PLANS[pn.q];
+            if (q) q.pinned = false;
+            var on = 'data-pin="' + pn.q + '" disabled>' + ms("check") + "Épinglé";
+            var off = 'data-pin="' + pn.q + '">' + ms("add") + "Épingler sur le tableau";
+            convMapH(function (h) { return h.split(on).join(off); });
+            var bt = document.querySelector('[data-pin="' + pn.q + '"]');
+            if (bt) {
+              bt.disabled = false;
+              bt.innerHTML = ms("add") + "Épingler sur le tableau";
+            }
+            return;
+          }
+          if (pn.mid) {
+            var found = null;
+            CONVS.concat(CONVS.indexOf(CC) === -1 ? [CC] : []).forEach(function (c) {
+              c.msgs.forEach(function (x) { if (x.id === pn.mid) found = x; });
+            });
+            if (!found || !found.pinned) return;
+            found.pinned[pn.kind] = false;
+            if (findMsg(pn.mid)) updMsg(found);
+            else saveConvs();
+          }
         }
         function build(planId) {
           var plan = PLANS[planId];
@@ -4208,7 +4394,7 @@
           renderAll();
           highlight(hl);
           setSteps("build");
-          var jid = logJ("Épinglé : " + q.title, "Épinglage annulé : " + q.title, { k: "add", b: cur().id, uids: hl });
+          var jid = logJ("Épinglé : " + q.title, "Épinglage annulé : " + q.title, { k: "add", b: cur().id, uids: hl, pin: { q: qid } });
           toast("Épinglé : " + q.title, function () { undoJ(jid); });
         }
 
@@ -4271,12 +4457,38 @@
           }).sort(byLen);
           var REGIONS = ["ile de france", "idf", "bretagne", "normandie", "occitanie", "nouvelle aquitaine", "auvergne rhone alpes", "paca", "provence alpes cote d azur", "hauts de france", "grand est", "bourgogne franche comte", "centre val de loire", "pays de la loire", "corse", "region parisienne", "sud ouest", "sud est", "grand ouest"];
           var REG_L = { "ile de france": "Île-de-France", idf: "IDF", bretagne: "Bretagne", normandie: "Normandie", occitanie: "Occitanie", "nouvelle aquitaine": "Nouvelle-Aquitaine", "auvergne rhone alpes": "Auvergne-Rhône-Alpes", paca: "PACA", "provence alpes cote d azur": "Provence-Alpes-Côte d'Azur", "hauts de france": "Hauts-de-France", "grand est": "Grand Est", "bourgogne franche comte": "Bourgogne-Franche-Comté", "centre val de loire": "Centre-Val de Loire", "pays de la loire": "Pays de la Loire", corse: "Corse", "region parisienne": "région parisienne", "sud ouest": "Sud-Ouest", "sud est": "Sud-Est", "grand ouest": "Grand Ouest" };
-          var PERS_K = DP.persons.map(function (p) { return [lf(p), p]; }).sort(byLen);
+          /* Personnes connues d'EJ : DPJ (dirigeants, associés), utilisateurs du cabinet, personnes des entités CAC.
+             Nom complet, nom seul ou prénom seul, avec ou sans accents, en minuscules : tout est masqué avant l'envoi. */
+          var KP = {};
+          function kp(name, kind, mandat) {
+            if (!name || KP[name]) return;
+            KP[name] = { name: name, kind: kind, mandat: mandat || null };
+          }
+          DP.persons.forEach(function (p) { kp(p, "dpj"); });
+          (C.PEOPLE || []).forEach(function (p) { kp(p, "user"); });
+          (DP.cacPersons || []).forEach(function (p) { kp(p.nom, "cac", p.mandatId); });
+          var PERS_K = [];
           var LAST = {};
-          DP.persons.forEach(function (p) {
-            var l = lf(p.split(" ").slice(1).join(" "));
-            (LAST[l] = LAST[l] || []).push(p);
+          var FIRST = {};
+          Object.keys(KP).forEach(function (n) {
+            var k = lf(n);
+            PERS_K.push([k, n]);
+            if (k.indexOf("-") !== -1) PERS_K.push([k.replace(/-/g, " "), n]);
+            var parts = n.split(" ");
+            var l = lf(parts.slice(1).join(" "));
+            var f0 = lf(parts[0]);
+            if (l) (LAST[l] = LAST[l] || []).push(n);
+            (FIRST[f0] = FIRST[f0] || []).push(n);
+            if (f0.indexOf("-") !== -1) (FIRST[f0.replace(/-/g, " ")] = FIRST[f0.replace(/-/g, " ")] || []).push(n);
           });
+          (DP.firstNames || []).forEach(function (fn) { if (!FIRST[lf(fn)]) FIRST[lf(fn)] = DP.persons.filter(function (p) { return p.split(" ")[0] === fn; }); });
+          PERS_K.sort(byLen);
+          /* Noms et prénoms qui sont aussi des mots courants : masqués en minuscules seulement quand le contexte désigne une personne */
+          var CIV = { monsieur: 1, madame: 1, mademoiselle: 1, mme: 1, mlle: 1, mr: 1, m: 1, me: 1, maitre: 1, docteur: 1, dr: 1, famille: 1 };
+          var COMMON = {};
+          ("petit petite petits petites parent parents noel pages roche riviere moulin fontaine sauvage marchand barbier meunier charpentier carpentier mercier chevalier roux brun colin picard bouvier masson salmon " +
+            "claire pierre marc jean serge marie")
+            .split(" ").forEach(function (w) { COMMON[w] = 1; });
           var MAND = {};
           var MAND_K = [];
           (EJM.mandats || []).forEach(function (m) {
@@ -4302,21 +4514,55 @@
           var CAB_K = Object.keys(CABS).map(function (c) { return [lf(c), c]; }).concat(Object.keys(MORALES).map(function (c) { return [lf(c), c]; })).sort(byLen);
           /* Vocabulaire du DPJ : jamais masqué (ce ne sont pas des noms) */
           var VOC = {};
-          ("dirigeant dirigeants gerant gerante gerants gerantes cogerant cogerante cogerants president presidente presidents presidentes directeur directrice directeurs general generale generaux pdg dg associe associes associee associees actionnaire actionnaires capital social siege statuts cloture immatriculation mandat mandats commissaire commissaires comptes cac societe societes euros paris dpj ag ago agoa assemblee personne personnes sasu eurl sas sarl sa sci scp sccv selarl conseil administration k m me keur meur eur " + MOIS.join(" ")).split(" ").forEach(function (w) { VOC[w] = 1; });
+          ("dirigeant dirigeants gerant gerante gerants gerantes cogerant cogerante cogerants president presidente presidents presidentes directeur directrice directeurs general generale generaux pdg dg associe associes associee associees actionnaire actionnaires capital social siege statuts cloture immatriculation mandat mandats commissaire commissaires comptes cac societe societes euros paris dpj ag ago agoa assemblee personne personnes sasu eurl sas sarl sa sci scp sccv selarl conseil administration k m me keur meur eur siret iban rcs tva naf ape kbis numero contact mail email telephone " + MOIS.join(" ")).split(" ").forEach(function (w) { VOC[w] = 1; });
           function isVocab(text) {
             var k = nk(text);
             if (CITY[k] || CITY_ADJ[k] || REGIONS.indexOf(k) !== -1) return true;
             if (DEPTS.some(function (d) { return d[0] === k; })) return true;
             return k.split(" ").every(function (w) { return VOC[w] || CITY[w]; });
           }
+          /* Mot courant de la langue ou du vocabulaire du DPJ (jamais pris pour un nom inconnu) */
+          function isWord(k) {
+            return !!(STOP[k] || VOC[k] || CITY[k] || CITY_ADJ[k] || ACTW0[k] || GENERIC[k] || COMMON[k] || NUMW[k] || MOIS.indexOf(k) !== -1 || NEGW[k] || /^\d/.test(k));
+          }
+          /* Villes du DPJ citées (repérées sur le texte replié) */
+          function citiesIn(raw) {
+            var t = " " + nk(raw) + " ";
+            var out = [];
+            CITY_K.forEach(function (c) {
+              if (t.indexOf(" " + c[0] + " ") !== -1 && out.indexOf(c[1]) === -1) {
+                out.push(c[1]);
+                t = t.split(" " + c[0] + " ").join(" ~ ");
+              }
+            });
+            Object.keys(CITY_ADJ).forEach(function (a) { if (t.indexOf(" " + a + " ") !== -1 && out.indexOf(CITY_ADJ[a]) === -1) out.push(CITY_ADJ[a]); });
+            return out;
+          }
 
-          /* ---------- Masquage avant envoi au modèle ---------- */
+          /* ---------- Masquage avant envoi au modèle (les deux usages de l'assistant) ---------- */
+          var CUE = /(?:^|[^a-z0-9])(de|par|chez|ou|pour|avec|monsieur|madame|mme|mr|m\.?|me|maitre|famille|associe|associee|dirigeant|dirigeante|gerant|gerante|president|presidente) +$/;
+          var PVERB = /^ +(est|a|dirige|gere|preside|detient|possede|associe|associee|est-il|est-elle|il|elle)(?![a-z0-9])/;
           function mask(raw) {
             var f = lf(raw);
-            var sp = [];
-            function add(s, e, type, id, kind) {
-              if (sp.some(function (o) { return s < o.e && e > o.s; })) return;
-              sp.push({ s: s, e: e, type: type, id: id, kind: kind || "" });
+            /* positions des villes du DPJ (jamais masquées : « Saint-Étienne » n'est pas le prénom Étienne) */
+            var fz = f.replace(/[^a-z0-9]/g, " ");
+            var guard = [];
+            CITY_K.forEach(function (c) {
+              var i = 0;
+              var j;
+              while ((j = fz.indexOf(c[0], i)) !== -1) {
+                i = j + 1;
+                var e0 = j + c[0].length;
+                if (/[a-z0-9]/.test(fz.charAt(j - 1) || "") || /[a-z0-9]/.test(fz.charAt(e0) || "")) continue;
+                guard.push({ s: j, e: e0 });
+              }
+            });
+            function guarded(s, e) { return guard.some(function (g) { return s < g.e && e > g.s; }); }
+            var cand = [];
+            function add(s, e, type, id, kind, prio, extra) {
+              var o = { s: s, e: e, type: type, id: id, kind: kind || "", prio: prio || 0 };
+              if (extra) for (var k in extra) o[k] = extra[k];
+              cand.push(o);
             }
             function scan(key, cb) {
               if (!key) return;
@@ -4329,37 +4575,82 @@
                 cb(j, e);
               }
             }
+            function upper(s) { return raw.charAt(s) !== raw.charAt(s).toLowerCase(); }
+            function cued(s, e) { return CUE.test(f.slice(Math.max(0, s - 14), s)) || PVERB.test(f.slice(e, e + 12)); }
+            function onePerson(name, s, e, prio) {
+              var p = KP[name];
+              add(s, e, "per", name, p ? p.kind : "dpj", prio, p && p.mandat ? { mandat: p.mandat } : null);
+            }
             var M = C.mask(raw);
-            M.found.forEach(function (x) { if (x.type === "pat") add(x.s, x.e, "pat", x.id, x.lab); });
-            PERS_K.forEach(function (p) { scan(p[0], function (s, e) { add(s, e, "per", p[1], "dpj"); }); });
-            CAB_K.forEach(function (c) { scan(c[0], function (s, e) { add(s, e, "soc", c[1], MORALES[c[1]] ? "morale" : "cabinet"); }); });
-            MAND_K.forEach(function (m) { scan(m[0], function (s, e) { add(s, e, "soc", m[1], "mandat"); }); });
+            M.found.forEach(function (x) { if (x.type === "pat") add(x.s, x.e, "pat", x.id, x.lab, 0); });
+            /* noms complets : personnes, sociétés du DPJ et de EJC, cabinets CAC, entités contrôlées */
+            PERS_K.forEach(function (p) { scan(p[0], function (s, e) { onePerson(p[1], s, e, 1); }); });
+            CAB_K.forEach(function (c) { scan(c[0], function (s, e) { add(s, e, "soc", c[1], MORALES[c[1]] ? "morale" : "cabinet", 2); }); });
+            MAND_K.forEach(function (m) { scan(m[0], function (s, e) { add(s, e, "soc", m[1], "mandat", 2); }); });
             M.found.forEach(function (x) {
-              if (x.type === "soc") add(x.s, x.e, "soc", x.id, SOCN[x.id] ? "dpj" : MAND[x.id] ? "mandat" : "autre");
-              else if (x.type === "per" && lf(x.text) === lf(x.id)) add(x.s, x.e, "per", x.id, "user");
+              if (x.type === "soc") add(x.s, x.e, "soc", x.id, SOCN[x.id] ? "dpj" : MAND[x.id] ? "mandat" : "autre", 2);
             });
             SOC1_K.forEach(function (c) {
-              scan(c[0], function (s, e) {
-                if (raw.charAt(s) !== raw.charAt(s).toLowerCase()) add(s, e, "soc", c[1], "dpj");
+              scan(c[0], function (s, e) { if (upper(s)) add(s, e, "soc", c[1], "dpj", 3); });
+            });
+            /* nom seul ou prénom seul : une personne si le nom est unique, sinon EJ demande de préciser */
+            var single = {};
+            Object.keys(LAST).forEach(function (k) { single[k] = 1; });
+            Object.keys(FIRST).forEach(function (k) { single[k] = 1; });
+            Object.keys(single).forEach(function (k) {
+              if (k.length < 3) return;
+              scan(k, function (s, e) {
+                if (guarded(s, e)) return;
+                if (!upper(s) && (isWord(k) || COMMON[k]) && !cued(s, e)) return;
+                var byLast = LAST[k] || [];
+                var byFirst = FIRST[k] || [];
+                var all = byLast.concat(byFirst.filter(function (n) { return byLast.indexOf(n) === -1; }));
+                if (!all.length) return;
+                if (byLast.length === 1 && !byFirst.length) onePerson(byLast[0], s, e, 4);
+                else add(s, e, "per", raw.slice(s, e), "homonyme", 4, { list: all, first: !byLast.length });
               });
             });
-            Object.keys(LAST).forEach(function (l) {
-              if (l.length < 4) return;
-              scan(l, function (s, e) {
-                if (raw.charAt(s) === raw.charAt(s).toLowerCase()) return;
-                if (LAST[l].length === 1) add(s, e, "per", LAST[l][0], "dpj");
-                else add(s, e, "per", raw.slice(s, e), "homonyme");
-              });
-            });
+            /* noms inconnus désignés par le contexte : « la SARL Dupont et fils », « la famille Klein », « M. Martin » */
+            function runAfter(re, kind) {
+              re.lastIndex = 0;
+              var m;
+              while ((m = re.exec(f))) {
+                var st = m.index + m[0].length - m[m.length - 1].length;
+                var words = m[m.length - 1].split(" ");
+                var keep = [];
+                for (var i = 0; i < words.length; i++) {
+                  var wd = words[i].replace(/[^a-z0-9&'-]/g, "");
+                  if ((wd === "et" || wd === "&") && keep.length && words[i + 1] && !isWord(words[i + 1].replace(/[^a-z0-9'-]/g, ""))) { keep.push(words[i]); continue; }
+                  if (!wd || wd.length < 2 || isWord(wd) || isWord(wd.replace(/s$/, ""))) break;
+                  keep.push(words[i]);
+                }
+                if (keep.length && /[a-z]/.test(keep[keep.length - 1].slice(-1))) {
+                  var en = st + keep.join(" ").length;
+                  if (!guarded(st, en)) add(st, en, "nom", raw.slice(st, en), kind, 6);
+                }
+              }
+            }
+            runAfter(/(?:^|[^a-z0-9])(?:la|cette|une|notre|de la|chez) (?:sarl|sas|sasu|sa|sci|selarl|scp|sccv|eurl|societe|entreprise|holding|structure|maison) ((?:[a-z0-9&'-]+)(?: [a-z0-9&'-]+){0,3})/g, "inconnu");
+            runAfter(/(?:^|[^a-z0-9])(?:famille|monsieur|madame|mme|mr|m\.|maitre) ((?:[a-z'-]+)(?: [a-z'-]+)?)/g, "inconnu");
             M.found.forEach(function (x) {
-              if ((x.type === "nom" || (x.type === "per" && lf(x.text) !== lf(x.id))) && !isVocab(x.text)) add(x.s, x.e, "nom", raw.slice(x.s, x.e), "inconnu");
+              if ((x.type === "nom" || x.type === "per") && !isVocab(x.text) && !isVocab(x.text.replace(/\./g, "")) && !CIV[nk(x.text)] && !guarded(x.s, x.e)) add(x.s, x.e, "nom", raw.slice(x.s, x.e), "inconnu", 7);
+            });
+            /* le plus long d'abord, puis par priorité : un nom de personne n'est jamais coupé par un nom de société plus court */
+            cand.sort(function (a, b) { return b.e - b.s - (a.e - a.s) || a.prio - b.prio || a.s - b.s; });
+            var sp = [];
+            cand.forEach(function (o) {
+              if (sp.some(function (x) { return o.s < x.e && o.e > x.s; })) return;
+              sp.push(o);
             });
             sp.sort(function (a, b) { return a.s - b.s; });
-            /* noms inconnus voisins (prénom puis nom) : un seul nom */
+            /* noms voisins (prénom puis nom) : un seul nom ; « Jean Valjean », « Marcel Castellane » : personne inconnue, jamais une autre personne du même prénom ou du même nom */
+            function looseName(x) { return x.type === "nom" || (x.type === "per" && (x.kind === "homonyme" || x.e - x.s < x.id.length)); }
             for (var q = sp.length - 1; q > 0; q--) {
               var A = sp[q - 1];
               var B = sp[q];
-              if (A.type === "nom" && B.type === "nom" && /^[\s-]+$/.test(raw.slice(A.e, B.s))) {
+              if (looseName(A) && looseName(B) && (A.type === "nom" || B.type === "nom") && /^[\s-]+$/.test(raw.slice(A.e, B.s))) {
+                A.type = "nom";
+                A.kind = "inconnu";
                 A.e = B.e;
                 A.id = raw.slice(A.s, A.e);
                 sp.splice(q, 1);
@@ -4403,8 +4694,13 @@
               w = w.replace(/(\d)[   .](\d{3})(?!\d)/g, "$1$2");
             } while (w !== prev);
             w = w.replace(/(\d)(k|m)(?=[\s€]|eur|$)/g, "$1 $2");
+            /* sigles pointés : « S.A. », « s.a.r.l » */
+            w = w.replace(/(^|[^a-z0-9.])((?:[a-z]\.){1,4}[a-z]?)(?=[^a-z0-9]|$)/g, function (m, a, b) { return a + b.replace(/\./g, ""); });
             w = w.replace(/[^a-z0-9%/.\s]/g, " ").replace(/(^|\s)[./]+|[./]+(?=\s|$)/g, " ");
-            return " " + w.replace(/\s+/g, " ").trim() + " ";
+            w = " " + w.replace(/\s+/g, " ").trim() + " ";
+            /* négations en plusieurs mots ramenées à un seul mot */
+            w = w.replace(/ (?:a l exception (?:des|de la|de l|du|de|d)|en dehors (?:des|de la|de l|du|de|d)|autres? (?:que|qu)|excepte(?:e|es|s)?|exclusion faite (?:des|de|du|d)|mis(?:es)? a part) /g, " sauf ");
+            return w;
           }
 
           /* ---------- Dates ---------- */
@@ -4494,7 +4790,7 @@
           }
           var ANCH = [
             ["cac", / (commissaires? aux comptes|commissariat aux comptes|cac|auditeurs? legaux|auditeurs?) /g],
-            ["dir", / (mandats? (?:de |des |du |d )?(?:dirigeants?|gerants?|gerantes?|presidents?|presidentes?|mandataires? sociaux|dg)|dirigeants?|gerant(?:e|es|s)?|cogerant(?:e|es|s)?|president(?:e|es|s)?|directeurs? generaux|directeur general|directrice generale|pdg|dg|mandataires? sociaux|mandats?) /g],
+            ["dir", / (mandats? (?:de |des |du |d )?(?:dirigeants?|gerants?|gerantes?|presidents?|presidentes?|mandataires? sociaux|dg)|dirigeants?|gerant(?:e|es|s)?|cogerant(?:e|es|s)?|president(?:e|es|s)?|directeurs? generaux|directeur general|directrice generale|pdg|dg|mandataires? sociaux|mandats?|fctx) /g],
             ["ag", / (dernieres? ag(?: d approbation)?|ag d approbation|derniere assemblee(?: generale)?(?: d approbation)?|assemblees? generales?(?: d approbation)?|approbation des comptes|ago|agoa|ag|assemblees?) /g],
             ["stat", / (derniere modification statutaire|modifications? statutaires?|modifications? des statuts|statuts|statutaires?) /g],
             ["imm", / (immatriculee?s?|immatriculation|creees?|creation|constituees?|constitution|fondees?) /g],
@@ -4539,14 +4835,18 @@
 
           var STOP = {};
           ("quelles quels quel quelle lesquelles lesquels combien liste lister listez donne donnez donner moi montre montrez montrer affiche affichez afficher trouve trouver cherche chercher recherche sors sortir voir veux voudrais peux pouvez pourrais svp merci stp " +
-            "y a t il ya est sont ont a ete etre avoir qui que quoi dont ou les la le l des de du d un une au aux et en dans sur pour par avec chez leur leurs son sa ses ce cet cette ces celles celle ceux cela ca parmi elles elle ils il eux on se s n ne pas plus moins " +
+            "y a t il ya est sont ont a ete etre avoir qui que quoi dont ou les la le l des de du d un une au aux et en dans sur pour par avec chez leur leurs son sa ses ce cet cette ces celles celle ceux cela ca parmi elles elle ils il eux on se s plus moins lieu eu eue fait faites " +
             "societe societes entreprise entreprises structure structures client clients dossier dossiers portefeuille cabinet mes nos notre votre vos dpj base juridique fiche fiches actuellement aujourd hui encore deja toujours tres bien tous toutes tout toute " +
             "expire expirent expirant expiration termine terminent terminant terminer finit finissent finissant fin fini arrive arrivent arrivant echeance echeances echoit prend prennent renouveler renouvellement renouvelle a renouveler " +
             "modifie modifies modifiee modifiees modifier modification change changes changement mis jour tenu tenue tenues tenus approuve approuves connue connues connu connus renseigne renseignee renseignees renseignes " +
             "basee basees base bases situe situee situees situes implantee implantees domiciliee domiciliees installee installees ayant possedant detenant comptant compte comptent possede possedent detient detiennent " +
-            "il elles est il elle t ont qu n y a sont nombre total combien quelle actuel actuelle actuels actuelles prochain prochaine prochains prochaines dernier derniere derniers dernieres date dates jour mois ans annee annees " +
+            "il elles est il elle t ont qu y a sont nombre total combien quelle actuel actuelle actuels actuelles prochain prochaine prochains prochaines dernier derniere derniers dernieres date dates jour mois ans annee annees " +
             "ainsi aussi egalement seulement uniquement celles ci la svp donc puis alors soit soient etait sera seront doit doivent dois concernant concernees concerne via selon chaque mon ma " +
-            "inscrite inscrites enregistree enregistrees figurant figurent apparait apparaissent ~").split(" ").forEach(function (x) { STOP[x] = 1; });
+            "inscrite inscrites enregistree enregistrees figurant figurent apparait apparaissent fctx ~").split(" ").forEach(function (x) { STOP[x] = 1; });
+          /* Négations : jamais ignorées. Un critère nié est appliqué exactement, sinon la question est refusée (« critère non reconnu ») */
+          var NEGW = {};
+          "pas non ne n sauf hors sans aucun aucune aucuns aucunes jamais ni excepte exceptee exceptees exceptes nul nulle".split(" ").forEach(function (x) { NEGW[x] = 1; });
+          var STOPPER = { "~": 1, et: 1, ou: 1, mais: 1, dont: 1, parmi: 1 };
           var ACTW = {};
           DP.societes.forEach(function (s) {
             nk(s.activite).split(" ").forEach(function (x) {
@@ -4587,6 +4887,51 @@
           ];
 
           /* ---------- Traduction ---------- */
+          /* Fonctions au féminin : valeurs exactes du DPJ (égalité stricte, jamais « contient ») */
+          var FCT_V = {};
+          DP.societes.forEach(function (s) { s.dirigeants.forEach(function (d) { var k = nk(d.fonction); if (!FCT_V[k]) FCT_V[k] = d.fonction.charAt(0).toUpperCase() + d.fonction.slice(1); }); });
+          function fctVals(re) {
+            return Object.keys(FCT_V).filter(function (k) { return re.test(k); }).map(function (k) { return FCT_V[k]; }).sort();
+          }
+          var FCT = [
+            { re: / (cogerantes?) /, op: "=", v: fctVals(/^cogerante$/) },
+            { re: / (gerantes?) /, op: "=", v: fctVals(/^(co)?gerante$/) },
+            { re: / (presidentes? directrices? generales?) /, op: "=", v: fctVals(/^presidente directrice/) },
+            { re: / (directrices? generales?) /, op: "=", v: fctVals(/directrice generale/) },
+            { re: / (presidentes?) (?!directeur|du conseil)/, op: "=", v: fctVals(/^presidente/) },
+            { re: / (dirigeantes?) /, op: "=", v: fctVals(/gerante|presidente|directrice/), noPerson: true },
+            { re: / (cogerants?) /, op: "contient", v: "cogérant" },
+            { re: / (gerants?|gerees?|gere|geree par) /, op: "contient", v: "gérant" },
+            { re: / (presidents? directeurs? generaux|presidents? directeur general|pdg) /, op: "=", v: fctVals(/^president(e)? direct/) },
+            { re: / (presidents? du conseil d administration) /, op: "contient", v: "conseil d'administration" },
+            { re: / (presidents?|presidees?|preside) /, op: "contient", v: "président" },
+            { re: / (directeurs? generaux|directeur general|dg) /, op: "contient", v: "général" },
+          ];
+          var ROLEW = {};
+          "associe associes associee associees actionnaire actionnaires dirigeant dirigeants dirigeante dirigeantes mandat mandats fctx gerant gerants gerante gerantes president presidents presidente presidentes mandataire mandataires sociaux".split(" ").forEach(function (x) { ROLEW[x] = 1; });
+          /* Distance d'édition (suggestion « Toulouse ? » pour « Toulouze ») */
+          function lev(a, b) {
+            var d = [];
+            for (var i = 0; i <= a.length; i++) d[i] = [i];
+            for (var j = 0; j <= b.length; j++) d[0][j] = j;
+            for (i = 1; i <= a.length; i++) for (j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1));
+            return d[a.length][b.length];
+          }
+          function nearCity(k) {
+            if (k.length < 5 || CITY[k]) return null;
+            var best = null;
+            CITY_K.forEach(function (c) {
+              var dd = lev(k, c[0]);
+              if (dd <= (k.length >= 8 ? 2 : 1) && (!best || dd < best.d)) best = { d: dd, city: c[1] };
+            });
+            return best && best.city;
+          }
+          function invNum(op) {
+            return { ">": "<=", ">=": "<", "<": ">=", "<=": ">", "=": "!=", "!=": "=" }[op] || null;
+          }
+          function invDate(op) {
+            return { avant: ">=", "<": ">=", "<=": "apres", apres: "<=", ">": "<=", ">=": "avant", "=": "!=", "!=": "=" }[op] || null;
+          }
           function parse(raw, prev) {
             var mk = mask(raw);
             var w = work(raw, mk);
@@ -4599,12 +4944,75 @@
               });
               w = w.replace(/\s+/g, " ");
             }
+            function toks(str) {
+              var out = [];
+              var re = /\S+/g;
+              var m;
+              while ((m = re.exec(str))) out.push({ t: m[0], s: m.index, e: m.index + m[0].length });
+              return out;
+            }
+            /* Négation portant sur le passage [s, e[ : mots de négation juste avant (mots vides et mots du champ sautés),
+               ou juste après (opt.post). Un « ~ », « et », « dont », « mais » arrêtent la recherche. */
+            function negScan(str, s, e, opt) {
+              opt = opt || {};
+              var T = toks(str);
+              var skip = opt.skip || {};
+              var cuts = [];
+              var before = T.filter(function (t) { return t.e <= s; });
+              for (var i = before.length - 1; i >= 0; i--) {
+                var t = before[i].t;
+                if (NEGW[t]) { cuts.push(before[i]); continue; }
+                if (STOPPER[t]) break;
+                if (STOP[t] || skip[t]) continue;
+                break;
+              }
+              if (opt.post) {
+                var after = T.filter(function (t) { return t.s >= e; });
+                for (var j = 0; j < after.length; j++) {
+                  var u = after[j].t;
+                  if (NEGW[u]) { cuts.push(after[j]); continue; }
+                  if (STOPPER[u]) break;
+                  if (STOP[u]) continue;
+                  break;
+                }
+              }
+              return { neg: cuts.length > 0, cuts: cuts };
+            }
+            function cutAll(list) {
+              list.slice().sort(function (a, b) { return b.s - a.s; }).forEach(function (c) { w = w.slice(0, c.s) + (c.rep || " ~ ") + w.slice(c.e); });
+              w = w.replace(/\s+/g, " ");
+            }
+            /* Comme eat, avec la négation du passage : fn(m, nie) ; renvoyer « keep » laisse la négation à un autre critère */
+            function eatN(re, fn, opt) {
+              opt = opt || {};
+              var rx = new RegExp(re.source, "g");
+              var guard = 0;
+              var m;
+              while (guard++ < 40 && (m = rx.exec(w))) {
+                var s = m.index;
+                var e = s + m[0].length;
+                var ng = negScan(w, s, e, opt);
+                /* négation déjà dans le passage (« pas au 31/12 ») : le « n' » ou « ne » qui la précède en fait partie, sans l'inverser */
+                var inner = / (pas|non|sauf|hors|sans|aucune?|jamais|ni) /.test(m[0] + " ");
+                if (inner) ng.neg = ng.cuts.some(function (t) { return t.t !== "n" && t.t !== "ne"; });
+                var r = fn(m, ng.neg);
+                if (r === false) {
+                  rx.lastIndex = s + 1;
+                  continue;
+                }
+                cutAll([{ s: s, e: e, rep: opt.rep }].concat((ng.neg || inner) && r !== "keep" ? ng.cuts : []));
+                rx.lastIndex = 0;
+              }
+            }
             function addW(field, op, value, extra) {
               var c = { field: field, op: op };
               if (op !== "est_vide" && op !== "non_vide") c.value = value;
               if (extra) for (var k in extra) c[k] = extra[k];
               res.where.push(c);
               return c;
+            }
+            function negUnk(text, why) {
+              res.unk.push({ text: text, why: why, neg: true });
             }
             function sel(ids) {
               ids.forEach(function (id) { if (res.select.indexOf(id) === -1) res.select.push(id); });
@@ -4614,34 +5022,47 @@
               return ents.map(function (x, i) { return { x: x, i: i }; }).filter(function (o) { return o.x.type === type && (!kind || o.x.kind === kind); });
             }
 
-            /* 1. Hors DPJ, entités contrôlées, bénéficiaires effectifs */
+            /* 1. Hors DPJ, entités contrôlées, personnes à préciser */
             if (/ beneficiaires? effectifs? /.test(w0)) return { kind: "be", mk: mk };
             for (var h = 0; h < HORS.length; h++) {
               if (HORS[h][0].test(w0) && (h !== 0 || / chiffres? d affaires /.test(w0) || /\bC\.?A\.?\b/.test(raw))) return { kind: "hors", what: HORS[h][1], mk: mk };
             }
             var mand = entsOf("soc", "mandat");
             if (mand.length) return { kind: "cac", mk: mk, mandats: mand.map(function (o) { return MAND[o.x.id]; }) };
-            var users = entsOf("per", "user").concat(entsOf("per", "homonyme"));
+            var cacp = entsOf("per", "cac");
+            if (cacp.length) return { kind: "cacper", mk: mk, name: cacp[0].x.id, tag: cacp[0].x.tag, mandats: [{ id: cacp[0].x.mandat }] };
             var homo = entsOf("per", "homonyme");
-            if (homo.length) {
-              var ln = lf(homo[0].x.id);
-              return { kind: "homonyme", mk: mk, name: homo[0].x.id, tag: homo[0].x.tag, list: LAST[ln] || [] };
-            }
+            if (homo.length) return { kind: "homonyme", mk: mk, name: homo[0].x.id, tag: homo[0].x.tag, list: homo[0].x.list || [], first: !!homo[0].x.first };
+            var users = entsOf("per", "user");
             if (users.length) return { kind: "noperson", mk: mk, name: users[0].x.id, tag: users[0].x.tag };
             var autres = entsOf("soc", "autre");
             if (autres.length) return { kind: "nosoc", mk: mk, name: autres[0].x.id, tag: autres[0].x.tag };
 
-            /* 2. Suite d'une question précédente, tri */
-            if (/^ (et |mais )?(parmi (elles|celles ci|celles la|celles|ces societes|ces resultats|eux|ceux ci|lesquelles)|seulement|uniquement|garde|ne garde que|filtre|restreins|limite|dont|celles|ceux|lesquelles|sauf|hors|sans les|et ) ?/.test(w)) {
+            /* 2. Suite d'une question précédente (seulement avec un renvoi explicite), tri, « combien ? » */
+            var anaphore = / (parmi (elles|celles ci|celles la|celles|ces societes|ces resultats|eux|ceux ci|lesquelles)|d entre elles|parmi celles ci) /.test(w0);
+            res.newQ = /^ (quelles?|quels?|quel|combien|liste|listez|lister|donne|donnez|montre|montrez|affiche|affichez|trouve|cherche|toutes|tous|y a t il|societes) /.test(w0) && !anaphore;
+            if (prev && /^ (?:et )?combien(?: de societes| de resultats| d entre elles| y en a t il| en tout| au total| sont elles| en reste t il| ca fait)? $/.test(w0)) {
               res.follow = true;
-              res.parmi = / parmi /.test(w);
-              eat(/^ (et |mais )?(parmi (elles|celles ci|celles la|celles|ces societes|ces resultats|eux|ceux ci|lesquelles)|ne garde que|garde (seulement |uniquement )?|filtre (sur )?|restreins (a )?|limite (a )?)/);
+              res.count = true;
+              res.sortDefault = true;
+              res.sort = { field: "nom", dir: "asc" };
+              return res;
+            }
+            if (anaphore || /^ (?:et |mais |ou )?(?:seulement|uniquement|garde|ne garde que|filtre|restreins|limite|dont|celles|ceux|lesquelles|(?:sauf|hors) (?:celles|ceux|les miennes)|sans les) /.test(w0) || /^ (?:et|mais) /.test(w0)) {
+              res.follow = true;
+              res.parmi = anaphore;
+              eat(/^ (et |mais |ou )?(parmi (elles|celles ci|celles la|celles|ces societes|ces resultats|eux|ceux ci|lesquelles)|d entre elles|ne garde que|garde (seulement |uniquement )?|filtre (sur )?|restreins (a )?|limite (a )?)?/);
             }
             eat(/ (?:les )?(\d+ )?(?:plus gros|plus importants|plus eleves|plus grands|plus forts) capitaux /, function (m, n) {
               res.sort = { field: "capital", dir: "desc" };
               if (n) res.limit = +n;
             });
+            eat(/ (?:les )?(\d+ )?(?:plus petits|plus faibles) capitaux /, function (m, n) {
+              res.sort = { field: "capital", dir: "asc" };
+              if (n) res.limit = +n;
+            });
             eat(/ (?:au |le |avec le )?capital le plus (?:eleve|important|gros|fort) /, function () { res.sort = { field: "capital", dir: "desc" }; });
+            eat(/ (?:au |le |avec le )?(?:plus petit capital|plus faible capital|capital le plus (?:faible|petit|bas)) /, function () { res.sort = { field: "capital", dir: "asc" }; });
             eat(/ (?:les )?(\d+ )?plus (anciennes|vieilles|recentes|jeunes) /, function (m, n, k) {
               res.sort = { field: "immatriculation", dir: /anciennes|vieilles/.test(k) ? "asc" : "desc" };
               if (n) res.limit = +n;
@@ -4656,7 +5077,7 @@
                   if (fld === "dirigeant.fin" && prev && prev.where.some(function (c) { return /^cac\./.test(c.field) && c.field !== "cac.present"; })) fld = "cac.fin";
                   res.sort = { field: fld, dir: d };
                   var rest = k.replace(SORT_F[i][0], "").trim();
-                  if (rest && !rest.split(" ").every(function (x) { return STOP[x]; })) res.unk.push({ text: rest });
+                  if (rest && !rest.split(" ").every(function (x) { return STOP[x]; })) res.unk.push({ text: rest, generic: true });
                   return true;
                 }
               }
@@ -4669,9 +5090,54 @@
               return true;
             });
 
-            /* 3. Forme juridique */
-            var neg = "(?:sauf|hors|autres? que|pas|non|excepte|a l exception d(?:es|e|u)?|en dehors d(?:es|e)?|ni)";
-            eat(new RegExp(" " + neg + " (?:les |des |la |le |une |un )?(sas|sarl|selarl|sci|scp|sccv)s?(?: et (?:les |des )?(sas|sarl|selarl|sci|scp|sccv)s?)? ", "g"), function (m, a, b) {
+            /* 2 bis. Relation entre la fonction d'un dirigeant et sa qualité d'associé : le moteur ne la sait pas, on le dit */
+            if (!entsOf("per", "dpj").length) {
+              eat(/ (?:le |la |les |leur |dont le |dont la |un |une )?(gerant\w*|cogerant\w*|president\w*|dirigeant\w*|directeur general|directrice generale|pdg|dg)(?: qui)?(?: n est| ne sont| n etant| ne soit| n ait)? (pas |non |jamais )(?:aussi |egalement )?(associe\w*|actionnaire\w*) /, function (m, f1) {
+                negUnk(f1.replace("gerant", "gérant").replace("president", "président") + " non associé", "le DPJ ne croise pas, dans une même requête, la fonction d'un dirigeant et sa qualité d'associé");
+              });
+              eat(/ (?:le |la |les |leur |dont le |dont la |un |une )?(gerant\w*|cogerant\w*|president\w*|dirigeant\w*|directeur general|directrice generale|pdg|dg)(?: qui)? (?:est|sont|etant|soit|soient)(?: aussi| egalement| lui meme| elle meme)? (associe\w*|actionnaire\w*) /, function (m, f1) {
+                res.unk.push({ text: f1.replace("gerant", "gérant").replace("president", "président") + " associé", why: "le DPJ ne croise pas, dans une même requête, la fonction d'un dirigeant et sa qualité d'associé" });
+              });
+            }
+
+            /* 2 ter. Absences explicites (« sans CAC », « sans AG connue », « non immatriculées »…) : traitées avant tout le reste */
+            var cacNeg = false;
+            var NV = "(?:(?:n ayant|n ont|n a|ne disposant|ne disposent|n etant|ne sont|ne comptant) )?";
+            eat(new RegExp(" " + NV + "(?:sans|pas de|pas d|aucun|non soumises? a|dispensees? de|pas soumises? a|soumises? a aucun) (?:commissaires? aux comptes|commissariat aux comptes|cac) "), function () { cacNeg = true; });
+            eat(/ (?:(?:n ayant|n ont|n a) )?(?:sans|pas de|aucune)(?: date de| date d)? (?:cloture|exercice)(?! (?:au|le|en|a|fin|du|clos|decale|\d)(?= | |\/))(?= )| (?:date de )?cloture (?:non renseignee|manquante|absente|inconnue)s? /, function () { addW("cloture", "est_vide"); });
+            eat(/ (?:n ont |n a |n ayant )?(?:aucune?|pas de|pas d|sans|jamais d|jamais eu d|jamais tenu d)(?: derniere)? (?:ag|assemblee(?: generale)?|approbation des comptes)(?: d approbation)?(?: connue| renseignee| tenue)?(?= ~| $| et | ou | a | dans | dont )| (?:derniere )?(?:ag|assemblee)(?: d approbation)? (?:non|pas|jamais) (?:connue|renseignee|tenue) | (?:derniere )?ag(?: d approbation)? (?:inconnue|absente|manquante|non renseignee) /, function () {
+              addW("derniereAG", "est_vide");
+            });
+            eat(/ (?:statuts )?(?:jamais modifies|jamais ete modifies|n ont jamais (?:ete )?modifie(?: leurs| les)? statuts|jamais modifie(?: leurs| les)? statuts|d origine) /, function () {
+              negUnk("statuts jamais modifiés", "le DPJ garde seulement la date de la dernière modification statutaire");
+            });
+            eat(/ (?:non immatriculees?|pas encore immatriculees?|pas immatriculees?|en cours de creation|en creation|en cours d immatriculation) /, function () { addW("immatriculation", "est_vide"); });
+            eatN(/ (?:(?:un |de |d |des |le |les |leur )?(?:dirigeants?|mandats?|gerants?|presidents?|mandataires? sociaux) )?(?:a |pour une )?(?:duree indeterminee|sans limitation de duree|sans fin de mandat|duree illimitee) /, function (m, nie) {
+              addW("dirigeant.fin", "est_vide", null, nie ? { grp: "dir", not: true } : { grp: "dir" });
+            });
+            eat(/ (?:(?:n ayant|n ont|n a) )?(?:sans|aucun|pas de|pas d) (?:dirigeants?|mandataires? sociaux)(?: renseignes?| connus?)?(?! (?:n|ne|qui|dont|ayant|avec|a un|a une|a duree|dont le)(?= ))/, function () { addW("dirigeant.nom", "est_vide"); });
+
+            /* « ne » ou « n' » dont la négation vient d'être prise par un critère explicite : retiré, pour ne jamais nier un autre critère */
+            function orphans() {
+              var T = w.trim().split(" ");
+              var out = [];
+              T.forEach(function (t, i) {
+                if (t === "n" || t === "ne") {
+                  for (var j = i + 1; j < T.length; j++) {
+                    if (T[j] === "~") return;
+                    if (!STOP[T[j]] || NEGW[T[j]]) break;
+                  }
+                }
+                out.push(t);
+              });
+              w = " " + out.join(" ") + " ";
+            }
+            orphans();
+
+            /* 3. Forme juridique (« sa » minuscule : seulement après un article, jamais le possessif « sa gérante ») */
+            var neg = "(?:sauf|hors|pas|non|ni|aucune?s?|jamais)";
+            var NOT_SA = "(?! (?:gerante|presidente|directrice|dirigeante|societe|capital|filiale|mere|fille|date|derniere|cloture|forme|part|participation)(?= ))";
+            eat(new RegExp(" " + neg + " (?:les |des |de |d |la |le |une |un |en )?(sas|sarl|selarl|sci|scp|sccv|sa" + NOT_SA + ")s?(?: (?:et|ou|ni) (?:les |des |de |d )?(sas|sarl|selarl|sci|scp|sccv|sa" + NOT_SA + ")s?)?(?= )", "g"), function (m, a, b) {
               addW("forme", "!=", [a, b].filter(Boolean).map(function (x) { return x.toUpperCase(); }));
             });
             eat(/ (?:les |des )?societes? civiles?(?: immobilieres?)? /, function (m) {
@@ -4679,9 +5145,18 @@
             });
             eat(/ (?:les |des )?societes? anonymes? /, function () { addW("forme", "=", ["SA"]); });
             var fs = [];
-            eat(/ (?:les |des |aux |en |de |d |une |un |la |le )?(sas|sarl|selarl|sci|scp|sccv)s? /g, function (m, x) { fs.push(x.toUpperCase()); });
-            if (/(^|[^A-Za-z])SA([^A-Za-z]|$)/.test(raw)) eat(/ (?:les |des |aux |en |une |la )?sa /g, function () { fs.push("SA"); });
-            if (fs.length) addW("forme", "=", fs.filter(function (x, i) { return fs.indexOf(x) === i; }));
+            var fsN = [];
+            eatN(/ (?:les |des |aux |en |de |d |une |un |la |le )?(sas|sarl|selarl|sci|scp|sccv)s? /, function (m, nie) { (nie ? fsN : fs).push(m[1].toUpperCase()); });
+            var SA_UP = /(^|[^A-Za-z])SA([^A-Za-z]|$)/.test(raw) || /(^|[^A-Za-z])S\.A\.?(?![A-Za-z])/.test(raw);
+            if (SA_UP) eatN(/ (?:les |des |aux |en |une |la )?sa(?= )/, function (m, nie) { (nie ? fsN : fs).push("SA"); });
+            else {
+              eatN(new RegExp(" (?:les|des|une|aux|la|ces|nos|mes|vos|leurs|quelles|quels|toutes les|combien de) sa" + NOT_SA + "(?= )"), function (m, nie) { (nie ? fsN : fs).push("SA"); });
+              if (fs.length || fsN.length) eatN(new RegExp(" (?:ou|et) (?:les |des )?sa" + NOT_SA + "(?= )"), function (m, nie) { (nie ? fsN : fs).push("SA"); });
+            }
+            function uniq(a) { return a.filter(function (x, i) { return a.indexOf(x) === i; }); }
+            if (fs.length) addW("forme", "=", uniq(fs));
+            if (fsN.length) addW("forme", "!=", uniq(fsN));
+            orphans();
             eat(/ (?:les |des |en |une )?(sasu|eurl|snc|sel|selas|gie|sem|scop|associations?|ei|micro entreprises?|auto entreprises?)s? /g, function (m, x) {
               res.unk.push({ text: "forme « " + x.toUpperCase() + " »", why: "le DPJ distingue SAS, SARL, SA, SELARL, SCI, SCP, SCCV" });
             });
@@ -4693,24 +5168,43 @@
               if (mult) v *= /^k|mille/.test(mult) ? 1000 : 1000000;
               return Math.round(v);
             }
-            var CMP = "(strictement superieure?s? a|superieure?s? ou egale?s? a|superieure?s? a|inferieure?s? ou egale?s? a|inferieure?s? a|plus (?:de|que|grand que|eleve que|important que)|moins (?:de|que)|au dessus de|en dessous de|au dela de|au moins|d au moins|minimum(?: de)?|au plus|d au plus|maximum(?: de)?|depassant|excedant|ne depassant pas|egale? a|entre|de|>=|<=|>|<|=)";
+            var CMP = "(strictement superieure?s? a|superieure?s? ou egale?s? a|superieure?s? a|inferieure?s? ou egale?s? a|inferieure?s? a|plus (?:de|que|grand que|eleve que|important que)|moins (?:de|que)|au dessus de|en dessous de|au dela de|au moins|d au moins|minimum(?: de)?|au plus|d au plus|maximum(?: de)?|ne depassant pas|ne depasse pas|n excede pas|n excedant pas|depassant|depasse|depassent|excedant|excede|excedent|egale? a|entre|de|>=|<=|>|<|=)";
             function cmpOp(c) {
               if (!c || c === "de" || c === "=" || /^egal/.test(c)) return "=";
+              if (/ne depass|n exced/.test(c)) return "<=";
               if (/ou egal/.test(c)) return /superieur/.test(c) ? ">=" : "<=";
-              if (/superieur|plus|au dessus|au dela|depassant|excedant|^>$/.test(c) && !/ne depassant/.test(c)) return ">";
+              if (/superieur|plus|au dessus|au dela|depass|exced|^>$/.test(c)) return ">";
               if (/au moins|minimum|^>=$/.test(c)) return ">=";
-              if (/au plus|maximum|ne depassant|^<=$/.test(c)) return "<=";
+              if (/au plus|maximum|^<=$/.test(c)) return "<=";
               if (/inferieur|moins|en dessous|^<$/.test(c)) return "<";
               if (c === "entre") return "entre";
               return "=";
             }
-            eat(new RegExp(" (?:au |un |d un |avec un |leur |le )?(?:capital|capital social)(?: social)?(?: est| s eleve a| d un montant(?: de)?| de| egal)?(?: " + CMP + ")? " + AMT + "(?: et " + AMT + ")? ", "g"), function (m, c, n1, m1, n2, m2) {
+            function capW(op, v, nie) {
+              if (nie) {
+                var io = invNum(op);
+                if (io) return addW("capital", io, v);
+                return addW("capital", op, v, { not: true });
+              }
+              return addW("capital", op, v);
+            }
+            eatN(new RegExp(" (?:au |un |d un |avec un |leur |le |son |dont le )?(?:capital|capital social)(?: social)?( n est pas| ne soit pas| n est jamais| non| ne)?(?: est| s eleve a| d un montant(?: de)?| de| egal)?(?: " + CMP + ")? " + AMT + "(?: et(?: (?:est |soit )?" + CMP + ")? " + AMT + ")?(?= )"), function (m, nieP) {
+              var c = m[2];
+              var n1 = m[3];
+              var m1 = m[4];
+              var c2 = m[5];
+              var n2 = m[6];
+              var m2 = m[7];
+              var nie = !!m[1] || nieP;
               var op = cmpOp(c);
-              if (op === "entre" || n2) addW("capital", "entre", [amount(n1, m1), amount(n2, m2 || m1)]);
-              else addW("capital", op, amount(n1, m1));
+              if (n2 && c2 && c2 !== "de" && op !== "entre") {
+                capW(op, amount(n1, m1), nie);
+                capW(cmpOp(c2), amount(n2, m2 || m1), nie);
+              } else if (op === "entre" || n2) capW("entre", [amount(n1, m1), amount(n2, m2 || m1)], nie);
+              else capW(op, amount(n1, m1), nie);
             });
-            eat(new RegExp(" (?:avec |de )?" + CMP + " " + AMT + " de capital(?: social)? ", "g"), function (m, c, n1, m1) {
-              addW("capital", cmpOp(c), amount(n1, m1));
+            eatN(new RegExp(" (?:avec |de )?" + CMP + " " + AMT + " de capital(?: social)? "), function (m, nie) {
+              capW(cmpOp(m[1]), amount(m[2], m[3]), nie);
             });
             eat(/ (?:la |sa )?(?:repartition|composition|structure|detention) (?:du capital|de l actionnariat|des parts|des titres|des actions)|actionnariat|qui (?:detient|possede) (?:le capital|les parts|les actions)? /, function () {
               res.repart = true;
@@ -4718,47 +5212,88 @@
             });
 
             /* 5. Associés : part, nombre */
-            eat(new RegExp(" (?:un |l |des )?(?:associes?|actionnaires?)?(?: qui| unique)?(?: detient| detenant| detiennent| possede| possedant| avec| a| ayant)? ?(plus de|au moins|moins de|au plus|exactement)? ?(\\d+(?:\\.\\d+)?) %(?: du capital| des parts| des actions)? ", "g"), function (m, c, n) {
-              addW("associe.pct", c ? cmpOp(c) : ">=", parseFloat(n), { grp: "assoc" });
+            var SKIP_A = { associe: 1, associes: 1, associee: 1, associees: 1, actionnaire: 1, actionnaires: 1 };
+            eatN(/ (?:un |l |des )?(?:associes?|actionnaires?)?(?: qui| unique)?(?: detient| detenant| detiennent| possede| possedant| avec| a| ayant)? ?(plus de|au moins|moins de|au plus|exactement)? ?(\d+(?:\.\d+)?) %(?: du capital| des parts| des actions)? /, function (m, nie) {
+              addW("associe.pct", m[1] ? cmpOp(m[1]) : ">=", parseFloat(m[2]), nie ? { grp: "assoc", not: true } : { grp: "assoc" });
+            }, { skip: SKIP_A });
+            eatN(/ (?:un |des |l )?(?:associes?|actionnaires?) majoritaires?(?: a| avec)? /, function (m, nie) {
+              if (!res.where.some(function (c) { return c.field === "associe.pct"; })) addW("associe.pct", ">", 50, nie ? { grp: "assoc", not: true } : { grp: "assoc" });
             });
-            eat(/ (?:un |des |l )?(?:associes?|actionnaires?) majoritaires?(?: a| avec)? /, function () {
-              if (!res.where.some(function (c) { return c.field === "associe.pct"; })) addW("associe.pct", ">", 50, { grp: "assoc" });
+            eatN(/ (?:a |avec |un |d )?(?:associe unique|un seul associe|seul associe|unipersonnelles?) /, function (m, nie) { addW("nbAssocies", nie ? "!=" : "=", 1); });
+            eatN(/ plusieurs associes /, function (m, nie) { addW("nbAssocies", nie ? "<" : ">=", 2); });
+            eat(/ (?:(?:n ayant|n ont|n a) )?(?:sans|aucun|pas d) ?associes?(?: renseignes?| connus?)?(?! (?:ne|n|qui|dont|detenant|ayant|avec|majoritaire)(?= )) /, function () { addW("associe.nom", "est_vide"); });
+            eatN(new RegExp(" (plus de|au moins|moins de|au plus|exactement|strictement plus de)? ?" + NUM + " associes? "), function (m, nie) {
+              var op = m[1] ? cmpOp(m[1]) : "=";
+              addW("nbAssocies", nie ? invNum(op) : op, num(m[2]));
             });
-            eat(/ (?:a |avec |un |d )?(?:associe unique|un seul associe|seul associe|unipersonnelles?) /, function () { addW("nbAssocies", "=", 1); });
-            eat(/ plusieurs associes /, function () { addW("nbAssocies", ">=", 2); });
-            eat(/ (?:sans|aucun|pas d|n ont pas d) ?associes?(?: renseignes?| connus?)? /, function () { addW("associe.nom", "est_vide"); });
-            eat(new RegExp(" (plus de|au moins|moins de|au plus|exactement|strictement plus de)? ?" + NUM + " associes? ", "g"), function (m, c, n) {
-              addW("nbAssocies", c ? cmpOp(c) : "=", num(n));
+            orphans();
+
+            /* 6. Clôture, exercice décalé, mandats déjà expirés */
+            eatN(new RegExp(" (?:date de )?(?:cloture|cloturant|cloturent|clot|clos|closes|clotures?|exercices? (?:clos|comptables?)?)(?: au| le| en| fin| a| au mois de| le mois d| du mois d)? (\\d{1,2})/(\\d{1,2}) "), function (m, nie) {
+              addW("cloture", nie ? "!=" : "=", pad2(+m[1]) + "/" + pad2(+m[2]));
+            });
+            eatN(new RegExp(" (?:date de )?(?:cloture|cloturant|cloturent|clot|clos|closes|clotures?|exercices? (?:clos|comptables?)?)(?: au| le| en| a| au mois de| le mois de| le mois d| du mois d| du mois de)? (fin |(\\d{1,2}|1er) )?(" + MO + ")(?! (?:19|20)\\d\\d) "), function (m, nie) {
+              var f1 = m[1];
+              var d = m[2];
+              var mm = MOIS.indexOf(m[3]) + 1;
+              var o = nie ? "!=" : "=";
+              if (d) addW("cloture", o, pad2(d === "1er" ? 1 : +d) + "/" + pad2(mm));
+              else if (f1) addW("cloture", o, pad2(lastDay(2025, mm)) + "/" + pad2(mm));
+              else addW("cloture", "contient", "/" + pad2(mm), nie ? { label: "en " + MOIS_L[mm - 1], not: true } : { label: "en " + MOIS_L[mm - 1] });
+            });
+            eatN(/ (?:exercices? (?:est |sont )?(?:decales?|non civils?)|cloture decalee|clotures? (?:est |sont )?differentes? (?:du|de) 31\/12|(?:hors|sauf|autre que|pas au) (?:le )?31\/12) /, function (m, nie) { addW("cloture", nie ? "=" : "!=", "31/12"); });
+            eatN(/ (?:exercice civil|cloture (?:au )?31 decembre) /, function (m, nie) { addW("cloture", nie ? "!=" : "=", "31/12"); });
+            if (!findDates(w).length && / (mandats?|dirigeants?|gerant\w*|president\w*) /.test(w0) && !/ (commissaires? aux comptes|cac) /.test(w0)) {
+              eatN(/ (?:deja |sont |est |etant )(?:expires?|expirees?|echus?|echues?|arrives? a (?:echeance|expiration)|perimes?)| (?:expirees?|expires|echus|echues) /, function (m, nie) {
+                addW("dirigeant.fin", "avant", REF, nie ? { grp: "dir", not: true } : { grp: "dir" });
+                res.expired = true;
+              });
+            }
+
+            /* 7. Fonction du dirigeant (avant les dates : le mot reste un repère « fctx » pour la date de fin de mandat) */
+            var hasPerson = entsOf("per", "dpj").length > 0;
+            var fctDone = false;
+            FCT.forEach(function (x) {
+              if (fctDone || (x.noPerson && hasPerson)) return;
+              eatN(x.re, function (m, nie) {
+                if (fctDone) return true;
+                fctDone = true;
+                /* « aucun président n'a… » : la négation porte sur la suite, pas sur l'existence de la fonction */
+                var after = w.slice(m.index + m[0].length).trim().split(" ")[0];
+                if (nie && (after === "n" || after === "ne")) nie = false;
+                var v = Array.isArray(x.v) && x.v.length === 1 ? x.v[0] : x.v;
+                addW("dirigeant.fonction", nie ? (x.op === "contient" ? "aucun" : "!=") : x.op, v, { grp: "dir" });
+                return nie ? true : "keep";
+              }, { rep: " fctx ", skip: { dirigeant: 1, dirigeants: 1 } });
             });
 
-            /* 6. Clôture, AG, statuts, immatriculation, dirigeants sans date */
-            eat(new RegExp(" (?:date de )?(?:cloture|cloturant|cloturent|clot|clos|closes|clotures?|exercices? (?:clos|comptables?)?)(?: au| le| en| fin| a| au mois de| le mois d| du mois d)? (\\d{1,2})/(\\d{1,2}) ", "g"), function (m, d, mm) {
-              addW("cloture", "=", pad2(+d) + "/" + pad2(+mm));
-            });
-            eat(new RegExp(" (?:date de )?(?:cloture|cloturant|cloturent|clot|clos|closes|clotures?|exercices? (?:clos|comptables?)?)(?: au| le| en| a| au mois de| le mois de| le mois d| du mois d| du mois de)? (fin |(\\d{1,2}|1er) )?(" + MO + ")(?! (?:19|20)\\d\\d) ", "g"), function (m, f1, d, mo) {
-              var mm = MOIS.indexOf(mo) + 1;
-              if (d) addW("cloture", "=", pad2(d === "1er" ? 1 : +d) + "/" + pad2(mm));
-              else if (f1) addW("cloture", "=", pad2(lastDay(2025, mm)) + "/" + pad2(mm));
-              else addW("cloture", "contient", "/" + pad2(mm), { label: "en " + MOIS_L[mm - 1] });
-            });
-            eat(/ (?:sans|pas de|aucune|n ont pas de)(?: date de| date d)? (?:cloture|exercice) | (?:date de )?cloture (?:non renseignee|manquante|absente|inconnue)s? /, function () { addW("cloture", "est_vide"); });
-            eat(/ (?:exercices? decales?|cloture decalee|exercice non civil|(?:hors|sauf|autre que|pas au) (?:le )?31\/12) /, function () { addW("cloture", "!=", "31/12"); });
-            eat(/ (?:exercice civil|cloture (?:au )?31 decembre) /, function () { addW("cloture", "=", "31/12"); });
-            eat(/ (?:n ont |n a )?(?:aucune?|pas de|pas d|sans|jamais d|jamais eu d|jamais tenu d)(?: derniere)? (?:ag|assemblee(?: generale)?|approbation des comptes)(?: d approbation)?(?: connue| renseignee| tenue)? | (?:derniere )?(?:ag|assemblee)(?: d approbation)? (?:non|pas|jamais) (?:connue|renseignee|tenue) | (?:derniere )?ag(?: d approbation)? (?:inconnue|absente|manquante|non renseignee) /, function () {
-              addW("derniereAG", "est_vide");
-            });
-            eat(/ (?:statuts )?(?:jamais modifies|jamais ete modifies|n ont jamais (?:ete )?modifie(?: leurs| les)? statuts|jamais modifie(?: leurs| les)? statuts|d origine) /, function () {
-              res.unk.push({ text: "statuts jamais modifiés", why: "le DPJ garde seulement la date de la dernière modification statutaire" });
-            });
-            eat(/ (?:non immatriculees?|pas encore immatriculees?|pas immatriculees?|en cours de creation|en creation|en cours d immatriculation) /, function () { addW("immatriculation", "est_vide"); });
-            eat(/ (?:a duree indeterminee|sans limitation de duree|sans fin de mandat|duree illimitee) /, function () { addW("dirigeant.fin", "est_vide", null, { grp: "dir" }); });
-            eat(/ (?:sans|aucun|pas de|n ont pas de) (?:dirigeants?|gerants?|presidents?)(?: renseignes?| connus?)? /, function () { addW("dirigeant.nom", "est_vide"); });
+            if (res.where.some(function (c) { return c.field === "dirigeant.fonction" && /gerant/.test(nk([].concat(c.value).join(" "))); })) eat(/ (gerees? par|gerees?|gere par|gere)(?= )/g);
+            /* « sans président ni directeur général » : chaque fonction citée après « ni » est exclue aussi */
+            if (res.where.some(function (c) { return c.field === "dirigeant.fonction" && (c.op === "aucun" || c.op === "!="); })) {
+              eat(/ ni (?:de |d |un |une )?([a-z]+(?: [a-z]+){0,3}?)(?= ~| $| et | ni | a | en | dont )/g, function (m, wd) {
+                var hit = null;
+                FCT.forEach(function (x) { if (!hit && !x.noPerson && x.re.test(" " + wd + " ") && x.re.exec(" " + wd + " ")[0].trim() === wd) hit = x; });
+                if (!hit) return false;
+                addW("dirigeant.fonction", hit.op === "contient" ? "aucun" : "!=", Array.isArray(hit.v) && hit.v.length === 1 ? hit.v[0] : hit.v, { grp: "dir" });
+              });
+            }
 
-            /* 7. Dates rattachées à leur champ */
+            /* 8. Dates rattachées à leur champ */
             var anchors = findAnchors(w);
             var dates = findDates(w);
             var cacSeen = / (commissaires? aux comptes|commissariat aux comptes|cac|auditeurs?) /.test(w0);
             var cuts = [];
+            var T8 = toks(w);
+            function dateNeg(a, d) {
+              var found = [];
+              var lo = a && a.s < d.s ? a.e : d.s;
+              T8.forEach(function (t) { if (t.s >= lo && t.e <= d.s && NEGW[t.t]) found.push(t); });
+              var start = a && a.s < d.s ? a.s : d.s;
+              var skip = {};
+              Object.keys(ROLEW).forEach(function (k) { skip[k] = 1; });
+              var ng = negScan(w, start, start, { skip: skip });
+              return found.concat(ng.cuts);
+            }
             dates.forEach(function (d) {
               var a = null;
               anchors.forEach(function (x) { if (x.s < d.s) a = x; });
@@ -4781,24 +5316,35 @@
                   return;
                 }
               }
-              if (d.depuis && (k === "stat" || k === "ag") && / (pas|non|jamais|aucune?) /.test(w0)) {
-                op = "avant";
+              var nt = dateNeg(a, d);
+              var extra = { grp: k };
+              if (nt.length) {
+                /* « statuts non modifiés depuis plus de 5 ans », « pas d'AG depuis 2025 » : tournure figée, la date reste « avant » */
+                if ((k === "stat" || k === "ag") && (d.depuis || d.age)) op = "avant";
+                else if (k === "dir" || k === "cac") extra.not = true;
+                else {
+                  var io = invDate(op);
+                  if (io) op = io;
+                  else extra.not = true;
+                }
+                nt.forEach(function (t) { cuts.push(t); });
               }
-              addW(field, op, val, { grp: k });
+              addW(field, op, val, extra);
               cuts.push(d);
               if (a) a.used = true;
             });
             anchors.forEach(function (a) {
               if (a.used) cuts.push(a);
             });
+            var seenC = {};
+            cuts = cuts.filter(function (c) { var key = c.s + "|" + c.e; if (seenC[key]) return false; seenC[key] = 1; return true; });
             cuts.sort(function (a, b) { return b.s - a.s; }).forEach(function (c) {
               w = w.slice(0, c.s) + " ~ " + w.slice(c.e);
             });
             w = w.replace(/\s+/g, " ");
-            if (cacSeen) {
-              var cacNeg = / (sans|pas de|pas d|aucun|n ont pas de|n a pas de|non soumises? a|dispensees? de) (commissaires? aux comptes|commissariat aux comptes|cac) /.test(w0);
+            if (cacSeen || cacNeg) {
               addW("cac.present", "=", cacNeg ? "non" : "oui");
-              eat(/ (sans|pas de|pas d|aucun|n ont pas de|n a pas de|non soumises? a|dispensees? de|avec|un|ont un|ayant un|dotees? d un|disposant d un) (commissaires? aux comptes|commissariat aux comptes|cac) /);
+              eat(/ (avec|un|ont un|ayant un|dotees? d un|disposant d un) (commissaires? aux comptes|commissariat aux comptes|cac) /);
               eat(/ (commissaires? aux comptes|commissariat aux comptes|cac) /);
               if (!res.where.some(function (c) { return c.field === "cac.fin"; })) eat(/ (dont le |leur |le )?mandats? /);
             }
@@ -4807,60 +5353,61 @@
               addW("immatriculation", "non_vide");
             }
 
-            /* 8. Fonction du dirigeant */
-            var FCT = [
-              [/ (cogerant(?:e|es|s)?) /, "cogérant"],
-              [/ (gerant(?:e|es|s)?|gerees?|gere|geree par) /, "gérant"],
-              [/ (president(?:e|es|s)? directeur general|president(?:e|es|s)? directrice generale|pdg) /, "directeur général"],
-              [/ (president(?:e|es|s)? du conseil d administration) /, "conseil d'administration"],
-              [/ (president(?:e|es|s)?|presidees?|preside) /, "président"],
-              [/ (directeurs? generaux|directeur general|directrice generale|directrices generales|dg) /, "général"],
-            ];
-            var fctDone = false;
-            FCT.forEach(function (x) {
-              if (fctDone || !x[0].test(w0)) return;
-              if (x[1] === "président" && / directrice? generale? /.test(w0) && / president(?:e)? directeur /.test(w0)) return;
-              fctDone = true;
-              addW("dirigeant.fonction", "contient", x[1], { grp: "dir" });
-              eat(new RegExp(x[0].source, "g"));
-            });
-
-            /* 9. Personnes et sociétés citées (remplacées localement par EJ) */
+            /* 9. Personnes et sociétés citées (remplacées localement par EJ) ; « n'est pas associé » : aucun membre */
+            function entNeg(o) {
+              var mm = new RegExp(" zz" + o.i + "zz ").exec(w);
+              if (!mm) return false;
+              var ng = negScan(w, mm.index, mm.index + mm[0].length, { post: true });
+              if (ng.neg) cutAll(ng.cuts);
+              return ng.neg;
+            }
             var pers = entsOf("per", "dpj").concat(entsOf("soc", "morale"));
             if (pers.length) {
               var assocW = / (associes?|associees?|actionnaires?|detient|detiennent|possede|parts|capital) /.test(w0);
-              var dirW = / (dirigeants?|dirige|dirigee|dirigees|gerant\w*|gere\w*|president\w*|preside\w*|directeur\w*|directrice\w*|mandataires?|mandats?|pdg|dg) /.test(w0);
+              var dirW = / (dirigeante?s?|dirige|dirigee|dirigees|gerant\w*|gere\w*|president\w*|preside\w*|directeur\w*|directrice\w*|mandataires?|mandats?|pdg|dg|fctx) /.test(w0 + " " + w + " ");
               var onlyMorale = pers.every(function (o) { return o.x.kind === "morale"; });
               var fld = onlyMorale ? "associe.nom" : assocW && !dirW ? "associe.nom" : dirW && !assocW ? "dirigeant.nom" : "personne.nom";
-              var names = [];
+              var posN = [];
+              var negN = [];
               pers.forEach(function (o) {
-                if (names.indexOf(o.x.id) === -1) names.push(o.x.id);
+                var lst = entNeg(o) ? negN : posN;
+                if (lst.indexOf(o.x.id) === -1) lst.push(o.x.id);
                 res.persons.push({ tag: o.x.tag, name: o.x.id });
               });
-              addW(fld, "=", names.length === 1 ? names[0] : names, { person: true });
+              if (posN.length) addW(fld, "=", posN.length === 1 ? posN[0] : posN, { person: true });
+              if (negN.length) {
+                addW(fld, "!=", negN.length === 1 ? negN[0] : negN, { person: true });
+                eat(/ ni (associee?s?|associes?|actionnaires?|dirigeante?s?|gerante?s?|presidente?s?)(?= )/g);
+              }
               pers.forEach(function (o) { eat(new RegExp(" zz" + o.i + "zz ", "g")); });
-              eat(/ (est il|est elle|sont ils|est|sont|associee?s?|associes?|actionnaires?|ou dirigeante?s?|dirigeante?s?|dirige|dirigee?s?|mandataires?|personnes?|monsieur|madame|m|mme|ou) /g);
+              eat(/ (est il|est elle|sont ils|est|sont|associee?s?|associes?|actionnaires?|ou dirigeante?s?|dirigeante?s?|dirige|dirigee?s?|mandataires?|personnes?|monsieur|madame|m|mme|ou)(?= )/g);
             }
             var socs = entsOf("soc", "dpj");
             if (socs.length) {
-              var sn = [];
-              socs.forEach(function (o) { if (sn.indexOf(o.x.id) === -1) sn.push(o.x.id); });
-              addW("nom", "=", sn.length === 1 ? sn[0] : sn, { soc: true });
+              var sp1 = [];
+              var sn1 = [];
+              socs.forEach(function (o) {
+                var lst = entNeg(o) ? sn1 : sp1;
+                if (lst.indexOf(o.x.id) === -1) lst.push(o.x.id);
+              });
+              if (sp1.length) addW("nom", "=", sp1.length === 1 ? sp1[0] : sp1, { soc: true });
+              if (sn1.length) addW("nom", "!=", sn1.length === 1 ? sn1[0] : sn1, { soc: true });
               socs.forEach(function (o) {
                 res.persons.push({ tag: o.x.tag, name: o.x.id, soc: true });
                 eat(new RegExp(" zz" + o.i + "zz ", "g"));
               });
             }
             entsOf("soc", "cabinet").forEach(function (o) {
-              addW("cac.cabinet", "=", o.x.id, { soc: true });
+              addW("cac.cabinet", entNeg(o) ? "!=" : "=", o.x.id, { soc: true });
               res.persons.push({ tag: o.x.tag, name: o.x.id, soc: true });
               eat(new RegExp(" zz" + o.i + "zz ", "g"));
             });
             entsOf("pat").forEach(function (o) {
               if (o.x.id === "siren") {
                 var dg = raw.slice(o.x.s, o.x.e).replace(/\D/g, "").slice(0, 9);
-                addW("siren", "=", dg.slice(0, 3) + " " + dg.slice(3, 6) + " " + dg.slice(6), { soc: true });
-                res.persons.push({ tag: o.x.tag, name: dg.slice(0, 3) + " " + dg.slice(3, 6) + " " + dg.slice(6), soc: true });
+                var sv = dg.slice(0, 3) + " " + dg.slice(3, 6) + " " + dg.slice(6);
+                addW("siren", entNeg(o) ? "!=" : "=", sv, { soc: true });
+                res.persons.push({ tag: o.x.tag, name: sv, soc: true });
               } else res.unk.push({ text: o.x.tag, why: "identifiant sans champ du DPJ" });
               eat(new RegExp(" zz" + o.i + "zz ", "g"));
             });
@@ -4872,55 +5419,63 @@
               eat(new RegExp(" (?:en |dans la |dans le |dans les )?" + r + " "));
             });
             var cities = [];
-            var cneg = false;
+            var citiesN = [];
             CITY_K.forEach(function (c) {
-              eat(new RegExp(" (?:(hors|sauf|en dehors de|pas a|pas en|autres? qu a|ailleurs qu a|ni a) )?(?:a |au |en |sur |de |d |dans )?" + c[0] + " ", "g"), function (m, n) {
-                if (n) cneg = true;
-                cities.push(c[1]);
+              eatN(new RegExp(" (?:(ailleurs qu|ailleurs que|autre part qu) )?(?:a |au |en |sur |de |d |dans )?" + c[0] + " "), function (m, nie) {
+                (nie || m[1] ? citiesN : cities).push(c[1]);
               });
             });
             Object.keys(CITY_ADJ).forEach(function (a) {
-              eat(new RegExp(" " + a + " ", "g"), function () { cities.push(CITY_ADJ[a]); });
+              eatN(new RegExp(" " + a + " "), function (m, nie) { (nie ? citiesN : cities).push(CITY_ADJ[a]); });
             });
-            /* ville inconnue du DPJ, citée après « siège à » ou « à » : interrogée telle quelle */
+            /* ville inconnue du DPJ, citée après « siège à » ou « à » : « Toulouze » fait proposer « Toulouse ? », sans l'appliquer */
             ents.forEach(function (x) {
               if (x.type !== "nom") return;
               var k = nk(x.id);
               var re = new RegExp(" (?:siege(?: social)?(?: est| situe| se trouve)? )?(?:a|au|en) " + k + " ");
               if (re.test(w) && !/ (associe|dirige|gerant|president|personne) /.test(w0)) {
-                cities.push(x.id);
+                var nc = nearCity(k);
+                if (nc) res.unk.push({ text: "ville « " + x.id + " »", why: "inconnue du DPJ", sugg: nc, typed: x.id });
+                else cities.push(x.id);
                 eat(re);
                 x.used = true;
               }
             });
-            if (cities.length) {
-              var uc = cities.filter(function (c, i) { return cities.indexOf(c) === i; });
-              addW("siege.ville", cneg ? "!=" : "=", uc.length === 1 ? uc[0] : uc);
-              eat(/ (siege social|siege|sieges|ville du siege|basees?|situees?|implantees?|domiciliees?) /g);
-            }
+            function uc(a) { return a.length === 1 ? a[0] : a; }
+            if (cities.length) addW("siege.ville", "=", uc(uniq(cities)));
+            if (citiesN.length) addW("siege.ville", "!=", uc(uniq(citiesN)));
+            if (cities.length || citiesN.length) eat(/ (siege social|siege|sieges|ville du siege|basees?|situees?|implantees?|domiciliees?) /g);
             var deps = [];
-            eat(/ (?:departement|dept|dpt)(?: du| de la| de l| des| de)? (\d{2}) | dans (?:le|les) (\d{2}) /g, function (m, a, b) { deps.push(a || b); });
-            DEPTS.forEach(function (d) {
-              eat(new RegExp(" (?:en|dans le|dans la|dans l|dans les|du|de la|de l|des) " + d[0] + " ", "g"), function () { deps.push(d[1]); });
+            var depsN = [];
+            var UNIT = "(?! (?:%|ans|an|mois|associes?|k|m|eur|euros?|jours?|prochain\\w*|dernier\\w*|premieres?|plus)(?= ))";
+            eatN(new RegExp(" (?:departement|dept|dpt)(?: du| de la| de l| des| de)? (\\d{2})" + UNIT + " | (?:dans|du|hors du|sauf le) (?:le |les )?(\\d{2})" + UNIT + "(?= )"), function (m, nie) {
+              var d0 = m[1] || m[2];
+              if (!DEPTS.some(function (d) { return d[1] === d0; })) return false;
+              (nie || / (hors|sauf) /.test(m[0]) ? depsN : deps).push(d0);
             });
-            if (deps.length) {
-              addW("siege.departement", "=", deps.length === 1 ? deps[0] : deps);
-              eat(/ (departement|siege social|siege) /g);
-            }
+            DEPTS.forEach(function (d) {
+              eatN(new RegExp(" (?:en|dans le|dans la|dans l|dans les|du|de la|de l|des) " + d[0] + " "), function (m, nie) { (nie ? depsN : deps).push(d[1]); });
+            });
+            if (deps.length) addW("siege.departement", "=", uc(uniq(deps)));
+            if (depsN.length) addW("siege.departement", "!=", uc(uniq(depsN)));
+            if (deps.length || depsN.length) eat(/ (departement|siege social|siege) /g);
 
             /* 11. Activité */
-            eat(/ (?:activite|secteur)(?: d activite)?(?: principale)?(?: est| :)?(?: de| d| du| des| dans)?(?: la| le| l| les)? ([a-z]{3,}(?: [a-z]{3,})?) /, function (m, v) {
-              var v2 = v.split(" ").filter(function (x) { return !STOP[x]; }).join(" ");
+            eatN(/ (?:activite|secteur)(?: d activite)?(?: principale)?(?: est| :)?(?: de| d| du| des| dans)?(?: la| le| l| les)? ([a-z]{3,}(?: [a-z]{3,})?) /, function (m, nie) {
+              var v2 = m[1].split(" ").filter(function (x) { return !STOP[x] && !NEGW[x]; }).join(" ");
               if (!v2) return false;
-              addW("activite", "contient", v2);
+              addW("activite", "contient", v2, nie ? { not: true } : null);
             });
-            eat(/ (holdings?) /, function () { addW("activite", "contient", "holding"); });
+            eatN(/ (holdings?) /, function (m, nie) { addW("activite", "contient", "holding", nie ? { not: true } : null); });
             w.split(" ").forEach(function (x) {
               var s1 = x.replace(/s$/, "");
               var hit = ACTW[x] ? x : ACTW[s1] ? s1 : ACTW[s1 + "e"] ? s1 + "e" : null;
               if (hit && x.length >= 6 && !STOP[x]) {
-                addW("activite", "contient", hit);
-                eat(new RegExp(" " + x + " ", "g"));
+                /* mot d'activité seul et nié (« sans précision ») : trop ambigu, la négation reste et la question est refusée */
+                eatN(new RegExp(" " + x + " "), function (m, nie) {
+                  if (nie) return false;
+                  addW("activite", "contient", hit);
+                });
               }
             });
 
@@ -4935,13 +5490,13 @@
             eat(/ (moyen|moyenne|moyens|moyennes|median|mediane|somme|cumul|cumule|cumulee|total des|totaux) /g, function (m, x) {
               res.unk.push({ text: x, why: "le DPJ liste les sociétés et leurs champs ; il ne calcule ni moyenne ni somme" });
             });
-            /* 13. Restes : critère non reconnu, nom inconnu */
-            var left = w.split(" ").filter(function (x) { return x && !STOP[x] && x !== "~" && !/^zz\d+zz$/.test(x) && !/^[%/.]+$/.test(x) && (x.length > 2 || /\d/.test(x)); });
+            /* 13. Restes : je n'ai pas compris ; une négation restée seule n'est jamais ignorée */
+            var left = w.split(" ").filter(function (x) { return x && !STOP[x] && x !== "~" && !/^zz\d+zz$/.test(x) && !/^[%/.]+$/.test(x) && (x.length > 2 || /\d/.test(x) || x === "ni"); });
             if (left.length) {
               var unkNom = ents.filter(function (x) { return x.type === "nom" && !x.used && left.some(function (l) { return nk(x.id).split(" ").indexOf(l) !== -1; }); });
               if (unkNom.length) {
                 var nm = unkNom[0];
-                var asPerson = / (associe|associee|associes|dirige|dirigeant|dirigeante|gerant|gerante|president|presidente|personne|monsieur|madame|mme|m) /.test(w0) || /^[A-ZÀ-Ý][a-zà-ÿ]+(?:[ -][A-ZÀ-Ý][a-zà-ÿ]+)+$/.test(nm.id);
+                var asPerson = / (associe|associee|associes|dirige|dirigeant|dirigeante|gerant|gerante|president|presidente|personne|monsieur|madame|mme|m|famille) /.test(w0) || /^[A-ZÀ-Ý][a-zà-ÿ]+(?:[ -][A-ZÀ-Ý][a-zà-ÿ]+)+$/.test(nm.id);
                 return { kind: asPerson ? "noperson" : "nosoc", mk: mk, name: nm.id, tag: nm.tag };
               }
               var grp = [];
@@ -4957,7 +5512,20 @@
               if (cur0.length) grp.push(cur0);
               grp.forEach(function (g) {
                 while (g.length && STOP[g[g.length - 1]]) g.pop();
-                if (g.length) res.unk.push({ text: g.join(" "), generic: true });
+                if (!g.length) return;
+                /* mots affichés tels que saisis (accents compris) */
+                var RAWW = {};
+                raw.split(/[^A-Za-zÀ-ÖØ-öø-ÿ0-9]+/).forEach(function (x) { if (x) RAWW[lf(x)] = x; });
+                var u = { text: g.map(function (x) { return RAWW[x] || x; }).join(" "), generic: true };
+                if (g.some(function (x) { return NEGW[x]; })) u.neg = true;
+                g.forEach(function (x) {
+                  var nc = nearCity(x);
+                  if (nc && !u.sugg) {
+                    u.sugg = nc;
+                    u.typed = x;
+                  }
+                });
+                res.unk.push(u);
               });
             }
 
@@ -4975,7 +5543,7 @@
             res.select = [];
             res.where.forEach(function (c) {
               if (c.field === "cac.present" && c.value === "non") return;
-              if (c.op === "est_vide" && c.field !== "derniereAG") return;
+              if (c.op === "est_vide" && c.field !== "derniereAG" && !(c.not && c.field === "dirigeant.fin")) return;
               sel(COLS[c.field] || []);
             });
             explicit = explicit.filter(function (id) {
@@ -4997,12 +5565,12 @@
             if (res.sort && res.sort.field !== "nom" && res.select.indexOf(res.sort.field) === -1) res.select.unshift(res.sort.field);
             res.select = res.select.slice(0, 5);
             if (!res.sort) {
-              var dc = res.where.filter(function (c) { return FIELD[c.field] && FIELD[c.field].type === "date" && c.op !== "est_vide" && c.op !== "non_vide"; })[0];
+              var dc = res.where.filter(function (c) { return !c.not && FIELD[c.field] && FIELD[c.field].type === "date" && c.op !== "est_vide" && c.op !== "non_vide"; })[0];
               var cc = res.where.filter(function (c) { return c.field === "capital"; })[0];
-              var nc = res.where.filter(function (c) { return c.field === "nbAssocies"; })[0];
+              var nc2 = res.where.filter(function (c) { return c.field === "nbAssocies"; })[0];
               if (dc) res.sort = { field: dc.field, dir: "asc" };
               else if (cc && cc.op !== "<" && cc.op !== "<=") res.sort = { field: "capital", dir: "desc" };
-              else if (nc) res.sort = { field: "nbAssocies", dir: "desc" };
+              else if (nc2) res.sort = { field: "nbAssocies", dir: "desc" };
               else if (res.where.some(function (c) { return c.field === "immatriculation" && c.op === "non_vide"; })) res.sort = { field: "immatriculation", dir: "desc" };
               else res.sort = { field: "nom", dir: "asc" };
               res.sortDefault = true;
@@ -5011,7 +5579,7 @@
           }
           var MOIS_L = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
 
-          return { mask: mask, parse: parse, lf: lf, nk: nk, REF: REF, FIELD: FIELD, MAND: MAND };
+          return { mask: mask, parse: parse, lf: lf, nk: nk, REF: REF, FIELD: FIELD, MAND: MAND, citiesIn: citiesIn };
         }
 
         var DPJ = window.EJDPJ;
@@ -5032,14 +5600,34 @@
           "cac.present": "Commissaire aux comptes", "cac.cabinet": "Cabinet du commissaire aux comptes", "cac.fin": "Fin du mandat du CAC", derniereAG: "Dernière AG d'approbation",
           derniereModifStatuts: "Dernière modification des statuts",
         };
-        var OPS_ALL = ["=", "!=", ">", ">=", "<", "<=", "avant", "apres", "entre", "contient", "est_vide", "non_vide"];
+        var OPS_ALL = ["=", "!=", ">", ">=", "<", "<=", "avant", "apres", "entre", "contient", "aucun", "est_vide", "non_vide"];
         function fieldOf(id) {
           return DX.FIELD[id] || null;
         }
+        /* Champ d'un groupe de personnes (dirigeants, associés, CAC) : « ≠ » et « aucun » y portent sur tout le groupe */
+        function isGrp(id) {
+          return /^(dirigeant|associe|personne|cac)\./.test(id) && id !== "cac.present";
+        }
+        /* Critère nié : « Sauf : … » (exclusion exacte, jamais approximée) */
+        function isNegC(c) {
+          return !!c && (!!c.not || (isGrp(c.field) && (c.op === "!=" || c.op === "aucun")));
+        }
+        var NOT_L = {
+          "dirigeant.nom": "Dirigeant", "dirigeant.fonction": "Fonction d'un dirigeant", "dirigeant.fin": "Fin de mandat d'un dirigeant", "dirigeant.debut": "Début de mandat d'un dirigeant",
+          "associe.nom": "Associé", "associe.pct": "Part d'un associé", "personne.nom": "Associé ou dirigeant", "cac.cabinet": "Cabinet du commissaire aux comptes", "cac.fin": "Fin du mandat du CAC",
+        };
         function opTxt(c, f) {
+          if (f.id === "dirigeant.fin" && c.op === "est_vide") return "à durée indéterminée";
           if (f.type === "date") return { "=": "le", "!=": "autre que le", ">": "après le", ">=": "à partir du", "<": "avant le", "<=": "au plus tard le", avant: "avant le", apres: "après le", entre: "entre le", est_vide: "non renseignée", non_vide: "renseignée" }[c.op] || c.op;
           var fem = ["cloture", "activite", "forme", "dirigeant.fonction", "associe.pct"].indexOf(f.id) !== -1;
-          return { "=": "=", "!=": "≠", ">": ">", ">=": "≥", "<": "<", "<=": "≤", entre: "entre", contient: "contient", est_vide: fem ? "non renseignée" : "non renseigné", non_vide: fem ? "renseignée" : "renseigné" }[c.op] || c.op;
+          return { "=": "=", "!=": "≠", ">": ">", ">=": "≥", "<": "<", "<=": "≤", entre: "entre", contient: "contient", aucun: "ne contient pas", est_vide: fem ? "non renseignée" : "non renseigné", non_vide: fem ? "renseignée" : "renseigné" }[c.op] || c.op;
+        }
+        /* Puce d'un critère nié : « Sauf : Associé = X » ; « ≠ » et « aucun » d'un groupe se lisent en positif après « Sauf » */
+        function chipParts(c, f) {
+          if (!isNegC(c)) return { k: CHIP_L[f.id] || f.label, o: opTxt(c, f), neg: false };
+          var base = c.not ? c : { op: c.op === "aucun" ? "contient" : "=" };
+          if (f.id === "dirigeant.fin" && base.op === "est_vide") return { k: "Sauf : mandat d'un dirigeant", o: "à durée indéterminée", neg: true };
+          return { k: "Sauf : " + (NOT_L[f.id] || CHIP_L[f.id] || f.label), o: opTxt(base, f), neg: true };
         }
         function val1(f, x) {
           if (f.id === "capital") return isFinite(+x) ? C.nf(+x) + " €" : String(x);
@@ -5051,18 +5639,26 @@
           if (f.id === "cloture" && c.label) return c.label;
           var v = c.value;
           if (c.op === "entre" && Array.isArray(v)) return val1(f, v[0]) + (f.type === "date" ? " et le " : " et ") + val1(f, v[1]);
-          if (Array.isArray(v)) return v.map(function (x) { return val1(f, x); }).join(c.op === "!=" ? ", " : " ou ");
+          if (Array.isArray(v)) return v.map(function (x) { return val1(f, x); }).join(c.op === "!=" && !isNegC(c) ? ", " : " ou ");
           return val1(f, v);
         }
         function chipTxt(c) {
           var f = fieldOf(c.field);
           if (!f) return String(c.field);
-          if (f.id === "cloture" && c.label && c.op === "contient") return "Clôture " + c.label;
+          if (f.id === "cloture" && c.label && c.op === "contient") return (c.not ? "Sauf : clôture " : "Clôture ") + c.label;
           var v = valTxt(c, f);
-          return (CHIP_L[f.id] || f.label) + " " + opTxt(c, f) + (v ? " " + v : "");
+          var cp = chipParts(c, f);
+          return cp.k + " " + cp.o + (v ? " " + v : "");
+        }
+        function sortTxt(q) {
+          var sr = q.sort || { field: "nom", dir: "asc" };
+          var f = fieldOf(sr.field);
+          return (COL_L[sr.field] || (f && f.label) || sr.field).toLowerCase() + (sr.dir === "desc" ? " décroissant" : " croissant");
         }
         function qTitle(q) {
-          return q && q.where && q.where.length ? q.where.map(chipTxt).join(" · ") : "Toutes les sociétés du DPJ";
+          var t = q && q.where && q.where.length ? q.where.map(chipTxt).join(" · ") : "Toutes les sociétés du DPJ";
+          if (q && q.limit) t += " · les " + q.limit + " premières (" + sortTxt(q) + ")";
+          return t;
         }
         function cellTxt(col, v) {
           if (v == null || v === "") return "";
@@ -5092,6 +5688,7 @@
             var o = { field: c.field, op: c.op };
             if (c.op !== "est_vide" && c.op !== "non_vide" && c.value != null) o.value = clone(c.value);
             if (typeof c.label === "string") o.label = c.label.slice(0, 40);
+            if (c.not === true) o.not = true;
             return o;
           });
           var select = (Array.isArray(q.select) ? q.select : []).filter(function (id) { return typeof id === "string" && fieldOf(id); }).slice(0, 6);
@@ -5100,8 +5697,34 @@
           if (typeof q.limit === "number" && q.limit > 0 && q.limit <= 200) o.limit = Math.round(q.limit);
           return o;
         }
+        /* EJ exécute la requête. Un critère nié (« Sauf : … ») est appliqué exactement : EJ retire les sociétés qui le vérifient,
+           et celles où il ne peut pas être évalué (donnée absente) passent en « non évaluées », jamais dans le résultat. */
         function runQ(q) {
-          return DPJ.run({ where: q.where.map(function (c) { return { field: c.field, op: c.op, value: c.value }; }), select: q.select, sort: q.sort, limit: q.limit });
+          function cl(c) { return { field: c.field, op: c.op, value: c.value }; }
+          var pos = q.where.filter(function (c) { return !c.not; }).map(cl);
+          var neg = q.where.filter(function (c) { return c.not; }).map(cl);
+          var r = DPJ.run({ where: pos, select: q.select, sort: q.sort, limit: neg.length ? 0 : q.limit });
+          if (!r.ok || !neg.length) return r;
+          var drop = {};
+          var exclus = r.exclus.map(function (x) { return { field: x.field, label: x.label, count: x.count, ids: (x.ids || []).slice(), motif: x.motif }; });
+          for (var i = 0; i < neg.length; i++) {
+            var rn = DPJ.run({ where: pos.concat([neg[i]]), select: [] });
+            if (!rn.ok) return { ok: false, erreurs: rn.erreurs, rows: [], total: 0, exclus: [], maj: r.maj, colonnes: r.colonnes };
+            rn.rows.forEach(function (row) { drop[row.id] = 1; });
+            rn.exclus.forEach(function (x) {
+              var ids = (x.ids || []).filter(function (id) { return !drop[id] && r.rows.some(function (row) { return row.id === id; }); });
+              if (!ids.length) return;
+              ids.forEach(function (id) { drop[id] = 1; });
+              var e = exclus.filter(function (y) { return y.field === x.field; })[0];
+              if (!e) exclus.push((e = { field: x.field, label: x.label, count: 0, ids: [], motif: x.motif }));
+              e.count += ids.length;
+              e.ids = e.ids.concat(ids);
+            });
+          }
+          var rows = r.rows.filter(function (row) { return !drop[row.id]; });
+          var total = rows.length;
+          if (q.limit > 0) rows = rows.slice(0, q.limit);
+          return { ok: true, erreurs: [], rows: rows, total: total, exclus: exclus, maj: r.maj, colonnes: r.colonnes };
         }
         function dpjRows(r) {
           return r.rows.map(function (row) {
@@ -5126,7 +5749,8 @@
             var n = w.size === "L" ? 8 : 5;
             var rows = r.rows.slice(0, n);
             var cols = r.colonnes.slice(0, w.size === "L" ? 5 : 3);
-            var h = '<p class="cv-dpjw-n"><strong>' + esc(C.nf(r.total)) + "</strong> " + (r.total > 1 ? "sociétés" : "société") + (nonEval(r) ? '<span class="muted"> · ' + nonEval(r) + " non " + C.pl(nonEval(r), "évaluée", "évaluées") + "</span>" : "") + "</p>" +
+            var lim = w.params && w.params.q && w.params.q.limit;
+            var h = '<p class="cv-dpjw-n">' + (lim && r.total > lim ? "<strong>" + lim + "</strong> premières sur " + esc(C.nf(r.total)) + " " : "<strong>" + esc(C.nf(r.total)) + "</strong> ") + (r.total > 1 ? "sociétés" : "société") + (nonEval(r) ? '<span class="muted"> · ' + nonEval(r) + " non " + C.pl(nonEval(r), "évaluée", "évaluées") + "</span>" : "") + "</p>" +
               '<div class="cv-dpjw-wrap"><table class="cv-rt cv-dpjw"><thead><tr>' + cols.map(function (c) { return '<th scope="col">' + esc(COL_L[c.id] || c.label) + "</th>"; }).join("") + "</tr></thead><tbody>";
             rows.forEach(function (row) {
               h += "<tr>" + cols.map(function (c, i) {
@@ -5159,15 +5783,18 @@
             if (p.name) m.name = p.name;
             if (p.tag) m.tag = p.tag;
             if (p.list) m.list = p.list.slice(0, 12);
+            if (p.first) m.first = true;
             if (p.mandats) m.mandats = p.mandats.map(function (x) { return x.id; });
             addMsg(m);
+            announce({ hors: "Donnée hors du DPJ", be: "Donnée hors du DPJ", cac: "Entité contrôlée, hors du DPJ", cacper: "Personne liée à une entité contrôlée, hors du DPJ", noperson: "Aucune personne de ce nom dans le DPJ", homonyme: "Précisez la personne", nosoc: "Aucune société de ce nom dans le DPJ" }[p.kind] || "Réponse de l'assistant");
             return;
           }
           var ex = DPJ.examples.filter(function (e) { return C.fold(e.question) === C.fold(raw); })[0];
           var q = cleanQ(ex ? ex.query : { where: p.where, select: p.select, sort: p.sort, limit: p.limit });
           m.persons = p.persons;
           m.unk = ex ? [] : p.unk;
-          var onlyTweak = !p.where.length && !p.unk.length && (!p.sortDefault || (p.explicit && p.explicit.length) || p.remove || p.limit);
+          /* Seules les vraies suites héritent des puces : « et parmi elles », « et à Lyon ? », « trie par », « combien ? » */
+          var onlyTweak = !p.newQ && !p.where.length && !p.unk.length && (!p.sortDefault || (p.explicit && p.explicit.length) || p.remove || p.limit);
           if (prev && !ex && (p.follow || onlyTweak)) {
             var base = clone(prev.q);
             if (p.remove) {
@@ -5175,7 +5802,8 @@
               base.where = base.where.filter(function (c) { return DX.nk((CHIP_L[c.field] || "") + " " + c.field).indexOf(rk) === -1; });
             }
             cleanQ({ where: p.where }).where.forEach(function (c) {
-              if (!p.parmi) base.where = base.where.filter(function (b) { return b.field !== c.field; });
+              /* un critère positif remplace celui du même champ (« et à Nantes ? ») ; un critère nié s'ajoute */
+              if (!p.parmi && !isNegC(c)) base.where = base.where.filter(function (b) { return b.field !== c.field || isNegC(b); });
               base.where.push(c);
             });
             (p.cols || []).concat(p.explicit || []).forEach(function (id) { if (base.select.indexOf(id) === -1 && fieldOf(id)) base.select.push(id); });
@@ -5188,12 +5816,25 @@
             (prev.persons || []).forEach(function (x) { if (!m.persons.some(function (y) { return y.tag === x.tag && y.name === x.name; })) m.persons.push(x); });
           }
           m.q = q;
+          if (p.count) m.count = true;
+          if (p.expired) m.expired = true;
           addMsg(m);
+          var gen0 = (m.unk || []).length;
+          if (gen0) announce("Requête non exécutée : un critère n'est pas reconnu");
+          else {
+            var r0 = runQ(m.q);
+            announce(r0.ok ? (r0.total ? C.nf(r0.total) + " " + C.pl(r0.total, "société trouvée", "sociétés trouvées") : "Aucune société trouvée") : "Requête non exécutée");
+          }
+        }
+        /* Zone d'annonce courte pour les lecteurs d'écran (le fil n'est pas lu en entier) */
+        function announce(t) {
+          var el = $("cv-ai-live");
+          if (!el) return;
+          el.textContent = "";
+          setTimeout(function () { el.textContent = t; }, 60);
         }
         function sentLine(m) {
-          var n = m.parts.filter(function (x) { return x.m; }).length;
-          var txt = m.parts.map(function (x) { return x.m ? '<mark class="cv-mask">' + esc(x.m) + "</mark>" : esc(x.t); }).join("");
-          return '<p class="cv-masked cv-sent">' + ms("eye_off") + "<span>Envoyé au modèle" + (n ? " (" + n + " " + (n > 1 ? "éléments masqués" : "élément masqué") + ")" : "") + " : « " + txt + " »</span></p>";
+          return partsLine(m.parts);
         }
         function aHead(icon, title) {
           return "<h3>" + ms(icon) + esc(title) + "</h3>";
@@ -5217,11 +5858,16 @@
             return h + aHead("briefcase", "Entité contrôlée, hors du DPJ du cabinet") +
               "<p>" + esc((m.mandats || []).map(function (id) { var x = window.EJM.findMandat(id); return x ? x.nom : id; }).join(", ")) + " : entité dont le cabinet est commissaire aux comptes. Elle n'est pas dans le DPJ des sociétés clientes (voir Missions CAC).</p>" +
               '<div class="cv-msg-actions">' + (m.mandats || []).map(function (id) { return '<a class="btn btn-secondary btn-sm" href="cac-mandat.html?id=' + encodeURIComponent(id) + '">' + ms("briefcase") + "Voir la mission CAC</a>"; }).join("") + "</div></div>";
+          if (m.kind === "cacper")
+            return h + aHead("briefcase", "Personne liée à une entité contrôlée, hors du DPJ") +
+              "<p>« " + esc(m.name) + " » : personne liée à une entité contrôlée, hors du DPJ (voir Missions CAC). Elle n'est ni dirigeante ni associée d'une société cliente au DPJ. Le nom a été masqué à l'envoi" + (m.tag ? " (" + esc(m.tag) + ")" : "") + ".</p>" +
+              '<div class="cv-msg-actions">' + (m.mandats || []).map(function (id) { var x = window.EJM.findMandat(id); return '<a class="btn btn-secondary btn-sm" href="cac-mandat.html?id=' + encodeURIComponent(id) + '">' + ms("briefcase") + "Voir la mission CAC" + (x ? " · " + esc(x.nom) : "") + "</a>"; }).join("") + "</div></div>";
           if (m.kind === "noperson")
             return h + aHead("user_round", "Aucune personne de ce nom dans le DPJ") +
               "<p>« " + esc(m.name) + " » n'est ni dirigeant ni associé d'une société du DPJ. Le nom a été masqué à l'envoi" + (m.tag ? " (" + esc(m.tag) + ")" : "") + " puis recherché par EJ.</p></div>";
           if (m.kind === "homonyme")
-            return h + aHead("user_round", "Plusieurs personnes portent ce nom") + "<p>Précisez le prénom :</p>" +
+            return h + aHead("user_round", m.first ? "Précisez le nom de la personne" : "Plusieurs personnes portent ce nom") +
+              "<p>" + (m.first ? "« " + esc(m.name) + " » est un prénom seul : EJ n'interroge pas le DPJ sur un prénom. Choisissez la personne :" : "Précisez le prénom :") + "</p>" +
               '<div class="cv-msg-actions">' + (m.list || []).map(function (n) { var s = "Dans quelles sociétés " + n + " est associé ou dirigeant ?"; return '<button type="button" class="btn btn-secondary btn-sm" data-sugg="' + esc(s) + '" data-sugg-mode="dpj">' + esc(n) + "</button>"; }).join("") + "</div></div>";
           if (m.kind === "nosoc")
             return h + aHead("building_2", "Aucune société de ce nom dans le DPJ") + "<p>« " + esc(m.name) + " » n'est pas une société suivie au DPJ du cabinet.</p></div>";
@@ -5234,13 +5880,23 @@
           hb += "</div>";
           var gen = (m.unk || []).filter(function (u) { return u.generic; });
           if (m.unk && m.unk.length) {
-            if (!q.where.length && gen.length === m.unk.length)
+            var suggs = m.unk.filter(function (u) { return u.sugg; });
+            var sbtn = suggs.map(function (u) {
+              var fixed = m.raw.replace(new RegExp(u.typed.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"), u.sugg);
+              return '<button type="button" class="btn btn-secondary btn-sm" data-sugg="' + esc(fixed) + '" data-sugg-mode="dpj">' + esc(u.sugg) + " ?</button>";
+            }).join("");
+            if (!q.where.length && gen.length === m.unk.length && !suggs.length && !m.unk.some(function (u) { return u.neg; }))
               return h + hb + aHead("circle_alert", "Aucun critère du DPJ reconnu") + "<p>Je n'ai reconnu aucun champ du DPJ dans cette question.</p>" + fieldsList() + "</div>";
-            var rr = DPJ.run({ where: gen.map(function (u) { return { field: u.text, op: "=", value: "?" }; }) });
-            var errs = (rr.erreurs || []).map(function (e) { return cap(e); }).concat(m.unk.filter(function (u) { return !u.generic; }).map(function (u) { return "Critère non reconnu : " + u.text + (u.why ? " (" + u.why + ")" : ""); }));
+            var errs = m.unk.map(function (u) {
+              if (u.sugg) return "Je ne connais pas « " + (u.typed || u.text) + " » : aucune société du DPJ n'a son siège dans une ville de ce nom. Vouliez-vous dire « " + u.sugg + " » ?";
+              if (u.generic) return "Je n'ai pas compris : « " + u.text + " »" + (u.neg ? " (une négation n'est jamais ignorée)" : "");
+              return "Critère non reconnu : " + u.text + (u.why ? " (" + u.why + ")" : "");
+            });
+            /* « Interroger sans ce critère » : jamais quand le mot non compris porte une négation (on exécuterait l'inverse) */
+            var canStrip = q.where.length && !m.unk.some(function (u) { return u.neg; });
             return h + hb + '<ul class="cv-plan cv-errs">' + errs.map(function (e) { return '<li class="na">' + ms("circle_alert") + '<div class="cv-pl-t">' + esc(e) + "</div></li>"; }).join("") + "</ul>" +
               '<p class="small muted" style="margin-top:8px">Je n\'interroge pas le DPJ en ignorant un critère sans le dire.</p>' +
-              '<div class="cv-msg-actions">' + (q.where.length ? '<button type="button" class="btn btn-secondary btn-sm" data-nounk="' + esc(m.id) + '">Interroger sans ce critère</button>' : "") +
+              '<div class="cv-msg-actions">' + sbtn + (canStrip ? '<button type="button" class="btn btn-secondary btn-sm" data-nounk="' + esc(m.id) + '">Interroger sans ce critère</button>' : "") +
               '<button type="button" class="btn btn-tertiary btn-sm" data-reform="' + esc(m.id) + '">' + ms("pencil") + "Reformuler</button></div></div>";
           }
           var r = runQ(q);
@@ -5256,9 +5912,10 @@
             var v = f ? valTxt(c, f) : "";
             var on = editing && editing.mid === m.id && editing.i === i;
             var lab = chipTxt(c);
-            return '<span class="cv-chip' + (on ? " is-on" : "") + '"><button type="button" class="cv-chip-b" data-chip="' + esc(m.id) + "|" + i + '" aria-expanded="' + !!on + '" aria-label="Modifier le critère : ' + esc(lab) + '">' +
-              '<span class="cv-chip-k">' + esc(f ? CHIP_L[f.id] || f.label : c.field) + "</span>" +
-              (f && f.id === "cloture" && c.label && c.op === "contient" ? '<span class="cv-chip-v">' + esc(c.label) + "</span>" : '<span class="cv-chip-o">' + esc(f ? opTxt(c, f) : c.op) + "</span>" + (v ? '<span class="cv-chip-v">' + esc(v) + "</span>" : "")) +
+            var cp = f ? chipParts(c, f) : { k: c.field, o: c.op, neg: false };
+            return '<span class="cv-chip' + (on ? " is-on" : "") + (cp.neg ? " is-neg" : "") + '"><button type="button" class="cv-chip-b" data-chip="' + esc(m.id) + "|" + i + '" aria-expanded="' + !!on + '" aria-label="Modifier le critère : ' + esc(lab) + '">' +
+              '<span class="cv-chip-k">' + esc(f && f.id === "cloture" && c.label && c.op === "contient" ? (c.not ? "Sauf : clôture" : "Clôture") : cp.k) + "</span>" +
+              (f && f.id === "cloture" && c.label && c.op === "contient" ? '<span class="cv-chip-v">' + esc(c.label) + "</span>" : '<span class="cv-chip-o">' + esc(cp.o) + "</span>" + (v ? '<span class="cv-chip-v">' + esc(v) + "</span>" : "")) +
               '</button><button type="button" class="cv-chip-x" data-chip-x="' + esc(m.id) + "|" + i + '" aria-label="Retirer le critère : ' + esc(lab) + '">' + ms("x") + "</button></span>";
           }).join("") + "</div>";
         }
@@ -5272,7 +5929,7 @@
           var v2 = two && Array.isArray(v) ? v[1] : "";
           var hint = f.type === "date" ? "JJ/MM/AAAA" : f.type === "liste" ? (f.valeurs || []).join(", ") : f.type === "nombre" ? "Nombre" : f.type === "pourcentage" ? "Pourcentage" : "";
           var noval = c.op === "est_vide" || c.op === "non_vide";
-          return '<div class="cv-chip-ed" data-ed="' + esc(m.id) + "|" + i + '"><span class="cv-chip-ed-t">' + esc(CHIP_L[f.id] || f.label) + "</span>" +
+          return '<div class="cv-chip-ed" data-ed="' + esc(m.id) + "|" + i + '"><span class="cv-chip-ed-t">' + esc((c.not ? "Sauf : " : "") + (CHIP_L[f.id] || f.label)) + "</span>" +
             '<label>Opérateur<select class="form-input" data-ed-op>' + f.ops.map(function (o) { return '<option value="' + esc(o) + '"' + (o === c.op ? " selected" : "") + ">" + esc(opTxt({ op: o }, f)) + "</option>"; }).join("") + "</select></label>" +
             '<label data-ed-l1' + (noval ? " hidden" : "") + ">Valeur<input class=\"form-input\" data-ed-v value=\"" + esc(v1) + '" placeholder="' + esc(hint) + '" /></label>' +
             '<label data-ed-l2' + (two ? "" : " hidden") + '>et<input class="form-input" data-ed-v2 value="' + esc(v2) + '" placeholder="' + esc(hint) + '" /></label>' +
@@ -5302,6 +5959,7 @@
           var f = fieldOf(c.field);
           var op = box.querySelector("[data-ed-op]").value;
           var nc = { field: c.field, op: op };
+          if (c.not) nc.not = true;
           if (op === "entre") nc.value = [parseEdVal(f, box.querySelector("[data-ed-v]").value), parseEdVal(f, box.querySelector("[data-ed-v2]").value)];
           else if (op !== "est_vide" && op !== "non_vide") nc.value = parseEdVal(f, box.querySelector("[data-ed-v]").value);
           m.q.where[i] = nc;
@@ -5320,7 +5978,9 @@
           m.pinned = {};
           editing = null;
           updMsg(m);
-          focusChip(m, Math.max(0, i - 1));
+          /* dernière puce retirée : le focus revient à la saisie */
+          if (!m.q.where.length) $("cv-ai-input").focus();
+          else focusChip(m, Math.max(0, i - 1));
         }
         function resultHtml(m, r) {
           var q = m.q;
@@ -5344,6 +6004,15 @@
               }).join("") + "</tr>";
             });
             h += "</tbody></table></div>";
+            /* moins de 600 px : une carte par société, champs en lignes (le tableau est masqué) */
+            h += '<label class="cv-rsort">Trier par <select class="form-input" data-rsort="' + esc(m.id) + '">' + cols.map(function (c) {
+              var on = srt.field === c.id;
+              return '<option value="' + esc(c.id) + '"' + (on ? " selected" : "") + ">" + esc(COL_L[c.id] || c.label) + "</option>";
+            }).join("") + "</select></label>";
+            h += '<ul class="cv-rcards">' + shown.map(function (row) {
+              return '<li class="cv-rcard"><a href="societe.html?id=' + encodeURIComponent(row.id) + '">' + esc(row.nom) + '</a><span class="cv-forme">' + esc(row.forme) + "</span>" +
+                "<dl>" + cols.slice(1).map(function (c) { return "<div><dt>" + esc(COL_L[c.id] || c.label) + "</dt><dd>" + cellHtml(c, row[c.id]) + "</dd></div>"; }).join("") + "</dl></li>";
+            }).join("") + "</ul>";
             if (r.rows.length > 10) h += '<button type="button" class="cv-link cv-more" data-more="' + esc(m.id) + '">' + (m.all ? "Afficher les 10 premières" : "Voir les " + (r.rows.length - 10) + " autres") + "</button>";
           }
           var ev = DPJ.societes.length - nonEval(r);
@@ -5401,7 +6070,9 @@
           m.pinned = m.pinned || {};
           m.pinned[kind] = true;
           var q = cleanQ(m.q);
-          var title = qTitle(q).slice(0, 120);
+          /* en chiffre, on compte toute la requête : « les 5 premières » n'a de sens qu'en liste */
+          if (kind === "chiffre") delete q.limit;
+          var title = qTitle(q).slice(0, 140);
           var d = kind === "liste"
             ? { ind: "dpj_liste", size: "L", params: { q: q }, title: title, sub: "DPJ · recalculé à chaque affichage" }
             : { ind: "dpj_chiffre", size: "S", params: { q: q }, title: title };
@@ -5412,23 +6083,19 @@
           if (window.innerWidth < 900) closeAI();
           renderAll();
           highlight(hl);
-          var jid = logJ("Épinglé au cockpit (" + kind + ") : " + title, "Épinglage annulé : " + title, { k: "add", b: cur().id, uids: hl });
+          var jid = logJ("Épinglé au cockpit (" + kind + ") : " + title, "Épinglage annulé : " + title, { k: "add", b: cur().id, uids: hl, pin: { mid: m.id, kind: kind } });
           toast("Épinglé au cockpit en " + kind, function () { undoJ(jid); });
         }
-        /* Sociétés non évaluées faute de donnée : même requête, société par société (EJDPJ.run dit pour chacune le champ manquant) */
+        /* Sociétés non évaluées faute de donnée : la liste des identifiants vient d'EJ (exclus[i].ids) */
         function listExcl(m, field) {
-          var where = m.q.where.map(function (c) { return { field: c.field, op: c.op, value: c.value }; });
-          var rows = [];
-          var motif = "";
-          DPJ.societes.forEach(function (s) {
-            var r = DPJ.run({ where: where.concat([{ field: "nom", op: "=", value: s.nom }]) });
-            var x = r.ok && r.exclus.filter(function (e) { return e.field === field; })[0];
-            if (x) {
-              motif = x.motif;
-              rows.push({ title: s.nom, forme: s.forme, meta: cap(x.motif), href: "societe.html?id=" + encodeURIComponent(s.id), action: "Compléter la fiche" });
-            }
-          });
-          openDrawer("Non évaluées · " + qTitle(m.q), rows.length + " " + C.pl(rows.length, "société", "sociétés") + " " + motif, rows, IND.dpj_liste);
+          var r = runQ(m.q);
+          var x = r.ok && r.exclus.filter(function (e) { return e.field === field; })[0];
+          if (!x) return;
+          var rows = (x.ids || []).map(function (id) {
+            var s = DPJ.byId(id);
+            return s ? { title: s.nom, forme: s.forme, meta: cap(x.motif), href: "societe.html?id=" + encodeURIComponent(s.id), action: "Compléter la fiche" } : null;
+          }).filter(Boolean);
+          openDrawer("Non évaluées · " + qTitle(m.q), x.count + " " + C.pl(x.count, "société", "sociétés") + " " + x.motif, rows, IND.dpj_liste);
         }
 
         /* ---------- Événements ---------- */
@@ -5718,7 +6385,7 @@
           }
           if ((x = t.closest("[data-nounk]"))) {
             var um = findMsg(x.getAttribute("data-nounk"));
-            if (!um) return;
+            if (!um || um.unk.some(function (u) { return u.neg; })) return;
             um.stripped = um.unk.map(function (u) { return u.text.indexOf("«") !== -1 ? u.text : "« " + u.text + " »"; });
             um.unk = [];
             updMsg(um);
@@ -5861,6 +6528,16 @@
           window.addEventListener("resize", syncAIMode);
           document.addEventListener("change", function (e) {
             if (e.target.id === "cv-rename") cur().title = e.target.value.trim().slice(0, 60) || "Nouveau tableau";
+            if (e.target.matches("[data-rsort]")) {
+              var rm2 = findMsg(e.target.getAttribute("data-rsort"));
+              var rf = DX.FIELD[e.target.value];
+              if (rm2 && rf) {
+                rm2.q.sort = { field: e.target.value, dir: rf.type === "nombre" || rf.type === "pourcentage" ? "desc" : "asc" };
+                updMsg(rm2);
+                var rs2 = $("cv-ai-body").querySelector('[data-rsort="' + rm2.id + '"]');
+                if (rs2) rs2.focus();
+              }
+            }
             if (e.target.matches("[data-ed-op]")) {
               var box = e.target.closest("[data-ed]");
               var op = e.target.value;
