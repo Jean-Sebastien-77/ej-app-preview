@@ -17,21 +17,21 @@
     { section: "Administration" },
     { id: "connecteurs", label: "Connecteurs", icon: "cable", href: "connecteurs.html" },
     { id: "etiquettes", label: "Étiquettes", icon: "bookmarks", href: "etiquettes.html" },
-    { section: "Organisation" },
-    { id: "cabinet", label: "Mon cabinet", icon: "store", href: "mon-cabinet.html" },
-    { id: "utilisateurs", label: "Utilisateurs", icon: "supervisor_account", href: "utilisateurs.html" },
-    { id: "souscriptions", label: "Souscriptions", icon: "shop", href: "souscriptions.html" },
   ];
+  /* L'organisation (cabinet, utilisateurs, abonnement, facturation) est dans le
+     menu du compte, en haut à droite, pour alléger la barre latérale. */
 
   var USER_MENU = [
     { label: "Mon compte", icon: "person_outline", href: "#" },
-    { label: "Se déconnecter", icon: "logout", href: "#" },
     { divider: true },
+    { head: "Organisation" },
     { label: "Mon cabinet", icon: "store", href: "mon-cabinet.html" },
     { label: "Utilisateurs", icon: "supervisor_account", href: "utilisateurs.html" },
     { label: "Souscriptions", icon: "shop", href: "souscriptions.html" },
     { label: "Moyens de paiement", icon: "credit_card", href: "moyens-de-paiement.html" },
     { label: "Factures", icon: "receipt_long", href: "factures.html" },
+    { divider: true },
+    { label: "Se déconnecter", icon: "logout", href: "#" },
   ];
 
   var active = document.body.getAttribute("data-active") || "";
@@ -106,6 +106,7 @@
     '<div class="dropdown-menu">' +
     USER_MENU.map(function (m) {
       if (m.divider) return '<div class="dropdown-divider"></div>';
+      if (m.head) return '<div class="dropdown-head">' + m.head + "</div>";
       var cur = m.href === page ? " current" : "";
       return '<a class="dropdown-item' + cur + '" href="' + m.href + '"><span class="ms">' + m.icon + "</span>" + m.label + "</a>";
     }).join("") +
