@@ -748,6 +748,11 @@ a.list-row:hover .chev {
   border-color: var(--ej-action-600);
   box-shadow: 0 0 0 3px rgba(93, 88, 215, 0.12);
 }
+/* Le contour de focus est porté par la barre (focus-within) : pas de second
+   anneau sur le champ lui-même. */
+.search input:focus-visible {
+  box-shadow: none;
+}
 .search input::placeholder {
   font-style: italic;
 }

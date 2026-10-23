@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="assets/ej-app.css?v=16" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=19" />
     <link rel="stylesheet" href="assets/ej-missions.css?v=19" />
     <style>
       /* Cockpit en canevas de tableaux (préfixe cv-). Aucune nouvelle couleur : tokens de ej-app.css. */
@@ -1918,15 +1918,15 @@
         margin-bottom: 0;
       }
       .cv-ask {
-        flex: 0 1 420px;
+        flex: 0 1 480px;
         min-width: 280px;
         margin-left: auto;
-        margin-top: 4px;
+        margin-top: 0;
         display: flex;
         align-items: center;
-        gap: 8px;
-        height: 36px;
-        padding: 0 4px 0 12px;
+        gap: 10px;
+        height: 46px;
+        padding: 0 6px 0 16px;
         border: 1px solid var(--ej-neutral-200);
         border-radius: var(--ej-radius-full);
         background: var(--ej-white);
@@ -1940,7 +1940,7 @@
         box-shadow: 0 0 0 3px var(--ej-action-100);
       }
       .cv-ask > .ms {
-        font-size: 15px;
+        font-size: 18px;
         color: var(--ej-action-600);
       }
       .cv-ask input {
@@ -1950,15 +1950,20 @@
         outline: 0;
         background: transparent;
         font: inherit;
-        font-size: 13px;
+        font-size: 14.5px;
         color: var(--ej-neutral-900);
+      }
+      /* Contour de focus porté par la barre : pas de second anneau sur le champ. */
+      .cv-ask input:focus-visible,
+      .cv-ai .cv-ai-in textarea:focus-visible {
+        box-shadow: none;
       }
       .cv-ask input::placeholder {
         color: var(--ej-neutral-500);
       }
       .cv-ask button {
-        width: 28px;
-        height: 28px;
+        width: 34px;
+        height: 34px;
         flex-shrink: 0;
         display: inline-flex;
         align-items: center;
@@ -1971,7 +1976,7 @@
         color: var(--ej-primary-900);
       }
       .cv-ask button .ms {
-        font-size: 15px;
+        font-size: 17px;
       }
       .cv-page.cv-editing .cv-ask {
         display: none;
