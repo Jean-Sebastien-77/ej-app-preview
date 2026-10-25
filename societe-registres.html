@@ -9,7 +9,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=19" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=19" />
     <style>
+      html {
+        scrollbar-gutter: stable;
+      }
+
       /* ---- En-tête société (identique dans societe.html et societe-registres.html) ---- */
       .soc-head {
         position: relative;
@@ -45,6 +50,7 @@
         background: var(--ej-action-600);
       }
       .soc-name {
+        margin: 0;
         font-size: 24px;
         line-height: 1.25;
         font-weight: 700;
@@ -91,39 +97,99 @@
       .reg-head {
         margin-bottom: 20px;
       }
+
+      /* ---- Société introuvable (page appelée avec ?id=) ---- */
+      .soc-absent {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 40px 24px;
+        text-align: center;
+      }
+      .soc-absent .ms {
+        font-size: 32px;
+        color: var(--ej-neutral-400);
+      }
+      .soc-absent .btn {
+        margin-top: 12px;
+      }
+
+      /* ---- Mobile : en-tête empilé, onglets défilants dans leur conteneur ---- */
+      @media (max-width: 760px) {
+        .soc-head {
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 20px 16px 18px 44px;
+          gap: 14px;
+        }
+        .soc-motif {
+          width: 24px;
+        }
+        .soc-motif .m1 {
+          width: 24px;
+        }
+        .soc-motif .m2 {
+          width: 14px;
+        }
+        .soc-name {
+          font-size: 21px;
+        }
+        .soc-ids {
+          text-align: left;
+          white-space: normal;
+        }
+        .tabs {
+          overflow-x: auto;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+        }
+        .tabs::-webkit-scrollbar {
+          display: none;
+        }
+        .tab {
+          flex-shrink: 0;
+          white-space: nowrap;
+          margin-bottom: 0;
+        }
+        .reg-head .btn {
+          width: 100%;
+        }
+      }
     </style>
   </head>
-  <body data-active="societes">
+  <body class="m-resp" data-active="societes">
     <div id="ej-header"></div>
     <div class="app">
       <div id="ej-sidebar"></div>
       <div class="main">
-        <div class="page page-narrow">
+        <div class="page page-narrow" id="soc-page">
           <a class="back-link" href="societes.html"><span class="ms">chevron_left</span>Mes sociétés</a>
 
-          <div class="card soc-head">
+          <div class="card soc-head" id="soc-head">
             <div class="soc-motif" aria-hidden="true"><i class="m1"></i><i class="m2"></i></div>
             <div>
-              <div class="soc-name">PAPRIKA CANTINE</div>
-              <div class="soc-form">SAS, société par actions simplifiée</div>
-              <div class="soc-greffe">Greffe : <strong>NANTES</strong></div>
+              <h1 class="soc-name" id="soc-name">PAPRIKA CANTINE</h1>
+              <div class="soc-form" id="soc-form">SAS, société par actions simplifiée</div>
+              <div class="soc-greffe" id="soc-greffe">Greffe : <strong>NANTES</strong></div>
             </div>
-            <div class="soc-ids">
+            <div class="soc-ids" id="soc-ids">
               <div class="soc-siren">SIREN : <strong>795 294 481</strong></div>
               <div>Date d'immatriculation : <strong>01/08/2024</strong></div>
             </div>
           </div>
 
           <div class="tabs">
-            <a class="tab" href="societe.html">Formalités</a>
-            <a class="tab active" href="societe-registres.html">Registres</a>
+            <a class="tab" id="tab-formalites" href="societe.html">Formalités</a>
+            <a class="tab active" aria-current="page" id="tab-registres" href="societe-registres.html">Registres</a>
+            <a class="tab" id="tab-lab" href="lab-dossier.html?id=paprika">Vigilance LAB</a>
             <a class="tab tab-spacer" href="#"><span class="ms">settings</span>Paramètres</a>
           </div>
 
           <div class="page-head reg-head">
             <div>
               <h2 class="section-title" style="font-size: 22px; font-weight: 700; color: var(--ej-primary-900)">Registres dématérialisés</h2>
-              <p class="page-desc">Centralisez les registres légaux de PAPRIKA CANTINE.</p>
+              <p class="page-desc" id="reg-desc">Centralisez les registres légaux de PAPRIKA CANTINE.</p>
             </div>
             <button class="btn btn-secondary" type="button"><span class="ms">add</span>Nouveau&nbsp;<span class="reg-word">Registre</span></button>
           </div>
@@ -133,7 +199,7 @@
               <span class="list-icon"><span class="ms">menu_book</span></span>
               <div>
                 <div class="row-title">Registre des Décisions n°1</div>
-                <div class="row-meta">Créé le 1 octobre 2026</div>
+                <div class="row-meta" id="reg-meta">Créé le 1 octobre 2026</div>
               </div>
               <span class="ms chev">chevron_right</span>
             </a>
@@ -143,6 +209,104 @@
       </div>
     </div>
 
-    <script src="assets/ej-shell.js?v=21"></script>
+    <script src="assets/ej-shell.js?v=22"></script>
+
+    <script>
+      /* Sans paramètre : la page reste celle de PAPRIKA CANTINE, telle quelle (aucune donnée chargée).
+         Avec ?id=<id DPJ> : charge les données fictives et remplace l'en-tête (même logique que societe.html). */
+      (function () {
+        var m = /[?&]id=([^&#]*)/.exec(location.search);
+        if (!m) return;
+        var id;
+        try {
+          id = decodeURIComponent(m[1].replace(/\+/g, " "));
+        } catch (e) {
+          id = m[1];
+        }
+
+        function esc(s) {
+          return String(s == null ? "" : s)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+        }
+        function $(i) {
+          return document.getElementById(i);
+        }
+
+        var FORMES = {
+          SAS: "SAS, société par actions simplifiée",
+          SARL: "SARL, société à responsabilité limitée",
+          SA: "SA, société anonyme",
+          SCI: "SCI, société civile immobilière",
+          SCP: "SCP, société civile professionnelle",
+          SCCV: "SCCV, société civile de construction vente",
+          SELARL: "SELARL, société d'exercice libéral à responsabilité limitée",
+        };
+        /* Villes du siège sans greffe de tribunal de commerce propre : greffe du ressort */
+        var GREFFES = { "Boulogne-Billancourt": "Nanterre", Cergy: "Pontoise", "Saint-Raphaël": "Fréjus" };
+        var MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+
+        function introuvable() {
+          document.title = "Société introuvable · Express Juridique";
+          $("soc-page").innerHTML =
+            '<a class="back-link" href="societes.html"><span class="ms">chevron_left</span>Mes sociétés</a>' +
+            '<div class="card soc-absent">' +
+            '<span class="ms" aria-hidden="true">search</span>' +
+            '<h2 class="section-title" style="margin:0">Société introuvable</h2>' +
+            '<p class="page-desc">' +
+              (id ? "Aucune société ne correspond à l’identifiant «\u00a0" + esc(id) + "\u00a0»." : "Aucune société n’est précisée dans l’adresse de la page.") +
+              "</p>" +
+            '<a class="btn btn-secondary" href="societes.html">Retour à Mes sociétés</a>' +
+            "</div>";
+        }
+
+        function afficher() {
+          var D = window.EJDPJ;
+          var f = D && D.byId ? D.byId(id) : null;
+          if (!f) return introuvable();
+
+          document.title = f.nom + " · Registres · Express Juridique";
+          $("soc-name").textContent = f.nom;
+          $("soc-form").textContent = FORMES[f.forme] || f.forme;
+
+          var ville = f.siege && f.siege.ville ? f.siege.ville : "";
+          var greffe = ville ? (GREFFES[ville] || ville).toUpperCase() : "";
+          $("soc-greffe").innerHTML = greffe ? "Greffe : <strong>" + esc(greffe) + "</strong>" : "";
+
+          $("soc-ids").innerHTML =
+            '<div class="soc-siren">SIREN : <strong>' + esc(f.siren || "En cours de création") + "</strong></div>" +
+            "<div>Date d'immatriculation : <strong>" + esc(f.immatriculation || "En attente") + "</strong></div>";
+
+          $("tab-formalites").href = "societe.html?id=" + encodeURIComponent(f.id);
+          $("tab-registres").href = "societe-registres.html?id=" + encodeURIComponent(f.id);
+          $("tab-lab").href = "lab-dossier.html?id=" + encodeURIComponent(f.id);
+
+          $("reg-desc").textContent = "Centralisez les registres légaux de " + f.nom + ".";
+          /* Date de création du premier registre : ajout de la société sur Express-Juridique */
+          var ec = window.EJC && window.EJC.byName ? window.EJC.byName[f.nom] : null;
+          if (ec && ec.ajout) {
+            var d = ec.ajout;
+            $("reg-meta").textContent = "Créé le " + d.getDate() + " " + MOIS[d.getMonth()] + " " + d.getFullYear();
+          }
+        }
+
+        /* Chargement séquentiel des données, dans l'ordre */
+        var SRC = ["assets/ej-missions-data.js?v=19", "assets/ej-cockpit-data.js?v=3", "assets/ej-dpj-data.js?v=2"];
+        function charger(i) {
+          if (i >= SRC.length) return afficher();
+          var el = document.createElement("script");
+          el.src = SRC[i];
+          el.onload = function () {
+            charger(i + 1);
+          };
+          el.onerror = introuvable;
+          document.head.appendChild(el);
+        }
+        charger(0);
+      })();
+    </script>
   </body>
 </html>

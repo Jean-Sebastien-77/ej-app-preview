@@ -73,6 +73,9 @@
       </div>
     </div>
 
+    <script src="assets/ej-missions-data.js?v=19"></script>
+    <script src="assets/ej-cockpit-data.js?v=3"></script>
+    <script src="assets/ej-dpj-data.js?v=2"></script>
     <script>
       // Données : nom | SIREN | date de dernière mise à jour
       var DATA = [
@@ -121,13 +124,30 @@
       function esc(s) {
         return s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
       }
+      /* Id DPJ d'une ligne : dénomination (sans casse ni accents) puis SIREN quand les deux le connaissent.
+         Sans correspondance : lien sans id, comme avant. */
+      function fold(s) {
+        return String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      }
+      function idDpj(nom, siren) {
+        var list = window.EJDPJ && window.EJDPJ.societes ? window.EJDPJ.societes : [];
+        var n = fold(nom);
+        for (var i = 0; i < list.length; i++) {
+          var f = list[i];
+          if (fold(f.nom) !== n) continue;
+          if (f.siren && /^\d/.test(siren) && f.siren !== siren) continue;
+          return f.id;
+        }
+        return null;
+      }
       document.getElementById("societes").innerHTML = DATA.map(function (s) {
         var siren =
           s[1] === "En cours de création."
             ? '<span class="badge badge-progress" style="height:22px;font-size:11px">En cours de création</span>'
             : "SIREN : " + esc(s[1]);
+        var id = idDpj(s[0], s[1]);
         return (
-          '<a class="list-row" href="societe.html">' +
+          '<a class="list-row" href="societe.html' + (id ? "?id=" + encodeURIComponent(id) : "") + '">' +
           '<span class="list-icon"><span class="ms">storefront</span></span>' +
           '<div class="s-info"><span class="row-title">' + esc(s[0]) + "</span>" +
           '<span class="row-meta">' + siren + "</span></div>" +
@@ -137,6 +157,6 @@
         );
       }).join("");
     </script>
-    <script src="assets/ej-shell.js?v=21"></script>
+    <script src="assets/ej-shell.js?v=22"></script>
   </body>
 </html>

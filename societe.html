@@ -9,7 +9,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=19" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=19" />
     <style>
+      html {
+        scrollbar-gutter: stable;
+      }
+
       /* ---- En-tête société (identique dans societe.html et societe-registres.html) ---- */
       .soc-head {
         position: relative;
@@ -45,6 +50,7 @@
         background: var(--ej-action-600);
       }
       .soc-name {
+        margin: 0;
         font-size: 24px;
         line-height: 1.25;
         font-weight: 700;
@@ -220,9 +226,51 @@
         color: var(--ej-neutral-500);
         text-align: center;
       }
+
+      /* ---- Mobile : en-tête empilé, onglets défilants dans leur conteneur ---- */
+      @media (max-width: 760px) {
+        .soc-head {
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 20px 16px 18px 44px;
+          gap: 14px;
+        }
+        .soc-motif {
+          width: 24px;
+        }
+        .soc-motif .m1 {
+          width: 24px;
+        }
+        .soc-motif .m2 {
+          width: 14px;
+        }
+        .soc-name {
+          font-size: 21px;
+        }
+        .soc-ids {
+          text-align: left;
+          white-space: normal;
+        }
+        .tabs {
+          overflow-x: auto;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+        }
+        .tabs::-webkit-scrollbar {
+          display: none;
+        }
+        .tab {
+          flex-shrink: 0;
+          white-space: nowrap;
+          margin-bottom: 0;
+        }
+        .tl-card {
+          padding: 14px 16px;
+        }
+      }
     </style>
   </head>
-  <body data-active="societes">
+  <body class="m-resp" data-active="societes">
     <div id="ej-header"></div>
     <div class="app">
       <div id="ej-sidebar"></div>
@@ -233,7 +281,7 @@
           <div class="card soc-head" id="soc-head">
             <div class="soc-motif" aria-hidden="true"><i class="m1"></i><i class="m2"></i></div>
             <div>
-              <div class="soc-name" id="soc-name">PAPRIKA CANTINE</div>
+              <h1 class="soc-name" id="soc-name">PAPRIKA CANTINE</h1>
               <div class="soc-form" id="soc-form">SAS, société par actions simplifiée</div>
               <div class="soc-greffe" id="soc-greffe">Greffe : <strong>NANTES</strong></div>
             </div>
@@ -244,8 +292,9 @@
           </div>
 
           <div class="tabs">
-            <a class="tab active" id="tab-formalites" href="societe.html">Formalités</a>
+            <a class="tab active" aria-current="page" id="tab-formalites" href="societe.html">Formalités</a>
             <a class="tab" id="tab-registres" href="societe-registres.html">Registres</a>
+            <a class="tab" id="tab-lab" href="lab-dossier.html?id=paprika">Vigilance LAB</a>
             <a class="tab tab-spacer" href="#"><span class="ms">settings</span>Paramètres</a>
           </div>
 
@@ -292,7 +341,7 @@
       </div>
     </div>
 
-    <script src="assets/ej-shell.js?v=21"></script>
+    <script src="assets/ej-shell.js?v=22"></script>
 
     <script>
       /* Sans paramètre : la page reste celle de PAPRIKA CANTINE, telle quelle (aucune donnée chargée).
@@ -370,6 +419,7 @@
 
           $("tab-formalites").href = "societe.html?id=" + encodeURIComponent(f.id);
           $("tab-registres").href = "societe-registres.html?id=" + encodeURIComponent(f.id);
+          $("tab-lab").href = "lab-dossier.html?id=" + encodeURIComponent(f.id);
 
           /* Chronologie : formalités de EJC (rapprochement par nom), puis l'ajout de la société */
           var C = window.EJC;
@@ -406,7 +456,7 @@
         }
 
         /* Chargement séquentiel des données, dans l'ordre */
-        var SRC = ["assets/ej-missions-data.js?v=19", "assets/ej-cockpit-data.js?v=2", "assets/ej-dpj-data.js?v=2"];
+        var SRC = ["assets/ej-missions-data.js?v=19", "assets/ej-cockpit-data.js?v=3", "assets/ej-dpj-data.js?v=2"];
         function charger(i) {
           if (i >= SRC.length) return afficher();
           var el = document.createElement("script");

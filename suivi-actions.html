@@ -68,6 +68,16 @@
         border-top: 1px solid var(--ej-neutral-200);
         background: var(--ej-white);
       }
+      .c-pieces {
+        font-size: 13px;
+        color: var(--ej-neutral-700);
+        max-width: 360px;
+      }
+      .c-recues {
+        font-size: 12px;
+        color: var(--ej-neutral-500);
+        margin-top: 2px;
+      }
       .s-empty {
         padding: 56px 20px;
         text-align: center;
@@ -87,6 +97,7 @@
             <div class="tabs" role="tablist">
               <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="depots">Dépôts INPI</button>
               <button class="tab" type="button" role="tab" aria-selected="false" data-tab="signatures">Signatures</button>
+              <button class="tab" type="button" role="tab" aria-selected="false" data-tab="collectes">Collectes</button>
             </div>
           </div>
 
@@ -363,6 +374,23 @@
               <div class="s-empty">Contenu non représenté dans cette maquette.</div>
             </div>
           </div>
+
+          <div id="panel-collectes" hidden>
+            <div class="data-table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Société</th>
+                    <th>Pièces demandées</th>
+                    <th>Destinataire</th>
+                    <th>Envoi</th>
+                    <th>Statut</th>
+                  </tr>
+                </thead>
+                <tbody id="rows-collectes"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
         <div id="ej-footer"></div>
       </div>
@@ -387,22 +415,101 @@
           });
         });
 
-        // Onglets Dépôts INPI / Signatures
+        // Collectes de documents envoyées aux clients : exemples de la maquette, puis celles envoyées depuis le LAB (sessionStorage["ej-collectes"])
+        var EXEMPLES = [
+          { id: "ex-technopole", societeId: "technopole", societe: "TECHNOPOLE 21", pieces: ["Extrait RNE ou Kbis", "Pièces d'identité des bénéficiaires effectifs", "Justificatif de domicile du siège"], recues: 0, destinataire: "Yanis Belkacem", date: "14/10/2026", origine: "LAB" },
+          { id: "ex-neolab", societeId: "neolab", societe: "NEOLAB.", pieces: ["Pièce d'identité du dirigeant", "Pièces d'identité des bénéficiaires effectifs", "Justificatif de domicile du siège", "Origine des fonds"], recues: 0, destinataire: "Pierre Weiss", date: "13/10/2026", origine: "LAB" },
+          { id: "ex-kalipso", societeId: "kalipso", societe: "KALIPSO SARL", pieces: ["Extrait RNE ou Kbis", "Statuts à jour", "Pièce d'identité du dirigeant", "Pièces d'identité des bénéficiaires effectifs", "Justificatif de domicile du siège", "Origine des fonds", "Organigramme de détention", "Dernier bilan"], recues: 4, destinataire: "Karim Haddad", date: "02/10/2026", origine: "LAB" },
+          { id: "ex-orvea", societeId: "orvea", societe: "ORVEA", pieces: ["Pièce d'identité du dirigeant", "Pièces d'identité des bénéficiaires effectifs", "Justificatif de domicile du siège", "Origine des fonds", "Dernier bilan"], recues: 2, destinataire: "Inès Carpentier", date: "09/09/2026", origine: "LAB" },
+          { id: "ex-axiome", societeId: "axiome", societe: "AXIOME", pieces: ["Comptes annuels signés", "Rapport de gestion signé"], recues: 2, destinataire: "Marc Vidal", date: "16/09/2026", origine: "Formalité #GC-2026-246" },
+          { id: "ex-sotrab", societeId: "sotrab", societe: "SOTRAB", pieces: ["Extrait RNE ou Kbis", "Statuts à jour", "Pièce d'identité du dirigeant", "Pièces d'identité des bénéficiaires effectifs", "Justificatif de domicile du siège"], recues: 5, destinataire: "Daniel Chevalier", date: "11/09/2026", origine: "LAB" },
+          { id: "ex-cap-esterel", societeId: "cap-esterel", societe: "CAP ESTEREL", pieces: ["Extrait RNE ou Kbis", "Statuts à jour", "Pièce d'identité du dirigeant", "Pièces d'identité des bénéficiaires effectifs", "Justificatif de domicile du siège", "Origine des fonds", "Organigramme de détention"], recues: 7, destinataire: "Philippe Aubert", date: "26/08/2026", origine: "LAB" }
+        ];
+        function esc(v) {
+          return String(v == null ? "" : v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+        }
+        function cle(d) {
+          var p = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(d || "");
+          return p ? +(p[3] + p[2] + p[1]) : 0;
+        }
+        function depuisSession() {
+          var out = [];
+          try {
+            var raw = JSON.parse(sessionStorage.getItem("ej-collectes") || "[]");
+            if (!Array.isArray(raw)) return out;
+            raw.forEach(function (c, i) {
+              if (!c || typeof c !== "object") return;
+              var pieces = Array.isArray(c.pieces) ? c.pieces.filter(function (p) { return typeof p === "string" && p; }) : [];
+              out.push({ id: String(c.id == null ? "s" + i : c.id), societeId: String(c.societeId || ""), societe: String(c.societe || ""), pieces: pieces, recues: 0, destinataire: String(c.destinataire || ""), date: String(c.date || ""), origine: String(c.origine || "LAB"), n: i });
+            });
+          } catch (e) {}
+          // Les plus récentes d'abord ; à date égale, la dernière envoyée en tête
+          out.sort(function (a, b) { return cle(b.date) - cle(a.date) || b.n - a.n; });
+          return out;
+        }
+        function statutCollecte(c) {
+          var tot = c.pieces.length;
+          if (tot && c.recues >= tot) return '<span class="badge badge-success">Complète</span>';
+          if (c.recues > 0) return '<span class="badge badge-action">Partiellement reçue</span>';
+          return '<span class="badge badge-progress">Envoyée</span>';
+        }
+        function ligneCollecte(c) {
+          var lab = c.origine === "LAB";
+          var href = (lab ? "lab-dossier.html" : "societe.html") + (c.societeId ? "?id=" + encodeURIComponent(c.societeId) : "");
+          var tot = c.pieces.length;
+          var vues = c.pieces.slice(0, 3).map(esc).join(", ") + (tot > 3 ? " et " + (tot - 3) + (tot - 3 > 1 ? " autres" : " autre") : "");
+          return (
+            "<tr>" +
+            '<td><div><a class="link s-soc" href="' + href + '">' + esc(c.societe || "Société") + "</a></div>" +
+            '<div class="s-sub">' + (lab ? "Depuis le dispositif LAB" : "Depuis la " + esc(c.origine.charAt(0).toLowerCase() + c.origine.slice(1))) + "</div></td>" +
+            '<td><div class="c-pieces" title="' + esc(c.pieces.join(", ")) + '">' + (vues || "Aucune pièce précisée") + "</div>" +
+            '<div class="c-recues">' + tot + (tot > 1 ? " pièces demandées" : " pièce demandée") + (c.recues > 0 ? " · " + c.recues + " reçue" + (c.recues > 1 ? "s" : "") : "") + "</div></td>" +
+            "<td>" + (esc(c.destinataire) || '<span class="s-date">Non précisé</span>') + "</td>" +
+            '<td class="s-date">Envoyée le<br />' + esc(c.date) + "</td>" +
+            "<td>" + statutCollecte(c) + "</td>" +
+            "</tr>"
+          );
+        }
+        function rendreCollectes() {
+          var vus = {};
+          var liste = [];
+          depuisSession().concat(EXEMPLES).forEach(function (c) {
+            if (vus[c.id]) return;
+            vus[c.id] = 1;
+            liste.push(c);
+          });
+          document.getElementById("rows-collectes").innerHTML = liste.map(ligneCollecte).join("");
+        }
+        rendreCollectes();
+
+        // Onglets Dépôts INPI / Signatures / Collectes
         var tabs = document.querySelectorAll(".tab[data-tab]");
+        function ouvrir(nom, maj) {
+          tabs.forEach(function (o) {
+            var on = o.getAttribute("data-tab") === nom;
+            o.classList.toggle("active", on);
+            o.setAttribute("aria-selected", on ? "true" : "false");
+          });
+          ["depots", "signatures", "collectes"].forEach(function (n) {
+            document.getElementById("panel-" + n).hidden = n !== nom;
+          });
+          if (maj) {
+            try {
+              history.replaceState(null, "", nom === "collectes" ? "#collectes" : location.pathname + location.search);
+            } catch (e) {}
+          }
+        }
         tabs.forEach(function (t) {
           t.addEventListener("click", function () {
-            tabs.forEach(function (o) {
-              var on = o === t;
-              o.classList.toggle("active", on);
-              o.setAttribute("aria-selected", on ? "true" : "false");
-            });
-            var dep = t.getAttribute("data-tab") === "depots";
-            document.getElementById("panel-depots").hidden = !dep;
-            document.getElementById("panel-signatures").hidden = dep;
+            ouvrir(t.getAttribute("data-tab"), true);
           });
+        });
+        if (location.hash === "#collectes") ouvrir("collectes", false);
+        window.addEventListener("hashchange", function () {
+          if (location.hash === "#collectes") ouvrir("collectes", false);
         });
       })();
     </script>
-    <script src="assets/ej-shell.js?v=21"></script>
+    <script src="assets/ej-shell.js?v=22"></script>
   </body>
 </html>

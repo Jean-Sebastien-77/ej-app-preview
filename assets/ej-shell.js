@@ -54,6 +54,7 @@
   window.EJ_PROFIL = profil;
   /* Utilisateur connecté simulé : l'associée CAC en profil cac, sinon l'associé EC. */
   var user = profil === "cac" ? { initiales: "CD", nom: "Claire Dubois" } : { initiales: "TG", nom: "Thomas Girard" };
+  window.EJ_USER = user;
 
   var css =
     ".dropdown{position:relative}" +

@@ -20,7 +20,7 @@
         justify-content: space-between;
         gap: 24px;
         padding: 22px 24px 22px 64px;
-        margin-bottom: 16px;
+        margin-bottom: 24px;
       }
       .soc-motif {
         position: absolute;
@@ -46,6 +46,7 @@
         background: var(--ej-action-600);
       }
       .soc-name {
+        margin: 0;
         font-size: 24px;
         line-height: 1.25;
         font-weight: 700;
@@ -830,6 +831,22 @@
           margin-top: 20px;
         }
       }
+
+      @media (max-width: 760px) {
+        .tabs {
+          overflow-x: auto;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+        }
+        .tabs::-webkit-scrollbar {
+          display: none;
+        }
+        .tab {
+          flex-shrink: 0;
+          white-space: nowrap;
+          margin-bottom: 0;
+        }
+      }
     </style>
   </head>
   <body class="m-resp" data-active="cac">
@@ -852,6 +869,7 @@
 
           <div id="contenu">
             <div class="card soc-head" id="head"></div>
+            <div class="tabs" id="tabs"></div>
             <div class="d-alerts" id="alerts"></div>
             <div id="retour" aria-live="polite"></div>
 
@@ -970,10 +988,8 @@
         var indep = m.independance;
         var labRevue = L.statut === "a_revoir" && !!L.prochaineRevue;
         var labRetard = labRevue && dt(L.prochaineRevue) < TODAY ? ecartJours(L.prochaineRevue) : 0;
-        var labIncomplet = L.statut === "incomplet";
         var cocacNom = m.cocac ? m.cocac.replace(/\s*\(cocommissaire\)\s*/i, "") : "";
         var dansPortefeuilleEC = profil !== "cac" && E.societes.some(function (s) { return s.siren === m.siren; });
-        var VIG = { faible: "Vigilance simplifiée possible", standard: E.VIGILANCE.standard, eleve: E.VIGILANCE.eleve };
 
         /* Le signataire conduit l'acceptation, la planification et les rapports ; les auditeurs de l'équipe
            font l'intérim et le final (le signataire seul si l'équipe est vide). */
@@ -993,23 +1009,23 @@
           var cls = ph === "acceptation" ? "badge-action" : ph === "emis" ? "badge-success" : "badge-progress";
           return '<span class="badge ' + cls + '">' + E.PHASE[ph] + "</span>";
         }
-        function risqueHtml() {
-          return L.risque
-            ? '<span class="risk risk-' + L.risque + '">' + E.RISQUE[L.risque] + "</span>"
-            : '<span class="risk risk-na">Non évalué</span>';
-        }
 
         /* ---------- En-tête ---------- */
         var libForme = FORMES[m.forme] ? ", " + FORMES[m.forme] : "";
         document.getElementById("head").innerHTML =
           '<div class="soc-motif" aria-hidden="true"><i class="m1"></i><i class="m2"></i></div>' +
           "<div>" +
-          '<div class="soc-name">' + esc(m.nom) + "</div>" +
+          '<h1 class="soc-name">' + esc(m.nom) + "</h1>" +
           '<div class="soc-form">' + esc(m.forme) + esc(libForme) + " · " + esc(m.activite) + "</div>" +
           '<div class="soc-greffe">SIREN : <strong>' + esc(m.siren) + "</strong> · Signataire : <strong>" + esc(signataire.nom) + "</strong></div>" +
           "</div>" +
           '<div class="soc-ids"><span class="type">' + esc(E.TYPE_MANDAT[m.type]) + "</span>" +
           "<span>Exercice clos le " + m.ex.clos + "</span>" + badgePhase() + "</div>";
+
+        /* ---------- Onglets de la fiche : Mission · Vigilance LAB ---------- */
+        document.getElementById("tabs").innerHTML =
+          '<a class="tab active" aria-current="page" href="cac-mandat.html?id=' + encodeURIComponent(m.id) + '">Mission</a>' +
+          '<a class="tab" href="lab-dossier.html?id=' + encodeURIComponent(m.id) + '">Vigilance LAB</a>';
 
         /* ---------- Alertes contextuelles ---------- */
         var al = [];
@@ -1039,10 +1055,8 @@
         } else if (indep.statut === "a_faire") {
           al.push('<div class="alert alert-warning"><span class="ms">shield-check</span><div><strong>Déclaration d\'indépendance à faire.</strong> Aucune déclaration de l\'équipe n\'est enregistrée pour cette entité. <a href="#independance">Voir l\'indépendance</a>.</div></div>');
         }
-        if (labRevue) {
-          al.push('<div class="alert alert-warning"><span class="ms">history</span><div><strong>Dossier LAB à revoir' + (labRetard ? " : revue échue depuis le " + L.prochaineRevue + " (" + labRetard + " jours)" : "") + ".</strong> Reprendre l'évaluation, compléter les pièces manquantes (" + L.pieces[0] + " sur " + L.pieces[1] + ' reçues) et faire valider la revue. <a href="lab-dossier.html?id=' + encodeURIComponent(m.id) + '">Ouvrir le dossier LAB</a>.</div></div>');
-        } else if (labIncomplet && !enAcceptation) {
-          al.push('<div class="alert alert-info"><span class="ms">file-check</span><div><strong>Identification LAB incomplète : ' + L.pieces[0] + " pièces sur " + L.pieces[1] + '.</strong> <a href="lab-dossier.html?id=' + encodeURIComponent(m.id) + '">Ouvrir le dossier LAB</a>.</div></div>');
+        if (labRetard) {
+          al.push('<div class="alert alert-warning"><span class="ms">history</span><div><strong>Revue LAB échue depuis le ' + L.prochaineRevue + " (" + labRetard + " jours).</strong> Reprendre l'évaluation, compléter les pièces manquantes (" + L.pieces[0] + " sur " + L.pieces[1] + ' reçues) et faire valider la revue. <a href="lab-dossier.html?id=' + encodeURIComponent(m.id) + '">Ouvrir l\'onglet Vigilance LAB</a>.</div></div>');
         }
         if (finMandat) {
           al.push('<div class="alert alert-info"><span class="ms">calendar-clock</span><div><strong>Fin de mandat.</strong> Le mandat prend fin à l\'issue de l\'assemblée générale (AG) qui statuera sur les comptes de l\'exercice clos le ' + finMandatDate +
@@ -1281,7 +1295,7 @@
         if (enAcceptation) {
           var items = [
             { ok: L.statut === "a_jour", lib: "Identification LAB",
-              det: L.statut === "a_jour" ? "Dossier à jour." : L.pieces[0] + " pièces reçues sur " + L.pieces[1] + (L.be ? ", " + L.be + " bénéficiaire effectif identifié" : ", bénéficiaires effectifs à identifier") + ", risque non évalué." },
+              det: L.statut === "a_jour" ? "Dossier à jour." : "Pièces, bénéficiaires effectifs et évaluation du risque : à compléter dans", lien: ["lab-dossier.html?id=" + encodeURIComponent(m.id), "l'onglet Vigilance LAB"] },
             { ok: indep.statut === "a_jour", lib: "Indépendance de l'équipe",
               det: indep.statut === "a_jour" ? "Déclaration à jour." : "Déclaration de l'équipe à faire avant d'accepter." },
             { ok: budget > 0 && equipe.length > 0, lib: "Budget et équipe",
@@ -1293,7 +1307,7 @@
             '<h3 class="sous-titre">Check-list d\'acceptation</h3><div class="accept">' +
             items.map(function (i) {
               return '<div class="it"><span class="ms etat ' + (i.ok ? "ok" : "att") + '">' + (i.ok ? "circle-check" : "circle-dashed") + "</span>" +
-                '<div><div class="lib">' + esc(i.lib) + '</div><div class="det' + (i.ok ? "" : " warn") + '">' + esc(i.det) + "</div></div></div>";
+                '<div><div class="lib">' + esc(i.lib) + '</div><div class="det' + (i.ok ? "" : " warn") + '">' + esc(i.det) + (!i.ok && i.lien ? ' <a href="' + i.lien[0] + '">' + esc(i.lien[1]) + "</a>." : "") + "</div></div></div>";
             }).join("") + "</div>" +
             '<div class="accept-bas"><span class="bilan">' + nOk + " élément" + (nOk > 1 ? "s" : "") + " réuni" + (nOk > 1 ? "s" : "") + " sur " + items.length + '</span>' +
             '<button class="btn btn-primary btn-sm" type="button" disabled title="Disponible quand les ' + NB[items.length] + ' éléments sont réunis"><span class="ms">badge-check</span>Accepter la mission</button></div>' +
@@ -1302,39 +1316,15 @@
         }
         out.push(carte("shield-check", "Indépendance et acceptation", enAcceptation ? "À réunir avant d'accepter la mission" : "Déclaration annuelle et services autres que la certification", "", corpsInd, enAcceptation ? "acceptation" : "independance"));
 
-        /* 6. Vigilance LAB */
-        var enRetardLab = labRetard > 0;
-        var kvL = "";
-        kvL += kv("Niveau de risque", risqueHtml());
-        kvL += kv("Vigilance", L.risque ? VIG[L.risque] : "À définir après l'évaluation");
-        var labBadge = L.statut === "a_jour" ? '<span class="badge badge-success">' + E.LAB_STATUT.a_jour + "</span>"
-          : L.statut === "a_revoir" ? '<span class="badge badge-action">' + E.LAB_STATUT.a_revoir + "</span>"
-          : '<span class="badge badge-progress">' + E.LAB_STATUT[L.statut] + " · " + L.pieces[0] + "/" + L.pieces[1] + "</span>";
-        kvL += kv("Dossier", labBadge);
-        kvL += kv("Pièces reçues", L.pieces[0] + " sur " + L.pieces[1]);
-        kvL += kv("Bénéficiaires effectifs",
-          L.beDefaut ? "Bénéficiaire effectif retenu : le représentant légal, à défaut" : L.be + " identifié" + (L.be > 1 ? "s" : ""),
-          L.beDefaut ? '<span class="val-sub">Retenu à défaut d\'autre bénéficiaire effectif identifié</span>' : (L.ppe ? '<span class="val-sub">Au moins une personne politiquement exposée : vigilance complémentaire</span>' : ""));
-        kvL += kv("Criblage", L.criblage ? "Dernier passage le " + L.criblage : "Non effectué",
-          L.criblage ? '<span class="val-sub">Gel des avoirs : ' + (L.gel === "ok" ? "aucune correspondance" : "homonymie à lever") + "</span>" : "");
-        kvL += kv("Dernière revue", L.derniereRevue ? L.derniereRevue : "Jamais validé");
-        kvL += kv("Prochaine revue", L.prochaineRevue ? L.prochaineRevue : "Fixée à la validation",
-          enRetardLab ? '<span class="val-sub warn">Échue depuis ' + labRetard + " jours</span>" : "");
-        out.push(carte("scan-search", "Vigilance LAB", "Résumé du dossier de lutte contre le blanchiment", '<a class="btn btn-secondary btn-sm" href="lab-dossier.html?id=' + encodeURIComponent(m.id) + '"><span class="ms">arrow-right</span>Ouvrir le dossier LAB</a>',
-          '<dl class="kv">' + kvL + "</dl>", "lab"));
-
         /* 7. Historique */
         var J = [];
         function ajoute(d, i, t, w, warn) {
           if (dt(d) <= TODAY) J.push({ d: d, n: J.length, i: i, t: t, w: w, warn: !!warn });
         }
+        /* Les événements du dossier LAB (ouverture, revues, criblage) sont dans l'onglet Vigilance LAB */
         if (m.nomination) ajoute(m.nomination, "stamp", "Nomination comme commissaire aux comptes " + de(m.nom) + ".", esc(signataire.nom));
-        if (L.ouverture) ajoute(L.ouverture, "folder-open", "Ouverture du dossier LAB et identification de l'entité.", esc(signataire.nom));
         if (m.lm.date) ajoute(m.lm.date, lmSignee ? "file-pen-line" : "send", lmSignee ? "Lettre de mission signée (réf. " + m.lm.ref + ")." : "Lettre de mission envoyée pour signature (réf. " + m.lm.ref + ").", esc(signataire.nom));
         if (indep.date) ajoute(indep.date, "shield-check", "Déclaration d'indépendance de l'équipe" + (indep.statut === "a_renouveler" ? " (à renouveler)." : "."), esc(equipe.map(function (k) { return E.equipe[k].nom; }).join(", ")), indep.statut === "a_renouveler");
-        if (L.derniereRevue) ajoute(L.derniereRevue, "badge-check", "Revue du dossier LAB validée.", esc(E.equipe[E.responsableLab(profil)].nom) + ", responsable LAB");
-        if (L.criblage) ajoute(L.criblage, "scan-search", "Criblage continu : " + (L.gel === "ok" ? "aucune correspondance sur le gel des avoirs." : "correspondance possible, à lever."), "Connecteur KYC", L.gel !== "ok");
-        if (labRetard) ajoute(L.prochaineRevue, "history", "Revue LAB échue : notification envoyée au responsable du dossier.", "EJ", true);
         m.interventions.forEach(function (x) {
           if (x[3] === "fait") ajoute(x[2], "clipboard-check", "Intervention réalisée : " + x[0] + ".", esc(nomsMembres(membres(x[0]))));
           else if (x[3] === "en_cours") ajoute(x[1], "timer", "Intervention commencée : " + x[0] + ".", esc(nomsMembres(membres(x[0]))));
@@ -1359,6 +1349,6 @@
           });
       });
     </script>
-    <script src="assets/ej-shell.js?v=21"></script>
+    <script src="assets/ej-shell.js?v=22"></script>
   </body>
 </html>

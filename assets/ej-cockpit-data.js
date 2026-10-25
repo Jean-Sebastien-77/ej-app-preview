@@ -539,13 +539,17 @@
       href: "suivi-actions.html", action: m.action,
     };
   }
+  /* Règle de la file LAB (lab.html) : homonymie à lever OU dossier pas « à jour » */
+  function labATraiter(s) {
+    return s.lab.gel === "a_verifier" || s.lab.statut !== "a_jour";
+  }
   function labRow(s) {
     var l = s.lab;
     var motif = l.statut === "incomplet" ? "Pièces reçues : " + l.pieces[0] + " sur " + l.pieces[1] : l.statut === "a_ouvrir" ? "Dossier jamais ouvert" : l.prochaineRevue ? "Revue prévue le " + l.prochaineRevue : "Revue à planifier";
     return {
       title: s.nom, forme: s.forme, meta: E.LAB_STATUT[l.statut] + " · " + motif + (l.gel === "a_verifier" ? " · homonymie gel des avoirs à lever" : ""),
       badge: { label: l.risque ? E.RISQUE[l.risque] : "Risque non évalué", tone: l.risque === "eleve" ? "warning" : l.risque ? "neutral" : "neutral" },
-      href: "lab-dossier.html?id=" + encodeURIComponent(s.id), action: l.statut === "a_ouvrir" ? "Ouvrir le dossier" : "Voir le dossier",
+      href: "lab-dossier.html?id=" + encodeURIComponent(s.id), action: l.gel === "a_verifier" ? "Lever l'homonymie" : l.statut === "a_ouvrir" ? "Ouvrir le dossier" : "Voir le dossier",
     };
   }
   function lmRow(s) {
@@ -557,6 +561,10 @@
       href: "lettre-mission.html?id=" + encodeURIComponent(s.id),
       action: l.statut === "absente" ? "Créer la lettre" : l.statut === "envoyee" ? "Relancer la signature" : l.statut === "brouillon" ? "Finaliser la lettre" : l.statut === "a_renouveler" ? "Renouveler" : "Ouvrir la lettre",
     };
+  }
+  /* Ligne d'un dossier LAB d'entité contrôlée : ouvre le dossier LAB (onglet Vigilance LAB), pas la fiche mission */
+  function mandLabRow(m, meta) {
+    return { title: m.nom, forme: m.forme, meta: meta, href: "lab-dossier.html?id=" + encodeURIComponent(m.id), action: m.lab.gel === "a_verifier" ? "Lever l'homonymie" : "Voir le dossier LAB" };
   }
   function mandRow(m, meta) {
     return { title: m.nom, forme: m.forme, meta: meta, href: "cac-mandat.html?id=" + encodeURIComponent(m.id), action: "Ouvrir la mission" };
@@ -679,7 +687,7 @@
       clo: { label: "Sociétés sans date de clôture", rows: s.filter(function (x) { return !x.cl; }).map(function (x) {
         return socRow(x, x.crea ? "En cours de création" : "Date de clôture absente du DPJ", { action: "Compléter la fiche" });
       }) },
-      lab: { label: "Dossiers LAB à revoir", rows: e.filter(function (x) { return x.lab.statut !== "a_jour"; }).map(labRow) },
+      lab: { label: "Dossiers LAB à traiter", rows: e.filter(labATraiter).map(labRow) },
       lm: { label: "Lettres de mission non signées", rows: e.filter(function (x) { return x.lm.statut !== "signee"; }).map(lmRow) },
     };
   }
@@ -1139,7 +1147,7 @@
   ind("vig_points", {
     group: "ec", theme: "vigilance", kind: "cat", title: "Points de vigilance", viz: "barh", vizes: ["barh", "bar", "table"], dims: ["forme"], src: SRC.dpj + " ; " + SRC.lab + " ; " + SRC.lm,
     kw: ["points de vigilance", "vigilance", "alertes", "a verifier"],
-    rule: "AG non suivies dans EJ (échéance dépassée, aucune formalité d'approbation dans EJ pour l'exercice ; repli pour les sociétés sans date de clôture : approuvées dans EJ l'an dernier, rien cette année) ; dossiers LAB à revoir (revue échue, pièces manquantes, dossier à ouvrir) ; lettres de mission non signées. Les retards légaux sont comptés à part.",
+    rule: "AG non suivies dans EJ (échéance dépassée, aucune formalité d'approbation dans EJ pour l'exercice ; repli pour les sociétés sans date de clôture : approuvées dans EJ l'an dernier, rien cette année) ; dossiers LAB à traiter (homonymie à lever, revue échue, pièces manquantes, dossier à ouvrir) ; lettres de mission non signées. Les retards légaux sont comptés à part.",
     cov: function (ctx) { return covClot(ctx) + " " + COV_EJM; },
     compute: function (ctx) {
       var v = vigilance(ctx);
@@ -1194,13 +1202,17 @@
     },
   });
   ind("lab_a_revoir", {
-    group: "ec", theme: "vigilance", kind: "kpi", title: "Dossiers LAB à revoir", dims: ["forme"], src: SRC.lab,
-    kw: ["lab a revoir", "revues lab", "dossiers lab a revoir"],
-    rule: "Dossier LAB dont la revue est échue, les pièces incomplètes ou qui reste à ouvrir.",
+    group: "ec", theme: "vigilance", kind: "kpi", title: "Dossiers LAB à traiter", dims: ["forme"], src: SRC.lab,
+    kw: ["lab a traiter", "dossiers lab a traiter", "lab sont a traiter", "lab a revoir", "lab sont a revoir", "revues lab", "dossiers lab a revoir", "homonymie"],
+    rule: "Même règle que la file du dispositif LAB : dossier dont l'homonymie sur le gel des avoirs est à lever, ou dont le statut n'est pas « à jour » (revue échue, pièces manquantes, dossier à ouvrir). En profil mixte, seuls les clients de l'expertise comptable sont comptés ; les entités contrôlées le sont à part, dans « LAB des entités contrôlées ».",
     cov: function () { return COV_EJM; },
     compute: function (ctx) {
-      var r = ejms(ctx).filter(function (s) { return s.lab.statut !== "a_jour"; });
-      return { value: r.length, display: nf(r.length), delta: null, sub: "sur " + ejms(ctx).length + " dossiers", spark: null, alert: r.length > 0, rows: function () { return r.map(labRow); } };
+      var r = ejms(ctx).filter(labATraiter);
+      var mixte = false;
+      try { mixte = document.body.getAttribute("data-profil") === "mixte"; } catch (e) {}
+      var res = { value: r.length, display: nf(r.length), delta: null, sub: "sur " + ejms(ctx).length + " dossiers" + (mixte ? " clients" : ""), spark: null, alert: r.length > 0, rows: function () { return r.map(labRow); } };
+      if (mixte) res.title = "Dossiers LAB à traiter (clients EC)";
+      return res;
     },
   });
   ind("lab_revues_mois", {
@@ -1545,7 +1557,7 @@
     cov: covC,
     compute: function (ctx) {
       var ks = ["faible", "standard", "eleve", null];
-      var by = ks.map(function (k) { return mandats(ctx).filter(function (m) { return m.lab.risque === k; }).map(function (m) { return mandRow(m, (k ? E.RISQUE[k] : "Risque non évalué") + " · " + E.LAB_STATUT[m.lab.statut]); }); });
+      var by = ks.map(function (k) { return mandats(ctx).filter(function (m) { return m.lab.risque === k; }).map(function (m) { return mandLabRow(m, (k ? E.RISQUE[k] : "Risque non évalué") + " · " + E.LAB_STATUT[m.lab.statut]); }); });
       var r = catResult(["Risque faible", "Risque standard", "Risque élevé", "Non évalué"], ["mint", "info", "warning", "muted"], by);
       r.center = { value: nf(mandats(ctx).length), label: "dossiers" };
       return r;

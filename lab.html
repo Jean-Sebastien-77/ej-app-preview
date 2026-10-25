@@ -11,194 +11,211 @@
     <link rel="stylesheet" href="assets/ej-app.css?v=19" />
     <link rel="stylesheet" href="assets/ej-missions.css?v=19" />
     <style>
-      /* ---- Page LAB : styles locaux (à mutualiser si besoin) ---- */
-      .lab-intro {
-        max-width: 620px;
-      }
-      .lab-value {
-        margin-bottom: 20px;
-      }
-      .lab-perim {
-        display: flex;
-        align-items: flex-start;
-        gap: 6px;
-        margin-top: 10px;
-        font-size: 13px;
-        line-height: 1.45;
-        color: var(--ej-neutral-600);
-      }
-      .lab-perim .ms {
-        flex-shrink: 0;
-        margin-top: 1px;
-        font-size: 16px;
-        color: var(--ej-action-600);
-      }
-      .lab-perim strong {
-        font-weight: 600;
-        color: var(--ej-primary-900);
-      }
-      .lab-value a {
-        font-weight: 600;
-        text-decoration: underline;
-        text-underline-offset: 2px;
-        white-space: nowrap;
-      }
-      .lab-split {
-        margin: 14px 0 24px;
-        padding: 18px 20px 16px;
-      }
-      .lab-split-head {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 12px;
-        flex-wrap: wrap;
-        margin-bottom: 12px;
-      }
-      .lab-split-head h2 {
-        font-size: 15px;
-        font-weight: 600;
-        color: var(--ej-primary-900);
-      }
-      .seg {
-        display: flex;
-        gap: 3px;
-        height: 12px;
-      }
-      .seg > span {
-        display: block;
-        height: 100%;
-        min-width: 6px;
-        border-radius: var(--ej-radius-full);
-      }
-      .seg .s-faible {
-        background: var(--ej-success-600);
-      }
-      .seg .s-standard {
-        background: var(--ej-info-600);
-      }
-      .seg .s-eleve {
-        background: var(--ej-warning-600);
-      }
-      .seg .s-na {
-        background: var(--ej-neutral-300);
-      }
-      .seg-legend {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 12px;
-        margin-top: 14px;
-      }
-      .seg-legend b {
-        display: block;
-        margin-top: 2px;
-        padding-left: 16px;
-        font-family: var(--ej-font-display);
-        font-size: 20px;
-        font-weight: 600;
-        color: var(--ej-primary-900);
-        font-variant-numeric: tabular-nums;
-      }
-      .seg-legend b small {
-        font-family: var(--ej-font-body);
-        font-size: 12px;
-        font-weight: 400;
-        color: var(--ej-neutral-500);
-        margin-left: 4px;
-      }
+      /* ---- Dispositif LAB : file de travail (styles locaux) ---- */
 
-      .lab-filters {
+      /* En-tête minimal : titre à gauche, Exporter et menu à droite */
+      .lab-head {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
+        gap: 4px 16px;
+        margin-bottom: 16px;
+      }
+      .lab-head .page-desc {
+        grid-column: 1 / -1;
+        margin-top: 0;
+      }
+      .lab-head-act {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 12px;
+        gap: 6px;
+        padding-top: 18px;
+      }
+      .lab-head-act .icon-btn {
+        border: 1px solid var(--ej-hairline);
+        border-radius: var(--ej-radius-full);
+        width: 34px;
+        height: 34px;
+      }
+      .lab-head-act .dropdown-menu {
+        min-width: 280px;
+      }
+      .lab-head-act .dropdown-item {
+        cursor: pointer;
+      }
+      /* Menu « ⋯ » piloté par la page : fermé = hidden, donc aucun lien atteignable */
+      .lab-head-act .dropdown-menu[hidden] {
+        display: none;
+      }
+
+      /* Filtres-compteurs + recherche sur une ligne */
+      .lab-bar {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px 12px;
         margin-bottom: 14px;
       }
-      .lab-filters .toolbar {
-        margin-bottom: 0;
-        flex: 1;
+      .lab-pills {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex: 0 1 auto;
+        min-width: 0;
+        flex-wrap: wrap;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
       }
-      .lab-count {
-        font-size: 14px;
-        color: var(--ej-neutral-500);
+      .lab-pills::-webkit-scrollbar {
+        display: none;
+      }
+      .lab-pills .qf-pill {
+        flex-shrink: 0;
+        padding: 0 13px;
         white-space: nowrap;
       }
       .qf-pill .n {
-        font-family: var(--ej-font-body);
         font-weight: 500;
         color: var(--ej-neutral-500);
         font-variant-numeric: tabular-nums;
       }
-      .quick-filters {
-        margin-bottom: 18px;
+      .qf-pill.active .n,
+      .qf-pill.active-warning .n {
+        color: inherit;
       }
-      .quick-filters.mission-filters {
-        align-items: center;
-        margin-bottom: 8px;
+      .lab-sep {
+        flex-shrink: 0;
+        width: 1px;
+        height: 22px;
+        margin: 0 4px;
+        background: var(--ej-neutral-200);
       }
-      .qf-label {
-        font-size: 12.5px;
-        font-weight: 600;
-        color: var(--ej-neutral-500);
-        margin-right: 2px;
+      .lab-bar .search {
+        flex: 0 1 220px;
+        min-width: 180px;
+        margin-left: auto;
+        height: 34px;
+        padding: 0 12px;
+      }
+      .lab-bar .search .ms {
+        font-size: 16px;
+      }
+      .lab-bar .search input {
+        font-size: 13px;
       }
 
+      /* Liste */
+      .lab-table {
+        table-layout: auto;
+      }
       .lab-table tbody tr {
         cursor: pointer;
       }
+      .lab-table th,
       .lab-table td {
+        padding-left: 12px;
+        padding-right: 12px;
         vertical-align: middle;
       }
-      .cell-soc a {
+      .lab-table td {
+        padding-top: 11px;
+        padding-bottom: 11px;
+      }
+      .lab-table th:first-child,
+      .lab-table td:first-child {
+        padding-left: 18px;
+      }
+      .lab-table th:last-child,
+      .lab-table td:last-child {
+        padding-right: 18px;
+        text-align: right;
+      }
+      .c-soc a {
         font-family: var(--ej-font-display);
         font-weight: 600;
-        font-size: 14.5px;
+        font-size: 14px;
         color: var(--ej-primary-900);
       }
-      .cell-soc a:hover {
+      .c-soc a:hover {
         color: var(--ej-action-600);
       }
-      .cell-sub {
+      .c-sub {
         display: block;
+        margin-top: 2px;
         font-size: 12.5px;
         color: var(--ej-neutral-500);
-        margin-top: 1px;
       }
-      .cell-sub-warn {
+      .c-soc .c-sub {
+        white-space: nowrap;
+      }
+      .c-sub.warn {
         color: var(--ej-warning-600);
         font-weight: 500;
       }
-      .be-cell {
+      .m-chip {
+        display: inline-flex;
+        align-items: center;
+        height: 18px;
+        padding: 0 6px;
+        margin-right: 6px;
+        border-radius: var(--ej-radius-sm);
+        background: var(--ej-neutral-100);
+        font-family: var(--ej-font-display);
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        color: var(--ej-neutral-600);
+        vertical-align: 1px;
+      }
+      .motif {
         display: flex;
         align-items: center;
         gap: 8px;
-        flex-wrap: wrap;
-      }
-      .be-n {
-        font-variant-numeric: tabular-nums;
         font-weight: 600;
         color: var(--ej-neutral-900);
       }
-      .be-flag {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        font-size: 12px;
+      .motif .ms {
+        flex-shrink: 0;
+        font-size: 16px;
+      }
+      .motif.k-homonymie .ms,
+      .motif.k-revue .ms {
+        color: var(--ej-attention-500);
+      }
+      .motif.k-pieces .ms {
+        color: var(--ej-info-600);
+      }
+      .motif.k-ouvrir .ms {
+        color: var(--ej-neutral-400);
+      }
+      .motif.k-ajour {
         font-weight: 500;
-        color: var(--ej-action-700);
       }
-      .be-flag .ms {
-        font-size: 15px;
+      .motif.k-ajour .ms {
+        color: var(--ej-success-600);
       }
-      .be-flag.warn {
-        color: var(--ej-warning-600);
+      .c-motif .c-sub {
+        padding-left: 24px;
       }
-      .resp {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
+      .c-ech {
         white-space: nowrap;
-        font-size: 13.5px;
+        font-variant-numeric: tabular-nums;
+      }
+      .c-ech .warn {
+        color: var(--ej-warning-600);
+        font-weight: 500;
+      }
+      .verb {
+        white-space: nowrap;
+      }
+      .verb.sent {
+        color: var(--ej-success-600);
+        border-color: transparent;
+        cursor: default;
+      }
+      .verb.sent:hover {
+        transform: none;
+        background: transparent;
       }
       .open-link {
         display: inline-flex;
@@ -211,28 +228,6 @@
       }
       .open-link .ms {
         font-size: 16px;
-        transition: transform var(--ej-transition-fast);
-      }
-      .lab-table tr:hover .open-link .ms {
-        transform: translateX(2px);
-      }
-      .lab-table th,
-      .lab-table td {
-        padding-left: 8px;
-        padding-right: 8px;
-      }
-      .cell-soc .cell-sub {
-        white-space: nowrap;
-      }
-      .stat-stack {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 3px;
-        min-width: 0;
-      }
-      .stat-stack .cell-sub {
-        margin-top: 0;
       }
       .lab-empty {
         padding: 36px 20px;
@@ -240,20 +235,119 @@
         color: var(--ej-neutral-500);
         font-size: 14px;
       }
+      .lab-empty strong {
+        display: block;
+        margin-bottom: 4px;
+        font-family: var(--ej-font-display);
+        font-size: 15px;
+        color: var(--ej-primary-900);
+      }
+      .lab-empty .ms {
+        display: block;
+        margin: 0 auto 8px;
+        font-size: 26px;
+        color: var(--ej-success-600);
+      }
+      .lab-empty button {
+        margin-top: 8px;
+        font-weight: 600;
+        color: var(--ej-action-600);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+
+      /* Pied de liste : source des données et couverture, une seule fois */
+      .lab-foot {
+        margin-top: 12px;
+        font-size: 12.5px;
+        line-height: 1.5;
+        color: var(--ej-neutral-500);
+      }
+      .lab-foot p {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px 6px;
+      }
+      .lab-foot p + p {
+        margin-top: 4px;
+      }
+      .lab-foot .ms {
+        font-size: 14px;
+        color: var(--ej-neutral-400);
+      }
+      .lab-i {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        color: var(--ej-neutral-500);
+      }
+      .lab-i:hover,
+      .lab-i[aria-expanded="true"] {
+        background: var(--ej-neutral-100);
+        color: var(--ej-action-600);
+      }
+      .lab-i .ms {
+        color: inherit;
+      }
+      .lab-more {
+        margin-top: 6px;
+        padding: 10px 12px;
+        border-radius: var(--ej-radius-md);
+        background: var(--ej-neutral-50);
+        display: block;
+      }
+      .lab-more[hidden] {
+        display: none;
+      }
+      .lab-more a {
+        font-weight: 600;
+        color: var(--ej-action-600);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .lab-foot + .m-note {
+        margin-top: 20px;
+      }
 
       @media (max-width: 900px) {
-        .seg-legend {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
+        .lab-bar {
+          flex-direction: column;
+          flex-wrap: nowrap;
+          align-items: stretch;
+          gap: 10px;
         }
-        .lab-filters {
-          flex-wrap: wrap;
+        .lab-bar .search {
+          flex: 0 0 auto;
+          max-width: none;
+          margin-left: 0;
         }
-        .lab-filters .toolbar {
-          flex-basis: 100%;
+        .lab-pills {
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          margin: 0 -16px;
+          padding: 0 16px;
         }
       }
-      /* Tableau transformé en cartes empilées sur petit écran */
+
+      /* Petit écran : une carte par dossier */
       @media (max-width: 760px) {
+        .lab-head {
+          margin-bottom: 14px;
+        }
+        .lab-head-act {
+          padding-top: 14px;
+        }
+        .lab-head-act .lab-exp-lbl {
+          display: none;
+        }
+        .lab-head-act .btn-sm {
+          width: 34px;
+          padding: 0;
+        }
         .lab-table,
         .lab-table tbody,
         .lab-table tr,
@@ -265,71 +359,52 @@
           display: none;
         }
         .lab-table tr {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          gap: 6px 12px;
           padding: 14px 16px;
           border-bottom: 1px solid var(--ej-neutral-200);
         }
         .lab-table tr:last-child {
           border-bottom: none;
         }
-        .lab-table td {
-          display: flex;
-          align-items: flex-start;
-          justify-content: space-between;
-          gap: 12px;
-          padding: 5px 0;
+        .lab-table td,
+        .lab-table td:first-child,
+        .lab-table td:last-child {
+          padding: 0;
           border: none;
-          text-align: right;
-        }
-        .lab-table td::before {
-          content: attr(data-label);
-          flex-shrink: 0;
-          padding-top: 2px;
-          font-family: var(--ej-font-display);
-          font-size: 10.5px;
-          font-weight: 600;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          color: var(--ej-neutral-500);
           text-align: left;
         }
-        .lab-table td.cell-soc {
-          display: block;
-          text-align: left;
-          padding-bottom: 8px;
+        .lab-table td.c-soc,
+        .lab-table td.c-motif,
+        .lab-table td.c-act {
+          grid-column: 1 / -1;
         }
-        .lab-table td.cell-soc::before,
-        .lab-table td.cell-open::before {
+        .lab-table td.c-ech {
+          white-space: normal;
+          font-size: 13px;
+        }
+        .lab-table td.c-ech .c-sub {
+          display: inline;
+        }
+        .lab-table td.c-ech .c-sub::before {
+          content: " · ";
+        }
+        .lab-table td.c-resp {
+          justify-self: end;
+          width: auto;
+        }
+        .lab-table td.c-act {
+          padding-top: 6px;
+        }
+        .lab-table td.c-act .btn {
+          width: 100%;
+        }
+        .lab-table td.c-act .open-link {
           display: none;
-        }
-        .lab-table td.cell-open {
-          padding-top: 10px;
-          justify-content: flex-start;
         }
         .lab-table tbody tr:hover td {
           background: transparent;
-        }
-        .be-cell {
-          justify-content: flex-end;
-        }
-        .cell-val {
-          text-align: right;
-        }
-        .stat-stack {
-          align-items: flex-end;
-        }
-        .m-actions {
-          width: 100%;
-        }
-        .m-actions .btn {
-          flex: 1 1 auto;
-        }
-      }
-      @media (max-width: 480px) {
-        .seg-legend b {
-          font-size: 18px;
-        }
-        .lab-value a {
-          white-space: normal;
         }
       }
     </style>
@@ -340,81 +415,61 @@
       <div id="ej-sidebar"></div>
       <div class="main">
         <div class="page page-wide">
-          <div class="page-head m-wrap">
-            <div class="lab-intro">
+          <div class="lab-head">
+            <div>
               <div class="m-eyebrow">Missions &amp; conformité</div>
               <h1 class="page-title">Dispositif LAB</h1>
-              <p class="page-desc" id="desc">
-                Les obligations de vigilance du cabinet sur ses clients : identification, bénéficiaires effectifs,
-                évaluation du risque et revues périodiques.
-              </p>
-              <p class="lab-perim" id="perim"></p>
             </div>
-            <div class="m-actions">
-              <a class="btn btn-secondary" href="#" title="Écran non maquetté"><span class="ms">sliders-horizontal</span>Paramétrer la grille de risque</a>
-              <button class="btn btn-secondary" type="button" title="Écran non maquetté"><span class="ms">download</span>Exporter</button>
+            <div class="lab-head-act">
+              <button class="btn btn-secondary btn-sm" type="button" id="exporter" aria-label="Exporter la liste affichée"><span class="ms">download</span><span class="lab-exp-lbl">Exporter</span></button>
+              <div class="dropdown" id="plus">
+                <button class="icon-btn" type="button" id="plus-btn" aria-haspopup="true" aria-expanded="false" aria-controls="plus-menu" aria-label="Autres actions"><span class="ms">ellipsis</span></button>
+                <div class="dropdown-menu" id="plus-menu" hidden>
+                  <a class="dropdown-item" href="#" title="Écran non maquetté"><span class="ms">sliders-horizontal</span>Paramétrer la grille de risque</a>
+                  <a class="dropdown-item" href="cockpit.html"><span class="ms">layout-dashboard</span>Voir la répartition dans le cockpit</a>
+                </div>
+              </div>
             </div>
+            <p class="page-desc">Les dossiers qui demandent une action, du plus urgent au moins urgent.</p>
           </div>
 
-          <div class="alert alert-brand lab-value">
-            <span class="ms">database</span>
-            <div>
-              <strong>Pas de ressaisie.</strong> <span id="value-txt">L'identité, les dirigeants et les bénéficiaires effectifs sont
-              pré-remplis depuis le Dossier Permanent Juridique d'EJ (DPJ).</span> Le criblage des personnes politiquement exposées
-              (PPE) et le gel des avoirs passent par un connecteur KYC (connaissance du client), dont le fournisseur reste à choisir.
-              <a href="connecteurs.html">Voir les connecteurs</a>
-            </div>
+          <div class="lab-bar">
+            <div class="lab-pills" id="pills" role="group" aria-label="Filtrer les dossiers"></div>
+            <label class="search">
+              <span class="ms">search</span>
+              <input type="text" id="q" placeholder="Dénomination ou SIREN" autocomplete="off" aria-label="Rechercher par dénomination ou SIREN" />
+            </label>
           </div>
-
-          <div class="stats" id="stats"></div>
-
-          <div class="card lab-split">
-            <div class="lab-split-head">
-              <h2>Répartition par niveau de risque</h2>
-              <span class="xs muted" id="split-note"></span>
-            </div>
-            <div class="seg" id="seg" role="img"></div>
-            <div class="seg-legend" id="seg-legend"></div>
-          </div>
-
-          <div class="lab-filters" id="liste">
-            <div class="toolbar">
-              <label class="search">
-                <span class="ms">search</span>
-                <input type="text" id="q" placeholder="Rechercher par dénomination ou SIREN" autocomplete="off" />
-              </label>
-              <span class="lab-count" id="count"></span>
-            </div>
-          </div>
-          <div class="quick-filters mission-filters" id="pills-mission" hidden></div>
-          <div class="quick-filters" id="pills"></div>
 
           <div class="data-table-wrap">
-            <div class="table-scroll">
-              <table class="data-table lab-table">
-                <thead>
-                  <tr>
-                    <th id="th-soc">Société</th>
-                    <th>Risque et vigilance</th>
-                    <th>Statut</th>
-                    <th>Bénéficiaires</th>
-                    <th>Prochaine revue</th>
-                    <th>Responsable</th>
-                    <th><span class="sr-only">Fiche</span></th>
-                  </tr>
-                </thead>
-                <tbody id="rows"></tbody>
-              </table>
-            </div>
-            <div class="lab-empty" id="empty" hidden>Aucun dossier ne correspond à ce filtre.</div>
+            <table class="data-table lab-table" id="table">
+              <thead>
+                <tr>
+                  <th id="th-soc">Dossier</th>
+                  <th id="th-motif">À faire</th>
+                  <th id="th-ech">Depuis / échéance</th>
+                  <th id="th-resp">Responsable</th>
+                  <th><span class="sr-only">Action</span></th>
+                </tr>
+              </thead>
+              <tbody id="rows"></tbody>
+            </table>
+            <div class="lab-empty" id="empty" hidden></div>
+          </div>
+
+          <div class="lab-foot">
+            <p>
+              <span class="ms">database</span>
+              <span id="src-txt"></span>
+              <button class="lab-i" type="button" id="src-i" aria-expanded="false" aria-controls="src-more" aria-label="En savoir plus sur la source des données"><span class="ms">info</span></button>
+            </p>
+            <div class="lab-more" id="src-more" hidden></div>
+            <p id="couverture"></p>
           </div>
 
           <div class="m-note">
             <span class="ms">info</span>
-            <span id="note-ref">
-              Maquette : libellés et règles LAB à faire valider par un professionnel (références : code monétaire et
-              financier, norme professionnelle LAB de l'Ordre des experts-comptables).
-            </span>
+            <span id="note-ref"></span>
           </div>
         </div>
         <div id="ej-footer"></div>
@@ -422,296 +477,384 @@
     </div>
 
     <script src="assets/ej-missions-data.js?v=19"></script>
+    <script src="assets/ej-cockpit-data.js?v=3"></script>
+    <script src="assets/ej-dpj-data.js?v=2"></script>
+    <script src="assets/ej-lab.js?v=1"></script>
     <script>
-      (function () {
+      /* Le shell (chargé après ce script) pose body[data-profil] et window.EJ_USER : la page se construit au DOMContentLoaded. */
+      document.addEventListener("DOMContentLoaded", function () {
         var E = window.EJM,
+          X = window.EJLAB,
           esc = E.esc;
+        function $(id) {
+          return document.getElementById(id);
+        }
 
-        /* ---------- Profil de cabinet (ec, cac, mixte) et périmètre affiché ----------
-           Le shell pose body[data-profil] après ce script : on lit donc la même clé du navigateur. */
-        var PROFIL = "ec";
-        try {
-          var sv = localStorage.getItem("ej-profil");
-          if (sv === "ec" || sv === "cac" || sv === "mixte") PROFIL = sv;
-        } catch (e) {}
+        /* ---------- Profil de cabinet (ec, cac, mixte) ---------- */
+        var PROFIL = document.body.getAttribute("data-profil");
+        if (PROFIL !== "ec" && PROFIL !== "cac" && PROFIL !== "mixte") {
+          PROFIL = "ec";
+          try {
+            var sv = localStorage.getItem("ej-profil");
+            if (sv === "ec" || sv === "cac" || sv === "mixte") PROFIL = sv;
+          } catch (e) {}
+        }
         var MIXTE = PROFIL === "mixte";
-        var MISSION = { ec: "Expertise comptable", cac: "Commissariat aux comptes" };
-        var PROFIL_LIB = { ec: "Expert-comptable", cac: "Commissaire aux comptes", mixte: "Cabinet mixte EC et CAC" };
         var S = PROFIL === "ec" ? E.societes : PROFIL === "cac" ? E.mandats : E.societes.concat(E.mandats);
-        function estCAC(s) {
-          return E.mandats.indexOf(s) !== -1;
-        }
-        /* Élision : « d'AXIOME », « de KPL3D » (le h de HELIOS et d'HÔTEL est muet) */
-        function de(nom) {
-          return /^[aeiouyhàâäéèêëîïôöùûü]/i.test(nom) ? "d'" + nom : "de " + nom;
-        }
-        /* Référence LAB selon le profil (à faire valider, sans numéro d'article) */
-        var REF_EC = "norme professionnelle LAB de l'Ordre des experts-comptables";
-        var REF_CAC = "norme d'exercice professionnel relative à la lutte contre le blanchiment, Haute autorité de l'audit (H2A)";
-        document.getElementById("note-ref").textContent =
-          "Maquette : libellés et règles LAB à faire valider par un professionnel (références : code monétaire et financier, " +
-          (PROFIL === "ec" ? REF_EC : PROFIL === "cac" ? REF_CAC : REF_EC + ", " + REF_CAC) + ").";
+        var estCAC = X.estCAC;
         function respId(s) {
           return estCAC(s) ? s.signataire : s.resp;
         }
+        /* Responsable LAB du cabinet : valide les revues et lève les homonymies */
+        var RLAB = E.equipe[E.responsableLab(PROFIL)];
 
-        function d(s) {
-          var p = s.split("/");
-          return new Date(+p[2], +p[1] - 1, +p[0]);
-        }
+        /* ---------- Dates ---------- */
+        var d = X.dt;
         var TODAY = d(E.today);
         function jours(s) {
           return Math.round((TODAY - d(s)) / 86400000);
         }
-        function enRetard(s) {
-          return !!s.lab.prochaineRevue && d(s.lab.prochaineRevue) < TODAY;
+        function nbj(n, unite) {
+          return n + " " + unite + (n > 1 ? "s" : "");
         }
 
-        var FILTRES = {
-          tous: { label: "Tous", test: function () { return true; } },
-          a_jour: { label: "À jour", test: function (s) { return s.lab.statut === "a_jour" && s.lab.gel !== "a_verifier"; } },
-          homonymie: { label: "Homonymie à lever", warn: true, test: function (s) { return s.lab.gel === "a_verifier"; } },
-          a_revoir: { label: "Revues échues", warn: true, test: function (s) { return s.lab.statut === "a_revoir"; } },
-          incomplet: { label: "Pièces manquantes", test: function (s) { return s.lab.statut === "incomplet"; } },
-          a_ouvrir: { label: "À ouvrir", test: function (s) { return s.lab.statut === "a_ouvrir"; } },
-          eleve: { label: "Risque élevé", test: function (s) { return s.lab.risque === "eleve"; } },
-          ppe: { label: "PPE", test: function (s) { return !!s.lab.ppe; } },
-        };
-        var ORDRE = ["tous", "a_jour", "a_revoir", "incomplet", "a_ouvrir", "eleve", "ppe", "homonymie"];
-
-        function nb(key) {
-          return S.filter(FILTRES[key].test).length;
-        }
-        var total = S.length;
-        var nEC = S.filter(function (s) { return !estCAC(s); }).length;
-        var nCAC = total - nEC;
-        var couverture =
-          PROFIL === "ec" ? total + " sociétés du périmètre missions, sur " + E.totalSocietes + " suivies" :
-          PROFIL === "cac" ? total + " entités contrôlées par le cabinet" :
-          total + " dossiers (" + nEC + " sociétés, " + nCAC + " entités contrôlées)";
-
-        /* Rappel du périmètre sous le titre, et textes adaptés au profil */
-        document.getElementById("perim").innerHTML =
-          '<span class="ms">eye</span><span><strong>Périmètre affiché :</strong> ' +
-          (PROFIL === "ec" ? nEC + " sociétés clientes en expertise comptable" :
-           PROFIL === "cac" ? nCAC + " entités contrôlées en commissariat aux comptes" :
-           total + " dossiers, soit " + nEC + " sociétés clientes en expertise comptable et " + nCAC + " entités contrôlées en commissariat aux comptes") +
-          ". Profil : " + PROFIL_LIB[PROFIL] + ".</span>";
-        if (PROFIL === "cac")
-          document.getElementById("desc").textContent =
-            "Les obligations de vigilance du cabinet sur les entités dont il est commissaire aux comptes : identification, bénéficiaires effectifs, évaluation du risque et revues périodiques.";
-        if (MIXTE)
-          document.getElementById("desc").textContent =
-            "Les obligations de vigilance du cabinet sur ses clients et sur les entités qu'il contrôle : identification, bénéficiaires effectifs, évaluation du risque et revues périodiques.";
-        if (PROFIL === "cac")
-          document.getElementById("value-txt").textContent =
-            "L'identité, les dirigeants et les bénéficiaires effectifs sont repris du dossier de la mission de commissariat aux comptes et des registres publics : registre national des entreprises (RNE), registre des bénéficiaires effectifs (RBE) et, pour les associations, répertoire national des associations (RNA).";
-        if (MIXTE)
-          document.getElementById("value-txt").textContent =
-            "Pour les clients d'expertise comptable, l'identité, les dirigeants et les bénéficiaires effectifs sont pré-remplis depuis le Dossier Permanent Juridique d'EJ (DPJ) ; pour les entités contrôlées, ils viennent du dossier de la mission de commissariat aux comptes et des registres publics : registre national des entreprises (RNE), registre des bénéficiaires effectifs (RBE) et, pour les associations, répertoire national des associations (RNA).";
-        document.getElementById("th-soc").textContent = PROFIL === "ec" ? "Société" : PROFIL === "cac" ? "Entité" : "Société ou entité";
         /* Faculté sous conditions : le libellé reste local à la page (EJM n'est pas modifié) */
-        var VIG = { faible: "Vigilance simplifiée possible", standard: E.VIGILANCE.standard, eleve: E.VIGILANCE.eleve };
+        var VIG = { faible: "vigilance simplifiée possible", standard: "vigilance standard", eleve: "vigilance renforcée" };
 
-        /* ---------- Tuiles ---------- */
-        var TUILES = [
-          { key: "a_jour", titre: "À jour", icone: "circle-check", sub: "sur " + total + " dossiers",
-            regle: "Identification complète, prochaine revue postérieure au " + E.today + " et aucune homonymie à lever sur le gel des avoirs." },
-          { key: "a_revoir", titre: "Revues échues", icone: "history", sub: "à reprendre en priorité", attention: true,
-            regle: "Prochaine revue antérieure au " + E.today + ". Une revue échue prime sur les pièces manquantes." },
-          { key: "incomplet", titre: "Pièces manquantes", icone: "file-check", sub: "identification à compléter",
-            regle: "Pièces ou bénéficiaires effectifs manquants, revue non échue." +
-              (PROFIL === "ec" ? "" : " Pour une entité en phase d'acceptation, la mission n'est pas acceptée tant que l'identification n'est pas complète.") },
-          { key: "a_ouvrir", titre: "Dossiers à ouvrir", icone: "folder-open", sub: "aucune diligence engagée",
-            regle: (PROFIL === "ec" ? "Sociétés du périmètre missions" : PROFIL === "cac" ? "Entités contrôlées" : "Sociétés et entités du périmètre") + " dont le dossier LAB n'est pas encore ouvert." },
-        ];
-        document.getElementById("stats").innerHTML = TUILES.map(function (t) {
-          return (
-            '<div class="card stat' + (t.attention ? " attention" : "") + '">' +
-            '<div class="stat-top"><span>' + esc(t.titre) + '</span><span class="ms">' + t.icone + "</span></div>" +
-            '<div class="stat-value">' + nb(t.key) + "</div>" +
-            '<div class="stat-sub">' + esc(t.sub) + "</div>" +
-            '<div class="stat-rule"><strong>Règle :</strong> ' + esc(t.regle) + "<br />Couverture : " + esc(couverture) + ".</div>" +
-            '<a class="stat-link" href="#liste" data-filtre="' + t.key + '">Voir la liste <span class="ms">arrow_forward</span></a>' +
-            "</div>"
-          );
-        }).join("");
+        /* Mission CAC en phase d'acceptation : la mission n'est pas acceptée tant que l'identification n'est pas complète */
+        function acceptation(s) {
+          return estCAC(s) && s.ex && s.ex.phase === "acceptation";
+        }
+        function finAcceptation(s) {
+          var it = (s.interventions || []).filter(function (i) { return /^Acceptation/.test(i[0]) && i[3] !== "fait"; })[0];
+          return it ? it[2] : null;
+        }
+        /* Date limite proche (moins de 15 jours) : fin de l'acceptation d'une mission CAC dont l'identification est incomplète */
+        function limiteProche(s) {
+          var f = acceptation(s) && s.lab.statut === "incomplet" && finAcceptation(s);
+          if (!f) return null;
+          var n = jours(f) * -1;
+          return n < 15 ? f : null;
+        }
 
-        /* ---------- Répartition par risque ---------- */
-        var RISQUES = [
-          { k: "faible", cls: "risk-faible", lab: "Risque faible", seg: "s-faible" },
-          { k: "standard", cls: "risk-standard", lab: "Risque standard", seg: "s-standard" },
-          { k: "eleve", cls: "risk-eleve", lab: "Risque élevé", seg: "s-eleve" },
-          { k: null, cls: "risk-na", lab: "Non évalué", seg: "s-na" },
-        ];
-        var comptes = RISQUES.map(function (r) {
-          return S.filter(function (s) { return s.lab.risque === r.k; }).length;
-        });
-        var seg = document.getElementById("seg");
-        seg.setAttribute(
-          "aria-label",
-          "Répartition par niveau de risque : " +
-            RISQUES.map(function (r, i) { return comptes[i] + " " + r.lab.toLowerCase(); }).join(", ")
-        );
-        seg.innerHTML = RISQUES.map(function (r, i) {
-          return comptes[i] ? '<span class="' + r.seg + '" style="flex:' + comptes[i] + '"></span>' : "";
-        }).join("");
-        document.getElementById("seg-legend").innerHTML = RISQUES.map(function (r, i) {
-          return (
-            '<div><span class="risk ' + r.cls + '">' + r.lab + "</span><b>" + comptes[i] +
-            "<small>dossier" + (comptes[i] > 1 ? "s" : "") + "</small></b></div>"
-          );
-        }).join("");
-        document.getElementById("split-note").textContent = "Grille de risque définie par le cabinet";
+        /* ---------- Motifs d'action (un dossier peut en cumuler plusieurs) ---------- */
+        var MOTIFS = {
+          homonymie: { label: "Homonymie à lever", warn: true, test: function (s) { return s.lab.gel === "a_verifier"; } },
+          revue: { label: "Revues échues", warn: true, test: function (s) { return s.lab.statut === "a_revoir"; } },
+          pieces: { label: "Pièces manquantes", test: function (s) { return s.lab.statut === "incomplet"; } },
+          ouvrir: { label: "À ouvrir", test: function (s) { return s.lab.statut === "a_ouvrir"; } },
+        };
+        var CLES = ["homonymie", "revue", "pieces", "ouvrir"];
+        function motifsDe(s) {
+          return CLES.filter(function (k) { return MOTIFS[k].test(s); });
+        }
+        function aTraiter(s) {
+          return motifsDe(s).length > 0;
+        }
+        var manquantes = X.nbManquantes;
+        function nPieces(m) {
+          return m + (m > 1 ? " pièces manquantes" : " pièce manquante");
+        }
+        function texteMotif(k, s) {
+          if (k === "homonymie") return "Homonymie à lever sur le gel des avoirs";
+          if (k === "revue") return "Revue échue depuis " + nbj(jours(s.lab.prochaineRevue), "jour");
+          if (k === "pieces") {
+            if (acceptation(s)) return "Mission en acceptation : identification à compléter";
+            return nPieces(manquantes(s)) + " sur " + s.lab.pieces[1];
+          }
+          return "Dossier à ouvrir";
+        }
+        function texteCourt(k, s) {
+          if (k === "pieces") return nPieces(manquantes(s)) + " sur " + s.lab.pieces[1];
+          if (k === "homonymie") return "homonymie à lever";
+          if (k === "revue") return "revue échue";
+          return "dossier à ouvrir";
+        }
+        var ICONE = { homonymie: "shield-alert", revue: "history", pieces: "file-clock", ouvrir: "folder-open", ajour: "circle-check" };
+        var VERBE = { homonymie: "Lever l'homonymie", revue: "Faire la revue", ouvrir: "Ouvrir le dossier" };
+        var RANG_RISQUE = { eleve: 0, standard: 1, faible: 2 };
 
-        /* ---------- Filtres ---------- */
-        var etat = { f: "tous", q: "", m: "tous" };
-        var pills = document.getElementById("pills");
-        var pillsM = document.getElementById("pills-mission");
-        function parMission(s) {
-          return etat.m === "tous" || (etat.m === "cac") === estCAC(s);
+        /* Clé de tri d'urgence : homonymie ; toute date limite à moins de 15 jours (acceptation CAC) ;
+           revues échues (risque élevé, standard, faible, puis de la plus ancienne à la plus récente) ;
+           pièces (dossier ouvert depuis le plus longtemps d'abord) ; dossiers à ouvrir ; puis à jour */
+        function cleTri(s, k) {
+          if (k === "homonymie") return [0, s.lab.criblage ? d(s.lab.criblage).getTime() : 0];
+          var lim = k !== "ajour" && limiteProche(s);
+          if (lim) return [1, d(lim).getTime()];
+          if (k === "revue") return [2, (RANG_RISQUE[s.lab.risque] != null ? RANG_RISQUE[s.lab.risque] : 3) * 1e13 + d(s.lab.prochaineRevue).getTime()];
+          if (k === "pieces") return [3, s.lab.ouverture ? d(s.lab.ouverture).getTime() : 0];
+          if (k === "ouvrir") return [4, 0];
+          return [5, s.lab.prochaineRevue ? d(s.lab.prochaineRevue).getTime() : 0];
         }
-        /* Les pastilles de statut comptent dans la mission choisie, pour égaler la liste affichée */
-        function nbListe(key) {
-          return S.filter(function (s) { return parMission(s) && FILTRES[key].test(s); }).length;
+
+        /* ---------- Filtres (gardés dans l'adresse : ?f=revue&q=...) ---------- */
+        var FILTRES = ["traiter", "homonymie", "revue", "pieces", "ouvrir"];
+        function testFiltre(f, s) {
+          if (f === "tous") return true;
+          if (f === "traiter") return aTraiter(s);
+          return MOTIFS[f].test(s);
         }
-        function dessinerMissions() {
-          if (!MIXTE) return;
-          pillsM.hidden = false;
-          var opts = [["tous", "Toutes les missions", total], ["ec", MISSION.ec, nEC], ["cac", MISSION.cac, nCAC]];
-          pillsM.innerHTML = '<span class="qf-label">Mission</span>' + opts.map(function (o) {
-            var actif = etat.m === o[0];
-            return '<button type="button" class="qf-pill' + (actif ? " active" : "") + '" data-m="' + o[0] + '" aria-pressed="' + actif + '">' +
-              esc(o[1]) + ' <span class="n">' + o[2] + "</span></button>";
-          }).join("");
+        function compte(f) {
+          return S.filter(function (s) { return testFiltre(f, s); }).length;
         }
+        /* Motif affiché en premier : celui du filtre actif, sinon le plus urgent */
+        function motifPrincipal(s) {
+          if (MOTIFS[etat.f] && MOTIFS[etat.f].test(s)) return etat.f;
+          return motifsDe(s)[0] || "ajour";
+        }
+
+        var etat = { f: "traiter", q: "" };
+        (function () {
+          var p = new URLSearchParams(location.search);
+          var f = p.get("f");
+          if (f && (f === "tous" || FILTRES.indexOf(f) !== -1)) etat.f = f;
+          etat.q = p.get("q") || "";
+          $("q").value = etat.q;
+        })();
+        function memoriserEtat() {
+          var p = new URLSearchParams();
+          if (etat.f !== "traiter") p.set("f", etat.f);
+          if (etat.q.trim()) p.set("q", etat.q.trim());
+          var qs = p.toString() ? "?" + p.toString() : "";
+          try {
+            history.replaceState(null, "", "lab.html" + qs);
+          } catch (e) {}
+          /* Lien retour de la fiche (« ‹ Dispositif LAB ») : même filtre, même recherche */
+          try {
+            sessionStorage.setItem("ej-lab-file", qs);
+          } catch (e) {}
+        }
+
         function dessinerPills() {
-          pills.innerHTML = ORDRE.map(function (k) {
-            var f = FILTRES[k];
-            var actif = etat.f === k;
-            var cls = "qf-pill" + (f.warn ? " warning" : "") + (actif ? (f.warn ? " active-warning" : " active") : "");
-            return '<button type="button" class="' + cls + '" data-f="' + k + '" aria-pressed="' + actif + '">' +
-              esc(f.label) + ' <span class="n">' + nbListe(k) + "</span></button>";
+          var h = FILTRES.map(function (f) {
+            var n = compte(f);
+            if (!n && f !== "traiter") return "";
+            var actif = etat.f === f;
+            var warn = MOTIFS[f] && MOTIFS[f].warn;
+            var cls = "qf-pill" + (warn ? " warning" : "") + (actif ? (warn ? " active-warning" : " active") : "");
+            var lib = f === "traiter" ? "À traiter" : MOTIFS[f].label;
+            return '<button type="button" class="' + cls + '" data-f="' + f + '" aria-pressed="' + actif + '">' + esc(lib) + ' <span class="n">' + n + "</span></button>";
           }).join("");
+          var actifT = etat.f === "tous";
+          h += '<span class="lab-sep" aria-hidden="true"></span>' +
+            '<button type="button" class="qf-pill' + (actifT ? " active" : "") + '" data-f="tous" aria-pressed="' + actifT + '">Tous les dossiers <span class="n">' + S.length + "</span></button>";
+          $("pills").innerHTML = h;
         }
 
-        /* ---------- Tableau ---------- */
-        function badge(s) {
-          var st = s.lab.statut, p = s.lab.pieces;
-          /* Une homonymie non levée interdit d'afficher « À jour » */
-          if (st === "a_jour" && s.lab.gel === "a_verifier") return '<span class="badge badge-action">Homonymie à lever</span>';
-          if (st === "a_jour") return '<span class="badge badge-success">' + E.LAB_STATUT.a_jour + "</span>";
-          if (st === "a_revoir") return '<span class="badge badge-action">' + E.LAB_STATUT.a_revoir + "</span>";
-          if (st === "incomplet")
-            return '<span class="badge badge-progress">' + E.LAB_STATUT.incomplet + " · " + p[0] + "/" + p[1] + "</span>";
-          return '<span class="badge badge-neutral">' + E.LAB_STATUT.a_ouvrir + "</span>";
+        /* ---------- Cellules ---------- */
+        function tag(id) {
+          var m = E.equipe[id];
+          return '<span class="tag" title="Responsable du dossier"><i class="dot" style="background:' + m.couleur + '"></i><span>' + esc(m.nom) + "</span></span>";
         }
-        function celluleStatut(s) {
-          var h = badge(s), p = s.lab.pieces;
-          if (s.lab.gel === "a_verifier" && s.lab.statut !== "a_jour")
-            h += '<span class="cell-sub"><span class="badge badge-action" title="Gel des avoirs : correspondance possible à lever">Homonymie à lever</span></span>';
-          if (s.lab.statut !== "incomplet" && s.lab.statut !== "a_ouvrir" && p[0] < p[1])
-            h += '<span class="cell-sub">Pièces reçues : ' + p[0] + "/" + p[1] + "</span>";
-          if (s.lab.statut === "a_ouvrir") h += '<span class="cell-sub">Pièces reçues : ' + p[0] + "/" + p[1] + "</span>";
-          return '<div class="stat-stack">' + h + "</div>";
+        function profilRisque(s) {
+          var t = s.lab.risque ? E.RISQUE[s.lab.risque] + ", " + VIG[s.lab.risque] : "Risque non évalué";
+          if (s.lab.ppe) t += " · PPE";
+          if (s.lab.beDefaut) t += " · bénéficiaire effectif : représentant légal, à défaut";
+          return t;
         }
-        function celluleRisque(s) {
-          if (!s.lab.risque) return '<span class="risk risk-na">Non évalué</span><span class="cell-sub">Vigilance à définir</span>';
-          return '<span class="risk risk-' + s.lab.risque + '">' + E.RISQUE[s.lab.risque] + '</span><span class="cell-sub">' + VIG[s.lab.risque] + "</span>";
-        }
-        function celluleBE(s) {
-          var h = '<span class="be-n">' + s.lab.be + "</span>";
-          if (!s.lab.be) h += '<span class="cell-sub" style="margin:0">à identifier</span>';
-          else if (s.lab.beDefaut) h += '<span class="cell-sub" style="margin:0">· représentant légal, à défaut</span>';
-          if (s.lab.ppe)
-            h += '<span class="be-flag" title="Personne politiquement exposée"><span class="ms">landmark</span>PPE</span>';
-          return '<div class="be-cell">' + h + "</div>";
-        }
-        function celluleRevue(s) {
-          if (!s.lab.prochaineRevue)
-            return '<span class="muted">Fixée à la validation</span><span class="cell-sub">Jamais validé</span>';
-          if (enRetard(s))
-            return "<strong class=\"strong\">" + s.lab.prochaineRevue + '</strong><span class="cell-sub cell-sub-warn">En retard de ' + jours(s.lab.prochaineRevue) + " j</span>";
-          return s.lab.prochaineRevue;
-        }
-        function celluleResp(s) {
-          var r = respId(s), m = E.equipe[r];
-          return '<span class="resp"><span class="avatar avatar-xs" style="background:' + m.couleur + '" aria-hidden="true">' + esc(r) + "</span>" + esc(m.nom) + "</span>";
-        }
-        function ligne(s) {
-          var href = "lab-dossier.html?id=" + encodeURIComponent(s.id);
+        function celluleMotif(s, k) {
+          var lib = k === "ajour" ? "À jour jusqu'au " + s.lab.prochaineRevue : texteMotif(k, s);
+          var sub = [];
+          var autres = motifsDe(s).filter(function (x) { return x !== k; }).map(function (x) { return texteCourt(x, s); });
+          /* Pièces manquantes d'un dossier dont le motif n'est pas « pièces » (revue échue, homonymie) */
+          if (k !== "pieces" && k !== "ouvrir" && k !== "ajour" && !MOTIFS.pieces.test(s) && manquantes(s) > 0) autres.push(nPieces(manquantes(s)));
+          if (autres.length) sub.push("Aussi : " + autres.join(", "));
+          if (k === "pieces" && acceptation(s)) sub.push(texteCourt("pieces", s));
+          var col = X.derniereCollecte(s.id);
+          if (col && k !== "ajour") sub.push("Collecte envoyée le " + col.date);
+          var rv = X.revueSession(s.id);
+          if (rv && k === "ajour") sub.push("Revue validée le " + rv.date + " par " + rv.par);
+          sub.push(profilRisque(s));
           return (
-            '<tr data-href="' + esc(href) + '">' +
-            '<td class="cell-soc" data-label="Société"><a href="' + esc(href) + '">' + esc(s.nom) + "</a>" +
-            '<span class="cell-sub">SIREN ' + esc(s.siren) + " · " + esc(s.forme) + "</span>" +
-            (MIXTE ? '<span class="cell-sub">Mission : ' + MISSION[estCAC(s) ? "cac" : "ec"] + "</span>" : "") + "</td>" +
-            '<td data-label="Risque" class="cell-val">' + celluleRisque(s) + "</td>" +
-            '<td data-label="Statut" class="cell-val">' + celluleStatut(s) + "</td>" +
-            '<td data-label="Bénéficiaires">' + celluleBE(s) + "</td>" +
-            '<td data-label="Prochaine revue" class="cell-val">' + celluleRevue(s) + "</td>" +
-            '<td data-label="Responsable">' + celluleResp(s) + "</td>" +
-            '<td class="cell-open"><a class="open-link" href="' + esc(href) + '" aria-label="Ouvrir la fiche LAB ' + esc(de(s.nom)) + '"><span class="ms">arrow_forward</span></a></td>' +
+            '<span class="motif k-' + k + '"><span class="ms">' + ICONE[k] + "</span>" + esc(lib) + "</span>" +
+            '<span class="c-sub">' + esc(sub.join(" · ")) + "</span>"
+          );
+        }
+        function celluleEcheance(s, k) {
+          var L = s.lab;
+          if (k === "homonymie")
+            return L.criblage ? "Criblage du " + L.criblage + '<span class="c-sub">il y a ' + nbj(jours(L.criblage), "jour") + "</span>" : "Criblage à relancer";
+          if (k === "revue") return '<span class="warn">Échue le ' + L.prochaineRevue + "</span>";
+          if (k === "pieces") {
+            var f = acceptation(s) && finAcceptation(s);
+            if (f) return '<span class="warn">Avant le ' + f + '</span><span class="c-sub">fin de l\'acceptation</span>';
+            return L.ouverture ? "Ouvert le " + L.ouverture + '<span class="c-sub">il y a ' + nbj(jours(L.ouverture), "jour") + "</span>" : "";
+          }
+          if (k === "ouvrir") return '<span class="muted">Non ouvert</span><span class="c-sub">aucune diligence engagée</span>';
+          return L.derniereRevue ? '<span class="muted">Revue validée le ' + L.derniereRevue + "</span>" : "";
+        }
+        function celluleAction(s, k, href, nom) {
+          if (k === "ajour")
+            return '<a class="open-link" href="' + esc(href) + '" aria-label="Ouvrir le dossier LAB ' + esc(nom) + '">Ouvrir<span class="ms">arrow_forward</span></a>';
+          if (k === "pieces")
+            return '<button class="btn btn-sm btn-secondary verb" type="button" data-collecte="' + esc(s.id) + '" aria-label="' + esc(X.verbePieces(s) + " : " + nom) + '">' + esc(X.verbePieces(s)) + "</button>";
+          return '<a class="btn btn-sm btn-secondary verb" href="' + esc(href) + '" aria-label="' + esc(VERBE[k] + " : " + nom) + '">' + VERBE[k] + "</a>";
+        }
+        function ligne(s, avecResp) {
+          var k = etat.f === "tous" && !aTraiter(s) ? "ajour" : motifPrincipal(s);
+          var href = "lab-dossier.html?id=" + encodeURIComponent(s.id) + "&from=lab";
+          return (
+            '<tr data-href="' + esc(href) + '" data-id="' + esc(s.id) + '">' +
+            '<td class="c-soc"><a href="' + esc(href) + '">' + esc(s.nom) + "</a>" +
+            '<span class="c-sub">' +
+            (MIXTE ? '<span class="m-chip" title="' + (estCAC(s) ? "Commissariat aux comptes" : "Expertise comptable") + '">' + (estCAC(s) ? "CAC" : "EC") + "</span>" : "") +
+            esc(s.forme) + " · SIREN " + esc(s.siren) + "</span></td>" +
+            '<td class="c-motif">' + celluleMotif(s, k) + "</td>" +
+            '<td class="c-ech">' + celluleEcheance(s, k) + "</td>" +
+            (avecResp ? '<td class="c-resp">' + tag(respId(s)) + "</td>" : "") +
+            '<td class="c-act">' + celluleAction(s, k, href, s.nom) + "</td>" +
             "</tr>"
           );
         }
+
+        /* ---------- Liste ---------- */
         function norm(t) {
           return String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
         }
-        function dessiner() {
-          var q = norm(etat.q.trim());
+        function trouve(s, q) {
+          if (!q) return true;
           /* SIREN : avec ou sans espaces, complet ou partiel (« 412 386 », « 412386950 ») */
           var qn = q.replace(/\s/g, "");
-          var chiffres = /^\d+$/.test(qn);
-          var liste = S.filter(function (s) {
-            var trouve = !q || norm(s.nom).indexOf(q) !== -1 || (chiffres && s.siren.replace(/\s/g, "").indexOf(qn) !== -1);
-            return parMission(s) && FILTRES[etat.f].test(s) && trouve;
-          });
-          document.getElementById("rows").innerHTML = liste.map(ligne).join("");
-          document.getElementById("empty").hidden = liste.length > 0;
-          document.getElementById("count").textContent = liste.length + (liste.length > 1 ? " dossiers" : " dossier");
-          dessinerMissions();
+          return norm(s.nom).indexOf(q) !== -1 || (/^\d+$/.test(qn) && s.siren.replace(/\s/g, "").indexOf(qn) !== -1);
+        }
+        function trier(a, b) {
+          var ka = cleTri(a, etat.f === "tous" && !aTraiter(a) ? "ajour" : motifPrincipal(a));
+          var kb = cleTri(b, etat.f === "tous" && !aTraiter(b) ? "ajour" : motifPrincipal(b));
+          return ka[0] - kb[0] || ka[1] - kb[1] || a.nom.localeCompare(b.nom, "fr");
+        }
+        function dessiner() {
+          var q = norm(etat.q.trim());
+          var liste = S.filter(function (s) { return testFiltre(etat.f, s) && trouve(s, q); }).sort(trier);
+          var tous = etat.f === "tous";
+          /* Colonne Responsable masquée quand elle n'a qu'une valeur */
+          var resps = {};
+          liste.forEach(function (s) { resps[respId(s)] = true; });
+          var avecResp = Object.keys(resps).length > 1;
+          $("th-resp").hidden = !avecResp;
+          $("th-motif").textContent = tous ? "État" : "À faire";
+          $("rows").innerHTML = liste.map(function (s) { return ligne(s, avecResp); }).join("");
+          $("table").style.display = liste.length ? "" : "none";
+          var vide = $("empty");
+          vide.hidden = liste.length > 0;
+          if (!liste.length) {
+            if (etat.f === "traiter" && !compte("traiter"))
+              vide.innerHTML = '<span class="ms">circle-check</span><strong>Aucun dossier en attente.</strong>Tous les dossiers sont à jour.<br /><button type="button" data-f="tous">Tous les dossiers</button>';
+            else if (q && !tous)
+              vide.innerHTML = "Aucun dossier de ce filtre ne correspond à « " + esc(etat.q.trim()) + " ».<br /><button type=\"button\" data-f=\"tous\">Chercher dans tous les dossiers</button>";
+            else vide.innerHTML = "Aucun dossier ne correspond à « " + esc(etat.q.trim()) + " ».";
+          }
           dessinerPills();
+          memoriserEtat();
         }
 
-        /* ---------- Événements ---------- */
-        pillsM.addEventListener("click", function (e) {
-          var b = e.target.closest("[data-m]");
-          if (!b) return;
-          etat.m = b.getAttribute("data-m");
-          dessiner();
+        /* ---------- Textes selon le profil ---------- */
+        var NEC = E.societes.length, NCAC = E.mandats.length;
+        $("th-soc").textContent = PROFIL === "ec" ? "Société" : PROFIL === "cac" ? "Entité" : "Société ou entité";
+        $("src-txt").textContent =
+          PROFIL === "ec" ? "Identité, dirigeants et bénéficiaires effectifs repris du DPJ · criblage PPE et gel des avoirs via le connecteur KYC à choisir" :
+          PROFIL === "cac" ? "Identité, dirigeants et bénéficiaires effectifs repris du dossier de mission et des registres publics · criblage PPE et gel des avoirs via le connecteur KYC à choisir" :
+          "Identité, dirigeants et bénéficiaires effectifs repris du DPJ ou, pour les entités contrôlées, des registres publics · criblage PPE et gel des avoirs via le connecteur KYC à choisir";
+        $("src-more").innerHTML =
+          (PROFIL === "ec" ? "DPJ : Dossier Permanent Juridique d'EJ. " :
+           PROFIL === "cac" ? "Registres publics : registre national des entreprises (RNE), registre des bénéficiaires effectifs (RBE) et, pour les associations, répertoire national des associations (RNA). " :
+           "DPJ : Dossier Permanent Juridique d'EJ, pour les clients en expertise comptable. Registres publics : RNE, RBE et, pour les associations, RNA. ") +
+          "PPE : personne politiquement exposée. KYC : connaissance du client ; le fournisseur du connecteur reste à choisir. " +
+          "Les revues et les levées d'homonymie sont validées par " + esc(RLAB.nom) + ", responsable LAB du cabinet. " +
+          '<a href="connecteurs.html">Voir les connecteurs</a>';
+        $("couverture").textContent =
+          PROFIL === "ec" ? NEC + " dossiers du périmètre missions, sur " + E.totalSocietes + " sociétés suivies." :
+          PROFIL === "cac" ? NCAC + " entités contrôlées par le cabinet." :
+          S.length + " dossiers : " + NEC + " sociétés du périmètre missions (sur " + E.totalSocietes + " suivies) et " + NCAC + " entités contrôlées.";
+        var REF_EC = "norme professionnelle LAB de l'Ordre des experts-comptables";
+        var REF_CAC = "norme d'exercice professionnel relative à la lutte contre le blanchiment, Haute autorité de l'audit (H2A)";
+        $("note-ref").textContent =
+          "Maquette : libellés et règles LAB à faire valider par un professionnel (références : code monétaire et financier, " +
+          (PROFIL === "ec" ? REF_EC : PROFIL === "cac" ? REF_CAC : REF_EC + ", " + REF_CAC) + ").";
+
+        /* ---------- Collecte de pièces : fenêtre commune (assets/ej-lab.js) ---------- */
+        function ouvrirCollecte(s, btn) {
+          X.collecte.ouvrir(s, {
+            declencheur: btn,
+            onEnvoi: function () {
+              dessiner();
+              var b = $("rows").querySelector('tr[data-id="' + s.id + '"] .c-act .btn') || $("q");
+              b.focus();
+            },
+          });
+        }
+
+        /* ---------- Menu « ⋯ » ---------- */
+        var mBtn = $("plus-btn"), mMenu = $("plus-menu");
+        function menu(ouvrir, rendreFocus) {
+          mMenu.hidden = !ouvrir;
+          mBtn.setAttribute("aria-expanded", String(ouvrir));
+          mBtn.parentNode.classList.toggle("open", ouvrir);
+          if (ouvrir) mMenu.querySelector("a").focus();
+          else if (rendreFocus) mBtn.focus();
+        }
+        mBtn.addEventListener("click", function () {
+          menu(mMenu.hidden);
         });
-        pills.addEventListener("click", function (e) {
+        mMenu.addEventListener("keydown", function (e) {
+          var items = Array.prototype.slice.call(mMenu.querySelectorAll("a"));
+          var i = items.indexOf(document.activeElement);
+          if (e.key === "Escape") {
+            e.preventDefault();
+            menu(false, true);
+          } else if (e.key === "ArrowDown") {
+            e.preventDefault();
+            items[(i + 1) % items.length].focus();
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            items[(i - 1 + items.length) % items.length].focus();
+          }
+        });
+        mMenu.addEventListener("focusout", function (e) {
+          if (!mMenu.hidden && !mMenu.contains(e.relatedTarget) && e.relatedTarget !== mBtn) menu(false);
+        });
+        document.addEventListener("click", function (e) {
+          if (!mMenu.hidden && !e.target.closest("#plus")) menu(false);
+        });
+
+        /* ---------- Événements ---------- */
+        function choisir(e) {
           var b = e.target.closest("[data-f]");
           if (!b) return;
           etat.f = b.getAttribute("data-f");
           dessiner();
-        });
-        document.getElementById("q").addEventListener("input", function (e) {
+        }
+        $("pills").addEventListener("click", choisir);
+        $("empty").addEventListener("click", choisir);
+        $("q").addEventListener("input", function (e) {
           etat.q = e.target.value;
           dessiner();
         });
-        document.getElementById("stats").addEventListener("click", function (e) {
-          var a = e.target.closest("[data-filtre]");
-          if (!a) return;
-          e.preventDefault();
-          etat.f = a.getAttribute("data-filtre");
-          etat.m = "tous"; /* les tuiles comptent tout le périmètre du profil */
-          dessiner();
-          document.getElementById("liste").scrollIntoView({ behavior: "smooth", block: "start" });
-        });
-        document.getElementById("rows").addEventListener("click", function (e) {
-          if (e.target.closest("a")) return;
+        $("rows").addEventListener("click", function (e) {
+          var c = e.target.closest("[data-collecte]");
+          if (c) {
+            var s = S.filter(function (x) { return x.id === c.getAttribute("data-collecte"); })[0];
+            if (s) ouvrirCollecte(s, c);
+            return;
+          }
+          if (e.target.closest("a, button")) return;
           var tr = e.target.closest("tr[data-href]");
           if (tr) location.href = tr.getAttribute("data-href");
         });
-
+        $("src-i").addEventListener("click", function () {
+          var ouvert = this.getAttribute("aria-expanded") === "true";
+          this.setAttribute("aria-expanded", String(!ouvert));
+          $("src-more").hidden = ouvert;
+        });
+        $("exporter").addEventListener("click", function () {
+          X.toast("Export de la liste affichée (maquette).");
+        });
         document.querySelectorAll('a[href="#"]').forEach(function (a) {
           a.addEventListener("click", function (e) { e.preventDefault(); });
         });
 
         dessiner();
-      })();
+      });
     </script>
-    <script src="assets/ej-shell.js?v=21"></script>
+    <script src="assets/ej-shell.js?v=22"></script>
   </body>
 </html>
