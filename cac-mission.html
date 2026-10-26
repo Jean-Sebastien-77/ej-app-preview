@@ -603,7 +603,7 @@
     </div>
 
     <script src="assets/ej-missions-data.js?v=22"></script>
-    <script src="assets/ej-lab.js?v=4"></script>
+    <script src="assets/ej-lab.js?v=5"></script>
     <script>
       /* Fiche d'une mission ponctuelle du commissaire aux comptes (apports, transformation, fusion).
          Rendu au DOMContentLoaded : ej-shell.js (chargé après) pose data-profil sur le body avant cet événement. */
@@ -857,7 +857,7 @@
               '<div class="afaire-act"><div class="afaire-btns">' +
               (A.bloque
                 ? '<button class="btn btn-primary btn-sm" type="button" data-act="avancer" aria-disabled="true" aria-describedby="afaire-bloc"><span class="ms">' + A.btnIco + "</span>" + esc(A.btn) + "</button>" +
-                  '<span class="afaire-bloc" id="afaire-bloc">Dossier LAB à valider · <a href="' + URL_LAB + '">Ouvrir le dossier LAB</a></span>'
+                  '<span class="afaire-bloc" id="afaire-bloc">Dossier LAB à valider · <a href="' + URL_LAB + '">Voir le dossier LAB</a></span>'
                 : '<button class="btn btn-primary btn-sm" type="button" data-act="avancer"><span class="ms">' + A.btnIco + "</span>" + esc(A.btn) + "</button>") +
               (A.partiel ? '<button class="btn btn-secondary btn-sm" type="button" data-act="partiel"><span class="ms">shield-check</span>Finaliser indépendance et lettre</button>' : "") +
               "</div></div></li></ul>";
@@ -893,7 +893,7 @@
           ac += kv("Indépendance", '<span class="oui-non ' + (ind ? "ok" : "warn") + '"><span class="ms">' + (ind ? "circle-check" : "circle-dashed") + "</span>" + esc(E.INDEP[st.independance.statut] || "Déclaration à faire") + "</span>");
           ac += kv("Vigilance LAB", '<span class="oui-non ' + (labOk ? "ok" : "warn") + '"><span class="ms">' + (labOk ? "circle-check" : "circle-dashed") + "</span>" + esc(LAB_LIB[LAB.statut] || LAB.statut) + "</span>",
             '<span class="val-sub"><span class="risk ' + (LAB.risque ? "risk-" + LAB.risque : "risk-na") + '">' + esc(LAB.risque ? E.RISQUE[LAB.risque] : "Risque non évalué") + "</span></span>" +
-            (labOk ? "" : '<a class="lien-lab" href="' + URL_LAB + '">Ouvrir le dossier LAB</a>'));
+            (labOk ? "" : '<a class="lien-lab" href="' + URL_LAB + '">Voir le dossier LAB</a>'));
           ac += kv("Lettre de mission", '<span class="oui-non ' + (lmOk ? "ok" : "warn") + '"><span class="ms">' + (lmOk ? "circle-check" : "circle-dashed") + "</span>" + esc(LM_LIB[st.lm.statut] || st.lm.statut) + "</span>",
             (st.lm.ref ? '<span class="val-sub">Réf. ' + esc(st.lm.ref) + "</span>" : "") +
             (st.honoraires ? '<span class="val-sub">Honoraires : ' + esc(E.euros(st.honoraires)) + " HT</span>" : ""));

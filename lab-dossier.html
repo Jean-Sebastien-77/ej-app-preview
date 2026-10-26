@@ -1095,7 +1095,7 @@
     <script src="assets/ej-missions-data.js?v=22"></script>
     <script src="assets/ej-cockpit-data.js?v=5"></script>
     <script src="assets/ej-dpj-data.js?v=2"></script>
-    <script src="assets/ej-lab.js?v=4"></script>
+    <script src="assets/ej-lab.js?v=5"></script>
     <script>
       (function () {
         var E = window.EJM,
@@ -1333,12 +1333,65 @@
             '<div class="oblig"><h3>Bénéficiaires effectifs probables ' +
             tip("seuil-probables", "Seuil : plus de 25 % du capital ou des droits de vote, ou contrôle par un autre moyen ; à défaut, le représentant légal.", "Seuil des bénéficiaires effectifs") + '</h3><div class="mt-16">' + corpsBE + "</div></div></div></section>";
           $("ouvrir-dossier").addEventListener("click", function () {
-            X.toast("Dossier LAB ouvert avec le pré-remplissage proposé.");
+            ouvrirLeDossier(f, entite);
           });
           neutraliser();
         }
 
         var AJOUT = "12/10/2026"; /* date fictive d'ajout au portefeuille (dossier jamais ouvert) */
+
+        /* ---------- Ouverture réelle du dossier (sans rechargement) ---------- */
+        function pctTxt(v) {
+          return String(v).replace(".", ",") + " %";
+        }
+        /* Fiche d'identification dérivée du DPJ : [siège, capital, dirigeant, bénéficiaires effectifs, associés sous le seuil].
+           Bénéficiaires effectifs : associés personnes physiques au-dessus de 25 % ou en détention indirecte ; à défaut, le représentant légal.
+           Sans associé connu au DPJ : aucun bénéficiaire effectif, à identifier. */
+        function ficheDepuisDPJ(f) {
+          var dirs = f.dirigeants || [], assocs = f.associes || [];
+          var dir = dirs[0] ? dirs[0].nom + (dirs[0].fonction ? ", " + dirs[0].fonction : "") : "Dirigeant à renseigner";
+          var probables = assocs.filter(function (a) { return !a.morale && (a.pct > 25 || a.indirect); });
+          var moralesAuDessus = assocs.some(function (a) { return a.morale && a.pct > 25; });
+          var be = probables.map(function (a) {
+            return [a.nom, pctTxt(a.pct) + " du capital et des droits de vote" + (a.indirect ? " (détention indirecte, via une société)" : "")];
+          });
+          if (!be.length && assocs.length && !moralesAuDessus && dirs[0]) be = [[dirs[0].nom, "Représentant légal, à défaut de bénéficiaire effectif"]];
+          var sous = assocs.filter(function (a) { return !a.morale && !(a.pct > 25 || a.indirect); }).map(function (a) { return [a.nom, pctTxt(a.pct)]; });
+          var sg0 = f.siege ? [f.siege.adresse, [f.siege.cp, f.siege.ville].join(" ")].filter(function (x) { return x && x.trim(); }).join(", ") : "";
+          return [sg0, f.capital != null ? E.euros(f.capital) : null, dir, be, sous];
+        }
+        function ouvrirLeDossier(f, entite) {
+          var U = window.EJ_USER || {};
+          var code = U.code || U.initiales;
+          if (!(code && E.equipe[code] && /^Associé.*expert-comptable/.test(E.equipe[code].role))) code = "TG";
+          var Fd = entite ? null : ficheDepuisDPJ(f);
+          var Fi = entite ? X.fiche(entite.id) : Fd;
+          var BEo = Fi ? Fi[3] : [];
+          var o = { par: U.nom || E.equipe[code].nom, be: BEo.length, fiche: Fd };
+          var sid = s ? s.id : f.id;
+          if (!s) {
+            /* Société du DPJ sans dossier : création du dossier dans le dispositif */
+            var dirNom0 = Fd[2].split(",")[0].trim();
+            var autres = BEo.filter(function (b) { return b[0] !== dirNom0; }).length;
+            o.total = 3 + 1 + (!BEo.length || autres ? 1 : 0) + 1;
+            o.societe = {
+              id: f.id, nom: f.nom, forme: f.forme, siren: f.siren, activite: f.activite || "", resp: code, associe: code, cloture: f.cloture || "31/12",
+              lab: { ouverture: null, criblage: null, risque: null, statut: "a_ouvrir", derniereRevue: null, prochaineRevue: null, be: 0, ppe: false, gel: "ok", pieces: [0, o.total] },
+              lm: { statut: "absente", ref: null, echeance: null, honoraires: null, missions: [] },
+              cac: false,
+            };
+          }
+          X.ouvrirDossier(sid, o);
+          s = X.trouver(sid);
+          aOuvrir = false;
+          fDpj = null;
+          $("nolab").hidden = true;
+          $("nolab").innerHTML = "";
+          $("lab-corps").hidden = false;
+          fiche();
+          $("afaire").focus();
+          X.toast("Dossier LAB ouvert.");
+        }
 
         document.addEventListener("DOMContentLoaded", function () {
           neutraliser();
@@ -1760,6 +1813,13 @@
                 txt: collecte ? "Collecte envoyée le " + esc(collecte.date) + ", en attente du client." : "",
                 act: function (p) { return btnCollecte("afaire", p); },
               });
+            if (L.ouverture && !L.risque && !fin)
+              items.push({
+                ico: "scale",
+                titre: "Évaluer le risque.",
+                txt: "Critères de la grille du cabinet à renseigner" + (BE.length ? "." : " une fois les bénéficiaires effectifs identifiés."),
+                act: null,
+              });
             if (cac && blocage) {
               var txtLim = "";
               if (limite) {
@@ -1955,7 +2015,8 @@
             if (!L.ouverture) {
               ajoute(AJOUT, "folder-open", "Société ajoutée au portefeuille. Dossier LAB à ouvrir.", "Ajout automatique");
             } else {
-              ajoute(L.ouverture, "folder-open", cac ? "Ouverture du dossier et pré-remplissage depuis les registres et le dossier de la mission CAC." : "Ouverture du dossier et pré-remplissage depuis le DPJ.", esc(resp.nom));
+              var OUV = X.ouvertureSession(s.id);
+              ajoute(L.ouverture, "folder-open", cac ? "Ouverture du dossier et pré-remplissage depuis les registres et le dossier de la mission CAC." : "Ouverture du dossier et pré-remplissage depuis le DPJ.", esc(OUV && OUV.par ? OUV.par : resp.nom));
               if (REP.length) ajoute(L.ouverture, "database", "Pièces reprises d'EJ : " + REP.map(function (p) { return p[0]; }).join(", ") + ".", "Express Juridique");
               if (rAvant) {
                 if (H.derniereRevue) {

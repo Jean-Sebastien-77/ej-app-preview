@@ -4,6 +4,7 @@
    - règle unique des pièces attendues : reprises d'EJ (non demandées) et pièces demandées au client
    - revues validées pendant la session (sessionStorage « ej-lab-revues »), demandes de validation (« ej-lab-demandes »)
    - levées d'homonymie sur le gel des avoirs (sessionStorage « ej-lab-gel »)
+   - dossiers ouverts pendant la session (sessionStorage « ej-lab-ouvertures »), y compris ceux créés depuis le DPJ
    - collectes envoyées (sessionStorage « ej-collectes », lues aussi par suivi-actions.html)
    - fenêtre « Envoyer une collecte au client » et message de confirmation
    À charger après ej-missions-data.js (et ej-dpj-data.js si disponible). Données fictives. */
@@ -477,8 +478,55 @@
     return g;
   }
 
-  /* Applique dès le chargement les revues validées et les levées de la session (la file et la fiche les reflètent) */
+  /* ---------- Ouverture d'un dossier LAB (session) ----------
+     { id, date, par, be, fiche (dérivée du DPJ, facultative), societe (dossier créé depuis le DPJ, sinon null), total }
+     Le dossier passe à « incomplet » : premier contrôle du gel des avoirs fait à l'ouverture, risque à évaluer,
+     pièces reçues = pièces reprises d'EJ. */
+  var CLE_OUV = "ej-lab-ouvertures";
+  function ouvertures() {
+    return objet(CLE_OUV);
+  }
+  function ouvertureSession(id) {
+    return ouvertures()[id] || null;
+  }
+  function appliquerOuverture(o) {
+    var s = trouver(o.id);
+    if (!s && o.societe) {
+      s = JSON.parse(JSON.stringify(o.societe));
+      E.societes.push(s);
+    }
+    if (!s || !s.lab) return null;
+    if (o.fiche) FICHES[o.id] = o.fiche;
+    var L = s.lab;
+    var total = o.total || (L.pieces ? L.pieces[1] : 5);
+    L.ouverture = o.date;
+    L.criblage = o.date;
+    L.statut = "incomplet";
+    L.risque = null;
+    L.derniereRevue = null;
+    L.prochaineRevue = null;
+    L.be = o.be || 0;
+    L.ppe = false;
+    L.gel = "ok";
+    L.pieces = [0, total];
+    L.pieces[0] = Math.min(total, piecesReprises(s).length);
+    return s;
+  }
+  function ouvrirDossier(id, o) {
+    o = o || {};
+    var rec = { id: id, date: E.today, par: o.par || "", be: o.be || 0, fiche: o.fiche || null, societe: o.societe || null, total: o.total || 0 };
+    var tout = ouvertures();
+    tout[id] = rec;
+    ecrire(CLE_OUV, tout);
+    return appliquerOuverture(rec);
+  }
+
+  /* Applique dès le chargement les ouvertures, les revues validées et les levées de la session (la file et la fiche les reflètent) */
   (function () {
+    var o = ouvertures();
+    Object.keys(o).forEach(function (id) {
+      if (o[id] && o[id].date) appliquerOuverture(o[id]);
+    });
     var r = revuesSession();
     Object.keys(r).forEach(function (id) {
       var s = trouver(id);
@@ -524,7 +572,9 @@
   function demandeInitiale(s) {
     var L = s.lab;
     if (L.statut !== "incomplet" || !L.ouverture) return null;
-    return { date: plusJours(L.ouverture, 2), n: nbManquantes(s) };
+    var d = plusJours(L.ouverture, 2);
+    if (dt(d) > dt(E.today)) return null;
+    return { date: d, n: nbManquantes(s) };
   }
   function dejaDemande(s) {
     return !!demandeInitiale(s) || collectesDe(s.id).length > 0;
@@ -769,6 +819,8 @@
     retirerDemande: retirerDemande,
     renvoyerRevue: renvoyerRevue,
     gelConfirme: gelConfirme,
+    ouvrirDossier: ouvrirDossier,
+    ouvertureSession: ouvertureSession,
     leveeGel: leveeGel,
     enregistrerGel: enregistrerGel,
     collectes: collectes,
