@@ -9,12 +9,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=19" />
-    <link rel="stylesheet" href="assets/ej-missions.css?v=19" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=21" />
     <style>
       /* ---- En-tête société (repris de societe.html ; en-tête entité pour une mission CAC) ---- */
       .soc-head {
         position: relative;
-        overflow: hidden;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -28,6 +27,8 @@
         top: 0;
         bottom: 0;
         width: 40px;
+        overflow: hidden;
+        border-radius: calc(var(--ej-radius-lg) - 1px) 0 0 calc(var(--ej-radius-lg) - 1px);
       }
       .soc-motif i {
         position: absolute;
@@ -260,18 +261,11 @@
         font-weight: 600;
         color: var(--ej-primary-900);
       }
-      .discret {
-        display: flex;
-        gap: 8px;
-        align-items: flex-start;
-        margin: 0 4px 20px;
-        font-size: 12.5px;
-        line-height: 1.5;
-        color: var(--ej-neutral-500);
+      .lab-resume .resume-tip {
+        margin-left: auto;
       }
-      .discret .ms {
-        font-size: 15px;
-        margin-top: 2px;
+      .lab-resume .resp + .resume-tip {
+        margin-left: 0;
       }
       .d-card .block-head {
         padding-bottom: 14px;
@@ -364,12 +358,6 @@
         font-weight: 400;
         color: var(--ej-neutral-500);
       }
-      .d-note {
-        margin-top: 10px;
-        font-size: 12.5px;
-        line-height: 1.5;
-        color: var(--ej-neutral-500);
-      }
       .oblig {
         margin-top: 22px;
         padding-top: 18px;
@@ -380,11 +368,6 @@
         font-size: 14px;
         font-weight: 600;
         color: var(--ej-primary-900);
-      }
-      .oblig-sub {
-        margin: 2px 0 8px;
-        font-size: 12.5px;
-        color: var(--ej-neutral-500);
       }
       .oblig-row {
         display: flex;
@@ -461,15 +444,12 @@
         display: flex;
         gap: 8px;
         align-items: flex-start;
-        justify-content: space-between;
+        justify-content: flex-end;
         flex-wrap: wrap;
         margin-top: 14px;
         font-size: 12.5px;
         line-height: 1.5;
         color: var(--ej-neutral-500);
-      }
-      .grille-note span.t {
-        flex: 1 1 320px;
       }
       .grille-note a {
         font-weight: 600;
@@ -772,9 +752,6 @@
         .piece {
           flex-wrap: wrap;
         }
-        .m-note {
-          margin-top: 20px;
-        }
       }
     </style>
   </head>
@@ -805,36 +782,21 @@
           <div class="d-alerts" id="contexte"></div>
           <section class="card afaire" id="afaire" tabindex="-1"></section>
           <div class="list-card lm-link" id="lm"></div>
-          <p class="discret">
-            <span class="ms">lock</span>
-            <span>
-              Toute déclaration à Tracfin se fait hors de cette fiche, de façon confidentielle. Cette fiche n'est
-              jamais visible du client.
-            </span>
-          </p>
 
           <div class="d-stack" id="sections"></div>
           </div>
 
           <div class="d-stack" id="nolab" hidden></div>
           </div>
-
-          <div class="m-note">
-            <span class="ms">info</span>
-            <span id="note-ref">
-              Maquette : libellés et règles LAB à faire valider par un professionnel (références : code monétaire et
-              financier, norme professionnelle LAB de l'Ordre des experts-comptables).
-            </span>
-          </div>
         </div>
         <div id="ej-footer"></div>
       </div>
     </div>
 
-    <script src="assets/ej-missions-data.js?v=19"></script>
-    <script src="assets/ej-cockpit-data.js?v=3"></script>
+    <script src="assets/ej-missions-data.js?v=20"></script>
+    <script src="assets/ej-cockpit-data.js?v=4"></script>
     <script src="assets/ej-dpj-data.js?v=2"></script>
-    <script src="assets/ej-lab.js?v=1"></script>
+    <script src="assets/ej-lab.js?v=3"></script>
     <script>
       (function () {
         var E = window.EJM,
@@ -843,6 +805,12 @@
           esc = E.esc;
         function $(i) {
           return document.getElementById(i);
+        }
+        /* Note secondaire derrière un « i » cerclé (survol, focus clavier, toucher) */
+        function tip(id, texte, label, cls) {
+          return '<span class="info-tip' + (cls ? " " + cls : "") + '">' +
+            '<button type="button" class="info-tip-btn" aria-describedby="note-ld-' + id + '" aria-label="' + esc(label || "Information") + '"><span class="ms">info</span></button>' +
+            '<span class="info-tip-pop" role="tooltip" id="note-ld-' + id + '">' + esc(texte) + "</span></span>";
         }
 
         /* ---------- Profil de cabinet (ec, cac, mixte) ----------
@@ -859,7 +827,7 @@
         }
         /* Sigle développé à sa première occurrence visible (les textes sont générés dans l'ordre de la page) */
         var SIGLES = {
-          DPJ: "Dossier Permanent Juridique d'EJ (DPJ)",
+          DPJ: "Dossier permanent juridique (DPJ)",
           RNE: "registre national des entreprises (RNE)",
           RBE: "registre des bénéficiaires effectifs (RBE)",
           RNA: "répertoire national des associations (RNA)",
@@ -872,13 +840,6 @@
           vus[k] = true;
           return forme || SIGLES[k];
         }
-        /* Référence LAB selon le profil (à faire valider, sans numéro d'article) */
-        var REF_EC = "norme professionnelle LAB de l'Ordre des experts-comptables";
-        var REF_CAC = "norme d'exercice professionnel relative à la lutte contre le blanchiment, Haute autorité de l'audit (H2A)";
-        $("note-ref").textContent =
-          "Maquette : libellés et règles LAB à faire valider par un professionnel (références : code monétaire et financier, " +
-          (PROFIL === "ec" ? REF_EC : PROFIL === "cac" ? REF_CAC : REF_EC + ", " + REF_CAC) + ").";
-
         /* ---------- Dossier affiché (sans paramètre : PAPRIKA en ec et mixte, comme societe.html ; VERTALIS en cac ; id inconnu : « introuvable ») ---------- */
         var params = new URLSearchParams(location.search);
         var id = params.get("id");
@@ -1015,7 +976,7 @@
             : '<span class="v muted">Aucun dirigeant renseigné au DPJ</span>';
           var corpsBE;
           if (!assocs.length) {
-            corpsBE = '<p class="xs muted">Aucun associé renseigné au ' + sgd("DPJ", "Dossier Permanent Juridique d'EJ (DPJ)") + ". Les bénéficiaires effectifs seraient à rechercher dans le " + sgd("RBE", "registre des bénéficiaires effectifs (RBE)") + ".</p>";
+            corpsBE = '<p class="xs muted">Aucun associé renseigné au ' + sgd("DPJ", "Dossier permanent juridique (DPJ)") + ". Les bénéficiaires effectifs sont à rechercher dans le " + sgd("RBE", "registre des bénéficiaires effectifs (RBE)") + ".</p>";
           } else {
             corpsBE =
               (probables.length
@@ -1026,11 +987,10 @@
                       '<td data-label="Détention">' + esc(pct(a.pct)) + " du capital et des droits de vote" + (a.indirect ? " (détention indirecte, via une société)" : "") + "</td>" +
                       '<td data-label="Source">' + srcD() + "</td></tr>";
                   }).join("") + "</tbody></table></div>"
-                : '<p class="xs muted">Aucun associé au-dessus du seuil : le représentant légal serait retenu à défaut.</p>') +
-              '<p class="xs muted mt-16">Seuil : plus de 25 % du capital ou des droits de vote, ou contrôle par un autre moyen ; à défaut, le représentant légal.</p>' +
-              (sousSeuil.length ? '<p class="xs muted">Associés sous le seuil : ' + sousSeuil.length + " (" +
+                : '<p class="xs muted">Aucun associé au-dessus du seuil : à défaut, le représentant légal est retenu.</p>') +
+              (sousSeuil.length ? '<p class="xs muted mt-16">Associés sous le seuil : ' + sousSeuil.length + " (" +
                 sousSeuil.map(function (a) { return esc(a.nom) + " " + esc(pct(a.pct)); }).join(", ") + "), non bénéficiaires effectifs.</p>" : "") +
-              (morales.length ? '<p class="xs muted">Associé personne morale (' + morales.map(function (a) { return esc(a.nom); }).join(", ") + ") : les bénéficiaires effectifs sont à rechercher derrière la société.</p>" : "");
+              (morales.length ? '<p class="xs muted' + (sousSeuil.length ? "" : " mt-16") + '">Associé personne morale (' + morales.map(function (a) { return esc(a.nom); }).join(", ") + ") : les bénéficiaires effectifs sont à rechercher derrière la société.</p>" : "");
           }
           var titre = aOuvrir ? "Dossier LAB à ouvrir" : "Pas encore de dossier LAB pour cette société";
           var intro = aOuvrir
@@ -1039,17 +999,19 @@
           nl.innerHTML =
             '<section class="card d-card"><div class="d-body"><div class="vide">' +
             "<h2 class=\"vide-titre\">" + titre + "</h2>" +
-            "<p>" + intro + " Le dossier s'ouvre avant toute lettre de mission ; il peut être pré-rempli depuis le " + sgd("DPJ", "Dossier Permanent Juridique d'EJ (DPJ)") + ".</p>" +
+            "<p>" + intro + " Le dossier s'ouvre avant toute lettre de mission ; il peut être pré-rempli depuis le " + sgd("DPJ", "Dossier permanent juridique (DPJ)") + ".</p>" +
             '<button class="btn btn-primary btn-sm" type="button" id="ouvrir-dossier"><span class="ms">folder-open</span>Ouvrir le dossier</button>' +
             "</div></div></section>" +
-            '<section class="card d-card" id="prerempli"><div class="block-head"><div><h2><span class="ms">database</span>Pré-remplissage proposé</h2>' +
-            "<p>Ce que le DPJ fournirait à l'ouverture du dossier, à vérifier avant validation.</p></div></div>" +
+            '<section class="card d-card" id="prerempli"><div class="block-head"><div><h2><span class="ms">database</span>Pré-remplissage proposé ' +
+            tip("prerempli", "Données du DPJ reprises à l'ouverture du dossier, à vérifier avant validation.", "Origine du pré-remplissage") + '</h2>' +
+            "</div></div>" +
             '<div class="d-body"><dl class="kv">' +
             "<dt>" + (dirs.length > 1 ? "Dirigeants" : "Dirigeant") + '</dt><dd class="kv-item">' + corpsDir + srcD() + "</dd>" +
             "</dl>" +
-            '<div class="oblig"><h3>Bénéficiaires effectifs probables</h3><div class="mt-16">' + corpsBE + "</div></div></div></section>";
+            '<div class="oblig"><h3>Bénéficiaires effectifs probables ' +
+            tip("seuil-probables", "Seuil : plus de 25 % du capital ou des droits de vote, ou contrôle par un autre moyen ; à défaut, le représentant légal.", "Seuil des bénéficiaires effectifs") + '</h3><div class="mt-16">' + corpsBE + "</div></div></div></section>";
           $("ouvrir-dossier").addEventListener("click", function () {
-            X.toast("Ouverture du dossier LAB avec le pré-remplissage proposé (écran non maquetté).");
+            X.toast("Dossier LAB ouvert avec le pré-remplissage proposé.");
           });
           neutraliser();
         }
@@ -1114,7 +1076,7 @@
           var association = s.forme === "Association";
           var beDefaut = !!L.beDefaut;
           var SEUIL = association
-            ? "Pas de capital. Bénéficiaire effectif : la personne physique qui contrôle les organes de direction ; à défaut, le ou les représentants légaux (à valider)."
+            ? "Pas de capital. Bénéficiaire effectif : la personne physique qui contrôle les organes de direction ; à défaut, le ou les représentants légaux."
             : "Seuil : plus de 25 % du capital ou des droits de vote, ou contrôle par un autre moyen ; à défaut, le représentant légal.";
           /* Validations passées : attribution stable, indépendante du profil affiché */
           var valideur = X.validateurHistorique(s);
@@ -1141,7 +1103,7 @@
             return m + (m > 1 ? " pièces manquantes" : " pièce manquante");
           }
 
-          /* État d'interface de la session (maquette) */
+          /* État d'interface de la session */
           var ui = { confirmer: false, demandeVal: null, aideLever: false };
 
           function srcDPJ(x) {
@@ -1153,10 +1115,11 @@
           function srcReg() {
             return '<span class="source"><span class="ms">landmark</span>' + (association ? "RNA · Journal officiel" : "RNE · INPI") + "</span>";
           }
-          function carte(ico, titre, desc, action, corps, anchor) {
+          function carte(ico, titre, desc, action, corps, anchor, note) {
             return (
               '<section class="card d-card" id="' + anchor + '">' +
-              '<div class="block-head"><div><h2><span class="ms">' + ico + "</span>" + esc(titre) + "</h2>" +
+              '<div class="block-head"><div><h2><span class="ms">' + ico + "</span>" + esc(titre) +
+              (note ? " " + tip(anchor, note, "Information : " + titre) : "") + "</h2>" +
               (desc ? "<p>" + esc(desc) + "</p>" : "") + "</div>" + (action || "") + "</div>" +
               '<div class="d-body">' + corps + "</div></section>"
             );
@@ -1190,7 +1153,8 @@
             $("resume").innerHTML =
               (L.risque ? '<span class="risk risk-' + L.risque + '">' + E.RISQUE[L.risque] + "</span>" : '<span class="risk risk-na">Risque non évalué</span>') +
               "<span>" + (L.risque ? VIG[L.risque] : "Vigilance à définir") + "</span>" +
-              (cac ? "" : '<span class="resp">Responsable : <strong>' + esc(resp.nom) + "</strong></span>");
+              (cac ? "" : '<span class="resp">Responsable : <strong>' + esc(resp.nom) + "</strong></span>") +
+              tip("tracfin", "Toute déclaration à Tracfin se fait hors de cette fiche, de façon confidentielle. Cette fiche n'est jamais visible du client.", "Confidentialité de la fiche", "resume-tip");
 
             $("contexte").innerHTML = horsProfil
               ? '<div class="alert alert-info"><span class="ms">info</span><div><strong>' + (cac
@@ -1223,7 +1187,7 @@
                 txt: "Le criblage du " + esc(L.criblage) + " a remonté une correspondance possible sur " + esc(homNom) + ". Vérifiez la date et le lieu de naissance, puis documentez la levée.",
                 act: function (p) { return '<button class="btn ' + (p ? "btn-primary" : "btn-secondary") + ' btn-sm" type="button" id="lever" aria-expanded="' + ui.aideLever + '" aria-controls="aide-lever"><span class="ms">scan-search</span>Lever l\'homonymie</button>'; },
                 apres: ui.aideLever
-                  ? '<div class="afaire-aide" id="aide-lever">Comparez la date et le lieu de naissance ' + esc(de(homNom)) + " avec ceux de la personne figurant sur la liste de gel. S'ils ne correspondent pas, documentez la levée dans le dossier : éléments consultés, conclusion, auteur et date. Si la correspondance est confirmée, ou en cas de doute, ne validez pas la revue et suivez la procédure du cabinet, hors de cette fiche (maquette).</div>"
+                  ? '<div class="afaire-aide" id="aide-lever">Comparez la date et le lieu de naissance ' + esc(de(homNom)) + " avec ceux de la personne figurant sur la liste de gel. S'ils ne correspondent pas, documentez la levée dans le dossier : éléments consultés, conclusion, auteur et date. Si la correspondance est confirmée, ou en cas de doute, ne validez pas la revue et suivez la procédure du cabinet, hors de cette fiche.</div>"
                   : "",
               });
             if (L.statut === "a_revoir") {
@@ -1336,29 +1300,32 @@
               return "<dt>" + k + '</dt><dd class="kv-item"><span class="v">' + v + "</span>" + src + "</dd>";
             }
             /* Dénomination, forme juridique, SIREN (et activité d'une entité CAC) sont déjà dans l'en-tête : seuls les éléments de la vigilance restent */
-            out.push(carte("building-2", "Identification", cac ? "Siège, dirigeant et capital, repris du " + sg(association ? "RNA" : "RNE") + " et du dossier de la mission CAC." : "Siège, dirigeant, capital et activité, pré-remplis depuis le " + sg("DPJ") + " ou le " + sg("RNE") + ".", "",
+            out.push(carte("building-2", "Identification", "", "",
               '<dl class="kv">' +
               kv("Siège social", esc(F[0]), srcReg()) +
               kv("Dirigeant", esc(F[2]), srcDPJ(dpj)) +
               (F[1] ? kv("Capital social", esc(F[1]), srcReg()) : "") +
               (cac ? "" : kv("Activité", esc(s.activite), srcDPJ(dpj))) +
-              "</dl>", "identification"));
+              "</dl>", "identification",
+              cac ? "Siège, dirigeant et capital, repris du " + sg(association ? "RNA" : "RNE") + " et du dossier de la mission CAC." : "Siège, dirigeant, capital et activité, pré-remplis depuis le " + sg("DPJ") + " ou le " + sg("RNE") + "."));
 
             /* 2. Bénéficiaires effectifs */
-            var notes = '<p class="xs muted mt-16">' + esc(SEUIL) + "</p>";
+            var notes = "";
             if (SOUS_SEUIL.length)
-              notes += '<p class="xs muted">Associés sous le seuil : ' + SOUS_SEUIL.length + " (" +
+              notes += '<p class="xs muted mt-16">Associés sous le seuil : ' + SOUS_SEUIL.length + " (" +
                 SOUS_SEUIL.map(function (x) { return esc(x[0]) + " " + esc(x[1]); }).join(", ") + "), non bénéficiaires effectifs.</p>";
             var descBE = BE.length
-              ? BE.length + " bénéficiaire" + (BE.length > 1 ? "s" : "") + " effectif" + (BE.length > 1 ? "s" : "") + " identifié" + (BE.length > 1 ? "s" : "") +
-                (association ? ", d'après les statuts et la composition du bureau" : ", repris du " + sg("RBE"))
-              : "Personnes qui détiennent ou contrôlent la société";
+              ? BE.length + " bénéficiaire" + (BE.length > 1 ? "s" : "") + " effectif" + (BE.length > 1 ? "s" : "") + " identifié" + (BE.length > 1 ? "s" : "")
+              : "";
+            var noteBE = (BE.length
+              ? (association ? "D'après les statuts et la composition du bureau." : "Repris du " + sg("RBE") + ".")
+              : "Personnes qui détiennent ou contrôlent la société.") + " " + SEUIL;
             var corpsBE;
             if (!BE.length) {
               corpsBE =
                 '<div class="vide"><strong>Aucun bénéficiaire effectif identifié</strong>' +
-                "<p>Sans bénéficiaire effectif, le dossier ne peut pas être complété. EJ propose les personnes détenant plus de 25 % du capital ou des droits de vote, ou exerçant un contrôle par un autre moyen, d'après le " + sg("DPJ") + " et le " + sg("RBE") + ".</p>" +
-                '<button class="btn btn-secondary btn-sm" type="button" title="Écran non maquetté"><span class="ms">user-round-search</span>Identifier depuis le DPJ et le RBE</button></div>' + notes;
+                "<p>Sans bénéficiaire effectif, le dossier ne peut pas être complété. Les bénéficiaires proposés sont déduits du " + sg("DPJ") + " et du " + sg("RBE") + ".</p>" +
+                '<button class="btn btn-secondary btn-sm" type="button"><span class="ms">user-round-search</span>Identifier depuis le DPJ et le RBE</button></div>' + notes;
             } else {
               corpsBE =
                 '<div class="table-scroll"><table class="rtable"><thead><tr><th>Nom</th><th>Détention ou contrôle</th><th>Source</th></tr></thead><tbody>' +
@@ -1374,10 +1341,10 @@
                   );
                 }).join("") + "</tbody></table></div>" + notes;
             }
-            out.push(carte("users", "Bénéficiaires effectifs", descBE, "", corpsBE, "beneficiaires"));
+            out.push(carte("users", "Bénéficiaires effectifs", descBE, "", corpsBE, "beneficiaires", noteBE));
 
             /* 3. Criblage PPE et gel des avoirs (société, dirigeant, bénéficiaires effectifs) */
-            var btnCriblage = '<button class="btn btn-secondary btn-sm" type="button" id="criblage"><span class="ms">' + (criblee ? "refresh-cw" : "scan-search") + "</span>" + (criblee ? "Relancer le criblage" : "Lancer le criblage") + "</button>";
+            var btnCriblage = '<button class="btn btn-secondary btn-sm" type="button" id="lancer-criblage"><span class="ms">' + (criblee ? "refresh-cw" : "scan-search") + "</span>" + (criblee ? "Relancer le criblage" : "Lancer le criblage") + "</button>";
             var cribles = [{ nom: s.nom, role: association ? "Association" : cac ? "Entité contrôlée" : "Société", soc: true }];
             cribles.push({ nom: dirNom, role: (dirRole ? dirRole.charAt(0).toUpperCase() + dirRole.slice(1) : "Dirigeant") + (dirEstBE ? (beDefaut ? " et bénéficiaire effectif à défaut" : " et bénéficiaire effectif") : "") });
             BE.forEach(function (b) { if (b[0] !== dirNom) cribles.push({ nom: b[0], role: "Bénéficiaire effectif" }); });
@@ -1396,8 +1363,8 @@
               return '<span class="oui-non ok"><span class="ms">circle-check</span>Aucune correspondance</span>';
             }
             var noteCriblage = criblee
-              ? "Criblage continu via le connecteur " + sg("KYC") + ", dont le fournisseur reste à choisir ; dernier passage le " + L.criblage + "." + (BE.length ? "" : " Les bénéficiaires effectifs ne peuvent être criblés qu'une fois identifiés.")
-              : "Aucun criblage effectué. Il couvre la société, le dirigeant et les bénéficiaires effectifs, via le connecteur " + sg("KYC") + ", dont le fournisseur reste à choisir.";
+              ? "Criblage continu via le connecteur " + sg("KYC") + ", dernier passage le " + L.criblage + "." + (BE.length ? "" : " Les bénéficiaires effectifs ne peuvent être criblés qu'une fois identifiés.")
+              : "Aucun criblage effectué. Il couvre la société, le dirigeant et les bénéficiaires effectifs, via le connecteur " + sg("KYC") + ".";
             out.push(carte("scan-search", "Criblage des " + sg("PPE", "personnes politiquement exposées (PPE)") + " et gel des avoirs", criblee ? "Criblage continu, dernier passage le " + L.criblage : "Criblage non effectué", btnCriblage,
               '<div class="table-scroll"><table class="rtable"><thead><tr><th>Personne</th><th>Rôle</th><th>Contrôle PPE</th><th>Gel des avoirs</th></tr></thead><tbody>' +
               cribles.map(function (c) {
@@ -1409,8 +1376,7 @@
                   '<td data-label="Gel des avoirs">' + celluleGel(c) + "</td>" +
                   "</tr>"
                 );
-              }).join("") + "</tbody></table></div>" +
-              '<p class="xs muted mt-16">' + esc(noteCriblage) + "</p>", "criblage"));
+              }).join("") + "</tbody></table></div>", "criblage", noteCriblage));
 
             /* 4. Évaluation du risque (grille du cabinet) puis obligations légales */
             var N = ["Faible", "Standard", "Élevé"], NC = ["risk-faible", "risk-standard", "risk-eleve"];
@@ -1442,13 +1408,13 @@
             /* Périodicité : affichée ici seulement */
             var perVal;
             if (mois) perVal = chaque(mois) + (ecart ? '<span class="val-sub">Ajustée par ' + lAssocie + " (grille : " + libPeriode(GRILLE_MOIS[L.risque]) + ") : " + esc(motif) + "</span>" : "");
-            else if (L.risque) perVal = chaque(GRILLE_MOIS[L.risque]) + '<span class="val-sub">Selon la grille du cabinet, fixée à la validation</span>';
+            else if (L.risque) perVal = chaque(GRILLE_MOIS[L.risque]) + " " + tip("periodicite", "Selon la grille du cabinet, fixée à la validation.", "Périodicité de revue");
             else perVal = '<span class="muted">À définir après l\'évaluation</span>';
             var resultat = L.risque
-              ? '<div class="resultat"><div><span class="overline">Niveau de risque</span><div class="val"><span class="risk risk-' + L.risque + '">' + E.RISQUE[L.risque] + "</span></div></div>" +
-                '<div><span class="overline">Vigilance</span><div class="val">' + VIG[L.risque] + (L.risque === "faible" ? '<span class="val-sub">Faculté sous conditions, à justifier au dossier</span>' : "") + "</div></div>" +
-                '<div><span class="overline">Périodicité de revue</span><div class="val">' + perVal + "</div></div></div>" +
-                (L.ppe ? '<p class="d-note">Niveau relevé du fait de la PPE : obligation légale, indépendante des critères de la grille ci-dessus.</p>' : "")
+              ? '<div class="resultat"><div><span class="overline">Niveau de risque</span><div class="val"><span class="risk risk-' + L.risque + '">' + E.RISQUE[L.risque] + "</span>" +
+                (L.ppe ? " " + tip("ppe-niveau", "Niveau relevé du fait de la PPE : obligation légale, indépendante des critères de la grille ci-dessus.", "Niveau relevé du fait de la PPE") : "") + "</div></div>" +
+                '<div><span class="overline">Vigilance</span><div class="val">' + VIG[L.risque] + (L.risque === "faible" ? " " + tip("vigilance-faible", "Faculté sous conditions, à justifier au dossier.", "Vigilance simplifiée") : "") + "</div></div>" +
+                '<div><span class="overline">Périodicité de revue</span><div class="val">' + perVal + "</div></div></div>"
               : '<div class="resultat"><div style="grid-column:1/-1"><span class="overline">Résultat</span><div class="val">Non évalué. Évaluation possible après identification des bénéficiaires effectifs et criblage.</div></div></div>';
 
             var obPPE, obGel;
@@ -1459,14 +1425,14 @@
             else if (!criblee) obGel = '<span class="oui-non muted"><span class="ms">circle-dashed</span>Non criblé</span>';
             else obGel = '<span class="oui-non ok"><span class="ms">circle-check</span>Aucune correspondance, dernier passage le ' + L.criblage + "</span>";
             var oblig =
-              '<div class="oblig"><h3>Obligations légales</h3><p class="oblig-sub">Elles s\'appliquent quelle que soit la grille du cabinet.</p>' +
-              '<div class="oblig-row"><div class="oblig-txt"><div class="oblig-lib">Personne politiquement exposée</div><div class="oblig-det">Mesures de vigilance complémentaires et décision d\'un membre de la direction.</div></div>' + obPPE + "</div>" +
-              '<div class="oblig-row"><div class="oblig-txt"><div class="oblig-lib">Gel des avoirs</div><div class="oblig-det">Vérification permanente des listes de gel des avoirs.</div></div>' + obGel + "</div></div>";
-            out.push(carte("scale", "Évaluation du risque", "Les critères sont ceux de la grille du cabinet.", "",
+              '<div class="oblig"><h3>Obligations légales ' + tip("oblig", "Elles s'appliquent quelle que soit la grille du cabinet.", "Obligations légales") + "</h3>" +
+              '<div class="oblig-row"><div class="oblig-txt"><div class="oblig-lib">Personne politiquement exposée ' + tip("oblig-ppe", "Mesures de vigilance complémentaires et décision d'un membre de la direction.", "Personne politiquement exposée") + "</div></div>" + obPPE + "</div>" +
+              '<div class="oblig-row"><div class="oblig-txt"><div class="oblig-lib">Gel des avoirs ' + tip("oblig-gel", "Vérification permanente des listes de gel des avoirs.", "Gel des avoirs") + "</div></div>" + obGel + "</div></div>";
+            out.push(carte("scale", "Évaluation du risque", "", "",
               '<div class="table-scroll"><table class="rtable"><thead><tr><th>Critère</th><th>Valeur retenue</th><th>Poids</th><th>Niveau</th></tr></thead><tbody>' + ligneCrit + "</tbody></table></div>" +
               resultat +
-              '<div class="grille-note"><span class="t">Cette grille est celle du ' + esc(E.cabinet) + ' : le cabinet fixe ses critères, leur poids et la périodicité des revues. Ce n\'est pas une règle EJ.</span><a href="#" title="Écran non maquetté">Paramétrer la grille</a></div>' +
-              oblig, "evaluation"));
+              '<div class="grille-note"><a href="#">Paramétrer la grille</a></div>' +
+              oblig, "evaluation", "Les critères sont ceux de la grille du cabinet. La grille est celle du " + E.cabinet + " : critères, poids et périodicité des revues fixés par le cabinet."));
 
             /* 5. Pièces justificatives : règle commune (assets/ej-lab.js), une seule action dans l'en-tête */
             var attendues = X.piecesAttendues(s);
@@ -1518,8 +1484,8 @@
                 ajoute(L.criblage, "scan-search", tCrib, "Connecteur KYC", homonymie || !BE.length);
               }
               if (H.prochaineRevue && dt(H.prochaineRevue) < TODAY)
-                ajoute(H.prochaineRevue, "history", "Revue échue : notification envoyée au responsable du dossier.", "EJ", true);
-              /* Actions de la session (maquette) */
+                ajoute(H.prochaineRevue, "history", "Revue échue : notification envoyée au responsable du dossier.", "Automatique", true);
+              /* Actions de la session */
               X.collectesDe(s.id).forEach(function (c) {
                 ajoute(c.date, "send", "Collecte envoyée à " + c.destinataire + " : " + c.pieces.length + " pièce" + (c.pieces.length > 1 ? "s" : "") + " demandée" + (c.pieces.length > 1 ? "s" : "") + " (" + c.pieces.join(", ") + ").", esc(c.par || "Cabinet"));
               });
@@ -1530,12 +1496,12 @@
             var revueHtml = '<div class="revues">' +
               '<div><span class="overline">Dernière revue</span><div class="val">' + (L.derniereRevue ? L.derniereRevue : '<span class="muted">Jamais validée</span>') + "</div></div>" +
               '<div><span class="overline">Prochaine revue</span><div class="val">' + (L.prochaineRevue ? L.prochaineRevue + (enRetard ? '<span class="late">En retard de ' + retardJ + " jours</span>" : "") : '<span class="muted">Fixée à la validation</span>') + "</div></div></div>";
-            out.push(carte("history", "Diligences et historique", "Journal daté des actions menées sur ce dossier.", "",
+            out.push(carte("history", "Diligences et historique", "", "",
               revueHtml +
               '<ul class="journal" id="journal">' + J.map(function (j) {
                 return '<li><span class="j-ico' + (j.warn ? " warn" : "") + '"><span class="ms">' + j.i + "</span></span>" +
                   '<div><div class="j-date">' + j.d + '</div><div class="j-txt">' + esc(j.t) + '</div><div class="j-who">' + j.w + "</div></div></li>";
-              }).join("") + "</ul>", "historique"));
+              }).join("") + "</ul>", "historique", "Journal daté des actions menées sur ce dossier."));
 
             $("sections").innerHTML = out.join("");
             neutraliser();
@@ -1593,16 +1559,16 @@
               ui.demandeVal = E.today;
               rendre();
               focusApres("#afaire");
-              X.toast("Demande de validation envoyée à " + esc(RLAB.nom) + ", responsable LAB du cabinet (maquette).");
+              X.toast("Demande de validation envoyée à " + esc(RLAB.nom) + ", responsable LAB du cabinet.");
               return;
             }
-            if (b.id === "criblage") {
-              X.toast((L.criblage ? "Criblage relancé" : "Criblage lancé") + " via le connecteur KYC (maquette). Résultat disponible dans quelques instants.");
+            if (b.id === "lancer-criblage") {
+              X.toast((L.criblage ? "Criblage relancé" : "Criblage lancé") + " via le connecteur KYC. Résultat disponible dans quelques instants.");
             }
           });
         }
       })();
     </script>
-    <script src="assets/ej-shell.js?v=22"></script>
+    <script src="assets/ej-shell.js?v=24"></script>
   </body>
 </html>

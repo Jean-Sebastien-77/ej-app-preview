@@ -296,7 +296,6 @@
     ".lab-pieces label{display:flex;align-items:flex-start;gap:10px;padding:7px 4px;border-radius:var(--ej-radius-sm);cursor:pointer}" +
     ".lab-pieces label:hover{background:var(--ej-neutral-50)}" +
     ".lab-pieces input{margin-top:3px;accent-color:var(--ej-action-600)}" +
-    ".lab-modal-note{font-size:12.5px;color:var(--ej-neutral-500)}" +
     ".lab-modal-foot{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:14px 22px 18px;border-top:1px solid var(--ej-hairline)}" +
     ".lab-toast{position:fixed;left:50%;bottom:32px;z-index:110;transform:translate(-50%,16px);display:flex;align-items:center;gap:10px;max-width:calc(100vw - 32px);padding:12px 18px;border-radius:var(--ej-radius-lg);background:var(--ej-primary-900);color:var(--ej-white);font-size:14px;box-shadow:var(--ej-shadow-lg);opacity:0;visibility:hidden;transition:opacity var(--ej-transition-normal),transform var(--ej-transition-normal),visibility 0s linear 250ms}" +
     ".lab-toast.show{opacity:1;visibility:visible;transform:translate(-50%,0);transition:opacity var(--ej-transition-normal),transform var(--ej-transition-normal),visibility 0s}" +
@@ -365,9 +364,8 @@
       '<div class="lab-modal-head"><div><h2 id="col-title" tabindex="-1">Envoyer une collecte au client</h2><p id="col-soc"></p></div>' +
       '<button class="icon-btn" type="button" data-close aria-label="Fermer"><span class="ms">close</span></button></div>' +
       '<div class="lab-modal-body">' +
-      '<div><div class="lab-lbl" id="col-dest-lbl">Destinataire</div><div class="lab-dest" id="col-dest"></div></div>' +
+      '<div><div class="lab-lbl" id="col-dest-lbl">Destinataire <span class="info-tip" data-tip="bas"><button type="button" class="info-tip-btn" aria-describedby="note-collecte" aria-label="Fonctionnement de la collecte"><span class="ms">info</span></button><span class="info-tip-pop" role="tooltip" id="note-collecte">Le client dépose ses pièces depuis un lien sécurisé, avec relances automatiques. Les pièces reçues sont versées au dossier LAB.</span></span></div><div class="lab-dest" id="col-dest"></div></div>' +
       '<fieldset class="lab-pieces" id="col-pieces"><legend class="lab-lbl" id="col-lbl">Pièces demandées</legend><div id="col-liste"></div></fieldset>' +
-      '<p class="lab-modal-note">Le client dépose ses pièces depuis un lien sécurisé, avec relances automatiques, comme pour les signatures et documents. Les pièces reçues rejoignent le dossier LAB.</p>' +
       "</div>" +
       '<div class="lab-modal-foot"><button class="btn btn-tertiary" type="button" data-close>Annuler</button>' +
       '<button class="btn btn-primary" type="button" id="col-send"><span class="ms">send</span>Envoyer la collecte</button></div>' +

@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=19" />
-    <link rel="stylesheet" href="assets/ej-missions.css?v=19" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=21" />
     <style>
       /* ---- Dispositif LAB : file de travail (styles locaux) ---- */
 
@@ -276,43 +276,13 @@
         font-size: 14px;
         color: var(--ej-neutral-400);
       }
-      .lab-i {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        color: var(--ej-neutral-500);
-      }
-      .lab-i:hover,
-      .lab-i[aria-expanded="true"] {
-        background: var(--ej-neutral-100);
-        color: var(--ej-action-600);
-      }
-      .lab-i .ms {
-        color: inherit;
-      }
-      .lab-more {
-        margin-top: 6px;
-        padding: 10px 12px;
-        border-radius: var(--ej-radius-md);
-        background: var(--ej-neutral-50);
-        display: block;
-      }
-      .lab-more[hidden] {
-        display: none;
-      }
-      .lab-more a {
+      /* La bulle des sources contient un lien : style du lien seulement, l'atteignabilité est dans ej-missions.css */
+      .lab-foot .info-tip-pop a {
         font-weight: 600;
         color: var(--ej-action-600);
         text-decoration: underline;
         text-underline-offset: 2px;
       }
-      .lab-foot + .m-note {
-        margin-top: 20px;
-      }
-
       @media (max-width: 900px) {
         .lab-bar {
           flex-direction: column;
@@ -425,7 +395,7 @@
               <div class="dropdown" id="plus">
                 <button class="icon-btn" type="button" id="plus-btn" aria-haspopup="true" aria-expanded="false" aria-controls="plus-menu" aria-label="Autres actions"><span class="ms">ellipsis</span></button>
                 <div class="dropdown-menu" id="plus-menu" hidden>
-                  <a class="dropdown-item" href="#" title="Écran non maquetté"><span class="ms">sliders-horizontal</span>Paramétrer la grille de risque</a>
+                  <a class="dropdown-item" href="#"><span class="ms">sliders-horizontal</span>Paramétrer la grille de risque</a>
                   <a class="dropdown-item" href="cockpit.html"><span class="ms">layout-dashboard</span>Voir la répartition dans le cockpit</a>
                 </div>
               </div>
@@ -442,44 +412,42 @@
           </div>
 
           <div class="data-table-wrap">
-            <table class="data-table lab-table" id="table">
-              <thead>
-                <tr>
-                  <th id="th-soc">Dossier</th>
-                  <th id="th-motif">À faire</th>
-                  <th id="th-ech">Depuis / échéance</th>
-                  <th id="th-resp">Responsable</th>
-                  <th><span class="sr-only">Action</span></th>
-                </tr>
-              </thead>
-              <tbody id="rows"></tbody>
-            </table>
+            <div class="table-scroll">
+              <table class="data-table lab-table" id="table">
+                <thead>
+                  <tr>
+                    <th id="th-soc">Dossier</th>
+                    <th id="th-motif">À faire</th>
+                    <th id="th-ech">Depuis / échéance</th>
+                    <th id="th-resp">Responsable</th>
+                    <th><span class="sr-only">Action</span></th>
+                  </tr>
+                </thead>
+                <tbody id="rows"></tbody>
+              </table>
+            </div>
             <div class="lab-empty" id="empty" hidden></div>
           </div>
 
           <div class="lab-foot">
             <p>
               <span class="ms">database</span>
-              <span id="src-txt"></span>
-              <button class="lab-i" type="button" id="src-i" aria-expanded="false" aria-controls="src-more" aria-label="En savoir plus sur la source des données"><span class="ms">info</span></button>
+              <span id="couverture"></span>
+              <span class="info-tip">
+                <button type="button" class="info-tip-btn" aria-describedby="note-sources" aria-label="Sources des données"><span class="ms">info</span></button>
+                <span class="info-tip-pop" role="tooltip" id="note-sources"></span>
+              </span>
             </p>
-            <div class="lab-more" id="src-more" hidden></div>
-            <p id="couverture"></p>
-          </div>
-
-          <div class="m-note">
-            <span class="ms">info</span>
-            <span id="note-ref"></span>
           </div>
         </div>
         <div id="ej-footer"></div>
       </div>
     </div>
 
-    <script src="assets/ej-missions-data.js?v=19"></script>
-    <script src="assets/ej-cockpit-data.js?v=3"></script>
+    <script src="assets/ej-missions-data.js?v=20"></script>
+    <script src="assets/ej-cockpit-data.js?v=4"></script>
     <script src="assets/ej-dpj-data.js?v=2"></script>
-    <script src="assets/ej-lab.js?v=1"></script>
+    <script src="assets/ej-lab.js?v=3"></script>
     <script>
       /* Le shell (chargé après ce script) pose body[data-profil] et window.EJ_USER : la page se construit au DOMContentLoaded. */
       document.addEventListener("DOMContentLoaded", function () {
@@ -750,26 +718,23 @@
         /* ---------- Textes selon le profil ---------- */
         var NEC = E.societes.length, NCAC = E.mandats.length;
         $("th-soc").textContent = PROFIL === "ec" ? "Société" : PROFIL === "cac" ? "Entité" : "Société ou entité";
-        $("src-txt").textContent =
-          PROFIL === "ec" ? "Identité, dirigeants et bénéficiaires effectifs repris du DPJ · criblage PPE et gel des avoirs via le connecteur KYC à choisir" :
-          PROFIL === "cac" ? "Identité, dirigeants et bénéficiaires effectifs repris du dossier de mission et des registres publics · criblage PPE et gel des avoirs via le connecteur KYC à choisir" :
-          "Identité, dirigeants et bénéficiaires effectifs repris du DPJ ou, pour les entités contrôlées, des registres publics · criblage PPE et gel des avoirs via le connecteur KYC à choisir";
-        $("src-more").innerHTML =
-          (PROFIL === "ec" ? "DPJ : Dossier Permanent Juridique d'EJ. " :
+        var DPJ_MAJ = window.EJDPJ && window.EJDPJ.maj ? " (mis à jour le " + window.EJDPJ.maj + ")" : "";
+        var SRC_TXT =
+          PROFIL === "ec" ? "Identité, dirigeants et bénéficiaires effectifs repris du DPJ" + DPJ_MAJ + " · criblage PPE et gel des avoirs via le connecteur KYC" :
+          PROFIL === "cac" ? "Identité, dirigeants et bénéficiaires effectifs repris du dossier de mission et des registres publics · criblage PPE et gel des avoirs via le connecteur KYC" :
+          "Identité, dirigeants et bénéficiaires effectifs repris du DPJ" + DPJ_MAJ + " ou, pour les entités contrôlées, des registres publics · criblage PPE et gel des avoirs via le connecteur KYC";
+        $("note-sources").innerHTML =
+          esc(SRC_TXT) + ". " +
+          (PROFIL === "ec" ? "DPJ : dossier permanent juridique. " :
            PROFIL === "cac" ? "Registres publics : registre national des entreprises (RNE), registre des bénéficiaires effectifs (RBE) et, pour les associations, répertoire national des associations (RNA). " :
-           "DPJ : Dossier Permanent Juridique d'EJ, pour les clients en expertise comptable. Registres publics : RNE, RBE et, pour les associations, RNA. ") +
-          "PPE : personne politiquement exposée. KYC : connaissance du client ; le fournisseur du connecteur reste à choisir. " +
+           "DPJ : dossier permanent juridique, pour les clients en expertise comptable. Registres publics : RNE, RBE et, pour les associations, RNA. ") +
+          "PPE : personne politiquement exposée. KYC : connaissance du client. " +
           "Les revues et les levées d'homonymie sont validées par " + esc(RLAB.nom) + ", responsable LAB du cabinet. " +
           '<a href="connecteurs.html">Voir les connecteurs</a>';
         $("couverture").textContent =
           PROFIL === "ec" ? NEC + " dossiers du périmètre missions, sur " + E.totalSocietes + " sociétés suivies." :
           PROFIL === "cac" ? NCAC + " entités contrôlées par le cabinet." :
           S.length + " dossiers : " + NEC + " sociétés du périmètre missions (sur " + E.totalSocietes + " suivies) et " + NCAC + " entités contrôlées.";
-        var REF_EC = "norme professionnelle LAB de l'Ordre des experts-comptables";
-        var REF_CAC = "norme d'exercice professionnel relative à la lutte contre le blanchiment, Haute autorité de l'audit (H2A)";
-        $("note-ref").textContent =
-          "Maquette : libellés et règles LAB à faire valider par un professionnel (références : code monétaire et financier, " +
-          (PROFIL === "ec" ? REF_EC : PROFIL === "cac" ? REF_CAC : REF_EC + ", " + REF_CAC) + ").";
 
         /* ---------- Collecte de pièces : fenêtre commune (assets/ej-lab.js) ---------- */
         function ouvrirCollecte(s, btn) {
@@ -840,13 +805,8 @@
           var tr = e.target.closest("tr[data-href]");
           if (tr) location.href = tr.getAttribute("data-href");
         });
-        $("src-i").addEventListener("click", function () {
-          var ouvert = this.getAttribute("aria-expanded") === "true";
-          this.setAttribute("aria-expanded", String(!ouvert));
-          $("src-more").hidden = ouvert;
-        });
         $("exporter").addEventListener("click", function () {
-          X.toast("Export de la liste affichée (maquette).");
+          X.toast("Liste affichée exportée.");
         });
         document.querySelectorAll('a[href="#"]').forEach(function (a) {
           a.addEventListener("click", function (e) { e.preventDefault(); });
@@ -855,6 +815,6 @@
         dessiner();
       });
     </script>
-    <script src="assets/ej-shell.js?v=22"></script>
+    <script src="assets/ej-shell.js?v=24"></script>
   </body>
 </html>

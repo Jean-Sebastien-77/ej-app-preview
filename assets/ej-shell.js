@@ -12,7 +12,7 @@
     { section: "Missions & conformité" },
     { id: "lettres", label: "Lettres de mission", icon: "file_pen_line", href: "lettres-mission.html", profils: ["ec", "mixte"] },
     { id: "lab", label: "Dispositif LAB", sub: "Lutte anti-blanchiment", icon: "shield_check", href: "lab.html" },
-    { id: "cac", label: "Missions CAC", sub: "Mandats et interventions", icon: "briefcase", href: "cac.html", profils: ["cac", "mixte"] },
+    { id: "cac", label: "Missions CAC", sub: "Mandats et missions ponctuelles", icon: "briefcase", href: "cac.html", profils: ["cac", "mixte"] },
     { section: "Administration" },
     { id: "connecteurs", label: "Connecteurs", icon: "cable", href: "connecteurs.html" },
     { id: "etiquettes", label: "Étiquettes", icon: "bookmarks", href: "etiquettes.html" },
@@ -302,7 +302,92 @@
     });
     if (trigger) dd.classList.toggle("open");
   });
+  /* ---------- Notes derrière un « i » (.info-tip) : placement automatique à l'ouverture ----------
+     Un seul modèle pour toutes les pages (CSS dans ej-missions.css). Délégation d'événements :
+     aucune initialisation par page, les « i » ajoutés dynamiquement sont couverts.
+     La bulle reste entièrement dans l'écran : au-dessus par défaut, en dessous s'il n'y a pas la place
+     (ou data-tip="bas" pour forcer), centrée, alignée à gauche ou à droite selon la place horizontale. */
+  var TIP_MARGE = 8; /* distance minimale au bord de l'écran */
+  var TIP_ECART = 8; /* distance entre le « i » et la bulle (identique au CSS) */
+  var TIP_DECAL = 6; /* débord de la bulle alignée sur le bord du « i » (identique au CSS) */
+  function placerNote(tip) {
+    var pop = tip.querySelector(".info-tip-pop");
+    if (!pop || tip.hidden) return;
+    tip.classList.add("is-mesure"); /* affiche la bulle sans la rendre visible, pour la mesurer */
+    tip.removeAttribute("data-tip-pos");
+    tip.removeAttribute("data-tip-align");
+    tip.style.removeProperty("--tip-dx");
+    tip.style.removeProperty("--tip-maxh");
+    tip.style.removeProperty("--tip-ov");
+    var vw = document.documentElement.clientWidth, vh = document.documentElement.clientHeight;
+    var r = tip.getBoundingClientRect();
+    var w = pop.offsetWidth, h = pop.offsetHeight;
+    /* Vertical */
+    var place = { haut: r.top - TIP_ECART - TIP_MARGE, bas: vh - r.bottom - TIP_ECART - TIP_MARGE };
+    var pref = tip.getAttribute("data-tip") === "bas" ? "bas" : "haut";
+    var autre = pref === "bas" ? "haut" : "bas";
+    var pos = place[pref] >= h ? pref : place[autre] >= h ? autre : place.haut >= place.bas ? "haut" : "bas";
+    if (h > place[pos]) {
+      /* écran vraiment trop bas : la bulle défile en interne plutôt que de sortir */
+      tip.style.setProperty("--tip-maxh", Math.max(48, Math.floor(place[pos])) + "px");
+      tip.style.setProperty("--tip-ov", "auto");
+    }
+    tip.setAttribute("data-tip-pos", pos);
+    /* Horizontal : centrée, sinon vers la droite, sinon vers la gauche, sinon centrée puis recalée */
+    var cx = r.left + r.width / 2;
+    var cand = [
+      { al: "", left: cx - w / 2 },
+      { al: "debut", left: r.left - TIP_DECAL },
+      { al: "fin", left: r.right + TIP_DECAL - w },
+    ];
+    var choix = null;
+    for (var i = 0; i < cand.length; i++) {
+      if (cand[i].left >= TIP_MARGE && cand[i].left + w <= vw - TIP_MARGE) { choix = cand[i]; break; }
+    }
+    if (!choix) {
+      choix = cand[0];
+      var cale = Math.min(Math.max(choix.left, TIP_MARGE), Math.max(TIP_MARGE, vw - TIP_MARGE - w));
+      tip.style.setProperty("--tip-dx", Math.round(cale - choix.left) + "px");
+    }
+    if (choix.al) tip.setAttribute("data-tip-align", choix.al);
+    tip.classList.remove("is-mesure");
+  }
+  function noteDe(cible) {
+    return cible && cible.closest ? cible.closest(".info-tip") : null;
+  }
+  document.addEventListener("mouseover", function (e) {
+    var tip = noteDe(e.target);
+    if (!tip) return;
+    if (!tip.contains(e.relatedTarget)) tip.removeAttribute("data-ferme"); /* nouvelle entrée : Échap n'agit plus */
+    placerNote(tip);
+  });
+  document.addEventListener("focusin", function (e) {
+    var tip = noteDe(e.target);
+    if (!tip) return;
+    tip.removeAttribute("data-ferme");
+    placerNote(tip);
+  });
+  document.addEventListener("click", function (e) {
+    /* Toucher : certains navigateurs ne donnent pas le focus à un bouton touché, la note s'ouvre alors par le focus */
+    var btn = e.target.closest ? e.target.closest(".info-tip-btn") : null;
+    if (!btn) return;
+    var tip = noteDe(btn);
+    tip.removeAttribute("data-ferme");
+    if (document.activeElement !== btn) btn.focus();
+    placerNote(tip);
+  });
+  window.addEventListener("resize", function () {
+    Array.prototype.forEach.call(document.querySelectorAll(".info-tip:hover, .info-tip:focus-within"), placerNote);
+  });
   document.addEventListener("keydown", function (e) {
+    /* Échap referme une note « i » ouverte (au clavier comme au survol). */
+    if (e.key === "Escape") {
+      var ouverte = noteDe(document.activeElement) || document.querySelector(".info-tip:hover");
+      if (ouverte) {
+        ouverte.setAttribute("data-ferme", "");
+        if (ouverte.contains(document.activeElement)) document.activeElement.blur();
+      }
+    }
     if (e.key === "Escape") document.querySelectorAll("[data-dropdown].open").forEach(function (d) { d.classList.remove("open"); });
   });
 })();

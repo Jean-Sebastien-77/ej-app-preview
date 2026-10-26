@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=19" />
-    <link rel="stylesheet" href="assets/ej-missions.css?v=19" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=21" />
     <style>
       /* Cockpit en canevas de tableaux (préfixe cv-). Aucune nouvelle couleur : tokens de ej-app.css. */
       .page.cv-page {
@@ -1125,6 +1125,25 @@
       .cv-masked .ms {
         font-size: 13px;
         margin-top: 1px;
+      }
+      details.cv-masked {
+        display: block;
+      }
+      .cv-masked > summary {
+        display: flex;
+        gap: 6px;
+        align-items: flex-start;
+        cursor: pointer;
+        list-style: none;
+      }
+      .cv-masked > summary::-webkit-details-marker {
+        display: none;
+      }
+      .cv-masked > summary:hover {
+        color: var(--ej-neutral-700);
+      }
+      .cv-sent-t {
+        margin: 4px 0 0 19px;
       }
       .cv-mask {
         background: var(--ej-neutral-100);
@@ -2331,7 +2350,7 @@
       <div class="cv-modal-box">
         <div class="cv-pane-head">
           <div>
-            <p class="overline">Catalogue d'indicateurs certifiés</p>
+            <p class="overline">Catalogue d'indicateurs</p>
             <h2 id="cv-cat-title">Ajouter un widget</h2>
           </div>
           <button type="button" class="icon-btn" data-close="cat" aria-label="Fermer le catalogue"><span class="ms">close</span></button>
@@ -2347,8 +2366,8 @@
     </div>
     <div class="cv-toast" id="cv-toast" role="status" aria-live="polite" hidden></div>
 
-    <script src="assets/ej-missions-data.js?v=19"></script>
-    <script src="assets/ej-cockpit-data.js?v=3"></script>
+    <script src="assets/ej-missions-data.js?v=20"></script>
+    <script src="assets/ej-cockpit-data.js?v=5"></script>
     <script src="assets/ej-dpj-data.js?v=2"></script>
     <script src="assets/ej-charts.js?v=2"></script>
     <script>
@@ -2368,8 +2387,8 @@
         };
         var COMPANION = {
           lab_risque: "lab_a_revoir", lab_a_revoir: "lab_risque", lm_statut: "lm_non_signees", lm_non_signees: "lm_statut", ag_mois: "ag_6m", ag_6m: "ag_mois",
-          form_mois: "form_ouvertes", form_ouvertes: "form_mois", ag_non_suivies: "dpj_couverture", cac_heures_mission: "cac_heures_ratio",
-          cac_heures_ratio: "cac_heures_mission", cac_fins_annee: "cac_fins", cac_fins: "cac_fins_annee", soc_evolution: "soc_suivies", soc_suivies: "soc_evolution",
+          form_mois: "form_ouvertes", form_ouvertes: "form_mois", ag_non_suivies: "dpj_couverture", cac_rapports_mois: "cac_rapports_3m",
+          cac_rapports_3m: "cac_rapports_mois", cac_ponct_etapes: "cac_ponct_cours", cac_ponct_cours: "cac_ponct_etapes", cac_fins_annee: "cac_fins", cac_fins: "cac_fins_annee", soc_evolution: "soc_suivies", soc_suivies: "soc_evolution",
         };
         var PROFIL = "ec";
         var ST = { boards: {}, order: [], cur: null, edit: false, journal: [], seq: 0, jid: 0, last: {}, editSnap: null };
@@ -2502,10 +2521,13 @@
           ST.seq = maxU;
           ST.boards = freshBoards();
           ST.order = C.BOARDS.map(function (b) { return b.id; });
+          /* Enregistrement antérieur à la version 3 : la Vue d'ensemble CAC contenait des indicateurs retirés du catalogue, elle repart de son modèle */
+          var oldV = !saved || typeof saved.v !== "number" ? 1 : saved.v;
           if (saved && saved.boards && typeof saved.boards === "object") {
             Object.keys(saved.boards).forEach(function (id) {
               var sb = saved.boards[id];
               if (!sb || !Array.isArray(sb.widgets)) return;
+              if (id === "cac_vue" && oldV < 3) return;
               var seen = {};
               var ws = sb.widgets.map(cleanW).filter(Boolean).map(function (w) {
                 if (seen[w.uid]) w.uid = null;
@@ -2524,11 +2546,12 @@
             });
           }
           if (saved && saved.last && typeof saved.last === "object") ST.last = saved.last;
+          var journalFx = function (e) { return oldV < 3 && e.fx && e.fx.b === "cac_vue" ? null : e.fx && typeof e.fx === "object" ? e.fx : null; };
           if (saved && Array.isArray(saved.journal)) {
             ST.journal = saved.journal.filter(function (e) { return e && typeof e.text === "string"; }).slice(0, 30).map(function (e) {
               var id = typeof e.id === "number" ? e.id : 0;
               ST.jid = Math.max(ST.jid, id);
-              return { id: id, t: String(e.t || "").slice(0, 5), text: e.text.slice(0, 200), undoText: typeof e.undoText === "string" ? e.undoText.slice(0, 200) : "Action annulée", fx: e.fx && typeof e.fx === "object" ? e.fx : null, undone: !!e.undone };
+              return { id: id, t: String(e.t || "").slice(0, 5), text: e.text.slice(0, 200), undoText: typeof e.undoText === "string" ? e.undoText.slice(0, 200) : "Action annulée", fx: journalFx(e), undone: !!e.undone };
             });
           }
           var want = ST.last[PROFIL];
@@ -2537,7 +2560,7 @@
         /* Rien n'est enregistré pendant le mode Modifier : seul « Terminer » enregistre */
         function save(force) {
           if (ST.edit && !force) return;
-          var data = { v: 2, boards: {}, last: ST.last, journal: ST.journal.slice(0, 30) };
+          var data = { v: 3, boards: {}, last: ST.last, journal: ST.journal.slice(0, 30) };
           ST.order.forEach(function (id) {
             var b = ST.boards[id];
             if (!b) return;
@@ -2629,7 +2652,7 @@
             a.innerHTML =
               '<button type="button" class="btn btn-secondary btn-sm" data-act="edit" data-k="act-edit" aria-label="Modifier le tableau">' + ms("edit") + '<span class="cv-lbl">Modifier</span></button>' +
               '<button type="button" class="btn btn-primary btn-sm" data-act="ai" data-k="act-ai" aria-label="Assistant : interroger le DPJ ou composer le tableau" aria-expanded="' + !$("cv-ai").hidden + '">' + ms("sparkles") + '<span class="cv-lbl">Assistant</span></button>' +
-              '<button type="button" class="btn btn-secondary btn-sm" data-act="share" title="Écran non maquetté" aria-label="Partager (écran non maquetté)">' + ms("share_2") + '<span class="cv-lbl">Partager</span></button>';
+              '<button type="button" class="btn btn-secondary btn-sm" data-act="share" aria-label="Partager le tableau">' + ms("share_2") + '<span class="cv-lbl">Partager</span></button>';
           }
           document.title = b.title + " · Cockpit · Express Juridique";
         }
@@ -3019,7 +3042,7 @@
             '<button type="button" class="icon-btn cv-pop-x" data-close="pop" aria-label="Fermer">' + ms("close") + "</button>" +
             '<h3 id="cv-pop-title">' + esc(wTitle(w, res)) + "</h3><dl>" +
             "<div><dt>Règle</dt><dd>" + esc(typeof I.rule === "function" ? I.rule(ctxOf(b, w)) : I.rule) + "</dd></div>" +
-            "<div><dt>Source</dt><dd>" + esc(I.src) + "</dd></div>" +
+            "<div><dt>Source</dt><dd>" + esc(I.src + (/DPJ/.test(I.src) && !/mis à jour/.test(I.src) && DPJ && DPJ.maj ? " · DPJ mis à jour le " + DPJ.maj : "")) + "</dd></div>" +
             "<div><dt>Couverture</dt><dd>" + esc(I.cov(ctxOf(b, w))) + "</dd></div>" +
             (I.calcLabel ? "<div><dt>Fraîcheur</dt><dd>" + esc(I.calcLabel) + "</dd></div>" : "<div><dt>Calculé le</dt><dd>" + esc(C.CALC) + "</dd></div>") +
             (na.length ? "<div><dt>Filtre non disponible</dt><dd>" + esc(cap(na.join(", "))) + " : ce filtre du tableau ne s'applique pas à cet indicateur.</dd></div>" : "") +
@@ -3161,7 +3184,7 @@
           return (
             '<div class="cv-start" style="grid-column:1/-1"><h2>Composer ce tableau</h2><div class="cv-start-grid">' +
             '<button type="button" class="card cv-start-card" data-start="model" data-k="start-model" aria-expanded="false" aria-controls="cv-models">' + ms("layout_template") + "<strong>Partir d'un modèle</strong><span>" + esc(models.map(function (id) { return ST.boards[id].title; }).slice(0, 3).join(", ")) + "</span></button>" +
-            '<button type="button" class="card cv-start-card" data-start="catalogue" data-k="start-cat">' + ms("library") + "<strong>Ajouter depuis le catalogue</strong><span>Indicateurs certifiés par EJ</span></button>" +
+            '<button type="button" class="card cv-start-card" data-start="catalogue" data-k="start-cat">' + ms("library") + "<strong>Ajouter depuis le catalogue</strong><span>Tous les indicateurs disponibles</span></button>" +
             '<button type="button" class="card cv-start-card" data-start="ia" data-k="start-ia">' + ms("sparkles") + "<strong>Demander à l'assistant</strong><span>Décrivez le tableau voulu</span></button></div>" +
             '<div class="cv-models" id="cv-models" hidden>' + models.map(function (id) { return '<button type="button" class="btn btn-secondary btn-sm" data-model="' + id + '">' + ms("layout_template") + esc(ST.boards[id].title) + "</button>"; }).join("") + "</div></div>"
           );
@@ -3215,7 +3238,7 @@
               html += '<button type="button" class="cv-cat-it" role="option" aria-selected="' + (catSel === I.id) + '" data-cat="' + I.id + '">' + ms(VIZ_ICON[defViz(I)]) + "<span>" + esc(I.title) + "</span>" + (on[I.id] ? '<span class="cv-on">sur le tableau</span>' : "") + "</button>";
             });
           });
-          $("cv-cat-items").innerHTML = html || '<p class="muted small" style="padding:12px 8px">Aucun indicateur certifié ne correspond. Il n\'est pas encore dans le catalogue.</p>';
+          $("cv-cat-items").innerHTML = html || '<p class="muted small" style="padding:12px 8px">Aucun indicateur ne correspond à cette recherche.</p>';
           if (!catSel || !list.some(function (I) { return I.id === catSel; })) catSel = list.length ? list[0].id : null;
           selectCat(catSel, false);
         }
@@ -3270,7 +3293,7 @@
         }
         function addFromCatalogue(id) {
           var I = IND[id];
-          var size = I.kind === "kpi" ? "S" : ["ag_mois_forme", "ag_mois_etat", "echeances", "file_jour", "cac_heures_mission"].indexOf(id) !== -1 ? "L" : "M";
+          var size = I.kind === "kpi" ? "S" : ["ag_mois_forme", "ag_mois_etat", "echeances", "file_jour", "cac_ponct_depots"].indexOf(id) !== -1 ? "L" : "M";
           var snap = snapshot();
           var u = addWidgets([{ ind: id, size: size }]);
           closeCatalogue();
@@ -3296,6 +3319,18 @@
           toastT = setTimeout(function () { t.hidden = true; }, acts ? 9000 : undo ? 6000 : 2600);
         }
 
+        /* Partager : copie l'adresse de la page */
+        function shareBoard() {
+          var done = function () { toast("Lien du tableau copié"); };
+          var fail = function () { toast("Copie impossible : copiez l'adresse depuis la barre du navigateur."); };
+          try {
+            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(location.href).then(done, fail);
+            else fail();
+          } catch (e) {
+            fail();
+          }
+        }
+
         /* ---------- Rendu global ---------- */
         function renderAll(opts) {
           closePop();
@@ -3316,9 +3351,9 @@
 
         /* ==========================================================
            Assistant : panneau large, fenêtre agrandie, conversations enregistrées.
-           Deux usages : « Interroger le DPJ » (l'IA traduit, EJ interroge le DPJ)
-           et « Composer le cockpit » (l'IA compose avec le catalogue, EJ calcule).
-           Interprétation scriptée (maquette) : aucun nombre n'est produit par l'IA.
+           Deux usages : « Interroger le DPJ » (la question est traduite en requête, exécutée sur le DPJ)
+           et « Composer le cockpit » (le tableau est composé avec le catalogue, les calculs sont faits localement).
+           Interprétation par règles : aucun nombre n'est produit par le modèle.
            ========================================================== */
         var AKEY = "ej-cockpit-assistant-v1";
         var CONVS = [];
@@ -3332,8 +3367,8 @@
         var editing = null;
         var PH = { dpj: "Posez une question sur les sociétés du DPJ", compose: "Ajouter, transformer, filtrer, créer un tableau" };
         var FOOT = {
-          dpj: "L'IA traduit la question ; EJ interroge le DPJ. Les noms de personnes et de sociétés connus d'EJ, e-mails, téléphones et identifiants sont masqués avant l'envoi au modèle.",
-          compose: "L'IA compose avec le catalogue certifié ; EJ calcule. Les noms de personnes et de sociétés connus d'EJ, e-mails, téléphones et identifiants sont masqués avant l'envoi au modèle.",
+          dpj: "Noms, e-mails, téléphones et identifiants masqués avant l'envoi au modèle.",
+          compose: "Noms, e-mails, téléphones et identifiants masqués avant l'envoi au modèle.",
         };
         /* Sur mobile, l'assistant couvre l'écran ; agrandi, c'est une fenêtre : boîte de dialogue modale (focus piégé, page figée) */
         function aiModal() {
@@ -3432,15 +3467,15 @@
           var b = cur();
           if (!visList(b).length)
             return PROFIL === "cac"
-              ? ["Ajoute la charge d'intervention par mois", "Ajoute les heures budget et réalisées par mission", "Ajoute les fins de mandat par année", "Crée un tableau Audit avec les heures et les phases"]
+              ? ["Ajoute les rapports à émettre par mois", "Ajoute les missions ponctuelles par étape", "Ajoute les fins de mandat par année", "Crée un tableau Rapports avec les rapports à émettre et les dépôts de rapports ponctuels"]
               : ["Crée un tableau Vigilance avec les dossiers LAB et les lettres non signées", "Ajoute la charge d'AG par mois comparée à l'an dernier", "Ajoute le portefeuille par forme juridique", "Ajoute les formalités créées par mois"];
           var S = {
             ec_vue: ["Ajoute la charge d'AG par mois comparée à l'an dernier", "Transforme la répartition par forme en barres", "Crée un tableau Vigilance avec les dossiers LAB et les lettres non signées", "Combien d'AG sont à tenir en juin pour les SAS ?"],
-            ec_charge: ["Filtre la vue sur les SAS", "Ajoute les dépôts en retard", "Combien d'AG sont à tenir en juin ?", "Quel est le chiffre d'affaires moyen de mes clients ?"],
+            ec_charge: ["Filtre la vue sur les SAS", "Ajoute les dépôts en retard", "Combien d'AG sont à tenir en juin ?", "Combien de dépôts des comptes sont à faire ?"],
             ec_vigilance: ["Transforme les lettres de mission par statut en anneau", "Filtre la vue sur les SAS", "Combien de dossiers LAB sont à traiter ?", "Ajoute les points de vigilance"],
-            ec_file: ["Ajoute les prochaines échéances", "Filtre la vue sur les SARL", "Combien de documents sont à signer ?", "Quel est le temps moyen de traitement d'une formalité ?"],
-            cac_vue: ["Ajoute les fins de mandat par année", "Transforme les missions par type en barres", "Combien de fins de mandat sont à préparer ?", "Quel est le taux de marge de mes missions ?"],
-            cac_mandats: ["Ajoute la charge d'intervention par mois", "Filtre la vue sur les mandats légaux", "Combien de déclarations d'indépendance sont à renouveler ?", "Crée un tableau Audit avec les heures et les phases"],
+            ec_file: ["Ajoute les prochaines échéances", "Filtre la vue sur les SARL", "Combien de documents sont à signer ?", "Combien de formalités sont en cours ?"],
+            cac_vue: ["Ajoute les fins de mandat par année", "Transforme les mandats par type en barres", "Combien de fins de mandat sont à préparer ?", "Combien de missions ponctuelles sont en cours ?"],
+            cac_mandats: ["Ajoute les missions ponctuelles par étape", "Filtre la vue sur les mandats légaux", "Combien de déclarations d'indépendance sont à renouveler ?", "Crée un tableau Rapports avec les rapports à émettre et les dépôts de rapports ponctuels"],
           };
           return S[id] || (chipGroups(b).cac && !chipGroups(b).ec ? S.cac_vue : S.ec_vue);
         }
@@ -3521,7 +3556,7 @@
               CONVS.push({ id: c.id.slice(0, 40), p: ["ec", "cac", "mixte"].indexOf(c.p) !== -1 ? c.p : "ec", title: String(c.title || "").slice(0, 80), at: typeof c.at === "number" ? c.at : Date.now(), mode: c.mode === "compose" ? "compose" : "dpj", msgs: msgs });
             });
           }
-          /* conversations propres à chaque profil de démonstration */
+          /* conversations propres à chaque profil */
           var curId = d && d.cur && typeof d.cur === "object" ? d.cur[PROFIL] : null;
           setCC(CONVS.filter(function (c) { return c.id === curId && c.p === PROFIL; })[0] || null);
         }
@@ -3667,7 +3702,7 @@
         function partsLine(parts) {
           var n = parts.filter(function (x) { return x.m; }).length;
           var txt = parts.map(function (x) { return x.m ? '<mark class="cv-mask">' + esc(x.m) + "</mark>" : esc(x.t); }).join("");
-          return '<p class="cv-masked cv-sent">' + ms("eye_off") + "<span>Envoyé au modèle" + (n ? " (" + n + " " + (n > 1 ? "éléments masqués" : "élément masqué") + ")" : "") + " : « " + txt + " »</span></p>";
+          return '<details class="cv-masked cv-sent"><summary>' + ms("eye_off") + "<span>Envoyé au modèle" + (n ? " (" + n + " " + (n > 1 ? "éléments masqués" : "élément masqué") + ")" : "") + '</span></summary><p class="cv-sent-t">« ' + txt + " »</p></details>";
         }
         function maskedLine(raw) {
           return partsLine(DX.mask(raw).parts);
@@ -3678,7 +3713,7 @@
         var DPJ_STRONG = / (dirigeants?|gerant\w*|cogerant\w*|president\w*|directeur general|directrice generale|pdg|associes?|associees?|actionnai\w*|capital|capitaux|siege|sieges|statuts|statutaires?|commissaires? aux comptes|siren|mandats? de (?:dirigeant|gerant|president)\w*|mandataires? sociaux|domicili\w*|beneficiaires effectifs) /;
         var COMP_V = /^ (ajoute|ajouter|rajoute|insere|transforme|convertis|change|passe|cree|creer|construis|compose|monte|fais|supprime|retire|enleve|efface|filtre|filtrer|epingle|mets|remplace) /;
         var COMP_OBJ = / (widgets?|tableau|tableaux|vue|indicateurs?|graphiques?|en barres?|en courbes?|en anneau|en jauge|en frise|en camembert|kpi) /;
-        var CATALOG_W = / (formalites?|ag (?:sont )?a tenir|depots?|lab|lettres? de mission|signatures?|a signer|missions?|heures|honoraires|campagne|vigilance|independance|interventions?|echeances?|operations?|retards?|charge|file du jour|budget|phases?|a preparer|creees? par|documents?) /;
+        var CATALOG_W = / (formalites?|ag (?:sont )?a tenir|depots?|lab|lettres? de mission|signatures?|a signer|missions?|ponctuelles?|rapports?|heures|honoraires|campagne|vigilance|independance|interventions?|echeances?|operations?|retards?|charge|file du jour|budget|phases?|a preparer|creees? par|documents?) /;
         var FOLLOW_W = /^ (et |mais )?(parmi|seulement|uniquement|garde|ne garde|restreins|limite|dont|celles|ceux|lesquelles|sauf|hors|sans les|trie|tri|trier|classe|range|ordonne|et) /;
         function lastDpj() {
           for (var i = CONV.length - 1; i >= 0; i--) {
@@ -3719,7 +3754,7 @@
           setSteps(d.mode === "compose" ? "ask" : null);
           var tid = "th" + ++pid;
           var body = $("cv-ai-body");
-          body.insertAdjacentHTML("beforeend", '<p class="cv-thinking" id="' + tid + '">' + (d.mode === "dpj" ? "L'IA traduit la question, EJ interroge le DPJ…" : "L'IA compose avec le catalogue certifié…") + "</p>");
+          body.insertAdjacentHTML("beforeend", '<p class="cv-thinking" id="' + tid + '">' + (d.mode === "dpj" ? "Recherche dans le DPJ…" : "Analyse de la demande…") + "</p>");
           var sc1 = aiScroller();
           sc1.scrollTop = sc1.scrollHeight;
           var sb = $("cv-ai-send");
@@ -3737,21 +3772,22 @@
         function norm(s) {
           return " " + C.fold(s).replace(/[^a-z0-9%]+/g, " ").replace(/\s+/g, " ").trim() + " ";
         }
-        /* Hors catalogue : jamais d'estimation, et jamais « la donnée n'existe pas » quand elle existe ailleurs dans EJ */
+        /* Hors catalogue : jamais d'estimation, et jamais « la donnée n'existe pas » quand elle existe ailleurs dans l'application */
         var HORS = [
           [/ chiffre d affaires | ca moyen | du ca | le ca /, "le chiffre d'affaires des clients", ""],
-          [/ marges? | taux de marge | resultat net | rentabilite | benefices? /, "la marge ou le résultat net", "Le résultat de l'exercice figure dans les formalités d'approbation (affectation du résultat), mais aucun indicateur n'est encore certifié."],
+          [/ marges? | taux de marge | resultat net | rentabilite | benefices? /, "la marge ou le résultat net", "Le résultat de l'exercice figure seulement dans les formalités d'approbation (affectation du résultat)."],
           [/ effectifs? | salaries | nombre d employes /, "l'effectif des clients", ""],
-          [/ temps (moyen|passe)| duree (moyenne )?de traitement | delai moyen | temps de traitement /, "la durée de traitement", "EJ ne garde que le dernier statut d'une formalité, pas l'historique : la durée n'est pas mesurable aujourd'hui."],
+          [/ temps (moyen|passe)| duree (moyenne )?de traitement | delai moyen | temps de traitement /, "la durée de traitement", "Seul le dernier statut d'une formalité est conservé, sans historique : la durée n'est pas mesurable."],
           [/ tresorerie /, "la trésorerie", ""],
           [/ productivite | activite par collaborateur | charge par collaborateur /, "l'activité par collaborateur", ""],
-          [/ capital social /, "le capital social", "Il figure dans les fiches sociétés et le DPJ, mais pas encore dans le catalogue certifié."],
+          [/ capital social /, "le capital social", "Il figure dans les fiches sociétés et dans le DPJ."],
           [/ satisfaction /, "la satisfaction client", ""],
+          [/ heures | budget d heures | campagne d audit | avancement (?:de la |des )?campagnes? | avancement cac | par phases? | phases? de (?:la )?(?:campagne|mission) | (?:charge|jours?) d intervention | interventions? par mois | planning d interventions? | honoraires /, "les heures, les honoraires, la campagne d'audit ou la charge d'intervention", "Cet indicateur n'est pas encore dans le catalogue."],
         ];
         var NOFILTER = [
-          [/ collaborat(eur|eurs|rice|rices) | responsable | affecte(e|es|s)? | par personne /, "collaborateur (aucune société n'est affectée à un collaborateur dans EJ)"],
-          [/ secteurs? | code ape | par activite /, "secteur d'activité (non certifié dans le catalogue)"],
-          [/ region | ville | departement | greffe /, "localisation (non certifiée dans le catalogue)"],
+          [/ collaborat(eur|eurs|rice|rices) | responsable | affecte(e|es|s)? | par personne /, "collaborateur (aucune société n'est affectée à un collaborateur)"],
+          [/ secteurs? | code ape | par activite /, "secteur d'activité (pas de filtre par secteur)"],
+          [/ region | ville | departement | greffe /, "localisation (pas de filtre par localisation)"],
         ];
         function formesIn(t, raw) {
           var out = [];
@@ -3886,11 +3922,11 @@
             if (dims.indexOf("createur") !== -1 && C.CREATEURS.indexOf(p) !== -1 && !f.createur) f.createur = p;
             else na.push("créé par « " + p + " »" + (dims.indexOf("createur") === -1 ? " (cet indicateur n'est pas rattaché à un créateur)" : " (aucune formalité créée par cette personne)"));
           });
-          cr.socs.forEach(function (x) { na.push("société « " + x + " » (pas de filtre par société dans le catalogue)"); });
-          cr.dpers.forEach(function (x) { na.push("personne « " + x + " » (pas de filtre par dirigeant ou associé dans le catalogue)"); });
-          cr.villes.forEach(function (x) { na.push("ville « " + x + " » (localisation non certifiée dans le catalogue)"); });
+          cr.socs.forEach(function (x) { na.push("société « " + x + " » (pas de filtre par société)"); });
+          cr.dpers.forEach(function (x) { na.push("personne « " + x + " » (pas de filtre par dirigeant ou associé)"); });
+          cr.villes.forEach(function (x) { na.push("ville « " + x + " » (pas de filtre par localisation)"); });
           cr.noms.forEach(function (x) { na.push("« " + x + " » (nom non reconnu)"); });
-          cr.pats.forEach(function (x) { na.push(x + " (pas un critère du catalogue)"); });
+          cr.pats.forEach(function (x) { na.push(x + " (critère non disponible)"); });
           var per = periodeIn(t);
           if (per) {
             if (dims.indexOf("periode") !== -1) f.periode = per;
@@ -3940,13 +3976,12 @@
         }
         function replyHors(raw, what, where) {
           setSteps("ask");
-          push(card("circle_alert", "Pas encore dans le catalogue certifié",
-            "<p>" + esc(cap(what)) + " n'est pas encore certifié dans le catalogue d'EJ." + (where ? " " + esc(where) : "") + " Je ne fais pas d'estimation.</p>" +
-            '<div class="cv-msg-actions"><button type="button" class="btn btn-secondary btn-sm" data-need="' + esc(what) + '">' + ms("send") + "Signaler le besoin à EJ</button></div>", raw));
+          push(card("circle_alert", "Indicateur non disponible",
+            "<p>Je n'ai pas d'indicateur sur " + esc(what) + "." + (where ? " " + esc(where) : "") + " Je ne fais pas d'estimation.</p>", raw));
         }
         function replyNone(raw) {
           push(card("circle_alert", "Aucun indicateur correspondant",
-            "<p>Je ne trouve pas d'indicateur certifié pour cette demande. Je ne compose qu'avec le catalogue d'EJ.</p>" +
+            "<p>Je ne trouve pas d'indicateur correspondant à cette demande.</p>" +
             '<div class="cv-msg-actions"><button type="button" class="btn btn-secondary btn-sm" data-act="add">' + ms("library") + "Parcourir le catalogue</button></div>", raw));
         }
         function planCard(raw, plan, steps) {
@@ -3963,7 +3998,7 @@
           if (bt) bt.focus();
         }
         function indLine(I, viz, size) {
-          return "Indicateur certifié « " + I.title + " » · " + VIZ[viz] + " · taille " + size;
+          return "Indicateur « " + I.title + " » · " + VIZ[viz] + " · taille " + size;
         }
         function planAdd(raw, t) {
           var cr = crit(raw);
@@ -4005,7 +4040,7 @@
           R.na.forEach(function (x) { steps.push({ na: true, t: "Filtre non disponible : " + x, m: "Le widget est ajouté sans ce critère." }); });
           var na = naFilters(cur(), I, d);
           if (na.length) steps.push({ na: true, t: "Filtre du tableau non disponible : " + na.join(", "), m: "Le filtre du tableau ne s'applique pas à cet indicateur ; il sera signalé sur le widget." });
-          steps.push({ t: "Calcul par EJ", m: "Règle, source et couverture derrière le bouton « i » du widget.", icon: "lock" });
+          steps.push({ t: "Règle, source et couverture", m: "Détail derrière le bouton « i » du widget.", icon: "info" });
           planCard(raw, plan, steps);
         }
         function planViz(raw, t) {
@@ -4052,18 +4087,18 @@
             if (u.createur && C.CREATEURS.indexOf(p) !== -1 && !nf.createur) nf.createur = p;
             else steps.push({ na: true, t: "Filtre non disponible : créé par « " + p + " »", m: "Aucune formalité de ce tableau n'a été créée par cette personne, ou l'indicateur n'a pas de créateur." });
           });
-          cr.socs.forEach(function (x) { steps.push({ na: true, t: "Filtre non disponible : société « " + x + " »", m: "Le catalogue ne filtre pas par société." }); });
-          cr.dpers.forEach(function (x) { steps.push({ na: true, t: "Filtre non disponible : personne « " + x + " »", m: "Le catalogue ne filtre pas par dirigeant ou associé." }); });
-          cr.villes.forEach(function (x) { steps.push({ na: true, t: "Filtre non disponible : ville « " + x + " »", m: "Localisation non certifiée dans le catalogue." }); });
+          cr.socs.forEach(function (x) { steps.push({ na: true, t: "Filtre non disponible : société « " + x + " »", m: "Pas de filtre par société." }); });
+          cr.dpers.forEach(function (x) { steps.push({ na: true, t: "Filtre non disponible : personne « " + x + " »", m: "Pas de filtre par dirigeant ou associé." }); });
+          cr.villes.forEach(function (x) { steps.push({ na: true, t: "Filtre non disponible : ville « " + x + " »", m: "Pas de filtre par localisation." }); });
           cr.noms.forEach(function (x) { steps.push({ na: true, t: "Filtre non disponible : « " + x + " »", m: "Nom non reconnu." }); });
-          cr.pats.forEach(function (x) { steps.push({ na: true, t: "Filtre non disponible : " + x, m: "Pas un critère du catalogue." }); });
+          cr.pats.forEach(function (x) { steps.push({ na: true, t: "Filtre non disponible : " + x, m: "Critère non disponible." }); });
           var pna = periodeNA(tc);
           if (pna) steps.push({ na: true, t: "Filtre non disponible : " + pna, m: "Périodes possibles : 6, 12 ou 24 mois." });
           NOFILTER.forEach(function (x, i) {
             if (x[0].test(tc) && !(i === 2 && cr.villes.length)) steps.push({ na: true, t: "Filtre non disponible : " + x[1], m: "Aucun total n'est calculé sur ce critère." });
           });
           if (!Object.keys(nf).length) {
-            push(card("circle_alert", "Filtre non disponible", '<ul class="cv-plan">' + (steps.length ? steps : [{ na: true, t: "Je ne reconnais pas de filtre certifié dans cette demande", m: "Filtres du catalogue : période, forme juridique, créé par ; en CAC : type de mission, signataire." }]).map(function (s) {
+            push(card("circle_alert", "Filtre non disponible", '<ul class="cv-plan">' + (steps.length ? steps : [{ na: true, t: "Je ne reconnais aucun filtre dans cette demande", m: "Filtres disponibles : période, forme juridique, créé par ; en CAC : type de mission, signataire." }]).map(function (s) {
               return '<li class="na">' + ms("circle_alert") + '<div><div class="cv-pl-t">' + esc(s.t) + '</div><div class="cv-pl-m">' + esc(s.m) + "</div></div></li>";
             }).join("") + "</ul>", raw));
             return;
@@ -4079,7 +4114,7 @@
           });
           var lab = fLabel(nf);
           steps.unshift({ t: "Filtrer le tableau : " + lab, m: "S'applique à " + applies.length + " " + (applies.length > 1 ? "widgets" : "widget"), icon: "filter" });
-          if (nas.length) steps.push({ na: true, t: "Filtre non disponible pour " + nas.length + " " + (nas.length > 1 ? "widgets" : "widget"), m: nas.join(" · ") + " : mention affichée sur le widget, jamais un total silencieux." });
+          if (nas.length) steps.push({ na: true, t: "Filtre non disponible pour " + nas.length + " " + (nas.length > 1 ? "widgets" : "widget"), m: nas.join(" · ") + " : le filtre sera signalé sur chaque widget concerné." });
           planCard(raw, { type: "filter", filters: nf, label: "Filtre appliqué : " + lab, undoLabel: "Filtre retiré : " + lab }, steps);
         }
         function planRemove(raw, t) {
@@ -4106,7 +4141,7 @@
           });
           if (!ids.length) {
             if (reserved.length) return replyReserved(raw, reserved[0]);
-            push(card("circle_alert", "Aucun indicateur reconnu", "<p>Précisez le contenu du tableau, par exemple « avec les dossiers LAB et les lettres non signées ». Je ne compose qu'avec le catalogue certifié.</p>", raw));
+            push(card("circle_alert", "Aucun indicateur reconnu", "<p>Précisez le contenu du tableau, par exemple « avec les dossiers LAB et les lettres non signées ». </p>", raw));
             return;
           }
           ids.slice().forEach(function (id) {
@@ -4232,7 +4267,7 @@
           var qid = "q" + ++pid;
           PLANS[qid] = { type: "answer", pin: pin, rows: rowsFn, title: text, I: I.id };
           setSteps("ask");
-          push(card("message_square", "Réponse calculée par EJ",
+          push(card("message_square", "Réponse",
             '<div class="cv-ans">' + esc(val) + '</div><div class="cv-ans-t">' + esc(text) + "</div>" +
             (res.note ? '<p class="cv-ans-r">' + esc(res.note) + "</p>" : "") +
             (stripped ? '<p class="cv-ans-r"><strong>Sans le critère</strong> : ' + esc(stripped.join(" ; ")) + ".</p>" : "") +
@@ -4406,7 +4441,7 @@
 
         /* ==========================================================
            Interroger le DPJ : l'IA traduit, EJ interroge.
-           Traduction scriptée (maquette) d'une question libre en requête structurée
+           Traduction par règles d'une question libre en requête structurée
            sur le schéma du DPJ (EJDPJ.schema) ; EJDPJ.run l'exécute. Les noms de personnes,
            de sociétés et les identifiants sont masqués avant l'envoi au modèle, puis remplacés
            localement par EJ au moment d'exécuter.
@@ -5738,12 +5773,12 @@
           });
         }
 
-        /* Requête DPJ épinglée au cockpit : relancée par EJ à chaque affichage */
+        /* Requête DPJ épinglée au cockpit : relancée à chaque affichage */
         var DPJ_SRC = "DPJ (Dossier permanent juridique), mis à jour le " + DPJ.maj;
         IND.dpj_liste = {
           id: "dpj_liste", group: "all", theme: "portefeuille", kind: "list", title: "Requête DPJ", hidden: true, viz: "list", vizes: ["list"], dims: [], kw: [],
           src: DPJ_SRC, calcLabel: "DPJ mis à jour le " + DPJ.maj,
-          rule: function (ctx) { return "Requête sur le DPJ : " + qTitle(ctx.p.q) + ". Relancée par EJ à chaque affichage."; },
+          rule: function (ctx) { return "Requête sur le DPJ : " + qTitle(ctx.p.q) + ". Relancée à chaque affichage."; },
           cov: function (ctx) { return covTxt(runQ(ctx.p.q || cleanQ({}))); },
           compute: function (ctx) {
             var r = runQ(ctx.p.q || cleanQ({}));
@@ -5866,14 +5901,14 @@
               '<div class="cv-msg-actions">' + (m.mandats || []).map(function (id) { return '<a class="btn btn-secondary btn-sm" href="cac-mandat.html?id=' + encodeURIComponent(id) + '">' + ms("briefcase") + "Voir la mission CAC</a>"; }).join("") + "</div></div>";
           if (m.kind === "cacper")
             return h + aHead("briefcase", "Personne liée à une entité contrôlée, hors du DPJ") +
-              "<p>« " + esc(m.name) + " » : personne liée à une entité contrôlée, hors du DPJ (voir Missions CAC). Elle n'est ni dirigeante ni associée d'une société cliente au DPJ. Le nom a été masqué à l'envoi" + (m.tag ? " (" + esc(m.tag) + ")" : "") + ".</p>" +
+              "<p>« " + esc(m.name) + " » : personne liée à une entité contrôlée, hors du DPJ (voir Missions CAC). Elle n'est ni dirigeante ni associée d'une société cliente au DPJ. Le nom a été masqué avant l'envoi" + (m.tag ? " (" + esc(m.tag) + ")" : "") + ".</p>" +
               '<div class="cv-msg-actions">' + (m.mandats || []).map(function (id) { var x = window.EJM.findMandat(id); return '<a class="btn btn-secondary btn-sm" href="cac-mandat.html?id=' + encodeURIComponent(id) + '">' + ms("briefcase") + "Voir la mission CAC" + (x ? " · " + esc(x.nom) : "") + "</a>"; }).join("") + "</div></div>";
           if (m.kind === "noperson")
             return h + aHead("user_round", "Aucune personne de ce nom dans le DPJ") +
-              "<p>« " + esc(m.name) + " » n'est ni dirigeant ni associé d'une société du DPJ. Le nom a été masqué à l'envoi" + (m.tag ? " (" + esc(m.tag) + ")" : "") + " puis recherché par EJ.</p></div>";
+              "<p>« " + esc(m.name) + " » n'est ni dirigeant ni associé d'une société du DPJ. Le nom a été masqué avant l'envoi" + (m.tag ? " (" + esc(m.tag) + ")" : "") + ".</p></div>";
           if (m.kind === "homonyme")
             return h + aHead("user_round", m.first ? "Précisez le nom de la personne" : "Plusieurs personnes portent ce nom") +
-              "<p>" + (m.first ? "« " + esc(m.name) + " » est un prénom seul : EJ n'interroge pas le DPJ sur un prénom. Choisissez la personne :" : "Précisez le prénom :") + "</p>" +
+              "<p>" + (m.first ? "« " + esc(m.name) + " » est un prénom seul : je ne peux pas interroger le DPJ sur un prénom. Choisissez la personne :" : "Précisez le prénom :") + "</p>" +
               '<div class="cv-msg-actions">' + (m.list || []).map(function (n) { var s = "Dans quelles sociétés " + n + " est associé ou dirigeant ?"; return '<button type="button" class="btn btn-secondary btn-sm" data-sugg="' + esc(s) + '" data-sugg-mode="dpj">' + esc(n) + "</button>"; }).join("") + "</div></div>";
           if (m.kind === "nosoc")
             return h + aHead("building_2", "Aucune société de ce nom dans le DPJ") + "<p>« " + esc(m.name) + " » n'est pas une société suivie au DPJ du cabinet.</p></div>";
@@ -5881,7 +5916,7 @@
           var hb = '<div class="cv-q"><p class="cv-q-h">Requête comprise' + (m.follow ? " · suite de la question précédente" : "") + "</p>" + chipsHtml(m);
           var repl = (m.persons || []).filter(function (x) { return x.tag && q.where.some(function (c) { return [].concat(c.value).indexOf(x.name) !== -1; }); });
           if (repl.length)
-            hb += '<p class="cv-repl">' + ms("lock") + "<span>" + repl.map(function (x) { return esc(x.tag) + " = " + esc(x.name); }).join(", ") + " : remplacé par EJ, jamais envoyé au modèle.</span></p>";
+            hb += '<p class="cv-repl">' + ms("lock") + "<span>" + repl.map(function (x) { return esc(x.tag) + " = " + esc(x.name); }).join(", ") + " : nom masqué avant l'envoi au modèle.</span></p>";
           if (editing && editing.mid === m.id) hb += editorHtml(m, editing.i);
           hb += "</div>";
           var gen = (m.unk || []).filter(function (u) { return u.generic; });
@@ -5895,7 +5930,7 @@
               return h + hb + aHead("circle_alert", "Aucun critère du DPJ reconnu") + "<p>Je n'ai reconnu aucun champ du DPJ dans cette question.</p>" + fieldsList() + "</div>";
             var errs = m.unk.map(function (u) {
               if (u.sugg) return "Je ne connais pas « " + (u.typed || u.text) + " » : aucune société du DPJ n'a son siège dans une ville de ce nom. Vouliez-vous dire « " + u.sugg + " » ?";
-              if (u.generic) return "Je n'ai pas compris : « " + u.text + " »" + (u.neg ? " (une négation n'est jamais ignorée)" : "");
+              if (u.generic) return "Je n'ai pas compris : « " + u.text + " »" + "";
               return "Critère non reconnu : " + u.text + (u.why ? " (" + u.why + ")" : "");
             });
             /* « Interroger sans ce critère » : jamais quand le mot non compris porte une négation (on exécuterait l'inverse) */
@@ -6150,7 +6185,7 @@
               return ST.edit ? cancelEdit() : null;
             }
             if (a === "ai") return $("cv-ai").hidden ? openAI() : closeAI();
-            if (a === "share") return toast("Partager : écran non maquetté");
+            if (a === "share") return shareBoard();
             if (a === "add") return openCatalogue();
             if (a === "reset") {
               var snapR = snapshot();
@@ -6428,12 +6463,6 @@
             answerCompute(qq.raw, qq.t, IND[qq.I], qq.mo, qq.f, qq.na);
             return;
           }
-          if ((x = t.closest("[data-need]"))) {
-            logJ("Demande hors catalogue transmise à EJ : " + x.getAttribute("data-need"), null);
-            x.disabled = true;
-            x.innerHTML = ms("check") + "Besoin transmis";
-            return;
-          }
           if ((x = t.closest("[data-undo]"))) return undoJ(+x.getAttribute("data-undo"));
           if (t.closest("[data-toast-undo]")) {
             var tt2 = $("cv-toast");
@@ -6588,6 +6617,6 @@
         document.addEventListener("DOMContentLoaded", init);
       })();
     </script>
-    <script src="assets/ej-shell.js?v=22"></script>
+    <script src="assets/ej-shell.js?v=24"></script>
   </body>
 </html>

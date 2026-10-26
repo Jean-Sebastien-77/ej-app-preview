@@ -279,8 +279,11 @@
   transform: none;
 }
 
-/* ---------- Tableau défilant horizontalement sur petit écran ---------- */
+/* ---------- Tableau défilant horizontalement sur petit écran ----------
+   position: relative : les éléments positionnés du tableau (libellés .sr-only) restent contenus
+   dans le conteneur et ne rallongent jamais la page. */
 .table-scroll {
+  position: relative;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -376,5 +379,138 @@
   }
   body.m-resp .header-profil .hp-label {
     display: none;
+  }
+}
+
+/* ---------- Note derrière un « i » cerclé (survol, focus clavier, toucher) ----------
+   Un seul modèle pour toutes les pages ; le placement est calculé à l'ouverture par ej-shell.js
+   (délégation d'événements, aucune initialisation par page, « i » ajoutés dynamiquement compris).
+   <span class="info-tip">
+     <button type="button" class="info-tip-btn" aria-describedby="note-x" aria-label="Information"><span class="ms">info</span></button>
+     <span class="info-tip-pop" role="tooltip" id="note-x">Texte de la note.</span>
+   </span>
+   - Par défaut la bulle s'ouvre au-dessus ; data-tip="bas" sur .info-tip l'ouvre en dessous.
+   - Le script pose data-tip-pos (haut | bas), data-tip-align (debut | fin, absent = centrée),
+     --tip-dx (décalage de rattrapage), puis --tip-maxh et --tip-ov (défilement interne) si l'écran est trop bas.
+   - Fermée, la bulle est en display:none : elle ne peut jamais élargir la page.
+   - Échap la ferme (data-ferme posé par le script jusqu'à la prochaine entrée). */
+.info-tip {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
+}
+.info-tip[hidden] {
+  display: none;
+}
+.info-tip-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ej-neutral-500);
+  transition: color var(--ej-transition-fast), background var(--ej-transition-fast);
+}
+.info-tip-btn .ms {
+  font-size: 16px;
+}
+.info-tip-btn:hover,
+.info-tip-btn:focus-visible {
+  color: var(--ej-action-600);
+  background: var(--ej-action-50);
+}
+.info-tip-pop {
+  display: none;
+  position: absolute;
+  z-index: 90;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(calc(-50% + var(--tip-dx, 0px)));
+  width: max-content;
+  max-width: min(300px, calc(100vw - 32px));
+  max-height: var(--tip-maxh, none);
+  overflow-y: var(--tip-ov, visible);
+  padding: 10px 12px;
+  border-radius: var(--ej-radius-md);
+  background: var(--ej-white);
+  border: 1px solid var(--ej-hairline);
+  box-shadow: var(--ej-shadow-md);
+  font-family: var(--ej-font-body);
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-transform: none;
+  text-align: left;
+  color: var(--ej-neutral-700);
+  white-space: normal;
+}
+/* Ouverture en dessous */
+.info-tip[data-tip-pos="bas"] .info-tip-pop {
+  bottom: auto;
+  top: calc(100% + 8px);
+}
+/* Alignement sur le bord du « i » plutôt que centré : vers la droite (debut) ou vers la gauche (fin) */
+.info-tip[data-tip-align="debut"] .info-tip-pop {
+  left: -6px;
+  transform: translateX(var(--tip-dx, 0px));
+}
+.info-tip[data-tip-align="fin"] .info-tip-pop {
+  left: auto;
+  right: -6px;
+  transform: translateX(var(--tip-dx, 0px));
+}
+/* Ouverte : survol ou focus (clavier, toucher). La bulle reste atteignable (lien dans la note) :
+   un pont de 8 px comble l'écart entre le « i » et la bulle. */
+.info-tip:not([data-ferme]):hover .info-tip-pop,
+.info-tip:not([data-ferme]):focus-within .info-tip-pop,
+.info-tip.is-mesure .info-tip-pop {
+  display: block;
+  pointer-events: auto;
+  animation: info-tip-in var(--ej-transition-fast);
+}
+.info-tip.is-mesure .info-tip-pop {
+  visibility: hidden;
+  animation: none;
+}
+.info-tip-pop::before,
+.info-tip-pop::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 8px;
+}
+.info-tip-pop::after {
+  top: 100%;
+}
+.info-tip-pop::before {
+  display: none;
+  bottom: 100%;
+}
+.info-tip[data-tip-pos="bas"] .info-tip-pop::after {
+  display: none;
+}
+.info-tip[data-tip-pos="bas"] .info-tip-pop::before {
+  display: block;
+}
+@keyframes info-tip-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+/* Petit écran : largeur fixe, toujours dans l'écran */
+@media (max-width: 480px) {
+  .info-tip-pop {
+    width: min(300px, calc(100vw - 32px));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .info-tip-pop {
+    animation: none !important;
   }
 }

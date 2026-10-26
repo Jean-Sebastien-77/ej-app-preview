@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=19" />
-    <link rel="stylesheet" href="assets/ej-missions.css?v=19" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=21" />
     <style>
       /* ---------- Sections numérotées (pattern nouvelle-formalite.html) ---------- */
       .nf-section {
@@ -101,6 +101,33 @@
         opacity: 0.5;
         cursor: not-allowed;
         pointer-events: none;
+      }
+
+      /* ---------- Notes derrière un « i » ---------- */
+      .nf-title .info-tip {
+        margin-left: -4px;
+      }
+      .lm-lblrow {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        margin-bottom: -2px;
+      }
+      .lm-pcell {
+        display: flex;
+        align-items: flex-start;
+        gap: 4px;
+        min-width: 0;
+      }
+      .lm-pcell .check {
+        min-width: 0;
+      }
+      .lm-pcell .info-tip {
+        margin-top: -1px;
+        flex-shrink: 0;
+      }
+      .lm-cond .form-helper.warn {
+        color: var(--ej-warning-600);
       }
 
       /* ---------- Mise en page : formulaire + aperçu ---------- */
@@ -613,7 +640,7 @@
         bottom: 96px;
       }
 
-      /* ---------- Message de confirmation (maquette) ---------- */
+      /* ---------- Message de confirmation ---------- */
       .lm-toast {
         position: fixed;
         left: 50%;
@@ -763,8 +790,7 @@
               <section class="card nf-section">
                 <span class="list-icon"><span class="ms">building_2</span></span>
                 <div class="nf-body">
-                  <div class="nf-title"><span class="nf-num">1</span>Client</div>
-                  <div class="nf-hint">L'identité du client est reprise du DPJ, vous n'avez rien à ressaisir.</div>
+                  <div class="nf-title"><span class="nf-num">1</span><span>Client</span><span class="info-tip" data-tip="bas"><button type="button" class="info-tip-btn" aria-describedby="note-client" aria-label="Information"><span class="ms">info</span></button><span class="info-tip-pop" role="tooltip" id="note-client">Identité du client reprise du DPJ de la société : vous n'avez rien à ressaisir.</span></span></div>
                   <div class="form-group lm-mt">
                     <label class="form-label" for="lm-soc">Société concernée</label>
                     <select class="form-input" id="lm-soc"></select>
@@ -777,8 +803,7 @@
               <section class="card nf-section">
                 <span class="list-icon"><span class="ms">layers</span></span>
                 <div class="nf-body">
-                  <div class="nf-title"><span class="nf-num">2</span>Modèle de lettre</div>
-                  <div class="nf-hint">Choisir un modèle pré-coche les prestations. Vous pourrez les ajuster ensuite.</div>
+                  <div class="nf-title"><span class="nf-num">2</span><span>Modèle de lettre</span><span class="info-tip" data-tip="bas"><button type="button" class="info-tip-btn" aria-describedby="note-modele" aria-label="Information"><span class="ms">info</span></button><span class="info-tip-pop" role="tooltip" id="note-modele">Choisir un modèle pré-coche les prestations. Vous pourrez les ajuster ensuite.</span></span></div>
                   <div class="nf-choices" id="lm-modeles"></div>
                 </div>
               </section>
@@ -787,8 +812,7 @@
               <section class="card nf-section">
                 <span class="list-icon"><span class="ms">euro</span></span>
                 <div class="nf-body">
-                  <div class="nf-title"><span class="nf-num">3</span>Prestations et honoraires</div>
-                  <div class="nf-hint">Cochez les prestations de la lettre, puis ajustez quantités et prix. Les montants sont annuels et hors taxes.</div>
+                  <div class="nf-title"><span class="nf-num">3</span><span>Prestations et honoraires</span><span class="info-tip" data-tip="bas"><button type="button" class="info-tip-btn" aria-describedby="note-prest" aria-label="Information"><span class="ms">info</span></button><span class="info-tip-pop" role="tooltip" id="note-prest">Cochez les prestations de la lettre, puis ajustez quantités et prix. Les montants sont annuels et hors taxes.</span></span></div>
                   <div id="lm-prest"></div>
 
                   <div class="lm-recap">
@@ -826,9 +850,9 @@
                   <div class="nf-title"><span class="nf-num">4</span>Conditions</div>
                   <div class="form-grid lm-cond">
                     <div class="form-group">
-                      <label class="form-label" for="f-effet">Date d'effet</label>
+                      <div class="lm-lblrow"><label class="form-label" for="f-effet">Date d'effet</label><span class="info-tip"><button type="button" class="info-tip-btn" aria-describedby="note-effet" aria-label="Information"><span class="ms">info</span></button><span class="info-tip-pop" role="tooltip" id="note-effet"></span></span></div>
                       <input class="form-input" type="date" id="f-effet" />
-                      <span class="form-helper" id="f-exo"></span>
+                      <span class="form-helper warn" id="f-exo" hidden></span>
                     </div>
                     <div class="form-group">
                       <label class="form-label" for="f-duree">Durée</label>
@@ -842,9 +866,8 @@
                       <select class="form-input" id="f-cab"></select>
                     </div>
                     <div class="form-group">
-                      <label class="form-label" for="f-client">Signataire du client</label>
+                      <div class="lm-lblrow"><label class="form-label" for="f-client">Signataire du client</label><span class="info-tip"><button type="button" class="info-tip-btn" aria-describedby="note-signataire" aria-label="Information"><span class="ms">info</span></button><span class="info-tip-pop" role="tooltip" id="note-signataire"></span></span></div>
                       <input class="form-input" type="text" id="f-client" placeholder="Dirigeant de la société" />
-                      <span class="form-helper" id="f-client-h"></span>
                     </div>
                     <label class="check"><input type="checkbox" id="f-cg" checked />Joindre les conditions générales du cabinet en annexe</label>
                   </div>
@@ -856,17 +879,10 @@
             <aside class="card nf-section lm-aside" aria-label="Aperçu de la lettre">
               <span class="list-icon"><span class="ms">signature</span></span>
               <div class="nf-body">
-                <div class="nf-title"><span class="nf-num">5</span>Aperçu et signature</div>
-                <div class="nf-hint">L'aperçu se met à jour pendant que vous complétez la lettre.</div>
+                <div class="nf-title"><span class="nf-num">5</span><span>Aperçu et signature</span><span class="info-tip" data-tip="bas"><button type="button" class="info-tip-btn" aria-describedby="note-apercu" aria-label="Information"><span class="ms">info</span></button><span class="info-tip-pop" role="tooltip" id="note-apercu">L'aperçu se met à jour pendant que vous complétez la lettre. Signature électronique : le client reçoit un lien par e-mail.</span></span></div>
                 <div class="lm-desk"><div class="lm-sheet" id="lm-sheet"></div></div>
-                <div class="alert alert-brand lm-asidenote"><span class="ms">signature</span><span>La signature électronique suit le même parcours que pour les formalités : le client signe en ligne, le suivi reste dans Express Juridique.</span></div>
               </div>
             </aside>
-          </div>
-
-          <div class="m-note">
-            <span class="ms">info</span>
-            <span>Maquette : contenu de la lettre de mission et mentions obligatoires à faire valider par un professionnel (code de déontologie des experts-comptables).</span>
           </div>
 
           <!-- Barre d'action collante -->
@@ -885,7 +901,7 @@
 
     <div class="lm-toast" id="lm-toast" role="status" aria-live="polite"><span class="ms">check_circle</span><span id="lm-toast-txt"></span></div>
 
-    <script src="assets/ej-missions-data.js?v=19"></script>
+    <script src="assets/ej-missions-data.js?v=20"></script>
     <script>
       (function () {
         var E = window.EJM;
@@ -897,7 +913,7 @@
         /* Le bouton « Renouveler » d'une lettre reconduite n'apparaît qu'à l'approche de l'échéance */
         var SEUIL_RENOUVELLEMENT_JOURS = 90;
 
-        /* Dirigeants fictifs, identiques à lab-dossier.html (le DPJ les fournira en vrai) */
+        /* Dirigeants des sociétés, identiques à lab-dossier.html (issus du DPJ) */
         var DIRIGEANTS = {
           paprika: ["Camille Rousseau", "Présidente"],
           axiome: ["Marc Vidal", "Gérant"],
@@ -1017,6 +1033,15 @@
           signee: null,
           periodeFin: null, /* échéance de la période en cours, pour une lettre existante seulement */
         };
+
+        /* Note derrière un « i » cerclé (survol, focus clavier, toucher) */
+        function infoTip(id, texte) {
+          return (
+            '<span class="info-tip">' +
+            '<button type="button" class="info-tip-btn" aria-describedby="' + id + '" aria-label="Information"><span class="ms">info</span></button>' +
+            '<span class="info-tip-pop" role="tooltip" id="' + id + '">' + texte + "</span></span>"
+          );
+        }
 
         function resetRows(ids) {
           E.prestations.forEach(function (p) {
@@ -1179,10 +1204,11 @@
               var meta = BASE[p.base];
               h +=
                 '<div class="lm-prow off" data-row="' + p.id + '">' +
-                '<label class="check lm-pl"><input type="checkbox" data-k="on" data-id="' + p.id + '" />' +
+                '<div class="lm-pl lm-pcell"><label class="check"><input type="checkbox" data-k="on" data-id="' + p.id + '" />' +
                 '<span><span class="lm-pname">' + esc(p.libelle) + "</span>" +
-                (p.ej ? '<span class="lm-ej">Produit dans EJ</span>' : "") +
-                '<span class="lm-pcap" data-cap="' + p.id + '">' + esc(meta.cap) + "</span></span></label>" +
+                (p.ej ? '<span class="lm-ej">Gérée dans Express Juridique</span>' : "") +
+                "</span></label>" +
+                (meta.qty ? infoTip("note-cap-" + p.id, esc(meta.cap)) : "") + "</div>" +
                 (meta.qty
                   ? '<label class="lm-f lm-f-q"><span class="lm-f-cap">' + esc(meta.capQ) + '</span><span class="lm-inp"><input class="form-input" type="number" min="0" step="1" inputmode="decimal" data-k="qty" data-id="' + p.id + '" aria-label="' + esc(p.libelle + ", " + meta.capQ.toLowerCase()) + '" /></span></label>'
                   : '<span class="lm-f lm-f-q lm-na"></span>') +
@@ -1279,7 +1305,7 @@
           var soc = curSoc();
           var el = $("lm-client");
           if (!soc) {
-            el.innerHTML = '<div class="lm-placeholder">Choisissez une société : sa dénomination, son SIREN, son dirigeant et sa date de clôture sont repris du DPJ.</div>';
+            el.innerHTML = '<div class="lm-placeholder">Choisissez une société pour reprendre son identité.</div>';
             return;
           }
           var d = dirigeant();
@@ -1291,7 +1317,7 @@
             "<dt>Dirigeant</dt><dd>" + esc(d ? d.nom + ", " + d.qualite : "À renseigner") + "</dd>" +
             "<dt>Clôture de l'exercice</dt><dd>" + esc(clotureLabel(soc)) + "</dd>" +
             "<dt>Activité</dt><dd>" + esc(soc.activite) + "</dd>" +
-            '</dl><div class="source"><span class="ms">library</span>Source : DPJ de la société</div></div>';
+            '</dl></div>';
 
           var al = "";
           var lab = soc.lab;
@@ -1350,7 +1376,8 @@
               if (q) q.value = r.qty;
               pr.value = r.prix;
               var cap = BASE[p.base].cap + (r.note ? " · reprise de « " + r.note + " »" : "");
-              row.querySelector("[data-cap]").textContent = cap;
+              var capEl = $("note-cap-" + p.id);
+              if (capEl) capEl.textContent = cap;
             }
             chk.disabled = locked;
             if (q) q.disabled = locked || !r.on;
@@ -1379,19 +1406,24 @@
           }
           ["f-effet", "f-duree", "f-cab", "f-client", "f-cg"].forEach(function (id) { $(id).disabled = locked; });
           $("lm-soc").disabled = S.fixedSoc || locked;
-          var aide;
+          var aide, alerte = "";
           if (!soc) aide = "L'exercice dépend de la société choisie.";
           else if (S.periodeFin) aide = (S.signee ? "Prise d'effet à la signature. " : "Prise d'effet à la signature du client. ") + "Période en cours jusqu'au " + S.periodeFin + ".";
           else if (S.nature === "avenant") aide = "Les autres stipulations de la lettre " + S.lm.ref + " restent applicables.";
-          else if (!S.effet) aide = "Renseignez la date d'effet.";
-          else {
+          else if (!S.effet) {
+            aide = "L'exercice dépend de la date d'effet.";
+            alerte = "Renseignez la date d'effet.";
+          } else {
             aide = "Exercice clos le " + fmt(finExo()) + ".";
-            if (parseIso(S.effet) < AUJOURDHUI) aide += " Date d'effet antérieure à la date de la lettre : à confirmer.";
+            if (parseIso(S.effet) < AUJOURDHUI) alerte = "Date d'effet antérieure à la date de la lettre : vérifiez-la.";
           }
-          $("f-exo").textContent = aide;
+          $("note-effet").textContent = aide;
+          $("f-exo").textContent = alerte;
+          $("f-exo").hidden = !alerte;
           $("f-duree").closest(".form-group").style.display = S.nature === "avenant" ? "none" : "";
           var d = dirigeant();
-          $("f-client-h").textContent = d ? "Dirigeant du DPJ : " + d.nom + ", " + d.qualite + "." : "";
+          $("note-signataire").textContent = d ? "Dirigeant du DPJ : " + d.nom + ", " + d.qualite + "." : "";
+          $("note-signataire").closest(".info-tip").hidden = !d;
         }
 
         function renderRecap() {
@@ -1509,12 +1541,12 @@
             "<li>Le client signale au cabinet tout événement susceptible d'affecter la mission.</li>" +
             "<li>Le client règle les honoraires aux échéances convenues.</li></ul>";
 
-          /* Responsabilité, résiliation, conservation : texte d'attente à faire valider */
+          /* Responsabilité, résiliation, conservation */
           h += titre("Responsabilité et assurance") +
             "<p>Le cabinet est responsable de l'exécution de sa mission dans les conditions applicables à la profession. Il est couvert par une assurance de responsabilité civile professionnelle : " +
-            ph("références de l'assureur et du contrat à renseigner") + ".</p>";
+            ph("nom de l'assureur et numéro de contrat") + ".</p>";
           h += titre("Résiliation et préavis") +
-            "<p>Chacune des parties peut mettre fin à la lettre dans les conditions convenues, moyennant un préavis de " + ph("durée du préavis à définir") + ".</p>";
+            "<p>Chacune des parties peut mettre fin à la lettre dans les conditions convenues, moyennant un préavis de " + ph("durée du préavis") + ".</p>";
           h += titre("Conservation des documents") +
             "<p>Le cabinet conserve les documents et dossiers du client pendant les durées applicables à la profession et les restitue à sa demande dans les conditions prévues.</p>";
 
@@ -1637,7 +1669,7 @@
           } else if (act === "relancer") {
             toast("Relance envoyée à " + (S.signClient || "votre client") + ".");
           } else if (act === "pdf") {
-            toast("Téléchargement du PDF (maquette).");
+            toast("Téléchargement du PDF lancé.");
           } else if (act === "avenant") {
             S.mode = "avenant";
             S.nature = "avenant";
@@ -1710,6 +1742,6 @@
         refreshAll();
       })();
     </script>
-    <script src="assets/ej-shell.js?v=22"></script>
+    <script src="assets/ej-shell.js?v=24"></script>
   </body>
 </html>

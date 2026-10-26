@@ -952,7 +952,7 @@
     };
   }
 
-  /* ---------- Exemples de démonstration ---------- */
+  /* ---------- Exemples de questions ---------- */
   function ex(question, query) {
     return { question: question, query: query, colonnes: colonnes(query.select) };
   }

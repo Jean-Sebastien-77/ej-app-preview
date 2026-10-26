@@ -157,6 +157,53 @@
       lab: { ouverture: "12/10/2026", criblage: "12/10/2026", risque: null, statut: "incomplet", derniereRevue: null, prochaineRevue: null, be: 1, ppe: false, gel: "ok", pieces: [3, 6] } },
   ];
 
+  /* Missions ponctuelles du commissaire aux comptes, liées à une opération juridique.
+     nature : apport (commissaire aux apports) | transformation (commissaire à la transformation) | fusion (commissaire à la fusion)
+     etape : designation | acceptation | pieces | rapport | signature | depot | termine
+     assemblee : date de l'assemblée qui statue sur l'opération ; depotAvant : date limite de dépôt du rapport
+     (règle retenue pour la maquette : au plus tard 8 jours avant l'assemblée, à faire valider par un professionnel)
+     pieces : [reçues, attendues], déposées par le conseil de la société par un lien de dépôt, sans compte
+     conseil : cabinet qui prépare l'opération. ej : true s'il utilise Express Juridique (le rapport signé
+     rejoint alors directement sa formalité, avec l'accord de la société)
+     documents : [libellé, statut a_produire | brouillon | a_signer | signe | depose] */
+  var PONCTUELLES = [
+    { id: "orvane", nom: "ORVANE INDUSTRIES", siren: "834 210 576", forme: "SAS", nature: "apport", signataire: "CD",
+      operation: "Augmentation de capital par apport de 100 % des titres de MÉTALIS SAS", valeur: 1850000,
+      designation: { mode: "Décision unanime des associés", date: "02/10/2026" }, assemblee: "27/11/2026", depotAvant: "19/11/2026",
+      etape: "pieces", pieces: [4, 7], honoraires: 6500,
+      conseil: { nom: "CABINET MARCHAL & ASSOCIÉS", ej: true, formalite: "F-2026-0418", libelle: "Augmentation de capital par apport en nature" },
+      lm: { statut: "signee", ref: "LM-CAC-2026-014" }, independance: { statut: "a_jour" }, lab: { statut: "a_jour", risque: "standard" },
+      documents: [["Lettre de mission", "signe"], ["Rapport du commissaire aux apports", "a_produire"], ["Lettre d'affirmation", "a_produire"]] },
+    { id: "kerlys", nom: "KERLYS", siren: "752 018 334", forme: "SARL", nature: "transformation", signataire: "CD",
+      operation: "Transformation de la SARL en SAS", valeur: null,
+      designation: { mode: "Décision unanime des associés", date: "15/09/2026" }, assemblee: "08/12/2026", depotAvant: "30/11/2026",
+      etape: "rapport", pieces: [6, 6], honoraires: 3800,
+      conseil: { nom: "SELARL VASSEUR AVOCATS", ej: false, formalite: null, libelle: "Transformation de SARL en SAS" },
+      lm: { statut: "signee", ref: "LM-CAC-2026-011" }, independance: { statut: "a_jour" }, lab: { statut: "a_jour", risque: "faible" },
+      documents: [["Lettre de mission", "signe"], ["Rapport sur la valeur des biens et la situation nette", "brouillon"], ["Lettre d'affirmation", "a_signer"]] },
+    { id: "brun", nom: "ATELIERS BRUN", siren: "903 556 120", forme: "SAS", nature: "apport", signataire: "CD",
+      operation: "Apport partiel d'actif de la branche menuiserie", valeur: 640000,
+      designation: { mode: "Ordonnance du président du tribunal de commerce", date: "16/10/2026" }, assemblee: "15/01/2027", depotAvant: "07/01/2027",
+      etape: "acceptation", pieces: [0, 8], honoraires: null,
+      conseil: { nom: "CABINET MARCHAL & ASSOCIÉS", ej: true, formalite: "F-2026-0431", libelle: "Apport partiel d'actif" },
+      lm: { statut: "a_etablir", ref: null }, independance: { statut: "a_faire" }, lab: { statut: "a_ouvrir", risque: null },
+      documents: [["Lettre de mission", "a_produire"], ["Rapport du commissaire aux apports", "a_produire"], ["Lettre d'affirmation", "a_produire"]] },
+    { id: "vetis", nom: "VETIS SANTÉ", siren: "811 470 925", forme: "SAS", nature: "fusion", signataire: "CD",
+      operation: "Fusion-absorption de SANTÉO DIFFUSION par VETIS SANTÉ", valeur: 2300000,
+      designation: { mode: "Ordonnance du président du tribunal de commerce", date: "01/09/2026" }, assemblee: "05/11/2026", depotAvant: "28/10/2026",
+      etape: "signature", pieces: [9, 9], honoraires: 9200,
+      conseil: { nom: "CABINET MARCHAL & ASSOCIÉS", ej: true, formalite: "F-2026-0396", libelle: "Fusion-absorption" },
+      lm: { statut: "signee", ref: "LM-CAC-2026-009" }, independance: { statut: "a_jour" }, lab: { statut: "a_jour", risque: "standard" },
+      documents: [["Lettre de mission", "signe"], ["Rapport sur la valeur des apports", "a_signer"], ["Rapport sur la rémunération des apports", "a_signer"], ["Lettre d'affirmation", "signe"]] },
+    { id: "pomone", nom: "POMONE PRIMEURS", siren: "790 335 618", forme: "SARL", nature: "transformation", signataire: "CD",
+      operation: "Transformation de la SARL en SAS", valeur: null,
+      designation: { mode: "Décision unanime des associés", date: "08/07/2026" }, assemblee: "30/09/2026", depotAvant: "22/09/2026",
+      etape: "termine", pieces: [6, 6], honoraires: 3200,
+      conseil: { nom: "SELARL VASSEUR AVOCATS", ej: false, formalite: null, libelle: "Transformation de SARL en SAS" },
+      lm: { statut: "signee", ref: "LM-CAC-2026-006" }, independance: { statut: "a_jour" }, lab: { statut: "a_jour", risque: "faible" },
+      documents: [["Lettre de mission", "signe"], ["Rapport sur la valeur des biens et la situation nette", "depose"], ["Lettre d'affirmation", "signe"]] },
+  ];
+
   /* Bibliothèque de prestations (lettres de mission). Prix indicatifs du cabinet fictif. */
   var PRESTATIONS = [
     { id: "presentation", famille: "Comptable", libelle: "Présentation des comptes annuels", base: "Forfait annuel", prix: 2800 },
@@ -195,6 +242,13 @@
       return profil === "cac" ? "CD" : "TG";
     },
     mandats: MANDATS,
+    ponctuelles: PONCTUELLES,
+    findPonctuelle: function (id) {
+      return PONCTUELLES.filter(function (m) { return m.id === id; })[0] || null;
+    },
+    NATURE: { apport: "Commissariat aux apports", transformation: "Commissariat à la transformation", fusion: "Commissariat à la fusion" },
+    ETAPE: { designation: "Désignation", acceptation: "Acceptation", pieces: "Pièces", rapport: "Rapport", signature: "Signature", depot: "Dépôt", termine: "Terminée" },
+    DOC_STATUT: { a_produire: "À produire", brouillon: "Brouillon", a_signer: "À signer", signe: "Signé", depose: "Déposé" },
     findMandat: function (id) {
       return MANDATS.filter(function (m) { return m.id === id; })[0] || null;
     },

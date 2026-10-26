@@ -1,0 +1,1072 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Mission ponctuelle CAC · Missions et conformité · Express Juridique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=19" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=21" />
+    <style>
+      /* ---- En-tête entité (repris de cac-mandat.html) ---- */
+      .soc-head {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 22px 24px 22px 64px;
+        margin-bottom: 16px;
+      }
+      .soc-motif {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 40px;
+        overflow: hidden;
+        border-radius: calc(var(--ej-radius-lg) - 1px) 0 0 calc(var(--ej-radius-lg) - 1px);
+      }
+      .soc-motif i {
+        position: absolute;
+        left: 0;
+        height: 8px;
+        border-radius: 0 var(--ej-radius-full) var(--ej-radius-full) 0;
+      }
+      .soc-motif .m1 {
+        top: 24px;
+        width: 40px;
+        background: var(--ej-logo-mint);
+      }
+      .soc-motif .m2 {
+        top: 38px;
+        width: 24px;
+        background: var(--ej-action-600);
+      }
+      .soc-head > div:nth-child(2) {
+        min-width: 0;
+      }
+      .soc-name {
+        margin: 0;
+        font-size: 24px;
+        line-height: 1.25;
+        font-weight: 700;
+        color: var(--ej-primary-900);
+        word-break: break-word;
+      }
+      .soc-form {
+        font-size: 14px;
+        color: var(--ej-neutral-500);
+        margin-top: 2px;
+      }
+      .soc-op {
+        font-size: 14.5px;
+        font-weight: 500;
+        color: var(--ej-neutral-800);
+        margin-top: 8px;
+      }
+      .soc-greffe {
+        font-size: 14px;
+        color: var(--ej-neutral-600);
+        margin-top: 2px;
+      }
+      .soc-greffe strong {
+        font-weight: 700;
+        color: var(--ej-primary-900);
+      }
+      .soc-ids {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+        flex-shrink: 0;
+        text-align: right;
+      }
+
+      /* ---- Frise des étapes de la mission ---- */
+      .frise-card {
+        padding: 18px 22px;
+        margin-bottom: 16px;
+      }
+      .steps {
+        list-style: none;
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .step {
+        --c: var(--ej-neutral-200);
+        padding-top: 10px;
+        border-top: 3px solid var(--c);
+        min-width: 0;
+      }
+      .step.done {
+        --c: var(--ej-success-600);
+      }
+      .step.cur {
+        --c: var(--ej-action-600);
+      }
+      .st-lib {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ej-neutral-500);
+      }
+      .st-lib .ms {
+        font-size: 16px;
+        flex-shrink: 0;
+      }
+      .step.done .st-lib {
+        color: var(--ej-success-600);
+      }
+      .step.cur .st-lib {
+        color: var(--ej-action-700);
+      }
+      .st-sub {
+        display: block;
+        margin-top: 2px;
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+      }
+
+      /* ---- Bloc « À faire » (repris de lab-dossier.html) ---- */
+      .afaire {
+        margin-bottom: 16px;
+        outline: none;
+      }
+      .afaire:focus-visible {
+        box-shadow: 0 0 0 2px var(--ej-action-600);
+      }
+      .afaire-head {
+        padding: 14px 20px 4px;
+      }
+      .afaire-head h2 {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .afaire-list {
+        list-style: none;
+        padding: 0 20px 6px;
+      }
+      .afaire-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 0;
+      }
+      .afaire-ico {
+        flex-shrink: 0;
+        margin-top: 1px;
+        font-size: 18px;
+        color: var(--ej-info-600);
+      }
+      .afaire-item.warn .afaire-ico {
+        color: var(--ej-attention-500);
+      }
+      .afaire-txt {
+        flex: 1 1 auto;
+        min-width: 0;
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--ej-neutral-700);
+      }
+      .afaire-txt strong {
+        font-weight: 600;
+        color: var(--ej-neutral-900);
+      }
+      .afaire-act {
+        flex-shrink: 0;
+      }
+      .afaire-act .btn {
+        white-space: nowrap;
+      }
+      .afaire-ech {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px 10px;
+        margin-top: 8px;
+        font-size: 13px;
+        color: var(--ej-neutral-600);
+      }
+      .afaire.afaire-ok {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px 20px;
+      }
+      .afaire-ok .afaire-ico {
+        color: var(--ej-success-600);
+      }
+
+      /* ---- Cartes ---- */
+      #retour {
+        margin-bottom: 16px;
+      }
+      #retour:empty {
+        display: none;
+      }
+      #absent {
+        margin-top: 8px;
+      }
+      .vide {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 22px;
+        border: 1px dashed var(--ej-neutral-300);
+        border-radius: var(--ej-radius-lg);
+        background: var(--ej-neutral-50);
+      }
+      .vide strong {
+        font-family: var(--ej-font-display);
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .vide p {
+        font-size: 14px;
+        color: var(--ej-neutral-600);
+      }
+      .d-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .d-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        align-items: start;
+      }
+      .d-card {
+        min-width: 0;
+      }
+      .d-card .block-head {
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--ej-neutral-100);
+        align-items: center;
+      }
+      .d-card .block-head h2 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .d-card .block-head h2 .ms {
+        font-size: 20px;
+        color: var(--ej-action-600);
+      }
+      .d-body {
+        padding: 18px 22px 20px;
+      }
+      .d-grid .kv {
+        grid-template-columns: 150px minmax(0, 1fr);
+      }
+      .kv dd {
+        min-width: 0;
+        word-break: break-word;
+      }
+      .val-sub {
+        display: block;
+        margin-top: 2px;
+        font-size: 12.5px;
+        font-weight: 400;
+        color: var(--ej-neutral-500);
+      }
+      .val-sub.warn {
+        color: var(--ej-warning-600);
+        font-weight: 500;
+      }
+      .puce-l {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 6px;
+      }
+      .ej-puce {
+        display: inline-flex;
+        align-items: flex-start;
+        gap: 6px;
+        min-width: 0;
+        padding: 4px 10px;
+        border-radius: var(--ej-radius-lg);
+        background: var(--ej-action-100);
+        color: var(--ej-action-700);
+        font-size: 12.5px;
+        font-weight: 500;
+        max-width: 100%;
+      }
+      .ej-puce .ms {
+        font-size: 14px;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+      .oui-non {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 500;
+      }
+      .oui-non .ms {
+        font-size: 16px;
+        flex-shrink: 0;
+      }
+      .oui-non.ok {
+        color: var(--ej-success-600);
+      }
+      .oui-non.warn {
+        color: var(--ej-warning-600);
+      }
+
+      /* Listes pièces et documents */
+      .rows {
+        list-style: none;
+      }
+      .rows li {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px 12px;
+        padding: 11px 0;
+        border-top: 1px solid var(--ej-neutral-100);
+      }
+      .rows li:first-child {
+        border-top: none;
+        padding-top: 0;
+      }
+      .rows li:last-child {
+        padding-bottom: 0;
+      }
+      .r-ico {
+        font-size: 18px;
+        flex-shrink: 0;
+        color: var(--ej-neutral-400);
+      }
+      .r-ico.ok {
+        color: var(--ej-success-600);
+      }
+      .r-ico.ej {
+        color: var(--ej-action-600);
+      }
+      .r-lib {
+        flex: 1 1 220px;
+        min-width: 0;
+        font-size: 14px;
+        color: var(--ej-neutral-900);
+      }
+      .r-lib strong {
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .r-act .btn {
+        white-space: nowrap;
+      }
+      .compte {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--ej-neutral-600);
+      }
+
+      /* Journal */
+      .journal {
+        list-style: none;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .journal::before {
+        content: "";
+        position: absolute;
+        left: 15px;
+        top: 8px;
+        bottom: 8px;
+        width: 2px;
+        background: var(--ej-neutral-200);
+      }
+      .journal li {
+        position: relative;
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+      }
+      .journal li > div {
+        min-width: 0;
+      }
+      .j-ico {
+        position: relative;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--ej-white);
+        border: 1px solid var(--ej-hairline);
+        color: var(--ej-action-600);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .j-ico .ms {
+        font-size: 16px;
+      }
+      .j-date {
+        font-size: 12.5px;
+        font-style: italic;
+        color: var(--ej-action-600);
+      }
+      .j-txt {
+        font-size: 14px;
+        color: var(--ej-neutral-900);
+        word-break: break-word;
+      }
+      .j-who {
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+      }
+
+      @media (max-width: 1180px) {
+        .d-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 1100px) and (min-width: 901px) {
+        .steps {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          row-gap: 14px;
+        }
+      }
+      @media (max-width: 760px) {
+        .soc-head {
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 20px 16px 18px 44px;
+          gap: 14px;
+        }
+        .soc-motif {
+          width: 24px;
+        }
+        .soc-motif .m1 {
+          width: 24px;
+        }
+        .soc-motif .m2 {
+          width: 14px;
+        }
+        .soc-name {
+          font-size: 21px;
+        }
+        .soc-ids {
+          flex-direction: row;
+          flex-wrap: wrap;
+          align-items: center;
+          text-align: left;
+        }
+        .frise-card {
+          padding: 16px;
+        }
+        .afaire-list {
+          padding: 0 16px 6px;
+        }
+        .afaire-item {
+          flex-wrap: wrap;
+        }
+        .afaire-txt {
+          flex-basis: calc(100% - 30px);
+        }
+        .afaire-act {
+          width: 100%;
+          padding-left: 30px;
+        }
+        .afaire-act .btn {
+          width: 100%;
+          justify-content: center;
+          white-space: normal;
+          text-align: center;
+        }
+        .afaire-head {
+          padding: 14px 16px 4px;
+        }
+        .afaire.afaire-ok {
+          padding: 14px 16px;
+        }
+        .d-body {
+          padding: 16px 16px 18px;
+        }
+        .d-card .block-head {
+          padding: 16px 16px 12px;
+          flex-wrap: wrap;
+          align-items: flex-start;
+        }
+        .d-card .block-head .btn {
+          width: 100%;
+          justify-content: center;
+          white-space: normal;
+        }
+        .rows li .badge {
+          margin-left: 30px;
+        }
+        .r-act {
+          width: 100%;
+          padding-left: 30px;
+        }
+        .r-act .btn {
+          width: 100%;
+          justify-content: center;
+          white-space: normal;
+        }
+      }
+      @media (max-width: 600px) {
+        .steps {
+          grid-template-columns: 1fr;
+          gap: 8px;
+        }
+        .step {
+          display: flex;
+          align-items: baseline;
+          flex-wrap: wrap;
+          gap: 2px 10px;
+          padding: 0 0 0 12px;
+          border-top: none;
+          border-left: 3px solid var(--c);
+        }
+        .st-sub {
+          margin-top: 0;
+        }
+      }
+    </style>
+  </head>
+  <body class="m-resp" data-active="cac">
+    <div id="ej-header"></div>
+    <div class="app">
+      <div id="ej-sidebar"></div>
+      <div class="main">
+        <div class="page">
+          <a class="back-link" href="cac.html?vue=ponctuelles"><span class="ms">chevron_left</span>Missions CAC</a>
+
+          <div class="card d-card" id="absent" hidden>
+            <div class="d-body">
+              <div class="vide">
+                <strong>Mission introuvable</strong>
+                <p>Aucune mission ponctuelle ne correspond à l'identifiant « <span id="absent-id"></span> ».</p>
+                <a class="btn btn-secondary btn-sm" href="cac.html?vue=ponctuelles"><span class="ms">chevron_left</span>Retour aux missions CAC</a>
+              </div>
+            </div>
+          </div>
+
+          <div id="contenu">
+            <div class="card soc-head" id="head"></div>
+            <section class="card frise-card" aria-label="Étapes de la mission"><ol class="steps" id="frise" aria-label="Étapes de la mission"></ol></section>
+            <div id="retour" aria-live="polite"></div>
+            <section class="card afaire" id="afaire" tabindex="-1"></section>
+            <div class="d-stack" id="sections"></div>
+          </div>
+        </div>
+        <div id="ej-footer"></div>
+      </div>
+    </div>
+
+    <script src="assets/ej-missions-data.js?v=20"></script>
+    <script>
+      /* Fiche d'une mission ponctuelle du commissaire aux comptes (apports, transformation, fusion).
+         Rendu au DOMContentLoaded : ej-shell.js (chargé après) pose data-profil sur le body avant cet événement. */
+      document.addEventListener("DOMContentLoaded", function () {
+        var E = window.EJM,
+          esc = E.esc;
+
+        /* ---------- Mission affichée (sans paramètre : orvane ; id inconnu : état « introuvable ») ---------- */
+        var id = new URLSearchParams(location.search).get("id");
+        var m0 = id === null ? E.findPonctuelle("orvane") : E.findPonctuelle(id);
+        if (!m0) {
+          document.title = "Mission introuvable · Missions CAC · Express Juridique";
+          document.getElementById("contenu").hidden = true;
+          document.getElementById("absent").hidden = false;
+          document.getElementById("absent-id").textContent = id;
+          return;
+        }
+        document.title = m0.nom + " · Mission ponctuelle CAC · Express Juridique";
+
+        /* ---------- Dates ---------- */
+        function dt(x) {
+          var p = x.split("/");
+          return new Date(+p[2], +p[1] - 1, +p[0]);
+        }
+        function fmt(date) {
+          function z(n) { return (n < 10 ? "0" : "") + n; }
+          return z(date.getDate()) + "/" + z(date.getMonth() + 1) + "/" + date.getFullYear();
+        }
+        function plusJours(x, n) {
+          var date = dt(x);
+          date.setDate(date.getDate() + n);
+          return fmt(date);
+        }
+        /* Ramène un samedi ou un dimanche au vendredi précédent */
+        function ouvre(x) {
+          var date = dt(x);
+          while (date.getDay() === 0 || date.getDay() === 6) date.setDate(date.getDate() - 1);
+          return fmt(date);
+        }
+        var TODAY = dt(E.today);
+        function jours(x) {
+          return Math.round((dt(x) - TODAY) / 86400000);
+        }
+
+        /* ---------- État de session (sessionStorage « ej-cac-ponctuelles », objet par id) ---------- */
+        var CLE = "ej-cac-ponctuelles";
+        var MEM = {};
+        function lireTout() {
+          try {
+            var v = sessionStorage.getItem(CLE);
+            return v ? JSON.parse(v) || {} : MEM;
+          } catch (e) {
+            return MEM;
+          }
+        }
+        function ecrire(o) {
+          var tout = lireTout();
+          tout[m0.id] = o;
+          MEM = tout;
+          try {
+            sessionStorage.setItem(CLE, JSON.stringify(tout));
+          } catch (e) {}
+        }
+        function copie(x) {
+          return JSON.parse(JSON.stringify(x));
+        }
+        var st = lireTout()[m0.id];
+        if (!st || !st.etape) {
+          st = {
+            etape: m0.etape,
+            pieces: m0.pieces.slice(),
+            documents: copie(m0.documents),
+            lm: copie(m0.lm),
+            independance: copie(m0.independance),
+            lab: copie(m0.lab),
+            honoraires: m0.honoraires,
+            transmis: null,
+            journal: [],
+          };
+        }
+
+        /* ---------- Référentiels ---------- */
+        var ORDRE = ["designation", "acceptation", "pieces", "rapport", "signature", "depot", "termine"];
+        var FRISE = ["designation", "acceptation", "pieces", "rapport", "signature", "depot"];
+        var QUALITE = { apport: "commissaire aux apports", transformation: "commissaire à la transformation", fusion: "commissaire à la fusion" };
+        var PIECES = {
+          apport: ["Décision de désignation", "Projet de traité d'apport", "Statuts à jour", "Derniers comptes approuvés",
+            "Rapport d'évaluation des titres ou du bien apporté", "Extrait Kbis", "État des inscriptions et nantissements",
+            "Inventaire des éléments d'actif et de passif apportés"],
+          transformation: ["Décision de désignation", "Statuts à jour", "Derniers comptes approuvés", "Situation intermédiaire",
+            "Projet de statuts de SAS", "Extrait Kbis"],
+          fusion: ["Décision de désignation", "Projet de traité de fusion", "Comptes des deux sociétés", "Situations intermédiaires",
+            "Méthodes d'évaluation", "Statuts", "Extraits Kbis", "Rapport des dirigeants", "État des engagements hors bilan"],
+        };
+        var DOC_BADGE = { a_produire: "badge-neutral", brouillon: "badge-progress", a_signer: "badge-action", signe: "badge-success", depose: "badge-success" };
+        var LM_LIB = { signee: "Signée", envoyee: "Envoyée pour signature", brouillon: "Brouillon", a_etablir: "À établir" };
+        var LAB_LIB = { a_jour: "Dossier à jour", a_revoir: "Revue échue", incomplet: "Pièces manquantes", a_ouvrir: "Dossier à ouvrir" };
+        var signataire = E.equipe[m0.signataire];
+        var conseil = m0.conseil;
+        var qualite = QUALITE[m0.nature];
+
+        function estRapport(d) { return /^Rapport/.test(d[0]); }
+        function estReprise(lib) { return /^Statuts( à jour)?$|Kbis/.test(lib); }
+        function listePieces() {
+          var base = PIECES[m0.nature] || [];
+          var out = [];
+          for (var i = 0; i < st.pieces[1]; i++) out.push(base[i] || "Pièce complémentaire " + (i + 1));
+          return out;
+        }
+        function nbReprises() {
+          return listePieces().filter(estReprise).length;
+        }
+        function idx(e) { return ORDRE.indexOf(e); }
+        function rapports() { return st.documents.filter(estRapport); }
+        function libs(arr) { return arr.map(function (d) { return d[0]; }).join(", "); }
+        function lower1(s) { return s.charAt(0).toLowerCase() + s.slice(1); }
+        function tip(key, texte, label) {
+          return '<span class="info-tip">' +
+            '<button type="button" class="info-tip-btn" aria-describedby="note-cp-' + key + '" aria-label="' + esc(label || "Information") + '"><span class="ms">info</span></button>' +
+            '<span class="info-tip-pop" role="tooltip" id="note-cp-' + key + '">' + esc(texte) + "</span></span>";
+        }
+        var NOTE_DELAI = "Délai retenu pour la maquette : dépôt du rapport au plus tard 8 jours avant l'assemblée. À valider par un professionnel.";
+        var NOTE_ACCORD = "Le rapport rejoint la formalité du conseil seulement avec l'accord de la société.";
+        function nonMaquette(ico, lib) {
+          return '<button class="btn btn-secondary btn-sm" type="button" title="Écran non maquetté"><span class="ms">' + ico + "</span>" + lib + "</button>";
+        }
+        function transmisLe() {
+          return st.transmis || ouvre(plusJours(m0.depotAvant, -4));
+        }
+
+        /* ---------- Pièces : déposées, reprises d'EJ, attendues ---------- */
+        function etatPieces() {
+          var liste = listePieces();
+          var collecte = idx(st.etape) >= idx("pieces");
+          var nRep = liste.filter(estReprise).length;
+          var deposees = collecte ? Math.max(0, st.pieces[0] - nRep) : st.pieces[0];
+          var k = 0;
+          return liste.map(function (lib) {
+            if (estReprise(lib)) return { lib: lib, etat: collecte ? "reprise" : "a_reprendre" };
+            k++;
+            return { lib: lib, etat: k <= deposees ? "deposee" : "attendue" };
+          });
+        }
+
+        /* ---------- Journal de base (dérivé des données, réparti entre la désignation et aujourd'hui) ---------- */
+        function journalBase() {
+          var J = [];
+          var i0 = idx(m0.etape);
+          var D = m0.designation.date;
+          var fin = m0.etape === "termine" ? ouvre(plusJours(m0.depotAvant, -4)) : E.today;
+          var duree = Math.max(0, Math.round((dt(fin) - dt(D)) / 86400000));
+          function a(f) {
+            var d = ouvre(plusJours(D, Math.round(duree * f)));
+            return dt(d) < dt(D) ? D : d;
+          }
+          function add(d, i, t, w) { J.push({ d: d, i: i, t: t, w: w }); }
+          var liste = PIECES[m0.nature].slice(0, m0.pieces[1]);
+          var nRep = liste.filter(estReprise).length;
+          add(D, "stamp", "Désignation comme " + qualite + " par " + lower1(m0.designation.mode) + ".", esc(signataire.nom));
+          if (conseil.ej) add(D, "link", "Mission rattachée à la formalité EJ " + conseil.formalite + " du conseil.", esc(conseil.nom));
+          if (i0 >= 1) add(a(0.05), "badge-check", "Désignation acceptée, acceptation de la mission engagée.", esc(signataire.nom));
+          if (i0 >= 2) {
+            add(a(0.2), "shield-check", "Déclaration d'indépendance signée.", esc(signataire.nom));
+            add(a(0.22), "scan-search", "Dossier LAB validé : " + lower1(E.RISQUE[m0.lab.risque] || "risque standard") + ".", esc(signataire.nom));
+            add(a(0.25), "file-pen-line", "Lettre de mission signée (réf. " + m0.lm.ref + ").", esc(signataire.nom));
+            add(a(0.27), "send", "Lien de dépôt sécurisé envoyé au conseil.", esc(signataire.nom));
+            if (nRep) add(a(0.27), "database", (nRep > 1 ? "Statuts et extrait Kbis repris" : "Pièce reprise") + " d'EJ.", "Express Juridique");
+            var dep = Math.max(0, m0.pieces[0] - nRep);
+            if (i0 === 2 && dep) add(a(0.6), "folder-up", dep + " pièce" + (dep > 1 ? "s déposées" : " déposée") + " par le conseil.", esc(conseil.nom));
+            if (i0 >= 3) add(a(0.55), "folder-check", "Pièces complètes : " + m0.pieces[1] + " sur " + m0.pieces[1] + ".", esc(conseil.nom));
+          }
+          var r0 = m0.documents.filter(estRapport);
+          var genere = r0.some(function (d) { return d[1] !== "a_produire"; });
+          if (i0 >= 3 && genere) add(a(0.7), "file-text", "Rapport généré depuis le modèle du cabinet.", esc(signataire.nom));
+          if (i0 >= 4) add(a(0.85), "file-check", "Rapport finalisé, prêt pour signature.", esc(signataire.nom));
+          if (i0 >= 5) add(a(0.95), "signature", "Rapport signé électroniquement.", esc(signataire.nom));
+          if (i0 >= 6) add(fin, "send", conseil.ej
+            ? "Rapport transmis dans la formalité EJ " + conseil.formalite + ", avec l'accord de la société."
+            : "Rapport transmis au conseil par lien de téléchargement.", esc(signataire.nom));
+          return J;
+        }
+        var BASE = journalBase();
+
+        /* ---------- Rendu ---------- */
+        function rendre() {
+          var e = st.etape;
+          var ie = idx(e);
+          var termine = e === "termine";
+          var ep = etatPieces();
+          var recues = ep.filter(function (p) { return p.etat === "deposee" || p.etat === "reprise"; }).length;
+          var attendues = ep.filter(function (p) { return p.etat === "attendue"; });
+          var reste = jours(m0.depotAvant);
+
+          /* En-tête */
+          document.getElementById("head").innerHTML =
+            '<div class="soc-motif" aria-hidden="true"><i class="m1"></i><i class="m2"></i></div>' +
+            "<div>" +
+            '<h1 class="soc-name">' + esc(m0.nom) + "</h1>" +
+            '<div class="soc-form">' + esc(m0.forme) + " · SIREN " + esc(m0.siren) + "</div>" +
+            '<div class="soc-op">' + esc(m0.operation) + "</div>" +
+            '<div class="soc-greffe">Signataire : <strong>' + esc(signataire.nom) + "</strong></div>" +
+            "</div>" +
+            '<div class="soc-ids"><span class="badge badge-brand">' + esc(E.NATURE[m0.nature]) + "</span>" +
+            '<span class="badge ' + (termine ? "badge-success" : "badge-progress") + '">' + (termine ? "Terminée" : "Étape : " + esc(E.ETAPE[e])) + "</span></div>";
+
+          /* Frise */
+          var rap = rapports();
+          var SUB = {
+            designation: function (c) { return "Le " + m0.designation.date; },
+            acceptation: function (c) { return c === "done" ? "Faite" : c === "cur" ? "En cours" : "À faire"; },
+            pieces: function (c) { return recues + " sur " + st.pieces[1]; },
+            rapport: function (c) { return c === "done" ? "Finalisé" : c === "cur" ? (rap.length ? E.DOC_STATUT[rap[0][1]] : "En cours") : "À produire"; },
+            signature: function (c) { return c === "done" ? "Signé" : c === "cur" ? "À signer" : "À venir"; },
+            depot: function (c) { return c === "done" ? "Transmis le " + transmisLe() : "Avant le " + m0.depotAvant; },
+          };
+          document.getElementById("frise").innerHTML = FRISE.map(function (p, i) {
+            var c = i < ie ? "done" : i === ie ? "cur" : "todo";
+            var ico = c === "done" ? "circle-check" : c === "cur" ? "clock" : "circle";
+            var etatSr = c === "done" ? "terminée" : c === "cur" ? "en cours" : "à venir";
+            return '<li class="step ' + c + '"' + (c === "cur" ? ' aria-current="step"' : "") + '><span class="st-lib"><span class="ms" aria-hidden="true">' + ico + "</span>" +
+              esc(E.ETAPE[p]) + '<span class="sr-only">, étape ' + etatSr + '</span></span><span class="st-sub">' + esc(SUB[p](c)) + "</span></li>";
+          }).join("");
+
+          /* Bloc « À faire » : une phrase, une action principale */
+          var bloc = document.getElementById("afaire");
+          if (termine) {
+            bloc.className = "card afaire afaire-ok";
+            bloc.removeAttribute("aria-labelledby");
+            bloc.innerHTML = '<span class="ms afaire-ico" aria-hidden="true">circle-check</span><div class="afaire-txt"><strong>Mission terminée, rapport transmis le ' + transmisLe() + ".</strong> " +
+              (conseil.ej ? "Formalité EJ " + esc(conseil.formalite) + " du conseil." : "Envoi au conseil par lien de téléchargement.") + "</div>";
+          } else {
+            var A = actionPrincipale();
+            var ech = reste < 0
+              ? '<span class="badge badge-error">Échéance dépassée</span>'
+              : '<span class="badge ' + (reste <= 10 ? "badge-action" : "badge-neutral") + '">' + (reste === 0 ? "Aujourd'hui" : reste + " jour" + (reste > 1 ? "s" : "") + " restant" + (reste > 1 ? "s" : "")) + "</span>";
+            bloc.className = "card afaire";
+            bloc.setAttribute("aria-labelledby", "afaire-titre");
+            bloc.innerHTML =
+              '<div class="afaire-head"><h2 id="afaire-titre">À faire</h2></div><ul class="afaire-list">' +
+              '<li class="afaire-item' + (reste <= 10 ? " warn" : "") + '"><span class="ms afaire-ico" aria-hidden="true">' + A.ico + "</span>" +
+              '<div class="afaire-txt"><strong>' + A.phrase + "</strong>" + (A.detail ? " " + A.detail : "") +
+              '<div class="afaire-ech"><span>Dépôt avant le <strong>' + m0.depotAvant + "</strong> · assemblée le " + m0.assemblee + "</span>" +
+              tip("delai", NOTE_DELAI, "Délai de dépôt du rapport") + ech + "</div></div>" +
+              '<div class="afaire-act"><button class="btn btn-primary btn-sm" type="button" data-act="avancer"><span class="ms">' + A.btnIco + "</span>" + esc(A.btn) + "</button></div></li></ul>";
+          }
+
+          /* Cartes */
+          function carte(ico, titre, desc, action, corps, anchor) {
+            return '<section class="card d-card" id="' + anchor + '">' +
+              '<div class="block-head"><div><h2><span class="ms">' + ico + "</span>" + esc(titre) + "</h2>" +
+              (desc ? "<p>" + desc + "</p>" : "") + "</div>" + (action || "") + "</div>" +
+              '<div class="d-body">' + corps + "</div></section>";
+          }
+          function kv(k, v, sub) {
+            return "<dt>" + k + "</dt><dd>" + v + (sub || "") + "</dd>";
+          }
+
+          /* Opération */
+          var op = "";
+          op += kv("Nature", esc(E.NATURE[m0.nature]));
+          op += kv("Opération", esc(m0.operation));
+          if (m0.valeur != null) op += kv("Valeur des apports", esc(E.euros(m0.valeur)));
+          op += kv("Désignation", esc(m0.designation.mode), '<span class="val-sub">Le ' + m0.designation.date + "</span>");
+          op += kv("Assemblée", "Le " + m0.assemblee, '<span class="val-sub' + (!termine && reste >= 0 && reste <= 10 ? " warn" : "") + '">Dépôt du rapport avant le ' + m0.depotAvant + " " + tip("delai-op", NOTE_DELAI, "Délai de dépôt du rapport") + "</span>");
+          op += kv("Conseil", esc(conseil.nom), conseil.ej
+            ? '<span class="puce-l"><span class="ej-puce"><span class="ms">link</span><span>Formalité EJ ' + esc(conseil.formalite) + " · " + esc(conseil.libelle) + "</span></span>" + tip("accord-op", NOTE_ACCORD, "Transmission dans la formalité") + "</span>"
+            : '<span class="val-sub">Hors Express Juridique : envoi par lien de téléchargement</span>');
+
+          /* Acceptation */
+          var ind = st.independance.statut === "a_jour";
+          var labOk = st.lab.statut === "a_jour";
+          var lmOk = st.lm.statut === "signee";
+          var ac = "";
+          ac += kv("Indépendance", '<span class="oui-non ' + (ind ? "ok" : "warn") + '"><span class="ms">' + (ind ? "circle-check" : "circle-dashed") + "</span>" + esc(E.INDEP[st.independance.statut] || "Déclaration à faire") + "</span>");
+          ac += kv("Vigilance LAB", '<span class="oui-non ' + (labOk ? "ok" : "warn") + '"><span class="ms">' + (labOk ? "circle-check" : "circle-dashed") + "</span>" + esc(LAB_LIB[st.lab.statut] || st.lab.statut) + "</span>",
+            '<span class="val-sub"><span class="risk ' + (st.lab.risque ? "risk-" + st.lab.risque : "risk-na") + '">' + esc(st.lab.risque ? E.RISQUE[st.lab.risque] : "Risque non évalué") + "</span></span>");
+          ac += kv("Lettre de mission", '<span class="oui-non ' + (lmOk ? "ok" : "warn") + '"><span class="ms">' + (lmOk ? "circle-check" : "circle-dashed") + "</span>" + esc(LM_LIB[st.lm.statut] || st.lm.statut) + "</span>",
+            (st.lm.ref ? '<span class="val-sub">Réf. ' + esc(st.lm.ref) + "</span>" : "") +
+            (st.honoraires ? '<span class="val-sub">Honoraires : ' + esc(E.euros(st.honoraires)) + " HT</span>" : ""));
+
+          var grille = '<div class="d-grid">' +
+            carte("briefcase", "Opération", "", "", '<dl class="kv">' + op + "</dl>", "operation") +
+            carte("shield-check", "Acceptation", "", "", '<dl class="kv">' + ac + "</dl>", "acceptation") +
+            "</div>";
+
+          /* Pièces */
+          var PI = {
+            deposee: ["file-check", "ok", "badge-success", "Déposée par le conseil"],
+            reprise: ["database", "ej", "badge-brand", "Reprise d'EJ"],
+            a_reprendre: ["database", "ej", "badge-neutral", "Reprise d'EJ prévue"],
+            attendue: ["file-clock", "", "badge-neutral", "Attendue"],
+          };
+          var lstP = '<ul class="rows">' + ep.map(function (p) {
+            var c = PI[p.etat];
+            return '<li><span class="ms r-ico ' + c[1] + '" aria-hidden="true">' + c[0] + '</span><span class="r-lib">' + esc(p.lib) + '</span><span class="badge ' + c[2] + '">' + c[3] + "</span></li>";
+          }).join("") + "</ul>";
+          var btnP = "";
+          if (ie < idx("pieces")) btnP = '<button class="btn btn-secondary btn-sm" type="button" disabled title="Disponible après l\'acceptation de la mission"><span class="ms">link</span>Envoyer un lien de dépôt</button>';
+          else if (e === "pieces" && attendues.length) btnP = '<button class="btn btn-secondary btn-sm" type="button" data-act="avancer"><span class="ms">send</span>Relancer le conseil</button>';
+          var descP = '<span class="compte">' + recues + " sur " + st.pieces[1] + " reçue" + (recues > 1 ? "s" : "") + "</span> · lien de dépôt sécurisé, sans compte";
+          var cartePieces = carte("folder-open", "Pièces", descP, btnP, lstP, "pieces");
+
+          /* Documents */
+          var lstD = '<ul class="rows">' + st.documents.map(function (d) {
+            var s = d[1], b;
+            var rapportPret = ie >= idx("rapport");
+            if (s === "a_produire") {
+              if (e === "rapport" && d[0] !== "Lettre de mission") b = '<button class="btn btn-secondary btn-sm" type="button" data-act="avancer"><span class="ms">wand-sparkles</span>Générer depuis le modèle</button>';
+              else if (!rapportPret && d[0] !== "Lettre de mission") b = '<button class="btn btn-secondary btn-sm" type="button" disabled title="Disponible quand les pièces sont complètes"><span class="ms">wand-sparkles</span>Générer depuis le modèle</button>';
+              else b = nonMaquette("wand-sparkles", "Générer depuis le modèle");
+            } else if (s === "brouillon") b = nonMaquette("file-pen-line", "Ouvrir le brouillon");
+            else if (s === "a_signer") {
+              b = e === "signature" ? '<button class="btn btn-secondary btn-sm" type="button" data-act="avancer"><span class="ms">signature</span>Envoyer en signature</button>' : nonMaquette("signature", "Envoyer en signature");
+            } else b = nonMaquette("download", "Télécharger");
+            return '<li><span class="ms r-ico ' + (s === "signe" || s === "depose" ? "ok" : "") + '" aria-hidden="true">file-text</span><span class="r-lib"><strong>' + esc(d[0]) + "</strong></span>" +
+              '<span class="badge ' + DOC_BADGE[s] + '">' + esc(E.DOC_STATUT[s]) + '</span><span class="r-act">' + b + "</span></li>";
+          }).join("") + "</ul>";
+          var carteDocs = carte("files", "Documents", "Modèles du cabinet · signature électronique", "", lstD, "documents");
+
+          /* Journal */
+          var J = BASE.map(function (j, n) { return { d: j.d, n: n, i: j.i, t: j.t, w: j.w }; });
+          (st.journal || []).forEach(function (j, n) { J.push({ d: j.d, n: 1000 + n, i: j.i, t: j.t, w: esc(j.w) }); });
+          J.sort(function (a, b) { return dt(b.d) - dt(a.d) || b.n - a.n; });
+          var carteJ = carte("history", "Journal", "", "",
+            '<ul class="journal">' + J.map(function (j) {
+              return '<li><span class="j-ico"><span class="ms">' + j.i + "</span></span>" +
+                '<div><div class="j-date">' + j.d + '</div><div class="j-txt">' + esc(j.t) + '</div><div class="j-who">' + j.w + "</div></div></li>";
+            }).join("") + "</ul>", "journal");
+
+          document.getElementById("sections").innerHTML = grille + cartePieces + carteDocs + carteJ;
+        }
+
+        /* ---------- Action principale selon l'étape ---------- */
+        function actionPrincipale() {
+          var e = st.etape;
+          var ep = etatPieces();
+          var recues = ep.filter(function (p) { return p.etat === "deposee" || p.etat === "reprise"; }).length;
+          if (e === "designation") return {
+            ico: "stamp", btnIco: "badge-check", btn: "Accepter la mission",
+            phrase: "Accepter la mission de " + esc(qualite) + ".",
+            detail: "Désignation par " + esc(lower1(m0.designation.mode)) + " du " + m0.designation.date + ".",
+          };
+          if (e === "acceptation") {
+            var manque = [];
+            if (st.independance.statut !== "a_jour") manque.push("déclaration d'indépendance");
+            if (st.lab.statut === "a_ouvrir") manque.push("dossier LAB à ouvrir");
+            else if (st.lab.statut !== "a_jour") manque.push("dossier LAB à compléter");
+            if (st.lm.statut === "a_etablir" || !st.lm.ref) manque.push("lettre de mission à établir");
+            else if (st.lm.statut !== "signee") manque.push("lettre de mission à faire signer");
+            return {
+              ico: "clipboard-check", btnIco: "badge-check", btn: "Finaliser l'acceptation",
+              phrase: "Finaliser l'acceptation.",
+              detail: manque.length ? "Reste : " + esc(manque.join(", ")) + "." : "",
+            };
+          }
+          if (e === "pieces") {
+            var att = ep.filter(function (p) { return p.etat === "attendue"; });
+            return {
+              ico: "folder-open", btnIco: "send", btn: "Relancer le conseil",
+              phrase: "Relancer le conseil.",
+              detail: "Pièces reçues : " + recues + " sur " + st.pieces[1] + (att.length ? ". Attendues : " + esc(att.map(function (p) { return lower1(p.lib); }).join(", ")) : "") + ".",
+            };
+          }
+          if (e === "rapport") {
+            var aProduire = st.documents.filter(function (d) { return d[1] === "a_produire" && d[0] !== "Lettre de mission"; });
+            if (aProduire.length) return {
+              ico: "file-text", btnIco: "wand-sparkles", btn: "Générer le rapport depuis le modèle",
+              phrase: "Générer le rapport depuis le modèle.",
+              detail: "Pièces complètes. À produire : " + esc(libs(aProduire).toLowerCase()) + ".",
+            };
+            var brouillons = st.documents.filter(function (d) { return d[1] === "brouillon"; });
+            return {
+              ico: "file-pen-line", btnIco: "file-check", btn: "Finaliser le rapport",
+              phrase: "Finaliser le rapport.",
+              detail: brouillons.length ? "Brouillon : " + esc(libs(brouillons).toLowerCase()) + "." : "",
+            };
+          }
+          if (e === "signature") {
+            var aSigner = st.documents.filter(function (d) { return d[1] === "a_signer"; });
+            return {
+              ico: "signature", btnIco: "signature", btn: "Envoyer en signature",
+              phrase: "Envoyer en signature.",
+              detail: "À signer : " + esc(libs(aSigner).toLowerCase()) + ". Signataire : " + esc(signataire.nom) + ".",
+            };
+          }
+          /* depot */
+          return conseil.ej ? {
+            ico: "send", btnIco: "send", btn: "Transmettre dans la formalité " + conseil.formalite,
+            phrase: "Transmettre le rapport signé.",
+            detail: "Formalité EJ " + esc(conseil.formalite) + " · " + esc(conseil.libelle) + ", " + esc(conseil.nom) + ". " + tip("accord", NOTE_ACCORD, "Transmission dans la formalité"),
+          } : {
+            ico: "send", btnIco: "send", btn: "Transmettre au conseil",
+            phrase: "Transmettre le rapport signé.",
+            detail: "Envoi à " + esc(conseil.nom) + " par lien de téléchargement.",
+          };
+        }
+
+        /* ---------- Avancement (démo, sans serveur) ---------- */
+        function log(i, t, w) {
+          st.journal = st.journal || [];
+          st.journal.push({ d: E.today, i: i, t: t, w: w || signataire.nom });
+        }
+        function refLettre() {
+          var max = 0;
+          E.ponctuelles.forEach(function (p) {
+            var r = p.lm && p.lm.ref ? +p.lm.ref.split("-").pop() : 0;
+            if (r > max) max = r;
+          });
+          var n = max + 1;
+          return "LM-CAC-2026-" + (n < 10 ? "00" : n < 100 ? "0" : "") + n;
+        }
+        function setDocs(de, vers, filtre) {
+          var faits = [];
+          st.documents.forEach(function (d) {
+            if (d[1] === de && (!filtre || filtre(d))) {
+              d[1] = vers;
+              faits.push(d);
+            }
+          });
+          return faits;
+        }
+        function avancer() {
+          var e = st.etape, msg = "";
+          if (e === "designation") {
+            st.etape = "acceptation";
+            log("badge-check", "Désignation acceptée, acceptation de la mission engagée.");
+            msg = "Désignation acceptée. Acceptation de la mission engagée.";
+          } else if (e === "acceptation") {
+            var nouvLm = st.lm.statut !== "signee";
+            st.independance = { statut: "a_jour" };
+            st.lab = { statut: "a_jour", risque: st.lab.risque || "standard" };
+            if (!st.lm.ref) st.lm.ref = refLettre();
+            st.lm.statut = "signee";
+            if (!st.honoraires) st.honoraires = 5400;
+            setDocs("a_produire", "signe", function (d) { return d[0] === "Lettre de mission"; });
+            setDocs("a_signer", "signe", function (d) { return d[0] === "Lettre de mission"; });
+            st.pieces[0] = Math.max(st.pieces[0], nbReprises());
+            st.etape = st.pieces[0] >= st.pieces[1] ? "rapport" : "pieces";
+            log("shield-check", "Déclaration d'indépendance signée.");
+            log("scan-search", "Dossier LAB validé : " + lower1(E.RISQUE[st.lab.risque]) + ".");
+            if (nouvLm) log("file-pen-line", "Lettre de mission signée (réf. " + st.lm.ref + ").");
+            log("send", "Lien de dépôt sécurisé envoyé au conseil.");
+            if (nbReprises()) log("database", "Statuts et extrait Kbis repris d'EJ.", "Express Juridique");
+            msg = "Acceptation finalisée. Lien de dépôt envoyé à " + conseil.nom + ".";
+          } else if (e === "pieces") {
+            var manq = st.pieces[1] - st.pieces[0];
+            log("send", "Relance envoyée au conseil : " + manq + " pièce" + (manq > 1 ? "s attendues" : " attendue") + ".");
+            st.pieces[0] = st.pieces[1];
+            st.etape = "rapport";
+            log("folder-check", "Pièces complètes : " + st.pieces[1] + " sur " + st.pieces[1] + ".", conseil.nom);
+            msg = "Relance envoyée à " + conseil.nom + ". Pièces complètes : " + st.pieces[1] + " sur " + st.pieces[1] + ".";
+          } else if (e === "rapport") {
+            var gen = setDocs("a_produire", "brouillon", function (d) { return d[0] !== "Lettre de mission"; });
+            if (gen.length) {
+              log("file-text", "Rapport généré depuis le modèle du cabinet : " + libs(gen).toLowerCase() + ".");
+              msg = "Brouillon généré depuis le modèle : " + libs(gen).toLowerCase() + ".";
+            } else {
+              var fin = setDocs("brouillon", "a_signer");
+              st.etape = "signature";
+              log("file-check", "Rapport finalisé, prêt pour signature.");
+              msg = "Rapport finalisé : " + (fin.length ? libs(fin).toLowerCase() : "documents") + " à signer.";
+            }
+          } else if (e === "signature") {
+            var sig = setDocs("a_signer", "signe");
+            st.etape = "depot";
+            log("signature", "Envoi en signature électronique : " + libs(sig).toLowerCase() + ".");
+            log("circle-check", "Rapport signé électroniquement.");
+            msg = "Signature électronique terminée : " + libs(sig).toLowerCase() + ".";
+          } else if (e === "depot") {
+            setDocs("signe", "depose", estRapport);
+            st.etape = "termine";
+            st.transmis = E.today;
+            if (conseil.ej) {
+              log("send", "Rapport transmis dans la formalité EJ " + conseil.formalite + ", avec l'accord de la société.");
+              msg = "Rapport transmis dans la formalité " + conseil.formalite + " de " + conseil.nom + ".";
+            } else {
+              log("send", "Rapport transmis au conseil par lien de téléchargement.");
+              msg = "Rapport transmis à " + conseil.nom + " par lien de téléchargement.";
+            }
+          }
+          ecrire(st);
+          rendre();
+          document.getElementById("retour").innerHTML = '<div class="alert alert-success"><span class="ms">circle-check</span><div>' + esc(msg) + "</div></div>";
+          var b = document.querySelector('#afaire [data-act="avancer"]');
+          (b || document.getElementById("afaire")).focus();
+        }
+
+        document.getElementById("contenu").addEventListener("click", function (ev) {
+          var b = ev.target.closest('[data-act="avancer"]');
+          if (b && !b.disabled) avancer();
+        });
+
+        rendre();
+      });
+    </script>
+    <script src="assets/ej-shell.js?v=24"></script>
+  </body>
+</html>

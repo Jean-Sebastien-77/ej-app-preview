@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=19" />
-    <link rel="stylesheet" href="assets/ej-missions.css?v=19" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=21" />
     <style>
       html {
         scrollbar-gutter: stable;
@@ -341,11 +341,11 @@
       </div>
     </div>
 
-    <script src="assets/ej-shell.js?v=22"></script>
+    <script src="assets/ej-shell.js?v=24"></script>
 
     <script>
       /* Sans paramètre : la page reste celle de PAPRIKA CANTINE, telle quelle (aucune donnée chargée).
-         Avec ?id=<id DPJ> : charge les données fictives et remplace l'en-tête et la chronologie. */
+         Avec ?id=<id DPJ> : charge les données de la société et remplace l'en-tête et la chronologie. */
       (function () {
         var m = /[?&]id=([^&#]*)/.exec(location.search);
         if (!m) return;
@@ -456,7 +456,7 @@
         }
 
         /* Chargement séquentiel des données, dans l'ordre */
-        var SRC = ["assets/ej-missions-data.js?v=19", "assets/ej-cockpit-data.js?v=3", "assets/ej-dpj-data.js?v=2"];
+        var SRC = ["assets/ej-missions-data.js?v=20", "assets/ej-cockpit-data.js?v=4", "assets/ej-dpj-data.js?v=2"];
         function charger(i) {
           if (i >= SRC.length) return afficher();
           var el = document.createElement("script");

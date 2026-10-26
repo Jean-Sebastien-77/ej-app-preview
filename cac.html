@@ -9,127 +9,36 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=19" />
-    <link rel="stylesheet" href="assets/ej-missions.css?v=19" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=21" />
     <style>
       /* ---- Page Missions CAC : styles locaux (à mutualiser si besoin) ---- */
       .cac-intro {
         max-width: 620px;
       }
-      .cac-profil {
-        margin-bottom: 16px;
-      }
-      .cac-value {
-        margin-bottom: 20px;
-      }
-      .cac-honoraires {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-        margin-top: 12px;
-        font-size: 13.5px;
-        color: var(--ej-neutral-600);
-      }
-      .cac-honoraires .ms {
-        font-size: 17px;
-        color: var(--ej-action-600);
-      }
-      .cac-honoraires strong {
-        font-family: var(--ej-font-display);
-        font-weight: 600;
-        color: var(--ej-primary-900);
-        font-variant-numeric: tabular-nums;
+      .cac-intro .page-title .info-tip {
+        margin-left: 4px;
       }
       .stat-sub-names {
         min-height: 2.9em;
       }
 
-      /* Avancement de la campagne : barre segmentée par phase */
-      .cac-split {
-        margin: 14px 0 24px;
-        padding: 18px 20px 16px;
+      /* Onglets Mandats / Missions ponctuelles */
+      .cac-tabs {
+        margin-top: 24px;
+        margin-bottom: 20px;
       }
-      .cac-split-head {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 12px;
-        flex-wrap: wrap;
-        margin-bottom: 12px;
+      .cac-tabs .tab {
+        background: none;
+        border-top: 0;
+        border-left: 0;
+        border-right: 0;
+        cursor: pointer;
       }
-      .cac-split-head h2 {
-        font-size: 15px;
-        font-weight: 600;
-        color: var(--ej-primary-900);
-      }
-      .seg {
-        display: flex;
-        gap: 3px;
-        height: 12px;
-      }
-      .seg > span {
-        display: block;
-        height: 100%;
-        min-width: 6px;
-        border-radius: var(--ej-radius-full);
-      }
-      .ph-acceptation {
-        background: var(--ej-neutral-300);
-      }
-      .ph-planification {
-        background: var(--ej-action-300);
-      }
-      .ph-interim {
-        background: var(--ej-action-500);
-      }
-      .ph-final {
-        background: var(--ej-action-700);
-      }
-      .ph-rapports {
-        background: var(--ej-primary-900);
-      }
-      .ph-emis {
-        background: var(--ej-success-600);
-      }
-      .seg-legend {
-        display: grid;
-        grid-template-columns: repeat(6, minmax(0, 1fr));
-        gap: 12px;
-        margin-top: 14px;
-      }
-      .seg-legend .lg {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--ej-neutral-700);
-        white-space: nowrap;
-      }
-      .seg-legend .lg::before {
-        content: "";
-        width: 9px;
-        height: 9px;
-        border-radius: 50%;
-        background: var(--dot);
-        flex-shrink: 0;
-      }
-      .seg-legend b {
-        display: block;
-        margin-top: 2px;
-        padding-left: 16px;
-        font-family: var(--ej-font-display);
-        font-size: 20px;
-        font-weight: 600;
-        color: var(--ej-primary-900);
-        font-variant-numeric: tabular-nums;
-      }
-      .seg-legend b small {
+      .cac-tabs .tab .tab-n {
         font-family: var(--ej-font-body);
-        font-size: 12px;
-        font-weight: 400;
+        font-weight: 500;
         color: var(--ej-neutral-500);
-        margin-left: 4px;
+        font-variant-numeric: tabular-nums;
       }
 
       /* Filtres */
@@ -162,7 +71,7 @@
         color: inherit;
       }
 
-      /* Tableau des mandats */
+      /* Tableaux */
       .cac-table {
         table-layout: auto;
       }
@@ -185,6 +94,10 @@
       .cac-table td:last-child {
         padding-right: 12px;
       }
+      .cac-table th .info-tip {
+        margin-left: 2px;
+        vertical-align: -5px;
+      }
       .cell-ent a {
         font-family: var(--ej-font-display);
         font-weight: 600;
@@ -206,74 +119,49 @@
         font-weight: 500;
       }
       .cell-ent {
-        min-width: 165px;
+        min-width: 150px;
       }
       .cell-ent .cell-sub {
-        max-width: 180px;
+        max-width: 190px;
       }
-      .cell-mission {
+      .cell-txt {
         font-size: 13.5px;
       }
-      .cell-mission .cell-sub {
-        max-width: 140px;
+      .cell-txt .cell-sub {
+        max-width: 230px;
       }
-      .cell-mission .cell-sub.nw {
-        white-space: nowrap;
-        max-width: none;
-      }
-      .cell-ex {
+      .cell-mandat {
         font-size: 13.5px;
         white-space: nowrap;
       }
-      .cell-phase {
-        min-width: 112px;
+      .cell-mandat .badge {
+        margin-top: 4px;
       }
-      .phase-bar {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-top: 7px;
-      }
-      .phase-bar .meter {
-        flex: 1;
-        height: 6px;
-        min-width: 52px;
-      }
-      .phase-bar .pct {
-        font-size: 11.5px;
-        color: var(--ej-neutral-500);
-        font-variant-numeric: tabular-nums;
-        white-space: nowrap;
-      }
-      .cell-heures {
-        white-space: nowrap;
+      .cell-ag {
         font-size: 13.5px;
-        font-variant-numeric: tabular-nums;
       }
-      .cell-heures .real {
+      .cell-ag strong {
         font-weight: 600;
         color: var(--ej-neutral-900);
       }
-      .cell-heures.over .real,
-      .cell-heures.over {
-        color: var(--ej-warning-600);
+      .cell-ag .cell-sub {
+        max-width: 135px;
       }
-      .cell-ech {
-        font-size: 13.5px;
+      .cell-ech .badge {
+        margin-top: 4px;
       }
-      .cell-ech strong {
-        font-weight: 600;
-        color: var(--ej-neutral-900);
-      }
-      .resp {
+      .tag-ej {
         display: inline-flex;
         align-items: center;
-        gap: 7px;
+        height: 20px;
+        margin-top: 3px;
+        padding: 0 8px;
+        border-radius: var(--ej-radius-full);
+        background: var(--ej-action-100);
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--ej-action-700);
         white-space: nowrap;
-        font-size: 13.5px;
-      }
-      .cell-sign .cell-sub {
-        max-width: 150px;
       }
       .open-link {
         display: inline-flex;
@@ -282,19 +170,18 @@
         font-size: 13px;
         font-weight: 600;
         color: var(--ej-action-600);
-        white-space: nowrap;
       }
       .open-link .ms {
         font-size: 16px;
+        flex-shrink: 0;
         transition: transform var(--ej-transition-fast);
+      }
+      .cac-table .cell-open .open-link {
+        max-width: 130px;
+        line-height: 1.3;
       }
       .cac-table tr:hover .open-link .ms {
         transform: translateX(2px);
-      }
-      .cac-sigles {
-        margin: 10px 2px 0;
-        font-size: 12.5px;
-        color: var(--ej-neutral-500);
       }
       .cac-empty {
         padding: 36px 20px;
@@ -303,85 +190,46 @@
         font-size: 14px;
       }
 
-      /* Planning des interventions */
-      .cac-planning {
-        margin-top: 28px;
-      }
-      .pl-head {
-        align-items: flex-start;
-        flex-wrap: wrap;
-      }
-      .pl-controls {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-      .pl-month {
-        margin: 0;
-        padding: 9px 22px;
-        font-family: var(--ej-font-display);
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--ej-neutral-500);
-        background: var(--ej-neutral-50);
-        border-top: 1px solid var(--ej-hairline);
-        border-bottom: 1px solid var(--ej-hairline);
-      }
-      .pl-row {
-        display: grid;
-        grid-template-columns: 150px minmax(0, 1fr) 130px 76px;
-        align-items: center;
-        gap: 16px;
-        padding: 12px 22px;
-        border-bottom: 1px solid var(--ej-neutral-100);
-        cursor: pointer;
-      }
-      .pl-row:last-child {
-        border-bottom: none;
-      }
-      .pl-row:hover {
-        background: var(--ej-primary-50);
-      }
-      .pl-dates {
-        font-size: 13.5px;
-        font-weight: 600;
-        color: var(--ej-neutral-900);
-        font-variant-numeric: tabular-nums;
-      }
-      .pl-what a {
-        font-family: var(--ej-font-display);
-        font-weight: 600;
-        font-size: 14px;
-        color: var(--ej-primary-900);
-      }
-      .pl-what a:hover {
-        color: var(--ej-action-600);
-      }
-      .pl-team {
-        display: inline-flex;
-      }
-      .pl-team .avatar + .avatar {
-        margin-left: 3px;
-      }
-      .pl-empty {
-        padding: 28px 22px;
-        font-size: 14px;
-        color: var(--ej-neutral-500);
-      }
-
-      @media (max-width: 1100px) {
-        .seg-legend {
-          grid-template-columns: repeat(3, minmax(0, 1fr));
+      /* Grand écran : les notes « i » de l'en-tête ne sont pas coupées par le cadre du tableau */
+      @media (min-width: 1300px) {
+        .cac-wrap,
+        .cac-wrap .table-scroll {
+          overflow: visible;
+        }
+        .cac-wrap thead th:first-child {
+          border-top-left-radius: var(--ej-radius-lg);
+        }
+        .cac-wrap thead th:last-child {
+          border-top-right-radius: var(--ej-radius-lg);
+        }
+        .cac-wrap tbody tr:last-child td:first-child {
+          border-bottom-left-radius: var(--ej-radius-lg);
+        }
+        .cac-wrap tbody tr:last-child td:last-child {
+          border-bottom-right-radius: var(--ej-radius-lg);
         }
       }
+
       @media (max-width: 900px) {
         .cac-filters {
           flex-wrap: wrap;
         }
         .cac-filters .toolbar {
           flex-basis: 100%;
+        }
+      }
+      @media (max-width: 760px) {
+        .cac-tabs {
+          overflow-x: auto;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+        }
+        .cac-tabs::-webkit-scrollbar {
+          display: none;
+        }
+        .cac-tabs .tab {
+          flex-shrink: 0;
+          white-space: nowrap;
         }
       }
       /* Tableau transformé en cartes empilées sur petit écran */
@@ -437,95 +285,25 @@
           display: none;
         }
         .cell-ent .cell-sub,
-        .cell-sign .cell-sub,
-        .cell-mission .cell-sub {
+        .cell-txt .cell-sub,
+        .cell-ag .cell-sub {
           max-width: none;
         }
-        .cell-mission,
-        .cell-ex,
-        .cell-heures {
+        .cell-mandat {
           white-space: normal;
         }
-        .cac-table td.cell-ent {
-          min-width: 0;
+        .cac-table td > div {
+          text-align: right;
         }
         .cac-table td.cell-open {
           padding-top: 10px;
           justify-content: flex-start;
         }
+        .cac-table .cell-open .open-link {
+          max-width: none;
+        }
         .cac-table tbody tr:hover td {
           background: transparent;
-        }
-        .cell-phase {
-          min-width: 0;
-        }
-        .cac-table td > div {
-          text-align: right;
-        }
-        .cac-table .cell-mission .cell-sub.nw {
-          white-space: normal;
-        }
-        .cell-phase > div {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-        }
-        .phase-bar {
-          width: 150px;
-        }
-        .cell-sign > div {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-        }
-        .m-actions {
-          width: 100%;
-        }
-        .m-actions .btn {
-          flex: 1 1 auto;
-        }
-        .pl-row {
-          grid-template-columns: minmax(0, 1fr) auto;
-          gap: 6px 12px;
-          padding: 12px 16px;
-        }
-        .pl-row .pl-dates {
-          grid-column: 1 / 2;
-        }
-        .pl-row .pl-what {
-          grid-column: 1 / 2;
-          grid-row: 2;
-        }
-        .pl-row .pl-state {
-          grid-column: 2 / 3;
-          grid-row: 1;
-          justify-self: end;
-        }
-        .pl-row .pl-team {
-          grid-column: 2 / 3;
-          grid-row: 2;
-          justify-self: end;
-        }
-        .pl-month {
-          padding: 9px 16px;
-        }
-        .cac-split-head,
-        .block-head {
-          flex-wrap: wrap;
-        }
-        .block-head {
-          padding: 18px 16px 14px;
-        }
-      }
-      @media (max-width: 480px) {
-        .seg-legend {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-        .seg-legend b {
-          font-size: 18px;
-        }
-        .cac-value a {
-          white-space: normal;
         }
       }
     </style>
@@ -539,116 +317,67 @@
           <div class="page-head m-wrap">
             <div class="cac-intro">
               <div class="m-eyebrow">Missions &amp; conformité</div>
-              <h1 class="page-title">Missions CAC</h1>
-              <p class="page-desc">
-                Mandats de commissariat aux comptes (CAC) et audits contractuels du cabinet, échéances et interventions.
-              </p>
+              <h1 class="page-title">
+                Missions CAC
+                <span id="profil-ec" hidden>
+                  <span class="info-tip">
+                    <button type="button" class="info-tip-btn" aria-describedby="note-profil-ec" aria-label="Information sur le module"><span class="ms">info</span></button>
+                    <span class="info-tip-pop" role="tooltip" id="note-profil-ec">Ce module concerne les cabinets qui exercent le commissariat aux comptes.</span>
+                  </span>
+                </span>
+              </h1>
             </div>
             <div class="m-actions">
-              <a class="btn btn-secondary" href="#" title="Écran non maquetté"><span class="ms">plus</span>Nouvelle mission</a>
-              <a class="btn btn-secondary" href="#" title="Écran non maquetté"><span class="ms">download</span>Exporter le planning</a>
-            </div>
-          </div>
-
-          <div id="profil-ec" hidden>
-            <div class="alert alert-info cac-profil">
-              <span class="ms">info</span>
-              <div>
-                <strong>Profil expert-comptable :</strong> ce module concerne les cabinets qui exercent le commissariat
-                aux comptes. Changez de profil dans l'en-tête.
-              </div>
-            </div>
-          </div>
-
-          <div class="alert alert-brand cac-value">
-            <span class="ms">database</span>
-            <div>
-              <strong>Entités reprises des registres publics.</strong> Par défaut, l'identité, les dirigeants, le capital
-              et les bénéficiaires effectifs des entités contrôlées viennent des registres publics (registre national
-              des entreprises et registre des bénéficiaires effectifs ; répertoire national des associations et Journal
-              officiel pour une association). Lorsque l'entité ou son expert-comptable utilise Express Juridique et
-              partage son dossier en lecture, les dates d'assemblée générale (AG), conventions réglementées et décisions
-              pourraient être reprises.
+              <button type="button" class="btn btn-primary" title="Écran non maquetté"><span class="ms">plus</span>Nouvelle mission ponctuelle</button>
             </div>
           </div>
 
           <div class="stats" id="stats"></div>
-          <div class="cac-honoraires" id="honoraires"></div>
 
-          <div class="card cac-split">
-            <div class="cac-split-head">
-              <h2>Avancement de la campagne</h2>
-              <span class="xs muted" id="split-note"></span>
-            </div>
-            <div class="seg" id="seg" role="img"></div>
-            <div class="seg-legend" id="seg-legend"></div>
-          </div>
+          <div class="tabs cac-tabs" id="tabs" role="tablist" aria-label="Vues des missions CAC"></div>
 
-          <div class="cac-filters" id="liste">
-            <div class="toolbar">
-              <label class="search">
-                <span class="ms">search</span>
-                <input type="text" id="q" placeholder="Rechercher par dénomination ou SIREN" autocomplete="off" />
-              </label>
-              <span class="cac-count" id="count"></span>
-            </div>
-          </div>
-          <div class="quick-filters" id="pills"></div>
-
-          <div class="data-table-wrap">
-            <div class="table-scroll" id="table-scroll">
-              <table class="data-table cac-table">
-                <thead>
-                  <tr>
-                    <th>Entité</th>
-                    <th>Mission</th>
-                    <th>Exercice contrôlé</th>
-                    <th>Phase</th>
-                    <th>Heures</th>
-                    <th>Prochaine échéance</th>
-                    <th>Signataire</th>
-                    <th><span class="sr-only">Fiche</span></th>
-                  </tr>
-                </thead>
-                <tbody id="rows"></tbody>
-              </table>
-            </div>
-            <div class="cac-empty" id="empty" hidden>Aucune mission ne correspond à ce filtre.</div>
-          </div>
-          <p class="cac-sigles">
-            Sigles : ALPE, audit légal petite entreprise ; AG, assemblée générale ; CAC, commissaire aux comptes.
-          </p>
-
-          <div class="data-table-wrap cac-planning" id="planning">
-            <div class="block-head pl-head">
-              <div>
-                <h2>Planning des interventions</h2>
-                <p id="pl-sub"></p>
+          <div id="panel" role="tabpanel" aria-labelledby="tab-mandats">
+            <div class="cac-filters" id="liste">
+              <div class="toolbar">
+                <label class="search">
+                  <span class="ms">search</span>
+                  <input type="text" id="q" placeholder="Rechercher par dénomination ou SIREN" autocomplete="off" />
+                </label>
+                <span class="cac-count" id="count" aria-live="polite"></span>
+                <span class="info-tip">
+                  <button type="button" class="info-tip-btn" aria-describedby="note-sigles" aria-label="Sigles et sources"><span class="ms">info</span></button>
+                  <span class="info-tip-pop" role="tooltip" id="note-sigles">
+                    Sigles : ALPE, audit légal petite entreprise ; AG, assemblée générale ; CAC, commissaire aux comptes.
+                    Sources des entités : registre national des entreprises (RNE), registre des bénéficiaires effectifs (RBE) ;
+                    pour les associations, répertoire national des associations (RNA) et Journal officiel.
+                  </span>
+                </span>
               </div>
-              <div class="pl-controls" id="pl-controls"></div>
             </div>
-            <div id="pl-list"></div>
-          </div>
+            <div class="quick-filters" id="pills"></div>
 
-          <div class="m-note">
-            <span class="ms">info</span>
-            <span id="note-maquette">
-              Maquette : durées de mandat, phases, délais et libellés à faire valider par un commissaire aux comptes
-              (code de commerce, normes d'exercice professionnel). Les entités contrôlées sont distinctes des clients de
-              la mission d'expertise comptable.
-            </span>
+            <div class="data-table-wrap cac-wrap">
+              <div class="table-scroll" id="table-scroll">
+                <table class="data-table cac-table">
+                  <thead id="thead"></thead>
+                  <tbody id="rows"></tbody>
+                </table>
+              </div>
+              <div class="cac-empty" id="empty" hidden></div>
+            </div>
           </div>
         </div>
         <div id="ej-footer"></div>
       </div>
     </div>
 
-    <script src="assets/ej-missions-data.js?v=19"></script>
+    <script src="assets/ej-missions-data.js?v=20"></script>
     <script>
       (function () {
         var E = window.EJM,
           esc = E.esc,
-          M = E.mandats;
+          M = E.mandats,
+          P = E.ponctuelles;
 
         function d(s) {
           var p = s.split("/");
@@ -659,311 +388,333 @@
         function plus(date, n) {
           return new Date(date.getTime() + n * J);
         }
-        var FIN30 = plus(TODAY, 30); /* même calcul que cockpit.html */
-        var FIN60 = plus(TODAY, 60);
-        var FIN3M = new Date(2027, 0, 19); /* trois mois après la date de référence */
+        var FIN3M = plus(TODAY, 90);
         function fmt(date) {
           return ("0" + date.getDate()).slice(-2) + "/" + ("0" + (date.getMonth() + 1)).slice(-2) + "/" + date.getFullYear();
-        }
-        function court(s) {
-          return s.slice(0, 5);
         }
         /* Élision : « de ATELIERS » devient « d'ATELIERS » */
         function de(nom) {
           return /^[AEIOUYHÉÈÊÀÂÎÔÛ]/i.test(nom) ? "d'" + nom : "de " + nom;
         }
-        /* Qui intervient : le signataire conduit l'acceptation, la planification et les rapports ;
-           les auditeurs de l'équipe font l'intérim et le final (le signataire seul si l'équipe est vide). */
-        function membres(lib, m) {
-          if (/rapport|accept|planif|prise de conn/i.test(lib)) return [m.signataire];
-          return m.equipe.length ? m.equipe : [m.signataire];
-        }
-        /* Dates d'une période : « du 16/11 au 27/11 », année ajoutée si elle n'est pas 2026 */
-        function periode(du, au) {
-          var fin = au.slice(6) === "2026" ? court(au) : au;
-          return "du " + court(du) + " au " + fin;
-        }
-        function semaine(date) {
-          var t = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-          var n = t.getUTCDay() || 7;
-          t.setUTCDate(t.getUTCDate() + 4 - n);
-          var y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
-          return Math.ceil(((t - y0) / J + 1) / 7);
-        }
-        var MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
-        var MOIS_C = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
-
-        /* ---------- Règles ---------- */
-        function anneeClos(m) {
-          return +m.ex.clos.slice(6);
-        }
-        /* Dernier exercice du mandat = exercice en cours de contrôle. Les audits contractuels n'ont pas de fin de mandat. */
-        function finMandat(m) {
-          return m.type !== "contractuel" && m.dernier === anneeClos(m);
-        }
-        function rapports60(m) {
-          return m.ex.phase !== "emis" && !!m.ag && d(m.ag) >= TODAY && d(m.ag) <= FIN60;
-        }
-        function intervs30(m) {
-          return m.interventions.filter(function (i) {
-            return i[3] !== "fait" && !/^Acceptation/.test(i[0]) && d(i[1]) <= FIN30 && d(i[2]) >= TODAY;
-          });
-        }
-        function depassement(m) {
-          return m.ex.heures[1] > m.ex.heures[0];
-        }
-        function indepAFaire(m) {
-          return m.independance.statut !== "a_jour";
-        }
-
-        var FILTRES = {
-          tous: { label: "Toutes", test: function () { return true; } },
-          fin: { label: "Fin de mandat", warn: true, test: finMandat },
-          rapports: { label: "Rapports, AG sous 60 jours", test: rapports60 },
-          acceptation: { label: "Acceptation en cours", test: function (m) { return m.ex.phase === "acceptation"; } },
-          indep: { label: "Indépendance à régulariser", warn: true, test: indepAFaire },
-          heures: { label: "Dépassement d'heures", warn: true, test: depassement },
-        };
-        var ORDRE = ["tous", "fin", "rapports", "acceptation", "indep", "heures"];
-        function nb(key) {
-          return M.filter(FILTRES[key].test).length;
+        function norm(t) {
+          return String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
         }
         function noms(list) {
           return list
-            .map(function (m) {
-              return m.nom;
+            .map(function (x) {
+              return x.nom;
             })
             .join(", ");
         }
 
-        /* ---------- Tuiles ---------- */
-        var total = M.length;
-        var couverture = total + " missions CAC du cabinet";
-        var lFin = M.filter(finMandat),
-          lRap = M.filter(rapports60),
-          lInt = M.filter(function (m) { return intervs30(m).length > 0; }),
-          nInt = M.reduce(function (n, m) { return n + intervs30(m).length; }, 0),
-          lHeu = M.filter(depassement);
+        /* ---------- Règles des mandats ---------- */
+        function anneeClos(m) {
+          return +m.ex.clos.slice(6);
+        }
+        /* Dernier exercice du mandat = exercice en cours. Les audits contractuels n'ont pas de fin de mandat. */
+        function finMandat(m) {
+          return m.type !== "contractuel" && m.dernier === anneeClos(m);
+        }
+        function rapports3m(m) {
+          return !!m.ag && d(m.ag) >= TODAY && d(m.ag) <= FIN3M;
+        }
+        function lmAFaire(m) {
+          return m.lm.statut !== "signee";
+        }
+        function indepAFaire(m) {
+          return m.independance.statut !== "a_jour";
+        }
+        function labAFaire(m) {
+          return m.lab.statut !== "a_jour";
+        }
+        function aTraiter(m) {
+          return finMandat(m) || rapports3m(m) || lmAFaire(m) || indepAFaire(m) || labAFaire(m);
+        }
+        /* Urgence : fin de mandat, rapports proches, lettre, indépendance, LAB, le reste ; puis AG la plus proche */
+        function rang(m) {
+          if (finMandat(m)) return 0;
+          if (rapports3m(m)) return 1;
+          if (lmAFaire(m)) return 2;
+          if (indepAFaire(m)) return 3;
+          if (labAFaire(m)) return 4;
+          return 5;
+        }
+        function cmpMandats(a, b) {
+          var r = rang(a) - rang(b);
+          if (r) return r;
+          var da = a.ag ? d(a.ag).getTime() : Infinity,
+            db = b.ag ? d(b.ag).getTime() : Infinity;
+          return da === db ? 0 : da < db ? -1 : 1;
+        }
+        function hrefMandat(m, ancre) {
+          return "cac-mandat.html?id=" + encodeURIComponent(m.id) + (ancre || "");
+        }
+        function actionMandat(m) {
+          if (finMandat(m)) return { lib: "Préparer la fin de mandat", href: hrefMandat(m, "#mandat") };
+          if (m.lm.statut === "envoyee") return { lib: "Relancer la signature", href: hrefMandat(m, "#lettre") };
+          if (m.lm.statut === "a_etablir") return { lib: "Établir la lettre", href: hrefMandat(m, "#lettre") };
+          if (indepAFaire(m)) return { lib: "Mettre à jour la déclaration", href: hrefMandat(m, "#independance") };
+          if (labAFaire(m)) return { lib: "Faire la revue LAB", href: "lab-dossier.html?id=" + encodeURIComponent(m.id) + "&from=cac" };
+          if (rapports3m(m)) return { lib: "Voir les rapports", href: hrefMandat(m, "#rapports") };
+          return { lib: "Ouvrir", href: hrefMandat(m) };
+        }
 
+        var FILTRES_M = {
+          traiter: { label: "À traiter", warn: true, test: aTraiter },
+          fin: { label: "Fin de mandat", warn: true, test: finMandat },
+          rapports: { label: "Rapports à émettre", test: rapports3m },
+          tous: { label: "Tous", test: function () { return true; } },
+        };
+        var ORDRE_M = ["traiter", "fin", "rapports", "tous"];
+
+        /* ---------- Règles des missions ponctuelles ---------- */
+        function enCours(p) {
+          return p.etape !== "termine";
+        }
+        function joursAvant(p) {
+          return Math.round((d(p.depotAvant) - TODAY) / J);
+        }
+        function hrefMission(p) {
+          return "cac-mission.html?id=" + encodeURIComponent(p.id);
+        }
+        var ACTION_P = {
+          designation: "Accepter la mission",
+          acceptation: "Finaliser l'acceptation",
+          pieces: "Relancer le conseil",
+          rapport: "Rédiger le rapport",
+          signature: "Signer le rapport",
+          depot: "Transmettre le rapport",
+          termine: "Ouvrir",
+        };
+        var FILTRES_P = {
+          cours: { label: "En cours", test: enCours },
+          terminees: { label: "Terminées", test: function (p) { return !enCours(p); } },
+          toutes: { label: "Toutes", test: function () { return true; } },
+        };
+        var ORDRE_P = ["cours", "terminees", "toutes"];
+
+        /* ---------- Tuiles ---------- */
+        var lFin = M.filter(finMandat),
+          lRap = M.filter(rapports3m),
+          lPonc = P.filter(enCours);
+        var nLegal = M.filter(function (m) { return m.type === "legal"; }).length,
+          nAlpe = M.filter(function (m) { return m.type === "alpe"; }).length,
+          nCtr = M.filter(function (m) { return m.type === "contractuel"; }).length;
         var TUILES = [
+          { key: "mandats", titre: "Mandats", icone: "briefcase", valeur: M.length,
+            sub: nLegal + " légaux, " + nAlpe + " ALPE, " + nCtr + " contractuel",
+            regle: "Mandats légaux, audits légaux de petites entreprises (ALPE) et audit contractuel du cabinet.",
+            vue: "mandats", filtre: "tous" },
+          { key: "rapports", titre: "Rapports à émettre d'ici 3 mois", icone: "file-text", valeur: lRap.length,
+            sub: noms(lRap),
+            regle: "Mandats dont l'assemblée générale (AG) d'approbation est prévue entre le " + E.today + " et le " + fmt(FIN3M) + ".",
+            vue: "mandats", filtre: "rapports" },
           { key: "fin", titre: "Fins de mandat à préparer", icone: "calendar-clock", valeur: lFin.length, attention: true,
             sub: noms(lFin),
-            regle: "Dernier exercice du mandat égal à l'exercice en cours de contrôle : le mandat prend fin à l'issue de l'assemblée générale (AG) qui statue sur ces comptes. Audits contractuels exclus.",
-            lien: "Voir la liste", filtre: "fin" },
-          { key: "rapports", titre: "AG sous 60 jours, rapports à émettre", icone: "file-text", valeur: lRap.length,
-            sub: noms(lRap),
-            regle: "Rapports pas encore émis et assemblée générale prévue entre le " + E.today + " et le " + fmt(FIN60) + ".",
-            lien: "Voir la liste", filtre: "rapports" },
-          { key: "interv", titre: "Interventions sur 30 jours", icone: "calendar-range", valeur: nInt,
-            sub: "interventions, " + lInt.length + " entités concernées",
-            regle: "Interventions d'audit prévues ou en cours (acceptation exclue) entre le " + E.today + " et le " + fmt(FIN30) + ".",
-            lien: "Voir le planning", planning: true },
-          { key: "heures", titre: "Missions au-delà du budget d'heures", icone: "timer", valeur: lHeu.length,
-            sub: noms(lHeu),
-            regle: "Heures réalisées supérieures au budget de l'exercice en cours de contrôle.",
-            lien: "Voir la liste", filtre: "heures" },
+            regle: "Le dernier exercice du mandat est l'exercice en cours : le mandat prend fin à l'issue de l'assemblée générale (AG) qui statue sur ces comptes. Audits contractuels exclus.",
+            vue: "mandats", filtre: "fin" },
+          { key: "ponc", titre: "Missions ponctuelles en cours", icone: "file-pen-line", valeur: lPonc.length,
+            sub: noms(lPonc),
+            regle: "Missions liées à une opération (apport, transformation, fusion) dont le rapport n'est pas encore déposé.",
+            vue: "ponctuelles", filtre: "cours" },
         ];
         document.getElementById("stats").innerHTML = TUILES.map(function (t) {
-          var lien = t.planning
-            ? '<a class="stat-link" href="#planning" data-planning="30">' + t.lien + ' <span class="ms">arrow_forward</span></a>'
-            : '<a class="stat-link" href="#liste" data-filtre="' + t.filtre + '">' + t.lien + ' <span class="ms">arrow_forward</span></a>';
           return (
-            '<div class="card stat' + (t.attention ? " attention" : "") + '">' +
-            '<div class="stat-top"><span>' + esc(t.titre) + '</span><span class="ms">' + t.icone + "</span></div>" +
+            '<div class="card stat' + (t.attention && t.valeur ? " attention" : "") + '">' +
+            '<div class="stat-top"><span>' + esc(t.titre) + " " +
+            '<span class="info-tip">' +
+            '<button type="button" class="info-tip-btn" aria-describedby="note-tuile-' + t.key + '" aria-label="Règle de calcul : ' + esc(t.titre) + '"><span class="ms">info</span></button>' +
+            '<span class="info-tip-pop" role="tooltip" id="note-tuile-' + t.key + '"><strong>Règle :</strong> ' + esc(t.regle) + "</span></span>" +
+            '</span><span class="ms">' + t.icone + "</span></div>" +
             '<div class="stat-value">' + t.valeur + "</div>" +
             '<div class="stat-sub stat-sub-names">' + esc(t.sub) + "</div>" +
-            '<div class="stat-rule"><strong>Règle :</strong> ' + esc(t.regle) + "<br />Couverture : " + esc(couverture) + ".</div>" +
-            lien + "</div>"
+            '<a class="stat-link" href="?vue=' + t.vue + '" data-vue="' + t.vue + '" data-filtre="' + t.filtre + '">Voir la liste <span class="ms">arrow_forward</span></a></div>'
           );
         }).join("");
 
-        var honMandats = M.filter(function (m) { return m.type !== "contractuel"; }).reduce(function (s, m) { return s + m.honoraires; }, 0);
-        var honCtr = M.filter(function (m) { return m.type === "contractuel"; }).reduce(function (s, m) { return s + m.honoraires; }, 0);
-        document.getElementById("honoraires").innerHTML =
-          '<span class="ms">euro</span><span>Honoraires annuels des mandats : <strong>' + E.euros(honMandats) + " HT</strong>" +
-          (honCtr ? ". Mission contractuelle ponctuelle, hors honoraires annuels : <strong>" + E.euros(honCtr) + " HT</strong>" : "") + ".</span>";
+        /* ---------- État : vue dans l'URL, filtre propre à chaque vue ---------- */
+        var etat = { vue: "mandats", fm: "traiter", fp: "cours", q: "" };
+        var vueUrl = new URLSearchParams(location.search).get("vue");
+        if (vueUrl === "ponctuelles") etat.vue = "ponctuelles";
 
-        /* ---------- Avancement de la campagne ---------- */
-        var PHASES = ["acceptation", "planification", "interim", "final", "rapports", "emis"];
-        var PHASE_VAR = {
-          acceptation: "var(--ej-neutral-300)", planification: "var(--ej-action-300)", interim: "var(--ej-action-500)",
-          final: "var(--ej-action-700)", rapports: "var(--ej-primary-900)", emis: "var(--ej-success-600)",
-        };
-        var cptPhase = PHASES.map(function (p) {
-          return M.filter(function (m) { return m.ex.phase === p; }).length;
-        });
-        var seg = document.getElementById("seg");
-        seg.setAttribute(
-          "aria-label",
-          "Avancement par phase : " + PHASES.map(function (p, i) { return cptPhase[i] + " " + E.PHASE[p].toLowerCase(); }).join(", ")
-        );
-        seg.innerHTML = PHASES.map(function (p, i) {
-          return cptPhase[i] ? '<span class="ph-' + p + '" style="flex:' + cptPhase[i] + '"></span>' : "";
-        }).join("");
-        document.getElementById("seg-legend").innerHTML = PHASES.map(function (p, i) {
-          return (
-            '<div><span class="lg" style="--dot:' + PHASE_VAR[p] + '">' + esc(E.PHASE[p]) + "</span><b>" + cptPhase[i] +
-            "<small>mission" + (cptPhase[i] > 1 ? "s" : "") + "</small></b></div>"
-          );
-        }).join("");
-        document.getElementById("split-note").textContent = "Exercices clos en 2026, " + total + " missions";
+        function fixerUrl() {
+          try {
+            var u = new URL(location.href);
+            u.searchParams.set("vue", etat.vue);
+            history.replaceState(null, "", u.pathname + u.search + u.hash);
+          } catch (e) {}
+        }
 
-        /* ---------- Filtres ---------- */
-        var etat = { f: "tous", q: "" };
+        /* ---------- Onglets ---------- */
+        var VUES = [
+          { id: "mandats", label: "Mandats", n: M.length },
+          { id: "ponctuelles", label: "Missions ponctuelles", n: P.length },
+        ];
+        var tabs = document.getElementById("tabs");
+        function dessinerTabs() {
+          tabs.innerHTML = VUES.map(function (v) {
+            var a = etat.vue === v.id;
+            return '<button type="button" class="tab' + (a ? " active" : "") + '" role="tab" id="tab-' + v.id + '" data-vue="' + v.id +
+              '" aria-selected="' + a + '" aria-controls="panel" tabindex="' + (a ? "0" : "-1") + '">' +
+              esc(v.label) + ' <span class="tab-n">' + v.n + "</span></button>";
+          }).join("");
+          document.getElementById("panel").setAttribute("aria-labelledby", "tab-" + etat.vue);
+        }
+
+        /* ---------- Pastilles ---------- */
         var pills = document.getElementById("pills");
         function dessinerPills() {
-          pills.innerHTML = ORDRE.map(function (k) {
-            var f = FILTRES[k];
-            var actif = etat.f === k;
+          var mand = etat.vue === "mandats";
+          var F = mand ? FILTRES_M : FILTRES_P,
+            ordre = mand ? ORDRE_M : ORDRE_P,
+            src = mand ? M : P,
+            cle = mand ? etat.fm : etat.fp;
+          pills.innerHTML = ordre.map(function (k) {
+            var f = F[k];
+            var actif = cle === k;
             var cls = "qf-pill" + (f.warn ? " warning" : "") + (actif ? (f.warn ? " active-warning" : " active") : "");
             return '<button type="button" class="' + cls + '" data-f="' + k + '" aria-pressed="' + actif + '">' +
-              esc(f.label) + ' <span class="n">' + nb(k) + "</span></button>";
+              esc(f.label) + ' <span class="n">' + src.filter(f.test).length + "</span></button>";
           }).join("");
         }
 
-        /* ---------- Tableau ---------- */
+        /* ---------- Note des délais retenus ---------- */
+        var NOTE_DELAIS = "Délais retenus pour la maquette : rapports à disposition 15 jours avant l'AG, dépôt du rapport ponctuel 8 jours avant l'assemblée. À valider par un professionnel.";
+        function noteDelais() {
+          return '<span class="info-tip" data-tip="bas">' +
+            '<button type="button" class="info-tip-btn" aria-describedby="note-delais" aria-label="Délais retenus"><span class="ms">info</span></button>' +
+            '<span class="info-tip-pop" role="tooltip" id="note-delais">' + esc(NOTE_DELAIS) + "</span></span>";
+        }
+
+        /* ---------- Vue Mandats ---------- */
         var TYPE_COURT = { legal: "Mandat légal", alpe: "ALPE", contractuel: "Contractuel" };
-        var PHASE_BADGE = {
-          acceptation: "badge-neutral", planification: "badge-progress", interim: "badge-progress",
-          final: "badge-progress", rapports: "badge-action", emis: "badge-success",
-        };
-        function celluleEntite(m, href) {
-          return '<a href="' + esc(href) + '">' + esc(m.nom) + '</a><span class="cell-sub">' + esc(m.forme) + " · " + esc(m.activite) + "</span>";
+        var LM_LIB = { signee: "Signée", envoyee: "Envoyée", a_etablir: "À établir" };
+        var LM_CLS = { signee: "badge-success", envoyee: "badge-progress", a_etablir: "badge-action" };
+        var INDEP_LIB = { a_jour: "À jour", a_renouveler: "À renouveler", a_faire: "À faire" };
+        function celluleEntite(nom, href, sub) {
+          return '<a href="' + esc(href) + '">' + esc(nom) + '</a><span class="cell-sub">' + esc(sub) + "</span>";
         }
-        function celluleMission(m) {
-          var h = '<span title="' + esc(E.TYPE_MANDAT[m.type]) + '">' + TYPE_COURT[m.type] + "</span>";
-          h += '<span class="cell-sub nw">' + (m.type === "contractuel" ? "exercice " + m.premier : "exercices " + m.premier + " à " + m.dernier) + "</span>";
-          if (m.cocac) h += '<span class="cell-sub">' + esc(m.cocac) + "</span>";
-          if (finMandat(m)) h += '<span class="cell-sub cell-sub-warn">Dernier exercice du mandat</span>';
+        function celluleMandat(m) {
+          var h = m.type === "contractuel" ? "Exercice " + m.premier : m.premier + " à " + m.dernier;
+          if (finMandat(m)) h += '<br><span class="badge badge-action">Dernier exercice</span>';
           return "<div>" + h + "</div>";
         }
-        function cellulePhase(m) {
-          var p = m.ex.phase;
-          return '<div><span class="badge ' + PHASE_BADGE[p] + '">' + esc(E.PHASE[p]) + "</span>" +
-            '<div class="phase-bar"><div class="meter" role="img" aria-label="Avancement ' + m.ex.avancement + ' %"><span style="width:' + m.ex.avancement + '%"></span></div>' +
-            '<span class="pct">' + m.ex.avancement + " %</span></div></div>";
+        function celluleAg(m) {
+          if (!m.ag) return '<div><span class="muted">Non fixée</span></div>';
+          return "<div><strong>" + m.ag + '</strong><span class="cell-sub">Rapports avant le ' + fmt(plus(d(m.ag), -15)) + "</span></div>";
         }
-        function celluleHeures(m) {
-          var h = m.ex.heures, over = depassement(m);
-          var s = '<span class="real">' + h[1] + "</span> / " + h[0] + " h";
-          if (over) s += '<span class="cell-sub cell-sub-warn">+' + (h[1] - h[0]) + " h au-delà</span>";
-          return '<div class="cell-heures' + (over ? " over" : "") + '">' + s + "</div>";
-        }
-        function prochaine(m) {
-          var rest = m.interventions
-            .filter(function (i) { return i[3] !== "fait"; })
-            .sort(function (a, b) { return d(a[1]) - d(b[1]); });
-          if (rest.length) {
-            var i = rest[0];
-            var quand = i[3] === "en_cours" ? "en cours, jusqu'au " + (i[2].slice(6) === "2026" ? court(i[2]) : i[2]) : periode(i[1], i[2]);
-            return "<div><strong>" + esc(i[0]) + '</strong><span class="cell-sub">' + quand + "</span></div>";
-          }
-          return m.ag ? "<div><strong>Assemblée générale</strong><span class=\"cell-sub\">" + m.ag + "</span></div>" : '<span class="muted">Aucune</span>';
-        }
-        function celluleSign(m) {
-          var s = E.equipe[m.signataire];
-          var h = '<span class="resp"><span class="avatar avatar-xs" style="background:' + s.couleur + '" aria-hidden="true">' + esc(m.signataire) + "</span>" + esc(s.nom) + "</span>";
-          if (m.independance.statut === "a_renouveler") h += '<span class="cell-sub cell-sub-warn">Indépendance à renouveler</span>';
-          if (m.independance.statut === "a_faire") h += '<span class="cell-sub cell-sub-warn">Indépendance à déclarer</span>';
-          return "<div>" + h + "</div>";
-        }
-        function ligne(m) {
-          var href = "cac-mandat.html?id=" + encodeURIComponent(m.id);
+        function ligneMandat(m) {
+          var href = hrefMandat(m);
+          var a = actionMandat(m);
+          var lab = m.lab.statut;
           return (
             '<tr data-href="' + esc(href) + '">' +
-            '<td class="cell-ent" data-label="Entité">' + celluleEntite(m, href) + "</td>" +
-            '<td class="cell-mission" data-label="Mission">' + celluleMission(m) + "</td>" +
-            '<td class="cell-ex" data-label="Exercice contrôlé"><div>Exercice ' + anneeClos(m) + '<span class="cell-sub">clos le ' + m.ex.clos + "</span></div></td>" +
-            '<td class="cell-phase" data-label="Phase">' + cellulePhase(m) + "</td>" +
-            '<td data-label="Heures">' + celluleHeures(m) + "</td>" +
-            '<td class="cell-ech" data-label="Prochaine échéance">' + prochaine(m) + "</td>" +
-            '<td class="cell-sign" data-label="Signataire">' + celluleSign(m) + "</td>" +
-            '<td class="cell-open"><a class="open-link" href="' + esc(href) + '" aria-label="Ouvrir la fiche ' + esc(de(m.nom)) + '"><span class="ms">arrow_forward</span></a></td>' +
+            '<td class="cell-ent" data-label="Entité">' + celluleEntite(m.nom, href, m.forme + " · " + TYPE_COURT[m.type]) + "</td>" +
+            '<td class="cell-mandat" data-label="Mandat">' + celluleMandat(m) + "</td>" +
+            '<td class="cell-ag" data-label="Prochaine AG">' + celluleAg(m) + "</td>" +
+            '<td data-label="Lettre de mission"><div><span class="badge ' + LM_CLS[m.lm.statut] + '">' + LM_LIB[m.lm.statut] + "</span></div></td>" +
+            '<td data-label="Indépendance"><div><span class="badge ' + (m.independance.statut === "a_jour" ? "badge-success" : "badge-action") + '">' + INDEP_LIB[m.independance.statut] + "</span></div></td>" +
+            '<td data-label="Vigilance LAB"><div><span class="badge ' + (lab === "a_jour" ? "badge-success" : "badge-action") + '">' + esc(E.LAB_STATUT[lab]) + "</span></div></td>" +
+            '<td class="cell-open" data-label="Action"><a class="open-link" href="' + esc(a.href) + '" aria-label="' + esc(a.lib + " : " + m.nom) + '">' + esc(a.lib) + ' <span class="ms">arrow_forward</span></a></td>' +
             "</tr>"
           );
         }
-        function norm(t) {
-          return String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+        var THEAD_M =
+          "<tr><th>Entité</th><th>Mandat</th><th>Prochaine AG " + noteDelais() + "</th><th>Lettre de mission</th><th>Indépendance</th><th>Vigilance LAB</th><th>Action</th></tr>";
+
+        /* ---------- Vue Missions ponctuelles ---------- */
+        function celluleEtape(p) {
+          var cls = p.etape === "termine" ? "badge-success" : "badge-progress";
+          var h = '<span class="badge ' + cls + '">' + esc(E.ETAPE[p.etape]) + "</span>";
+          if (p.etape === "pieces") h += '<span class="cell-sub">' + p.pieces[0] + " sur " + p.pieces[1] + " pièces</span>";
+          return "<div>" + h + "</div>";
+        }
+        function celluleEcheance(p) {
+          var h = "<strong>Dépôt avant le " + p.depotAvant + '</strong><span class="cell-sub">Assemblée le ' + p.assemblee + "</span>";
+          if (enCours(p)) {
+            var n = joursAvant(p);
+            if (n < 0) h += '<span class="badge badge-error">Échéance dépassée</span>';
+            else if (n <= 10) h += '<span class="badge badge-action">' + (n === 0 ? "Aujourd'hui" : "Dans " + n + " jour" + (n > 1 ? "s" : "")) + "</span>";
+          }
+          return "<div>" + h + "</div>";
+        }
+        function lignePonctuelle(p) {
+          var href = hrefMission(p);
+          var verbe = ACTION_P[p.etape];
+          return (
+            '<tr data-href="' + esc(href) + '">' +
+            '<td class="cell-ent" data-label="Entité">' + celluleEntite(p.nom, href, p.forme + " · " + p.siren) + "</td>" +
+            '<td class="cell-txt" data-label="Mission"><div>' + esc(E.NATURE[p.nature]) + '<span class="cell-sub">' + esc(p.operation) + "</span></div></td>" +
+            '<td data-label="Étape">' + celluleEtape(p) + "</td>" +
+            '<td class="cell-ag cell-ech" data-label="Échéance">' + celluleEcheance(p) + "</td>" +
+            '<td class="cell-txt" data-label="Conseil"><div>' + esc(p.conseil.nom) + (p.conseil.ej ? '<br><span class="tag-ej">Sur EJ</span>' : "") + "</div></td>" +
+            '<td class="cell-open" data-label="Action"><a class="open-link" href="' + esc(href) + '" aria-label="' + esc(verbe + " : " + p.nom) + '">' + esc(verbe) + ' <span class="ms">arrow_forward</span></a></td>' +
+            "</tr>"
+          );
+        }
+        var THEAD_P =
+          "<tr><th>Entité</th><th>Mission</th><th>Étape</th><th>Échéance " + noteDelais() + "</th><th>Conseil</th><th>Action</th></tr>";
+
+        /* ---------- Tableau ---------- */
+        function correspond(x, q, qd) {
+          if (!q) return true;
+          return norm(x.nom).indexOf(q) !== -1 || (/^\d+$/.test(qd) && x.siren.replace(/\s+/g, "").indexOf(qd) !== -1);
         }
         function dessiner() {
+          var mand = etat.vue === "mandats";
           var q = norm(etat.q.trim());
           var qd = etat.q.replace(/\s+/g, "");
-          var liste = M.filter(function (m) {
-            if (!FILTRES[etat.f].test(m)) return false;
-            if (!q) return true;
-            return norm(m.nom).indexOf(q) !== -1 || (/^\d+$/.test(qd) && m.siren.replace(/\s+/g, "").indexOf(qd) !== -1);
-          });
-          document.getElementById("rows").innerHTML = liste.map(ligne).join("");
-          document.getElementById("empty").hidden = liste.length > 0;
-          document.getElementById("count").textContent = liste.length + (liste.length > 1 ? " missions" : " mission");
+          var liste, html, vide, unite;
+          if (mand) {
+            liste = M.filter(function (m) { return FILTRES_M[etat.fm].test(m) && correspond(m, q, qd); }).sort(cmpMandats);
+            html = liste.map(ligneMandat).join("");
+            vide = "Aucun mandat ne correspond à ce filtre.";
+            unite = " mandat";
+          } else {
+            liste = P.filter(function (p) { return FILTRES_P[etat.fp].test(p) && correspond(p, q, qd); }).sort(function (a, b) { return d(a.depotAvant) - d(b.depotAvant); });
+            html = liste.map(lignePonctuelle).join("");
+            vide = "Aucune mission ponctuelle ne correspond à ce filtre.";
+            unite = " mission";
+          }
+          document.getElementById("thead").innerHTML = mand ? THEAD_M : THEAD_P;
+          document.getElementById("rows").innerHTML = html;
+          var empty = document.getElementById("empty");
+          empty.textContent = vide;
+          empty.hidden = liste.length > 0;
+          document.getElementById("count").textContent = liste.length + unite + (liste.length > 1 ? "s" : "");
+          dessinerTabs();
           dessinerPills();
         }
 
-        /* ---------- Planning des interventions ---------- */
-        var STATUT_I = {
-          fait: { l: "Fait", c: "badge-success" },
-          en_cours: { l: "En cours", c: "badge-progress" },
-          prevu: { l: "Prévu", c: "badge-neutral" },
-        };
-        var pl = { horizon: "3m", faites: false };
-        function dessinerPlanning() {
-          var fin = pl.horizon === "30" ? FIN30 : FIN3M;
-          var items = [];
-          M.forEach(function (m) {
-            m.interventions.forEach(function (i) {
-              var du = d(i[1]), au = d(i[2]);
-              var dansFenetre = au >= TODAY && du <= fin;
-              var visible = i[3] === "fait" ? pl.faites : dansFenetre;
-              if (visible) items.push({ m: m, i: i, du: du, au: au });
-            });
-          });
-          items.sort(function (a, b) { return a.du - b.du || a.au - b.au; });
-          var debut = items.length ? items[0].du : TODAY;
-          var depuis = pl.faites && debut < TODAY ? "Depuis le " + fmt(debut) : "Du " + E.today;
-          document.getElementById("pl-sub").textContent =
-            depuis + " jusqu'au " + fmt(fin) + " · " + items.length + " intervention" + (items.length > 1 ? "s" : "") +
-            (pl.faites ? ", terminées comprises" : "");
-          document.getElementById("pl-controls").innerHTML =
-            [["3m", "3 prochains mois"], ["30", "30 jours"]].map(function (h) {
-              var a = pl.horizon === h[0];
-              return '<button type="button" class="qf-pill' + (a ? " active" : "") + '" data-h="' + h[0] + '" aria-pressed="' + a + '">' + h[1] + "</button>";
-            }).join("") +
-            '<button type="button" class="qf-pill' + (pl.faites ? " active" : "") + '" data-faites="1" aria-pressed="' + pl.faites + '">Terminées comprises</button>';
-          if (!items.length) {
-            document.getElementById("pl-list").innerHTML = '<div class="pl-empty">Aucune intervention sur cette période.</div>';
-            return;
+        function aller(vue, filtre) {
+          etat.vue = vue;
+          if (filtre) {
+            if (vue === "mandats") etat.fm = filtre;
+            else etat.fp = filtre;
           }
-          var html = "", cle = "";
-          items.forEach(function (it) {
-            var k = it.du.getFullYear() * 100 + it.du.getMonth();
-            if (k !== cle) {
-              cle = k;
-              html += '<h3 class="pl-month">' + MOIS[it.du.getMonth()] + " " + it.du.getFullYear() + "</h3>";
-            }
-            var href = "cac-mandat.html?id=" + encodeURIComponent(it.m.id);
-            var st = STATUT_I[it.i[3]];
-            var dates = it.du.getDate() + (it.du.getMonth() !== it.au.getMonth() ? " " + MOIS_C[it.du.getMonth()] : "") + " au " + it.au.getDate() + " " + MOIS_C[it.au.getMonth()];
-            var qui = membres(it.i[0], it.m);
-            var equipe = qui.map(function (c) {
-              var p = E.equipe[c];
-              return '<span class="avatar avatar-xs" style="background:' + p.couleur + '" title="' + esc(p.nom) + '">' + esc(c) + "</span>";
-            }).join("");
-            html +=
-              '<div class="pl-row" data-href="' + esc(href) + '">' +
-              '<div class="pl-dates">' + dates + '<span class="cell-sub">Semaine ' + semaine(it.du) + "</span></div>" +
-              '<div class="pl-what"><a href="' + esc(href) + '">' + esc(it.m.nom) + '</a><span class="cell-sub">' + esc(it.i[0]) + "</span></div>" +
-              '<div class="pl-state"><span class="badge ' + st.c + '">' + st.l + "</span></div>" +
-              '<div class="pl-team" aria-label="' + (qui.length > 1 ? "Intervenants : " : "Intervenant : ") + esc(qui.map(function (c) { return E.equipe[c].nom; }).join(", ")) + '">' + equipe + "</div>" +
-              "</div>";
-          });
-          document.getElementById("pl-list").innerHTML = html;
+          fixerUrl();
+          dessiner();
         }
 
         /* ---------- Événements ---------- */
+        tabs.addEventListener("click", function (e) {
+          var b = e.target.closest("[data-vue]");
+          if (b && b.getAttribute("data-vue") !== etat.vue) aller(b.getAttribute("data-vue"));
+        });
+        tabs.addEventListener("keydown", function (e) {
+          var i = VUES.map(function (v) { return v.id; }).indexOf(etat.vue);
+          var n = e.key === "ArrowRight" ? i + 1 : e.key === "ArrowLeft" ? i - 1 : e.key === "Home" ? 0 : e.key === "End" ? VUES.length - 1 : -1;
+          if (n < 0) return;
+          e.preventDefault();
+          n = (n + VUES.length) % VUES.length;
+          aller(VUES[n].id);
+          document.getElementById("tab-" + VUES[n].id).focus();
+        });
         pills.addEventListener("click", function (e) {
           var b = e.target.closest("[data-f]");
           if (!b) return;
-          etat.f = b.getAttribute("data-f");
+          if (etat.vue === "mandats") etat.fm = b.getAttribute("data-f");
+          else etat.fp = b.getAttribute("data-f");
           dessiner();
         });
         document.getElementById("q").addEventListener("input", function (e) {
@@ -974,48 +725,23 @@
           var a = e.target.closest("a.stat-link");
           if (!a) return;
           e.preventDefault();
-          if (a.hasAttribute("data-planning")) {
-            pl.horizon = "30";
-            pl.faites = false;
-            dessinerPlanning();
-            document.getElementById("planning").scrollIntoView({ behavior: "smooth", block: "start" });
-            return;
-          }
-          etat.f = a.getAttribute("data-filtre");
-          dessiner();
-          document.getElementById("liste").scrollIntoView({ behavior: "smooth", block: "start" });
+          aller(a.getAttribute("data-vue"), a.getAttribute("data-filtre"));
+          document.getElementById("tabs").scrollIntoView({ behavior: "smooth", block: "start" });
         });
-        document.getElementById("pl-controls").addEventListener("click", function (e) {
-          var b = e.target.closest("button");
-          if (!b) return;
-          if (b.hasAttribute("data-h")) pl.horizon = b.getAttribute("data-h");
-          if (b.hasAttribute("data-faites")) pl.faites = !pl.faites;
-          dessinerPlanning();
-        });
-        function suivre(e) {
+        document.getElementById("rows").addEventListener("click", function (e) {
           if (e.target.closest("a")) return;
           var r = e.target.closest("[data-href]");
           if (r) location.href = r.getAttribute("data-href");
-        }
-        document.getElementById("rows").addEventListener("click", suivre);
-        document.getElementById("pl-list").addEventListener("click", suivre);
-
-        document.querySelectorAll('a[href="#"]').forEach(function (a) {
-          a.addEventListener("click", function (e) { e.preventDefault(); });
         });
 
         /* ej-shell.js (chargé après) pose data-profil sur le body avant DOMContentLoaded */
         document.addEventListener("DOMContentLoaded", function () {
           if (document.body.dataset.profil === "ec") document.getElementById("profil-ec").hidden = false;
-          if (document.body.dataset.profil === "cac")
-            document.getElementById("note-maquette").textContent =
-              "Maquette : durées de mandat, phases, délais et libellés à faire valider par un commissaire aux comptes (code de commerce, normes d'exercice professionnel). Données fictives.";
         });
 
         dessiner();
-        dessinerPlanning();
       })();
     </script>
-    <script src="assets/ej-shell.js?v=22"></script>
+    <script src="assets/ej-shell.js?v=24"></script>
   </body>
 </html>

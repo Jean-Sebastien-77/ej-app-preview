@@ -1,7 +1,7 @@
 /* Express Juridique · Lifting 2026 · Cockpit en canevas de tableaux
    Données fictives et calculs du cockpit, séparés du rendu (cockpit.html).
    Cabinet de démonstration : CABINET DELMAS EXPERTISE. Date de référence : 19/10/2026.
-   Principe : l'IA compose avec ce catalogue fermé d'indicateurs certifiés ; EJ calcule ici.
+   Principe : l'assistant compose avec ce catalogue fermé d'indicateurs ; les calculs sont faits ici.
    Chaque indicateur déclare sa règle, sa source, sa couverture et les filtres qu'il accepte.
    Aucune série sans donnée source : pas de chiffre d'affaires, pas d'activité par collaborateur,
    pas de durée de traitement. Toutes les données sont fictives.
@@ -60,7 +60,7 @@
     }, 0);
   }
 
-  /* ---------- Portefeuille : 135 sociétés (mêmes données que la maquette « listes » archivée) ----------
+  /* ---------- Portefeuille : 135 sociétés (mêmes données que la liste des sociétés) ----------
      nom | forme | clôture (jj/mm, DPJ) | étape d'approbation | drapeaux | date de décision de l'AGOA
      Étapes : prep (à préparer), gen (documents générés), sig (en signature), dep (à déposer), ok (déposé)
      Drapeaux : f = formulaire AGOA commencé, c = en cours de création, p = approuvée en 2025 sans approbation en 2026,
@@ -225,7 +225,7 @@
 
   /* ---------- Formalités : 164 au total, 20 au statut « Formulaire en cours » ----------
      Date de création (existe), type, statut (deux valeurs : formulaire en cours, documents générés), créé par.
-     Les 20 en cours et les formalités citées ailleurs dans la maquette sont écrites à la main ;
+     Les 20 en cours et les formalités citées ailleurs dans l'application sont écrites à la main ;
      les autres sont générées de façon déterministe pour tenir les totaux mensuels. */
   var FAM = {
     agoa: "Approbation des comptes", capital: "Modification de capital", conv: "Conventions courantes", const: "Constitution",
@@ -382,7 +382,7 @@
      AG non suivie dans EJ : échéance dépassée et aucune formalité d'approbation dans EJ pour l'exercice
      (l'AG a pu se tenir hors d'EJ : ni tenue ni hors délai, à vérifier).
      Dépôt des comptes en retard : décision valable connue, comptes non déposés deux mois après.
-     Sociétés civiles : règle propre à valider avec le juriste EJ, jamais mélangée au calcul certain. */
+     Sociétés civiles : échéance fixée par les statuts, comptée à part. */
   var RANK = { prep: 0, gen: 1, sig: 2, dep: 3, ok: 4 };
   var DEP_STAGE = { a_signer: "gen", sig: "sig", pret: "dep" };
   var CAMP_FROM = new Date(2025, 6, 1);
@@ -576,7 +576,7 @@
   }
   function agRow(s, a) {
     var r = socRow(s, "Exercice clos le " + fmt(a.clos) + " · AG avant le " + fmt(a.dl) + (a.campagne ? decTxt(s) : ""));
-    r.badge = a.held ? { label: "AG tenue", tone: "success" } : a.civ ? { label: "Société civile, règle à valider", tone: "neutral" } : { label: ETATS[a.etat] || "AG à tenir", tone: a.etat === "prep" ? "action" : "progress" };
+    r.badge = a.held ? { label: "AG tenue", tone: "success" } : a.civ ? { label: "Société civile", tone: "neutral" } : { label: ETATS[a.etat] || "AG à tenir", tone: a.etat === "prep" ? "action" : "progress" };
     if (!a.held) {
       r.href = a.campagne && (s.fe || a.etat === "gen") ? "formalite.html" : "nouvelle-formalite.html";
       r.action = a.campagne && s.fe ? "Reprendre l'AGOA" : a.etat === "gen" ? "Ouvrir l'AGOA" : "Préparer l'AGOA";
@@ -590,10 +590,11 @@
     var withCl = all.filter(function (s) {
       return !!s.cl;
     }).length;
-    return "Calculé sur " + withCl + " sociétés sur " + all.length + formeLabel(ctx) + " ; " + (all.length - withCl) + " sans date de clôture au DPJ.";
+    return "Calculé sur " + withCl + " sociétés sur " + all.length + formeLabel(ctx) + " ; " + (all.length - withCl) + " " + pl(all.length - withCl, "société", "sociétés") + " sans date de clôture au DPJ, non " + pl(all.length - withCl, "comptée", "comptées") + ".";
   }
-  var COV_EJM = "Module Lettres de mission et LAB (2027, provisoire) : " + E.societes.length + " sociétés équipées dans la démonstration.";
-  var COV_CAC = "Module Missions CAC (2027, provisoire) : " + E.mandats.length + " missions du cabinet.";
+  var COV_EJM = "Lettres de mission et dossiers LAB : " + E.societes.length + " sociétés couvertes.";
+  var COV_CAC = "Tous les mandats CAC du cabinet (" + E.mandats.length + ").";
+  var COV_PONCT = "Toutes les missions ponctuelles du cabinet (" + (E.ponctuelles || []).length + ").";
 
   /* ---------- Séries de base ---------- */
   function agSeries(ctx, months, keepHeld) {
@@ -616,7 +617,7 @@
       return rows;
     });
   }
-  /* Sépare le calcul certain (sociétés commerciales) des sociétés civiles (règle à valider) */
+  /* Sépare le calcul certain (sociétés commerciales) des sociétés civiles (comptées à part) */
   function noCiv(rows) {
     return rows.map(function (l) { return l.filter(function (x) { return !x.s.civ; }); });
   }
@@ -627,7 +628,7 @@
     return rows.map(function (l) { return l.length; });
   }
   function civNote(n) {
-    return n ? "Sociétés civiles à part : " + n + " " + pl(n, "échéance", "échéances") + ", règle à valider." : "";
+    return n ? "Sociétés civiles à part : " + n + " " + pl(n, "échéance", "échéances") + ", comptées à part." : "";
   }
   /* Libellés de mois : court sur l'axe (année au changement d'année), long dans les info-bulles et le tiroir */
   function cats(ms) {
@@ -697,7 +698,7 @@
     socs(ctx).forEach(function (s) {
       for (var i = 0; i < 12; i++) {
         var a = agIn(s, start + i);
-        if (a && !a.held && a.dl >= TODAY) items.push({ d: a.dl, soc: s.n, forme: s.f, label: a.civ ? "Échéance de l'AG d'approbation (société civile, règle à valider)" : "Échéance de l'AG d'approbation", href: s.fe && a.campagne ? "formalite.html" : "nouvelle-formalite.html", action: "Préparer l'AGOA" });
+        if (a && !a.held && a.dl >= TODAY) items.push({ d: a.dl, soc: s.n, forme: s.f, label: a.civ ? "Échéance de l'AG d'approbation (société civile)" : "Échéance de l'AG d'approbation", href: s.fe && a.campagne ? "formalite.html" : "nouvelle-formalite.html", action: "Préparer l'AGOA" });
         var dp = depIn(s, start + i);
         if (dp && dp.due >= TODAY && !dp.estime) items.push({ d: dp.due, soc: s.n, forme: s.f, label: "Dépôt des comptes", href: "suivi-actions.html", action: "Voir le dépôt" });
       }
@@ -711,19 +712,25 @@
     });
     return items;
   }
-  /* Jours d'intervention (lundi au vendredi) d'une intervention CAC dans le mois idx */
-  function joursIn(iv, idx) {
-    var d = parse(iv[1]);
-    var to = parse(iv[2]);
-    var n = 0;
-    while (d <= to) {
-      if (mi(d) === idx && d.getDay() > 0 && d.getDay() < 6) n++;
-      d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
-    }
-    return n;
-  }
   function isFin(m) {
     return m.type !== "contractuel" && +m.ex.clos.slice(-4) === m.dernier;
+  }
+  /* Missions ponctuelles : seul le filtre « signataire » s'applique (le type de mission désigne les mandats) */
+  function ponctuelles(ctx) {
+    return (E.ponctuelles || []).filter(function (p) {
+      return !ctx.f.signataire || ctx.f.signataire === p.signataire;
+    });
+  }
+  function ponctRow(p, meta) {
+    return { title: p.nom, forme: p.forme, meta: meta, href: "cac-mission.html?id=" + encodeURIComponent(p.id), action: "Ouvrir la mission" };
+  }
+  function enCours(p) {
+    return p.etape !== "termine";
+  }
+  /* Rapport sur les comptes : remis au plus tard 15 jours avant l'AG qui les approuve */
+  function rapportDu(m) {
+    var a = parse(m.ag);
+    return new Date(a.getFullYear(), a.getMonth(), a.getDate() - 15);
   }
 
   /* ---------- Constructeurs de résultats ---------- */
@@ -743,7 +750,7 @@
     return r;
   }
 
-  /* ---------- Catalogue d'indicateurs certifiés ----------
+  /* ---------- Catalogue d'indicateurs ----------
      kind : kpi | series (temps) | cat (catégories) | matrix (catégories × séries) | gauge | list
      dims : filtres acceptés (forme, createur, periode, type, signataire). Les autres sont « non disponibles ». */
   var THEMES = {
@@ -760,9 +767,9 @@
     dpj: "DPJ (date de clôture) et formalités (date de décision, étape)",
     form: "Formalités (date de création, type, statut, créé par)",
     dep: "Suivi des actions (dépôts INPI, statut et horodatage)",
-    lab: "Module LAB (2027, provisoire)",
-    lm: "Module Lettres de mission (2027, provisoire)",
-    cac: "Module Missions CAC (2027, provisoire)",
+    lab: "Dispositif LAB",
+    lm: "Lettres de mission",
+    cac: "Missions CAC",
   };
   var IND = {};
   function ind(id, o) {
@@ -930,7 +937,7 @@
   });
 
   /* ===== Charge juridique ===== */
-  var AG_RULE = "Échéance de l'AG d'approbation : six mois après la date de clôture du DPJ, en fin de mois, sauf prorogation (non connue d'EJ). AG déjà tenues exclues : en signature, à déposer ou déposée, ou documents générés avec une décision passée. Une date de décision prévue dans un formulaire en cours ne vaut pas AG tenue. Sociétés civiles comptées à part : leur règle est à valider avec le juriste EJ.";
+  var AG_RULE = "Échéance de l'AG d'approbation : six mois après la date de clôture du DPJ, en fin de mois, sauf prorogation (non enregistrée). AG déjà tenues exclues : en signature, à déposer ou déposée, ou documents générés avec une décision passée. Une date de décision prévue dans un formulaire en cours ne vaut pas AG tenue. Sociétés civiles comptées à part : leur échéance dépend des statuts.";
   ind("ag_6m", {
     group: "ec", theme: "charge", kind: "kpi", title: "AG à tenir d'ici 6 mois", dims: ["forme"], src: SRC.dpj,
     kw: ["ag a tenir d'ici 6 mois", "ag a tenir", "assemblees a tenir", "ag d'approbation", "approbations a venir"],
@@ -947,7 +954,7 @@
       var d = all - p;
       return {
         value: v, display: nf(v), delta: d === 0 ? "Échéances stables vs N-1" : (d > 0 ? "+" : "") + d + " " + pl(Math.abs(d), "échéance", "échéances") + " vs N-1", deltaTone: d > 0 ? "up" : d < 0 ? "down" : "flat",
-        note: civ ? "+ " + civ + " " + pl(civ, "société civile", "sociétés civiles") + ", règle à valider" : null,
+        note: civ ? "+ " + civ + " " + pl(civ, "société civile", "sociétés civiles") + ", comptées à part" : null,
         spark: lens(cur),
         rows: function () { return [].concat.apply([], cur).map(function (x) { return agRow(x.s, x.a); }); },
       };
@@ -971,7 +978,7 @@
         series.push({ name: "N-1", values: lens(rowsP), tone: "n1" });
         srcs.push(rowsP);
       } else if (sum(lens(civ))) {
-        series.push({ name: "Sociétés civiles, règle à valider", values: lens(civ), tone: "n1" });
+        series.push({ name: "Sociétés civiles (à part)", values: lens(civ), tone: "n1" });
         srcs.push(civ);
       }
       var vals = series[0].values;
@@ -1003,7 +1010,7 @@
       var d = e - p;
       return {
         value: r.length, display: nf(r.length), delta: d === 0 ? "Échéances stables vs N-1" : (d > 0 ? "+" : "") + d + " " + pl(Math.abs(d), "échéance", "échéances") + " vs N-1", deltaTone: d > 0 ? "up" : d < 0 ? "down" : "flat",
-        note: civ ? "+ " + civ + " " + pl(civ, "société civile", "sociétés civiles") + ", règle à valider" : null,
+        note: civ ? "+ " + civ + " " + pl(civ, "société civile", "sociétés civiles") + ", comptées à part" : null,
         title: "AG à tenir en " + month(idx).long, spark: null,
         rows: function () { return r.map(function (x) { return agRow(x.s, x.a); }); },
       };
@@ -1024,7 +1031,7 @@
       var tones = ["primary", "accent", "mint"];
       if (sum(lens(civ))) {
         bs.push(civ);
-        names.push("Sociétés civiles, règle à valider");
+        names.push("Sociétés civiles (à part)");
         tones.push("n1");
       }
       return {
@@ -1046,7 +1053,7 @@
       var ms = fwd(per(ctx));
       var rows = agSeries(ctx, ms);
       var groups = ["SAS", "SARL", "SA", "SELARL", "Sociétés civiles"];
-      var names = ["SAS", "SARL", "SA", "SELARL", "Sociétés civiles, règle à valider"];
+      var names = ["SAS", "SARL", "SA", "SELARL", "Sociétés civiles (à part)"];
       var tones = ["primary", "soft", "accent", "muted", "n1"];
       var by = groups.map(function (g) { return rows.map(function (l) { return l.filter(function (x) { return grpForme(x.s.f) === g; }); }); });
       var keep = by.map(function (b) { return sum(lens(b)) > 0; });
@@ -1087,7 +1094,7 @@
   ind("echeances", {
     group: "ec", theme: "charge", kind: "list", title: "Prochaines échéances", sub: "Les 10 plus proches", viz: "list", vizes: ["list"], dims: ["forme"], src: SRC.dpj,
     kw: ["prochaines echeances", "echeances", "calendrier", "a venir"],
-    rule: "AG à tenir (six mois après la clôture), dépôts des comptes dont la décision est connue (deux mois après) et décisions ou signatures prévues dans les formalités, à partir du " + fmt(TODAY) + ". Sociétés civiles signalées : règle à valider.",
+    rule: "AG à tenir (six mois après la clôture), dépôts des comptes dont la décision est connue (deux mois après) et décisions ou signatures prévues dans les formalités, à partir du " + fmt(TODAY) + ". Sociétés civiles signalées à part (échéance fixée par les statuts).",
     cov: covClot,
     compute: function (ctx) {
       var all = echeances(ctx);
@@ -1107,7 +1114,7 @@
   ind("dpj_couverture", {
     group: "ec", theme: "vigilance", kind: "gauge", title: "Dates de clôture renseignées", sub: "Qualité du DPJ", viz: "gauge", vizes: ["gauge"], dims: ["forme"], src: "DPJ, date de clôture",
     kw: ["couverture", "qualite du dpj", "dates de cloture renseignees", "completude"],
-    rule: "Part des sociétés dont la date de clôture est renseignée au DPJ. Sans elle, aucune échéance d'AG ni de dépôt n'est calculable : ces sociétés sont listées, jamais comptées en silence.",
+    rule: "Part des sociétés dont la date de clôture est renseignée au DPJ. Sans elle, aucune échéance d'AG ni de dépôt n'est calculable : ces sociétés sont listées à part.",
     cov: covClot,
     compute: function (ctx) {
       var all = socs(ctx);
@@ -1160,7 +1167,7 @@
   ind("ag_non_suivies", {
     group: "ec", theme: "vigilance", kind: "cat", title: "AG non suivies dans EJ", sub: "À vérifier", viz: "barh", vizes: ["barh", "bar", "table"], dims: ["forme"], src: SRC.dpj + " ; " + SRC.form,
     kw: ["ag non suivies", "non suivies dans ej", "ag non suivie", "approuvees l'an dernier", "sans approbation"],
-    rule: "Exercice de la campagne, échéance dépassée, aucune formalité d'approbation dans EJ pour l'exercice : l'AG a pu se tenir hors d'EJ, elle n'est donc ni comptée tenue ni hors délai. Repli quand la date de clôture manque : société approuvée dans EJ l'an dernier, sans approbation depuis douze mois. Sociétés civiles exclues : règle à valider.",
+    rule: "Exercice de la campagne, échéance dépassée, aucune formalité d'approbation dans EJ pour l'exercice : l'AG a pu se tenir hors d'EJ, elle n'est donc ni comptée tenue ni hors délai. Repli quand la date de clôture manque : société approuvée dans EJ l'an dernier, sans approbation depuis douze mois. Sociétés civiles exclues (échéance fixée par les statuts).",
     cov: covClot,
     compute: function (ctx) {
       var v = vigilance(ctx);
@@ -1170,7 +1177,7 @@
   ind("ag_hors_delai", {
     group: "ec", theme: "vigilance", kind: "kpi", title: "AG hors délai", dims: ["forme"], src: SRC.dpj,
     kw: ["ag hors delai", "ag en retard", "assemblees en retard"],
-    rule: "Exercice de la campagne (clos entre le 01/07/2025 et le 30/06/2026), AG suivie dans EJ : échéance dépassée sans décision valable (documents générés ou plus), ou décision postérieure à l'échéance. Une prorogation accordée n'est pas connue d'EJ.",
+    rule: "Exercice de la campagne (clos entre le 01/07/2025 et le 30/06/2026), AG suivie dans EJ : échéance dépassée sans décision valable (documents générés ou plus), ou décision postérieure à l'échéance. Une prorogation accordée n'est pas enregistrée.",
     cov: covClot,
     compute: function (ctx) {
       var r = vigilance(ctx).ag.rows;
@@ -1327,7 +1334,7 @@
   ind("sans_mouvement", {
     group: "ec", theme: "operations", kind: "kpi", title: "Ouverts depuis plus de 30 j", dims: ["forme", "createur"], src: SRC.form + " ; " + SRC.dep,
     kw: ["sans mouvement", "ouverts depuis plus de 30 jours", "dossiers bloques", "dossiers dormants"],
-    rule: "Formalité au statut « Formulaire en cours » créée il y a plus de 30 jours, ou dépôt INPI non terminé dont le statut date de plus de 30 jours. EJ ne garde pas l'historique des modifications d'une formalité : la date de création sert de repère, pas la dernière modification.",
+    rule: "Formalité au statut « Formulaire en cours » créée il y a plus de 30 jours, ou dépôt INPI non terminé dont le statut date de plus de 30 jours. L'historique des modifications d'une formalité n'est pas conservé : la date de création sert de repère, pas la dernière modification.",
     cov: function () { return "Formalités en cours (" + FORM_EN_COURS.length + ") et dépôts INPI non terminés (" + DEP.length + ")."; },
     compute: function (ctx) {
       var lim = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate() - 30);
@@ -1342,9 +1349,9 @@
     return COV_CAC;
   }
   ind("cac_missions", {
-    group: "cac", theme: "cac_missions", kind: "kpi", title: "Missions", dims: ["type", "signataire"], src: SRC.cac,
-    kw: ["missions", "nombre de missions", "mandats", "entites controlees"],
-    rule: "Missions en cours : mandats légaux, audits légaux petites entreprises et audits contractuels. Variation : missions acceptées sur les 12 derniers mois.",
+    group: "cac", theme: "cac_missions", kind: "kpi", title: "Mandats", dims: ["type", "signataire"], src: SRC.cac,
+    kw: ["mandats", "nombre de mandats", "combien de mandats", "entites controlees", "missions cac"],
+    rule: "Mandats de commissariat aux comptes suivis : mandats légaux, audits légaux petites entreprises et audits contractuels. Variation : mandats acceptés sur les 12 derniers mois. Les missions ponctuelles (apports, fusions, transformations) sont comptées à part.",
     cov: covC,
     compute: function (ctx) {
       var l = mandats(ctx);
@@ -1354,36 +1361,6 @@
         value: l.length, display: nf(l.length), delta: "+" + nouv + " sur les 12 derniers mois", deltaTone: nouv ? "up" : "flat",
         spark: [2021, 2022, 2023, 2024, 2025, 2026].map(function (y) { return l.filter(function (m) { return m.premier <= y; }).length; }),
         rows: function () { return l.map(function (m) { return mandRow(m, E.TYPE_MANDAT[m.type] + " · exercice clos le " + m.ex.clos); }); },
-      };
-    },
-  });
-  ind("cac_honoraires", {
-    group: "cac", theme: "cac_missions", kind: "kpi", title: "Honoraires des mandats", sub: "Prévus aux lettres de mission", unit: "eur", dims: ["type", "signataire"], src: SRC.cac + ", honoraires prévus",
-    kw: ["honoraires", "honoraires des mandats", "honoraires annuels"],
-    rule: "Somme des honoraires annuels prévus au mandat ou à la mission (montant de la lettre de mission CAC). Pas d'historique : pas de tendance.",
-    cov: covC,
-    compute: function (ctx) {
-      var l = mandats(ctx);
-      var t = sum(l.map(function (m) { return m.honoraires; }));
-      return {
-        value: t, display: nf(t) + " €", delta: null, sub: "par an, " + l.length + " " + pl(l.length, "mission", "missions"), spark: null,
-        rows: function () { return l.map(function (m) { return mandRow(m, E.euros(m.honoraires) + " par an · " + E.TYPE_MANDAT[m.type]); }); },
-      };
-    },
-  });
-  ind("cac_heures_ratio", {
-    group: "cac", theme: "cac_missions", kind: "kpi", title: "Heures réalisées", unit: "pct", dims: ["type", "signataire"], src: SRC.cac + ", heures budgétées et réalisées",
-    kw: ["heures realisees", "heures sur budget", "consommation des heures", "budget d'heures"],
-    rule: "Heures réalisées divisées par les heures budgétées, toutes missions, exercice en cours de contrôle. À lire avec la phase : en planification, peu d'heures sont consommées.",
-    cov: covC,
-    compute: function (ctx) {
-      var l = mandats(ctx);
-      var b = sum(l.map(function (m) { return m.ex.heures[0]; }));
-      var r = sum(l.map(function (m) { return m.ex.heures[1]; }));
-      var pct = b ? Math.round((r / b) * 100) : 0;
-      return {
-        value: pct, display: pct + " %", delta: null, sub: nf(r) + " h sur " + nf(b) + " h", spark: null, meter: { value: r, max: b },
-        rows: function () { return l.map(function (m) { return mandRow(m, m.ex.heures[1] + " h réalisées sur " + m.ex.heures[0] + " h · " + E.PHASE[m.ex.phase]); }); },
       };
     },
   });
@@ -1400,87 +1377,103 @@
       };
     },
   });
-  ind("cac_interv_mois", {
-    group: "cac", theme: "cac_missions", kind: "series", title: "Charge d'intervention", sub: "Jours par mois", viz: "bar", vizes: ["bar", "table"], dims: ["type", "signataire", "periode"], dir: "fwd", unit: "j", src: SRC.cac + ", interventions",
-    kw: ["charge d'intervention", "jours d'intervention", "interventions par mois", "interventions", "charge cac"],
-    rule: "Jours ouvrés (lundi au vendredi) des interventions faites, en cours ou prévues, comptés dans chaque mois. L'acceptation d'une mission n'est pas une intervention. Au-delà du dernier mois planifié : « Non planifié », jamais zéro.",
-    cov: covC,
+  ind("cac_rapports_3m", {
+    group: "cac", theme: "cac_missions", kind: "kpi", title: "Rapports à émettre d'ici 3 mois", dims: ["type", "signataire"], src: SRC.cac + ", date d'AG",
+    kw: ["rapports a emettre d ici 3 mois", "rapports a emettre dans les 3 mois", "rapports a venir", "combien de rapports", "rapports sont a emettre", "nombre de rapports"],
+    rule: "Mandats dont l'AG d'approbation des comptes est prévue dans les 90 jours à partir du " + fmt(TODAY) + " : le rapport du commissaire aux comptes est à émettre avant cette AG. Mandats sans date d'AG exclus. Les rapports des missions ponctuelles sont suivis à part.",
+    cov: function (ctx) {
+      var sans = mandats(ctx).filter(function (m) { return !m.ag; }).length;
+      return COV_CAC + (sans ? " " + sans + " sans date d'AG." : "");
+    },
     compute: function (ctx) {
-      var ms = fwd(per(ctx));
-      var last = -1;
-      mandats(ctx).forEach(function (m) {
-        m.interventions.forEach(function (iv) {
-          if (!/^Acceptation/.test(iv[0])) last = Math.max(last, mi(parse(iv[2])));
-        });
-      });
-      var data = ms.map(function (mo) {
-        var rows = [];
-        var j = 0;
-        mandats(ctx).forEach(function (m) {
-          m.interventions.forEach(function (iv) {
-            if (/^Acceptation/.test(iv[0])) return;
-            var n = joursIn(iv, mo.idx);
-            if (n) {
-              j += n;
-              rows.push(mandRow(m, iv[0] + " · du " + iv[1] + " au " + iv[2] + " · " + n + " " + pl(n, "jour", "jours") + " dans le mois"));
-            }
-          });
-        });
-        return { j: j, rows: rows };
-      });
+      var lim = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate() + 90);
+      var l = mandats(ctx).filter(function (m) { var a = m.ag && parse(m.ag); return a && a >= TODAY && a <= lim; });
+      l.sort(function (a, b) { return parse(a.ag) - parse(b.ag); });
       return {
-        kind: "series", categories: cats(ms), titles: longs(ms), months: ms, nullLabel: "Non planifié",
-        series: [{ name: "Jours d'intervention", values: data.map(function (d, i) { return ms[i].idx > last ? null : d.j; }), tone: "primary" }],
-        rows: function (si, ci) { return ci == null ? [].concat.apply([], data.map(function (d) { return d.rows; })) : data[ci].rows; },
+        value: l.length, display: nf(l.length), delta: null, sub: "AG avant le " + fmt(lim), spark: null,
+        rows: function () { return l.map(function (m) { return mandRow(m, "AG prévue le " + m.ag + " · rapport à émettre avant le " + fmt(rapportDu(m))); }); },
       };
     },
   });
-  ind("cac_heures_mission", {
-    group: "cac", theme: "cac_missions", kind: "matrix", title: "Heures budget et réalisées", sub: "Par mission", viz: "barh", vizes: ["barh", "bar", "table"], dims: ["type", "signataire"], unit: "h", src: SRC.cac + ", heures",
-    kw: ["heures par mission", "heures budget", "budget et realise", "depassement", "heures"],
-    rule: "Heures budgétées et réalisées sur l'exercice en cours de contrôle, par mission. Mission au-delà du budget mise en avant.",
-    cov: covC,
+  ind("cac_rapports_mois", {
+    group: "cac", theme: "cac_missions", kind: "series", title: "Rapports à émettre par mois", viz: "bar", vizes: ["bar", "table"], dims: ["type", "signataire", "periode"], dir: "fwd", src: SRC.cac + ", date d'AG",
+    kw: ["rapports a emettre par mois", "rapports a emettre", "rapports par mois", "calendrier des rapports", "rapports du commissaire par mois"],
+    rule: "Rapports du commissaire aux comptes sur les comptes annuels, par mois d'émission. Hypothèse retenue : rapport remis au plus tard 15 jours avant l'AG qui approuve les comptes, donc dans le mois de l'AG moins 15 jours. Mandats sans date d'AG listés à part dans la couverture. Les missions ponctuelles ne sont pas comptées ici.",
+    cov: function (ctx) {
+      var sans = mandats(ctx).filter(function (m) { return !m.ag; }).length;
+      return COV_CAC + (sans ? " " + sans + " sans date d'AG." : "");
+    },
     compute: function (ctx) {
-      var l = mandats(ctx);
-      var over = -1;
-      l.forEach(function (m, i) { if (over < 0 && m.ex.heures[1] > m.ex.heures[0]) over = i; });
+      var ms = fwd(per(ctx));
+      var by = ms.map(function (mo) {
+        return mandats(ctx).filter(function (m) { return m.ag && mi(rapportDu(m)) === mo.idx; });
+      });
       return {
-        kind: "matrix", categories: l.map(function (m) { return m.nom; }),
-        series: [
-          { name: "Budget", values: l.map(function (m) { return m.ex.heures[0]; }), tone: "n1" },
-          { name: "Réalisées", values: l.map(function (m) { return m.ex.heures[1]; }), tone: "primary" },
-        ],
-        highlight: over >= 0 ? over : null, highlightSeries: over >= 0 ? "Réalisées" : null,
+        kind: "series", categories: cats(ms), titles: longs(ms), months: ms,
+        series: [{ name: "Rapports", values: by.map(function (l) { return l.length; }), tone: "primary" }],
+        hideZeros: true,
         rows: function (si, ci) {
-          var sel = ci == null ? l : [l[ci]];
-          return sel.map(function (m) { return mandRow(m, m.ex.heures[1] + " h réalisées sur " + m.ex.heures[0] + " h · " + E.PHASE[m.ex.phase] + (m.ex.heures[1] > m.ex.heures[0] ? " · au-delà du budget" : "")); });
+          var l = ci == null ? [].concat.apply([], by) : by[ci];
+          return l.map(function (m) { return mandRow(m, "Rapport à émettre avant le " + fmt(rapportDu(m)) + " · AG prévue le " + m.ag); });
         },
       };
     },
   });
+  ind("cac_ponct_cours", {
+    group: "cac", theme: "cac_missions", kind: "kpi", title: "Missions ponctuelles en cours", dims: ["signataire"], src: SRC.cac + ", missions ponctuelles",
+    kw: ["missions ponctuelles en cours", "missions ponctuelles sont en cours", "combien de missions ponctuelles", "nombre de missions ponctuelles", "missions ponctuelles ouvertes"],
+    rule: "Missions ponctuelles du commissaire aux comptes (apports, transformations, fusions) dont l'étape n'est pas « Terminée ».",
+    cov: function () { return COV_PONCT; },
+    compute: function (ctx) {
+      var all = ponctuelles(ctx);
+      var l = all.filter(enCours);
+      l.sort(function (a, b) { return parse(a.depotAvant) - parse(b.depotAvant); });
+      return {
+        value: l.length, display: nf(l.length), delta: null, sub: "sur " + all.length + " " + pl(all.length, "mission ponctuelle", "missions ponctuelles"), spark: null,
+        rows: function () { return l.map(function (p) { return ponctRow(p, E.NATURE[p.nature] + " · " + E.ETAPE[p.etape] + " · dépôt avant le " + p.depotAvant); }); },
+      };
+    },
+  });
+  ind("cac_ponct_etapes", {
+    group: "cac", theme: "cac_missions", kind: "cat", title: "Missions ponctuelles par étape", viz: "barh", vizes: ["barh", "bar", "table"], dims: ["signataire"], src: SRC.cac + ", missions ponctuelles",
+    kw: ["missions ponctuelles par etape", "missions ponctuelles", "etapes des missions ponctuelles", "avancement des missions ponctuelles", "missions ponctuelles par etapes"],
+    rule: "Missions ponctuelles en cours (apports, transformations, fusions) par étape, dans l'ordre : désignation, acceptation, pièces, rapport, signature, dépôt. Missions terminées exclues.",
+    cov: function () { return COV_PONCT; },
+    compute: function (ctx) {
+      var ks = ["designation", "acceptation", "pieces", "rapport", "signature", "depot"];
+      var l = ponctuelles(ctx).filter(enCours);
+      var by = ks.map(function (k) { return l.filter(function (p) { return p.etape === k; }).map(function (p) { return ponctRow(p, E.NATURE[p.nature] + " · dépôt avant le " + p.depotAvant); }); });
+      return catResult(ks.map(function (k) { return E.ETAPE[k]; }), ks.map(function () { return "primary"; }), by);
+    },
+  });
+  ind("cac_ponct_depots", {
+    group: "cac", theme: "cac_missions", kind: "list", title: "Dépôts de rapports ponctuels à venir", sub: "Date limite de dépôt", viz: "list", vizes: ["list"], dims: ["signataire"], src: SRC.cac + ", missions ponctuelles",
+    kw: ["depots de rapports ponctuels", "depots de rapports", "rapports ponctuels a deposer", "depots a venir", "prochains depots de rapports", "depots ponctuels"],
+    rule: "Missions ponctuelles en cours, triées par date limite de dépôt du rapport. Règle retenue : dépôt au plus tard 8 jours avant l'assemblée qui statue sur l'opération, à faire valider par un professionnel. Une date dépassée est mise en avant.",
+    cov: function () { return COV_PONCT; },
+    compute: function (ctx) {
+      var l = ponctuelles(ctx).filter(enCours);
+      l.sort(function (a, b) { return parse(a.depotAvant) - parse(b.depotAvant); });
+      return {
+        kind: "list", columns: ["Date", "Entité", "Mission"],
+        items: l.slice(0, 10).map(function (p) { return { date: p.depotAvant, title: p.nom, forme: p.forme, label: E.NATURE[p.nature] + " · " + E.ETAPE[p.etape], href: "cac-mission.html?id=" + encodeURIComponent(p.id), action: "Ouvrir la mission", urgent: parse(p.depotAvant) < TODAY }; }),
+        total: l.length,
+        rows: function () { return l.map(function (p) { return ponctRow(p, "Dépôt avant le " + p.depotAvant + " · " + E.NATURE[p.nature] + " · " + E.ETAPE[p.etape]); }); },
+      };
+    },
+  });
   ind("cac_types", {
-    group: "cac", theme: "cac_missions", kind: "cat", title: "Missions par type", viz: "donut", vizes: ["donut", "bar", "barh", "table"], dims: ["type", "signataire"], src: SRC.cac,
-    kw: ["missions par type", "type de mission", "types de mission", "repartition des missions"],
-    rule: "Missions par type : mandat légal (six exercices), audit légal petite entreprise (trois exercices), audit contractuel.",
+    group: "cac", theme: "cac_missions", kind: "cat", title: "Mandats par type", viz: "donut", vizes: ["donut", "bar", "barh", "table"], dims: ["type", "signataire"], src: SRC.cac,
+    kw: ["mandats par type", "missions par type", "type de mission", "types de mission", "repartition des mandats"],
+    rule: "Mandats par type : mandat légal (six exercices), audit légal petite entreprise (trois exercices), audit contractuel.",
     cov: covC,
     compute: function (ctx) {
       var ks = ["legal", "alpe", "contractuel"];
       var lab = ["Mandat légal", "Audit légal petite entreprise", "Audit contractuel"];
       var by = ks.map(function (k) { return mandats(ctx).filter(function (m) { return m.type === k; }).map(function (m) { return mandRow(m, E.TYPE_MANDAT[m.type]); }); });
       var r = catResult(lab, ["primary", "info", "mint"], by);
-      r.center = { value: nf(mandats(ctx).length), label: "missions" };
+      r.center = { value: nf(mandats(ctx).length), label: "mandats" };
       return r;
-    },
-  });
-  ind("cac_phases", {
-    group: "cac", theme: "cac_missions", kind: "cat", title: "Avancement de la campagne", sub: "Missions par phase", viz: "barh", vizes: ["barh", "bar", "table"], dims: ["type", "signataire"], src: SRC.cac + ", phase",
-    kw: ["avancement de la campagne", "phases", "par phase", "avancement cac"],
-    rule: "Nombre de missions par phase de l'exercice en cours de contrôle, dans l'ordre de la campagne : acceptation, planification, intérim, final, rapports, rapports émis.",
-    cov: covC,
-    compute: function (ctx) {
-      var ks = ["acceptation", "planification", "interim", "final", "rapports", "emis"];
-      var by = ks.map(function (k) { return mandats(ctx).filter(function (m) { return m.ex.phase === k; }).map(function (m) { return mandRow(m, E.PHASE[k] + " · avancement " + m.ex.avancement + " %"); }); });
-      return catResult(ks.map(function (k) { return E.PHASE[k]; }), ks.map(function () { return "primary"; }), by);
     },
   });
   ind("cac_echeances_mois", {
@@ -1532,7 +1525,7 @@
       var ks = ["a_jour", "a_renouveler", "a_faire"];
       var by = ks.map(function (k) { return mandats(ctx).filter(function (m) { return m.independance.statut === k; }).map(function (m) { return mandRow(m, E.INDEP[k] + (m.independance.date ? " · " + m.independance.date : "")); }); });
       var r = catResult(["À jour", "À renouveler", "À faire"], ["mint", "warning", "attention"], by);
-      r.center = { value: nf(mandats(ctx).length), label: "missions" };
+      r.center = { value: nf(mandats(ctx).length), label: "mandats" };
       return r;
     },
   });
@@ -1546,7 +1539,7 @@
       var lab = ["Signée", "Envoyée", "À établir"];
       var by = ks.map(function (k, i) { return mandats(ctx).filter(function (m) { return m.lm.statut === k; }).map(function (m) { return mandRow(m, lab[i] + (m.lm.ref ? " · " + m.lm.ref : "")); }); });
       var r = catResult(lab, ["mint", "info", "attention"], by);
-      r.center = { value: nf(mandats(ctx).length), label: "missions" };
+      r.center = { value: nf(mandats(ctx).length), label: "mandats" };
       return r;
     },
   });
@@ -1579,7 +1572,7 @@
       W("soc_suivies", "S"), W("form_ouvertes", "S"), W("ag_6m", "S"), W("retards_legaux", "S"),
       W("ag_mois", "M"), W("form_mois", "M"), W("portefeuille_forme", "M"), W("ops_statut", "M"), W("vig_points", "M"), W("form_types", "M"),
       /* visibles en profil mixte seulement */
-      W("section_cac", "L"), W("cac_missions", "S"), W("cac_fins", "S"),
+      W("section_cac", "L"), W("cac_missions", "S"), W("cac_rapports_3m", "S"), W("cac_fins", "S"), W("cac_ponct_cours", "S"),
     ] },
     { id: "ec_charge", group: "ec", title: "Charge juridique", icon: "calendar", widgets: [
       W("ag_mois_etat", "L"), W("depots_mois", "M"), W("dpj_couverture", "M"), W("echeances", "L"),
@@ -1592,8 +1585,8 @@
       W("docs_a_signer", "S"), W("prets_a_deposer", "S"), W("form_en_cours", "S"), W("sans_mouvement", "S"), W("file_jour", "L"),
     ] },
     { id: "cac_vue", group: "cac", title: "Vue d'ensemble CAC", icon: "briefcase", widgets: [
-      W("cac_missions", "S"), W("cac_honoraires", "S"), W("cac_heures_ratio", "S"), W("cac_fins", "S"),
-      W("cac_interv_mois", "M"), W("cac_echeances_mois", "M"), W("cac_types", "M"), W("cac_phases", "M"), W("cac_heures_mission", "L"),
+      W("cac_missions", "S"), W("cac_rapports_3m", "S"), W("cac_fins", "S"), W("cac_ponct_cours", "S"),
+      W("cac_rapports_mois", "M"), W("cac_echeances_mois", "M"), W("cac_ponct_etapes", "M"), W("cac_types", "M"), W("cac_ponct_depots", "L"),
     ] },
     { id: "cac_mandats", group: "cac", title: "Mandats et indépendance", icon: "file_pen_line", widgets: [
       W("cac_fins_annee", "M"), W("cac_indep", "M"), W("cac_lm", "M"), W("cac_lab_risque", "M"),
@@ -1666,7 +1659,7 @@
   var MOIS_N = ["janvier", "fevrier", "mars", "avril", "mai", "juin", "juillet", "aout", "septembre", "octobre", "novembre", "decembre"];
   var KNOWN_UP = ["ag", "agoa", "age", "sas", "sasu", "sarl", "eurl", "sa", "sci", "scp", "sccv", "selarl", "lab", "cac", "inpi", "dpj", "ej", "tva", "ppe", "ia", "rne", "cir", "siren", "siret", "iban", "ape", "naf", "rcs", "ca", "t1", "t2", "t3", "t4", "lm", "be", "kpi", "n-1", "ec", "alpe", "lcb-ft", "lcb"];
   var KNOWN_CAP = MOIS_N.concat(["guichet", "express", "juridique", "cockpit", "campagne", "depot", "depots", "formalite", "formalites", "signature", "signatures", "societe", "societes", "lettre", "lettres", "mission", "missions", "echeance", "echeances", "assemblee", "approbation", "comptes", "dossier", "dossiers", "associe", "collaborateur", "vigilance", "conformite", "tableau", "charge", "portefeuille", "vue", "ensemble", "n", "file", "jour", "mandats", "mandat", "independance", "risque", "activite", "n-1",
-    "audit", "audits", "heures", "phase", "phases", "honoraires", "intervention", "interventions", "suivi", "pilotage", "synthese", "direction", "equipe",
+    "rapport", "rapports", "ponctuelle", "ponctuelles", "ponctuel", "ponctuels", "etape", "etapes", "audit", "audits", "heures", "phase", "phases", "honoraires", "intervention", "interventions", "suivi", "pilotage", "synthese", "direction", "equipe",
     "controle", "qualite", "retard", "retards", "commissariat", "expertise", "comptable", "operation", "operations", "budget", "points", "point", "nouveau",
     "tableaux", "fin", "fins", "renouvellement", "client", "clients", "relance", "relances", "priorites", "urgences", "semaine", "mois", "annee", "trimestre",
     "lettres", "revues", "revue", "conformite", "legal", "legaux", "annuel", "annuels", "assemblees", "creations", "constitution", "constitutions", "statuts"]);

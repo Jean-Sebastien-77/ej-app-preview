@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=19" />
-    <link rel="stylesheet" href="assets/ej-missions.css?v=19" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=21" />
     <style>
       /* ---------- Honoraires (une ligne sobre) ---------- */
       .lm-total {
@@ -37,6 +37,21 @@
       .lm-total .lm-total-sub {
         font-size: 13px;
         color: var(--ej-neutral-500);
+      }
+
+      /* ---------- Titre de tuile avec « i » ---------- */
+      .stat-top .stat-title {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        min-width: 0;
+      }
+      .stat-sub {
+        margin-top: -2px;
+      }
+
+      .lm-total .info-tip {
+        align-self: center;
       }
 
       /* ---------- Filtres ---------- */
@@ -201,7 +216,7 @@
         color: var(--ej-neutral-500);
       }
 
-      /* ---------- Message de confirmation (maquette) ---------- */
+      /* ---------- Message de confirmation ---------- */
       .lm-toast {
         position: fixed;
         left: 50%;
@@ -315,7 +330,7 @@
               <p class="page-desc">Contractualisez chaque mission client, puis suivez les signatures et les renouvellements.</p>
             </div>
             <div class="m-actions">
-              <a class="btn btn-secondary" href="#" title="Écran non maquetté"><span class="ms">library</span>Modèles et prestations</a>
+              <a class="btn btn-secondary" href="#"><span class="ms">library</span>Modèles et prestations</a>
               <a class="btn btn-primary" href="lettre-mission.html"><span class="ms">add</span>Nouvelle lettre de mission</a>
             </div>
           </div>
@@ -354,11 +369,6 @@
             </div>
             <div class="lm-empty" id="lm-empty" hidden>Aucune lettre ne correspond à ce filtre.</div>
           </div>
-
-          <div class="m-note">
-            <span class="ms">info</span>
-            <span>Maquette : contenu de la lettre de mission et mentions obligatoires à faire valider par un professionnel (code de déontologie des experts-comptables).</span>
-          </div>
         </div>
         <div id="ej-footer"></div>
       </div>
@@ -366,7 +376,7 @@
 
     <div class="lm-toast" id="lm-toast" role="status" aria-live="polite"><span class="ms">check_circle</span><span id="lm-toast-txt"></span></div>
 
-    <script src="assets/ej-missions-data.js?v=19"></script>
+    <script src="assets/ej-missions-data.js?v=20"></script>
     <script>
       (function () {
         var E = window.EJM;
@@ -436,20 +446,29 @@
         /* ---------- Tuiles ---------- */
         var TUILES = [
           { filtre: "signee", titre: "Signées", icone: "check_circle", n: nb("signee"),
-            regle: "Règle : lettre au statut « Signée ». ", lien: "Voir les lettres signées" },
+            regle: "Lettre au statut « Signée ». ", lien: "Voir les lettres signées" },
           { filtre: "envoyee", titre: "En attente de signature", icone: "send", n: nb("envoyee"),
-            regle: "Règle : lettre envoyée, signature du client attendue. ", lien: "Voir les lettres envoyées" },
+            regle: "Lettre envoyée, signature du client attendue. ", lien: "Voir les lettres envoyées" },
           { filtre: "a_renouveler", titre: "À renouveler", icone: "refresh_cw", n: nb("a_renouveler"),
-            regle: "Règle : échéance atteinte, lettre non reconduite à renouveler. ", lien: "Voir les lettres à renouveler" },
+            regle: "Échéance atteinte, lettre non reconduite à renouveler. ", lien: "Voir les lettres à renouveler" },
           { filtre: "absente", titre: "Sociétés sans lettre", icone: "file_x", n: nb("absente"), attention: true,
-            regle: "Règle : dossier missions ouvert, aucune lettre rattachée. ", lien: "Voir les sociétés sans lettre" },
+            regle: "Dossier missions ouvert, aucune lettre rattachée. ", lien: "Voir les sociétés sans lettre" },
         ];
+        function infoTip(id, texte) {
+          return (
+            '<span class="info-tip">' +
+            '<button type="button" class="info-tip-btn" aria-describedby="' + id + '" aria-label="Information"><span class="ms">info</span></button>' +
+            '<span class="info-tip-pop" role="tooltip" id="' + id + '">' + texte + "</span></span>"
+          );
+        }
         document.getElementById("lm-stats").innerHTML = TUILES.map(function (t) {
           return (
             '<div class="card stat' + (t.attention ? " attention" : "") + '">' +
-            '<div class="stat-top"><span>' + t.titre + '</span><span class="ms">' + t.icone + "</span></div>" +
+            '<div class="stat-top"><span class="stat-title">' + t.titre +
+            infoTip("note-tuile-" + t.filtre, t.regle + "<strong>" + t.n + " sur " + nbDossiers + "</strong> sociétés du périmètre.") +
+            '</span><span class="ms">' + t.icone + "</span></div>" +
             '<div class="stat-value">' + t.n + "</div>" +
-            '<div class="stat-rule">' + t.regle + "<strong>" + t.n + " sur " + nbDossiers + "</strong> sociétés du périmètre.</div>" +
+            '<div class="stat-sub">sur ' + nbDossiers + " sociétés</div>" +
             '<a class="stat-link" href="#lm-liste" data-filter="' + t.filtre + '">' + t.lien + '<span class="ms">arrow_forward</span></a>' +
             "</div>"
           );
@@ -459,8 +478,8 @@
         document.getElementById("lm-total").innerHTML =
           '<span class="ms">euro</span>' +
           "<span>Honoraires annuels HT des lettres signées : <strong>" + E.euros(totalSignees) + "</strong></span>" +
-          '<span class="lm-total-sub">' + E.euros(totalEnvoyees) + " en attente de signature. Périmètre : " +
-          nbDossiers + " sociétés avec dossier missions sur " + TOTAL_SUIVIES + " suivies.</span>";
+          '<span class="lm-total-sub">' + E.euros(totalEnvoyees) + " en attente de signature</span>" +
+          infoTip("note-perimetre", "Périmètre : " + nbDossiers + " sociétés avec dossier missions sur " + TOTAL_SUIVIES + " suivies.");
 
         /* ---------- Filtres rapides ---------- */
         var FILTRES = [
@@ -605,6 +624,6 @@
         render();
       })();
     </script>
-    <script src="assets/ej-shell.js?v=22"></script>
+    <script src="assets/ej-shell.js?v=24"></script>
   </body>
 </html>

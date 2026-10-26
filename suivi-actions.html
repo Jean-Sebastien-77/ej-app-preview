@@ -371,7 +371,7 @@
 
           <div id="panel-signatures" hidden>
             <div class="data-table-wrap">
-              <div class="s-empty">Contenu non représenté dans cette maquette.</div>
+              <div class="s-empty">Les signatures liées aux dépôts INPI se suivent dans l'onglet Dépôts INPI.</div>
             </div>
           </div>
 
@@ -415,7 +415,7 @@
           });
         });
 
-        // Collectes de documents envoyées aux clients : exemples de la maquette, puis celles envoyées depuis le LAB (sessionStorage["ej-collectes"])
+        // Collectes de documents envoyées aux clients : collectes déjà envoyées, puis celles envoyées depuis le LAB (sessionStorage["ej-collectes"])
         var EXEMPLES = [
           { id: "ex-technopole", societeId: "technopole", societe: "TECHNOPOLE 21", pieces: ["Extrait RNE ou Kbis", "Pièces d'identité des bénéficiaires effectifs", "Justificatif de domicile du siège"], recues: 0, destinataire: "Yanis Belkacem", date: "14/10/2026", origine: "LAB" },
           { id: "ex-neolab", societeId: "neolab", societe: "NEOLAB.", pieces: ["Pièce d'identité du dirigeant", "Pièces d'identité des bénéficiaires effectifs", "Justificatif de domicile du siège", "Origine des fonds"], recues: 0, destinataire: "Pierre Weiss", date: "13/10/2026", origine: "LAB" },
@@ -510,6 +510,6 @@
         });
       })();
     </script>
-    <script src="assets/ej-shell.js?v=22"></script>
+    <script src="assets/ej-shell.js?v=24"></script>
   </body>
 </html>
