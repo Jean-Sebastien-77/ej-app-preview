@@ -31,22 +31,6 @@
         gap: 6px;
         padding-top: 18px;
       }
-      .lab-head-act .icon-btn {
-        border: 1px solid var(--ej-hairline);
-        border-radius: var(--ej-radius-full);
-        width: 34px;
-        height: 34px;
-      }
-      .lab-head-act .dropdown-menu {
-        min-width: 280px;
-      }
-      .lab-head-act .dropdown-item {
-        cursor: pointer;
-      }
-      /* Menu « ⋯ » piloté par la page : fermé = hidden, donc aucun lien atteignable */
-      .lab-head-act .dropdown-menu[hidden] {
-        display: none;
-      }
 
       /* Filtres-compteurs + recherche sur une ligne */
       .lab-bar {
@@ -111,6 +95,9 @@
       .lab-table tbody tr {
         cursor: pointer;
       }
+      .lab-table tbody tr.sans-lien {
+        cursor: default;
+      }
       .lab-table th,
       .lab-table td {
         padding-left: 12px;
@@ -130,7 +117,8 @@
         padding-right: 18px;
         text-align: right;
       }
-      .c-soc a {
+      .c-soc a,
+      .c-soc .c-nom {
         font-family: var(--ej-font-display);
         font-weight: 600;
         font-size: 14px;
@@ -147,6 +135,9 @@
       }
       .c-soc .c-sub {
         white-space: nowrap;
+      }
+      .c-sub .risk {
+        font-size: 12.5px;
       }
       .c-sub.warn {
         color: var(--ej-warning-600);
@@ -178,6 +169,7 @@
         flex-shrink: 0;
         font-size: 16px;
       }
+      .motif.k-gel .ms,
       .motif.k-homonymie .ms,
       .motif.k-revue .ms {
         color: var(--ej-attention-500);
@@ -186,6 +178,12 @@
         color: var(--ej-info-600);
       }
       .motif.k-ouvrir .ms {
+        color: var(--ej-neutral-400);
+      }
+      .motif.k-fin {
+        font-weight: 500;
+      }
+      .motif.k-fin .ms {
         color: var(--ej-neutral-400);
       }
       .motif.k-ajour {
@@ -228,6 +226,19 @@
       }
       .open-link .ms {
         font-size: 16px;
+      }
+      .lab-more {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 12px 18px;
+        border-top: 1px solid var(--ej-neutral-200);
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+      }
+      .lab-more[hidden] {
+        display: none;
       }
       .lab-empty {
         padding: 36px 20px;
@@ -367,6 +378,12 @@
         .lab-table td.c-act {
           padding-top: 6px;
         }
+        .lab-table td:empty {
+          display: none;
+        }
+        .lab-table .c-soc .c-sub {
+          white-space: normal;
+        }
         .lab-table td.c-act .btn {
           width: 100%;
         }
@@ -391,14 +408,11 @@
               <h1 class="page-title">Dispositif LAB</h1>
             </div>
             <div class="lab-head-act">
-              <button class="btn btn-secondary btn-sm" type="button" id="exporter" aria-label="Exporter la liste affichée"><span class="ms">download</span><span class="lab-exp-lbl">Exporter</span></button>
-              <div class="dropdown" id="plus">
-                <button class="icon-btn" type="button" id="plus-btn" aria-haspopup="true" aria-expanded="false" aria-controls="plus-menu" aria-label="Autres actions"><span class="ms">ellipsis</span></button>
-                <div class="dropdown-menu" id="plus-menu" hidden>
-                  <a class="dropdown-item" href="#"><span class="ms">sliders-horizontal</span>Paramétrer la grille de risque</a>
-                  <a class="dropdown-item" href="cockpit.html"><span class="ms">layout-dashboard</span>Voir la répartition dans le cockpit</a>
-                </div>
-              </div>
+              <button class="btn btn-secondary btn-sm" type="button" id="exporter" title="Écran non maquetté" aria-label="Exporter les dossiers"><span class="ms">download</span><span class="lab-exp-lbl">Exporter les dossiers</span></button>
+              <span class="info-tip" data-tip="bas">
+                <button type="button" class="info-tip-btn" aria-describedby="note-export" aria-label="Conservation des exports"><span class="ms">info</span></button>
+                <span class="info-tip-pop" role="tooltip" id="note-export">Export des dossiers et de leur historique, à conserver cinq ans (article L.561-12 du Code monétaire et financier).</span>
+              </span>
             </div>
             <p class="page-desc">Les dossiers qui demandent une action, du plus urgent au moins urgent.</p>
           </div>
@@ -427,6 +441,10 @@
               </table>
             </div>
             <div class="lab-empty" id="empty" hidden></div>
+            <div class="lab-more" id="more" hidden>
+              <span id="more-n"></span>
+              <button class="btn btn-tertiary btn-sm" type="button" id="more-btn">Afficher les suivantes</button>
+            </div>
           </div>
 
           <div class="lab-foot">
@@ -444,10 +462,10 @@
       </div>
     </div>
 
-    <script src="assets/ej-missions-data.js?v=20"></script>
-    <script src="assets/ej-cockpit-data.js?v=4"></script>
+    <script src="assets/ej-missions-data.js?v=22"></script>
+    <script src="assets/ej-cockpit-data.js?v=5"></script>
     <script src="assets/ej-dpj-data.js?v=2"></script>
-    <script src="assets/ej-lab.js?v=3"></script>
+    <script src="assets/ej-lab.js?v=4"></script>
     <script>
       /* Le shell (chargé après ce script) pose body[data-profil] et window.EJ_USER : la page se construit au DOMContentLoaded. */
       document.addEventListener("DOMContentLoaded", function () {
@@ -468,11 +486,21 @@
           } catch (e) {}
         }
         var MIXTE = PROFIL === "mixte";
-        var S = PROFIL === "ec" ? E.societes : PROFIL === "cac" ? E.mandats : E.societes.concat(E.mandats);
+        var S = X.dossiers(PROFIL);
         var estCAC = X.estCAC;
+        /* Qui valide la revue : associé signataire, ou responsable LAB (PPE, risque élevé, homonymie) */
         function respId(s) {
-          return estCAC(s) ? s.signataire : s.resp;
+          return X.validateur(s, PROFIL).code;
         }
+        /* Sociétés suivies dans EJ (DPJ) qui n'ont pas de dossier LAB : profils ec et mixte seulement */
+        var AVEC_SANS = PROFIL !== "cac";
+        var SANS = [];
+        if (AVEC_SANS && window.EJDPJ) {
+          var avecDossier = {};
+          E.societes.forEach(function (x) { avecDossier[x.id] = true; });
+          SANS = window.EJDPJ.societes.filter(function (f) { return !avecDossier[f.id]; });
+        }
+        var PAGE = 20;
         /* Responsable LAB du cabinet : valide les revues et lève les homonymies */
         var RLAB = E.equipe[E.responsableLab(PROFIL)];
 
@@ -485,9 +513,6 @@
         function nbj(n, unite) {
           return n + " " + unite + (n > 1 ? "s" : "");
         }
-
-        /* Faculté sous conditions : le libellé reste local à la page (EJM n'est pas modifié) */
-        var VIG = { faible: "vigilance simplifiée possible", standard: "vigilance standard", eleve: "vigilance renforcée" };
 
         /* Mission CAC en phase d'acceptation : la mission n'est pas acceptée tant que l'identification n'est pas complète */
         function acceptation(s) {
@@ -506,14 +531,24 @@
         }
 
         /* ---------- Motifs d'action (un dossier peut en cumuler plusieurs) ---------- */
+        /* Correspondance confirmée sur le gel des avoirs (fonction fournie par assets/ej-lab.js, appel protégé) */
+        function gelConfirme(s) {
+          return !!(X.gelConfirme && X.gelConfirme(s));
+        }
+        /* Relation terminée : plus aucune action LAB, visible seulement dans « Tous les dossiers » */
+        function finRelation(s) {
+          return s.lab.statut === "fin_relation";
+        }
         var MOTIFS = {
-          homonymie: { label: "Homonymie à lever", warn: true, test: function (s) { return s.lab.gel === "a_verifier"; } },
+          gel: { label: "Gel à appliquer", warn: true, test: function (s) { return s.lab.gel === "a_verifier" && gelConfirme(s); } },
+          homonymie: { label: "Homonymie à lever", warn: true, test: function (s) { return s.lab.gel === "a_verifier" && !gelConfirme(s); } },
           revue: { label: "Revues échues", warn: true, test: function (s) { return s.lab.statut === "a_revoir"; } },
           pieces: { label: "Pièces manquantes", test: function (s) { return s.lab.statut === "incomplet"; } },
           ouvrir: { label: "À ouvrir", test: function (s) { return s.lab.statut === "a_ouvrir"; } },
         };
-        var CLES = ["homonymie", "revue", "pieces", "ouvrir"];
+        var CLES = ["gel", "homonymie", "revue", "pieces", "ouvrir"];
         function motifsDe(s) {
+          if (finRelation(s)) return [];
           return CLES.filter(function (k) { return MOTIFS[k].test(s); });
         }
         function aTraiter(s) {
@@ -524,6 +559,8 @@
           return m + (m > 1 ? " pièces manquantes" : " pièce manquante");
         }
         function texteMotif(k, s) {
+          if (k === "gel") return "Correspondance confirmée sur le gel des avoirs";
+          if (k === "fin") return E.LAB_STATUT.fin_relation;
           if (k === "homonymie") return "Homonymie à lever sur le gel des avoirs";
           if (k === "revue") return "Revue échue depuis " + nbj(jours(s.lab.prochaineRevue), "jour");
           if (k === "pieces") {
@@ -534,19 +571,22 @@
         }
         function texteCourt(k, s) {
           if (k === "pieces") return nPieces(manquantes(s)) + " sur " + s.lab.pieces[1];
+          if (k === "gel") return "gel à appliquer";
           if (k === "homonymie") return "homonymie à lever";
           if (k === "revue") return "revue échue";
           return "dossier à ouvrir";
         }
-        var ICONE = { homonymie: "shield-alert", revue: "history", pieces: "file-clock", ouvrir: "folder-open", ajour: "circle-check" };
-        var VERBE = { homonymie: "Lever l'homonymie", revue: "Faire la revue", ouvrir: "Ouvrir le dossier" };
+        var ICONE = { gel: "shield-alert", fin: "archive", homonymie: "shield-alert", revue: "history", pieces: "file-clock", ouvrir: "folder-open", ajour: "circle-check" };
+        var VERBE = { gel: "Appliquer le gel", homonymie: "Lever l'homonymie", revue: "Faire la revue", ouvrir: "Ouvrir le dossier" };
         var RANG_RISQUE = { eleve: 0, standard: 1, faible: 2 };
 
-        /* Clé de tri d'urgence : homonymie ; toute date limite à moins de 15 jours (acceptation CAC) ;
+        /* Clé de tri d'urgence : gel à appliquer ; homonymie ; toute date limite à moins de 15 jours (acceptation CAC) ;
            revues échues (risque élevé, standard, faible, puis de la plus ancienne à la plus récente) ;
            pièces (dossier ouvert depuis le plus longtemps d'abord) ; dossiers à ouvrir ; puis à jour */
         function cleTri(s, k) {
+          if (k === "gel") return [-1, s.lab.criblage ? d(s.lab.criblage).getTime() : 0];
           if (k === "homonymie") return [0, s.lab.criblage ? d(s.lab.criblage).getTime() : 0];
+          if (k === "fin") return [6, 0];
           var lim = k !== "ajour" && limiteProche(s);
           if (lim) return [1, d(lim).getTime()];
           if (k === "revue") return [2, (RANG_RISQUE[s.lab.risque] != null ? RANG_RISQUE[s.lab.risque] : 3) * 1e13 + d(s.lab.prochaineRevue).getTime()];
@@ -556,26 +596,29 @@
         }
 
         /* ---------- Filtres (gardés dans l'adresse : ?f=revue&q=...) ---------- */
-        var FILTRES = ["traiter", "homonymie", "revue", "pieces", "ouvrir"];
+        var FILTRES = ["traiter", "gel", "homonymie", "revue", "pieces", "ouvrir"];
         function testFiltre(f, s) {
           if (f === "tous") return true;
+          if (finRelation(s)) return false;
           if (f === "traiter") return aTraiter(s);
           return MOTIFS[f].test(s);
         }
         function compte(f) {
+          if (f === "sans") return SANS.length;
           return S.filter(function (s) { return testFiltre(f, s); }).length;
         }
         /* Motif affiché en premier : celui du filtre actif, sinon le plus urgent */
         function motifPrincipal(s) {
+          if (finRelation(s)) return "fin";
           if (MOTIFS[etat.f] && MOTIFS[etat.f].test(s)) return etat.f;
           return motifsDe(s)[0] || "ajour";
         }
 
-        var etat = { f: "traiter", q: "" };
+        var etat = { f: "traiter", q: "", n: PAGE };
         (function () {
           var p = new URLSearchParams(location.search);
           var f = p.get("f");
-          if (f && (f === "tous" || FILTRES.indexOf(f) !== -1)) etat.f = f;
+          if (f && (f === "tous" || FILTRES.indexOf(f) !== -1 || (f === "sans" && AVEC_SANS))) etat.f = f;
           etat.q = p.get("q") || "";
           $("q").value = etat.q;
         })();
@@ -606,42 +649,46 @@
           var actifT = etat.f === "tous";
           h += '<span class="lab-sep" aria-hidden="true"></span>' +
             '<button type="button" class="qf-pill' + (actifT ? " active" : "") + '" data-f="tous" aria-pressed="' + actifT + '">Tous les dossiers <span class="n">' + S.length + "</span></button>";
+          if (AVEC_SANS) {
+            var actifS = etat.f === "sans";
+            h += '<button type="button" class="qf-pill' + (actifS ? " active" : "") + '" data-f="sans" aria-pressed="' + actifS + '">Sans dossier <span class="n">' + SANS.length + "</span></button>";
+          }
           $("pills").innerHTML = h;
         }
 
         /* ---------- Cellules ---------- */
         function tag(id) {
           var m = E.equipe[id];
-          return '<span class="tag" title="Responsable du dossier"><i class="dot" style="background:' + m.couleur + '"></i><span>' + esc(m.nom) + "</span></span>";
+          return '<span class="tag" title="Valide la revue"><i class="dot" style="background:' + m.couleur + '"></i><span>' + esc(m.nom) + "</span></span>";
         }
-        function profilRisque(s) {
-          var t = s.lab.risque ? E.RISQUE[s.lab.risque] + ", " + VIG[s.lab.risque] : "Risque non évalué";
-          if (s.lab.ppe) t += " · PPE";
-          if (s.lab.beDefaut) t += " · bénéficiaire effectif : représentant légal, à défaut";
-          return t;
+        function pastilleRisque(s) {
+          return s.lab.risque
+            ? '<span class="risk risk-' + s.lab.risque + '">' + esc(E.RISQUE[s.lab.risque]) + "</span>"
+            : '<span class="risk risk-na">Risque non évalué</span>';
+        }
+        /* Une seule information secondaire : les pièces manquantes, sinon la dernière collecte envoyée */
+        function infoSecondaire(s, k) {
+          if (k === "pieces" && acceptation(s)) return texteCourt("pieces", s);
+          if (k === "gel" || k === "homonymie" || k === "revue") return manquantes(s) > 0 ? nPieces(manquantes(s)) : "";
+          if (k === "pieces") {
+            var col = X.derniereCollecte(s.id);
+            return col ? "Collecte envoyée le " + col.date : "";
+          }
+          return "";
         }
         function celluleMotif(s, k) {
           var lib = k === "ajour" ? "À jour jusqu'au " + s.lab.prochaineRevue : texteMotif(k, s);
-          var sub = [];
-          var autres = motifsDe(s).filter(function (x) { return x !== k; }).map(function (x) { return texteCourt(x, s); });
-          /* Pièces manquantes d'un dossier dont le motif n'est pas « pièces » (revue échue, homonymie) */
-          if (k !== "pieces" && k !== "ouvrir" && k !== "ajour" && !MOTIFS.pieces.test(s) && manquantes(s) > 0) autres.push(nPieces(manquantes(s)));
-          if (autres.length) sub.push("Aussi : " + autres.join(", "));
-          if (k === "pieces" && acceptation(s)) sub.push(texteCourt("pieces", s));
-          var col = X.derniereCollecte(s.id);
-          if (col && k !== "ajour") sub.push("Collecte envoyée le " + col.date);
-          var rv = X.revueSession(s.id);
-          if (rv && k === "ajour") sub.push("Revue validée le " + rv.date + " par " + rv.par);
-          sub.push(profilRisque(s));
+          var info = infoSecondaire(s, k);
           return (
             '<span class="motif k-' + k + '"><span class="ms">' + ICONE[k] + "</span>" + esc(lib) + "</span>" +
-            '<span class="c-sub">' + esc(sub.join(" · ")) + "</span>"
+            '<span class="c-sub">' + pastilleRisque(s) + (info ? " · " + esc(info) : "") + "</span>"
           );
         }
         function celluleEcheance(s, k) {
           var L = s.lab;
-          if (k === "homonymie")
+          if (k === "gel" || k === "homonymie")
             return L.criblage ? "Criblage du " + L.criblage + '<span class="c-sub">il y a ' + nbj(jours(L.criblage), "jour") + "</span>" : "Criblage à relancer";
+          if (k === "fin") return L.derniereRevue ? '<span class="muted">Dernière revue le ' + L.derniereRevue + "</span>" : "";
           if (k === "revue") return '<span class="warn">Échue le ' + L.prochaineRevue + "</span>";
           if (k === "pieces") {
             var f = acceptation(s) && finAcceptation(s);
@@ -654,19 +701,42 @@
         function celluleAction(s, k, href, nom) {
           if (k === "ajour")
             return '<a class="open-link" href="' + esc(href) + '" aria-label="Ouvrir le dossier LAB ' + esc(nom) + '">Ouvrir<span class="ms">arrow_forward</span></a>';
+          if (k === "fin")
+            return '<a class="open-link" href="' + esc(href) + '" aria-label="Ouvrir le dossier : ' + esc(nom) + '">Ouvrir le dossier<span class="ms">arrow_forward</span></a>';
           if (k === "pieces")
             return '<button class="btn btn-sm btn-secondary verb" type="button" data-collecte="' + esc(s.id) + '" aria-label="' + esc(X.verbePieces(s) + " : " + nom) + '">' + esc(X.verbePieces(s)) + "</button>";
           return '<a class="btn btn-sm btn-secondary verb" href="' + esc(href) + '" aria-label="' + esc(VERBE[k] + " : " + nom) + '">' + VERBE[k] + "</a>";
         }
+        function sousLigneSociete(s) {
+          var nature = E.NATURE && s.nature ? E.NATURE[s.nature] : "";
+          return (
+            (MIXTE ? '<span class="m-chip" title="' + (estCAC(s) ? "Commissariat aux comptes" : "Expertise comptable") + '">' + (estCAC(s) ? "CAC" : "EC") + "</span>" : "") +
+            (nature ? esc(nature) + " · " : "") + esc(s.forme) + " · SIREN " + esc(s.siren)
+          );
+        }
+        function ligneSans(f) {
+          var lien = X.trouver(f.id);
+          var href = lien ? "lab-dossier.html?id=" + encodeURIComponent(f.id) + "&from=lab" : "";
+          var nom = href ? '<a href="' + esc(href) + '">' + esc(f.nom) + "</a>" : '<span class="c-nom">' + esc(f.nom) + "</span>";
+          var act = href
+            ? '<a class="btn btn-sm btn-secondary verb" href="' + esc(href) + '" aria-label="Ouvrir le dossier : ' + esc(f.nom) + '">Ouvrir le dossier</a>'
+            : '<button class="btn btn-sm btn-secondary verb" type="button" title="Écran non maquetté" aria-label="Ouvrir le dossier : ' + esc(f.nom) + '">Ouvrir le dossier</button>';
+          return (
+            '<tr data-id="' + esc(f.id) + '"' + (href ? ' data-href="' + esc(href) + '"' : ' class="sans-lien"') + ">" +
+            '<td class="c-soc">' + nom + '<span class="c-sub">' + esc(f.forme) + (f.siren ? " · SIREN " + esc(f.siren) : "") + "</span></td>" +
+            '<td class="c-motif"><span class="motif k-ouvrir"><span class="ms">' + ICONE.ouvrir + "</span>Aucun dossier LAB</span></td>" +
+            '<td class="c-act">' + act + "</td>" +
+            "</tr>"
+          );
+        }
         function ligne(s, avecResp) {
-          var k = etat.f === "tous" && !aTraiter(s) ? "ajour" : motifPrincipal(s);
+          var k = kDe(s);
           var href = "lab-dossier.html?id=" + encodeURIComponent(s.id) + "&from=lab";
           return (
             '<tr data-href="' + esc(href) + '" data-id="' + esc(s.id) + '">' +
             '<td class="c-soc"><a href="' + esc(href) + '">' + esc(s.nom) + "</a>" +
             '<span class="c-sub">' +
-            (MIXTE ? '<span class="m-chip" title="' + (estCAC(s) ? "Commissariat aux comptes" : "Expertise comptable") + '">' + (estCAC(s) ? "CAC" : "EC") + "</span>" : "") +
-            esc(s.forme) + " · SIREN " + esc(s.siren) + "</span></td>" +
+            sousLigneSociete(s) + "</span></td>" +
             '<td class="c-motif">' + celluleMotif(s, k) + "</td>" +
             '<td class="c-ech">' + celluleEcheance(s, k) + "</td>" +
             (avecResp ? '<td class="c-resp">' + tag(respId(s)) + "</td>" : "") +
@@ -683,31 +753,44 @@
           if (!q) return true;
           /* SIREN : avec ou sans espaces, complet ou partiel (« 412 386 », « 412386950 ») */
           var qn = q.replace(/\s/g, "");
-          return norm(s.nom).indexOf(q) !== -1 || (/^\d+$/.test(qn) && s.siren.replace(/\s/g, "").indexOf(qn) !== -1);
+          return norm(s.nom).indexOf(q) !== -1 || (/^\d+$/.test(qn) && (s.siren || "").replace(/\s/g, "").indexOf(qn) !== -1);
+        }
+        function kDe(s) {
+          return etat.f === "tous" && !aTraiter(s) && !finRelation(s) ? "ajour" : motifPrincipal(s);
         }
         function trier(a, b) {
-          var ka = cleTri(a, etat.f === "tous" && !aTraiter(a) ? "ajour" : motifPrincipal(a));
-          var kb = cleTri(b, etat.f === "tous" && !aTraiter(b) ? "ajour" : motifPrincipal(b));
+          var ka = cleTri(a, kDe(a));
+          var kb = cleTri(b, kDe(b));
           return ka[0] - kb[0] || ka[1] - kb[1] || a.nom.localeCompare(b.nom, "fr");
         }
         function dessiner() {
           var q = norm(etat.q.trim());
-          var liste = S.filter(function (s) { return testFiltre(etat.f, s) && trouve(s, q); }).sort(trier);
+          var sans = etat.f === "sans";
           var tous = etat.f === "tous";
+          var liste = (sans ? SANS : S)
+            .filter(function (s) { return (sans || testFiltre(etat.f, s)) && trouve(s, q); })
+            .sort(sans ? function (a, b) { return a.nom.localeCompare(b.nom, "fr"); } : trier);
+          var total = liste.length;
+          if (sans) liste = liste.slice(0, etat.n);
           /* Colonne Responsable masquée quand elle n'a qu'une valeur */
           var resps = {};
           liste.forEach(function (s) { resps[respId(s)] = true; });
-          var avecResp = Object.keys(resps).length > 1;
+          var avecResp = !sans && Object.keys(resps).length > 1;
           $("th-resp").hidden = !avecResp;
-          $("th-motif").textContent = tous ? "État" : "À faire";
-          $("rows").innerHTML = liste.map(function (s) { return ligne(s, avecResp); }).join("");
-          $("table").style.display = liste.length ? "" : "none";
+          $("th-ech").hidden = sans;
+          $("th-motif").textContent = tous || sans ? "État" : "À faire";
+          $("rows").innerHTML = liste.map(function (s) { return sans ? ligneSans(s) : ligne(s, avecResp); }).join("");
+          $("table").style.display = total ? "" : "none";
+          var plus = $("more");
+          plus.hidden = !(sans && total > liste.length);
+          $("more-n").textContent = liste.length + " sur " + total;
+          $("more-btn").textContent = "Afficher les " + Math.min(PAGE, total - liste.length) + " suivantes";
           var vide = $("empty");
-          vide.hidden = liste.length > 0;
-          if (!liste.length) {
+          vide.hidden = total > 0;
+          if (!total) {
             if (etat.f === "traiter" && !compte("traiter"))
               vide.innerHTML = '<span class="ms">circle-check</span><strong>Aucun dossier en attente.</strong>Tous les dossiers sont à jour.<br /><button type="button" data-f="tous">Tous les dossiers</button>';
-            else if (q && !tous)
+            else if (q && !tous && !sans)
               vide.innerHTML = "Aucun dossier de ce filtre ne correspond à « " + esc(etat.q.trim()) + " ».<br /><button type=\"button\" data-f=\"tous\">Chercher dans tous les dossiers</button>";
             else vide.innerHTML = "Aucun dossier ne correspond à « " + esc(etat.q.trim()) + " ».";
           }
@@ -716,25 +799,25 @@
         }
 
         /* ---------- Textes selon le profil ---------- */
-        var NEC = E.societes.length, NCAC = E.mandats.length;
+        var NEC = E.societes.length, NCAC = E.mandats.length, NPON = (E.ponctuelles || []).length;
         $("th-soc").textContent = PROFIL === "ec" ? "Société" : PROFIL === "cac" ? "Entité" : "Société ou entité";
         var DPJ_MAJ = window.EJDPJ && window.EJDPJ.maj ? " (mis à jour le " + window.EJDPJ.maj + ")" : "";
         var SRC_TXT =
-          PROFIL === "ec" ? "Identité, dirigeants et bénéficiaires effectifs repris du DPJ" + DPJ_MAJ + " · criblage PPE et gel des avoirs via le connecteur KYC" :
-          PROFIL === "cac" ? "Identité, dirigeants et bénéficiaires effectifs repris du dossier de mission et des registres publics · criblage PPE et gel des avoirs via le connecteur KYC" :
-          "Identité, dirigeants et bénéficiaires effectifs repris du DPJ" + DPJ_MAJ + " ou, pour les entités contrôlées, des registres publics · criblage PPE et gel des avoirs via le connecteur KYC";
+          PROFIL === "ec" ? "Identité, dirigeants et bénéficiaires effectifs repris du DPJ" + DPJ_MAJ + " · gel des avoirs contrôlé chaque jour sur le Registre national des gels · PPE déclarées par le client (vérification automatique avec l'option Pappers KYC)" :
+          PROFIL === "cac" ? "Identité, dirigeants et bénéficiaires effectifs repris du dossier de mission et des registres publics · gel des avoirs contrôlé chaque jour sur le Registre national des gels · PPE déclarées par le client (vérification automatique avec l'option Pappers KYC)" :
+          "Identité, dirigeants et bénéficiaires effectifs repris du DPJ" + DPJ_MAJ + " ou, pour les entités contrôlées, des registres publics · gel des avoirs contrôlé chaque jour sur le Registre national des gels · PPE déclarées par le client (vérification automatique avec l'option Pappers KYC)";
         $("note-sources").innerHTML =
           esc(SRC_TXT) + ". " +
           (PROFIL === "ec" ? "DPJ : dossier permanent juridique. " :
            PROFIL === "cac" ? "Registres publics : registre national des entreprises (RNE), registre des bénéficiaires effectifs (RBE) et, pour les associations, répertoire national des associations (RNA). " :
            "DPJ : dossier permanent juridique, pour les clients en expertise comptable. Registres publics : RNE, RBE et, pour les associations, RNA. ") +
           "PPE : personne politiquement exposée. KYC : connaissance du client. " +
-          "Les revues et les levées d'homonymie sont validées par " + esc(RLAB.nom) + ", responsable LAB du cabinet. " +
+          "La revue est validée par l'associé signataire de la mission ; " + esc(RLAB.nom) + ", responsable LAB du cabinet, valide celles des personnes politiquement exposées et des risques élevés, et lève les homonymies. " +
           '<a href="connecteurs.html">Voir les connecteurs</a>';
         $("couverture").textContent =
           PROFIL === "ec" ? NEC + " dossiers du périmètre missions, sur " + E.totalSocietes + " sociétés suivies." :
-          PROFIL === "cac" ? NCAC + " entités contrôlées par le cabinet." :
-          S.length + " dossiers : " + NEC + " sociétés du périmètre missions (sur " + E.totalSocietes + " suivies) et " + NCAC + " entités contrôlées.";
+          PROFIL === "cac" ? NCAC + " entités contrôlées par le cabinet et " + NPON + " missions ponctuelles." :
+          S.length + " dossiers : " + NEC + " sociétés du périmètre missions (sur " + E.totalSocietes + " suivies), " + NCAC + " entités contrôlées et " + NPON + " missions ponctuelles.";
 
         /* ---------- Collecte de pièces : fenêtre commune (assets/ej-lab.js) ---------- */
         function ouvrirCollecte(s, btn) {
@@ -748,50 +831,19 @@
           });
         }
 
-        /* ---------- Menu « ⋯ » ---------- */
-        var mBtn = $("plus-btn"), mMenu = $("plus-menu");
-        function menu(ouvrir, rendreFocus) {
-          mMenu.hidden = !ouvrir;
-          mBtn.setAttribute("aria-expanded", String(ouvrir));
-          mBtn.parentNode.classList.toggle("open", ouvrir);
-          if (ouvrir) mMenu.querySelector("a").focus();
-          else if (rendreFocus) mBtn.focus();
-        }
-        mBtn.addEventListener("click", function () {
-          menu(mMenu.hidden);
-        });
-        mMenu.addEventListener("keydown", function (e) {
-          var items = Array.prototype.slice.call(mMenu.querySelectorAll("a"));
-          var i = items.indexOf(document.activeElement);
-          if (e.key === "Escape") {
-            e.preventDefault();
-            menu(false, true);
-          } else if (e.key === "ArrowDown") {
-            e.preventDefault();
-            items[(i + 1) % items.length].focus();
-          } else if (e.key === "ArrowUp") {
-            e.preventDefault();
-            items[(i - 1 + items.length) % items.length].focus();
-          }
-        });
-        mMenu.addEventListener("focusout", function (e) {
-          if (!mMenu.hidden && !mMenu.contains(e.relatedTarget) && e.relatedTarget !== mBtn) menu(false);
-        });
-        document.addEventListener("click", function (e) {
-          if (!mMenu.hidden && !e.target.closest("#plus")) menu(false);
-        });
-
         /* ---------- Événements ---------- */
         function choisir(e) {
           var b = e.target.closest("[data-f]");
           if (!b) return;
           etat.f = b.getAttribute("data-f");
+          etat.n = PAGE;
           dessiner();
         }
         $("pills").addEventListener("click", choisir);
         $("empty").addEventListener("click", choisir);
         $("q").addEventListener("input", function (e) {
           etat.q = e.target.value;
+          etat.n = PAGE;
           dessiner();
         });
         $("rows").addEventListener("click", function (e) {
@@ -805,11 +857,13 @@
           var tr = e.target.closest("tr[data-href]");
           if (tr) location.href = tr.getAttribute("data-href");
         });
-        $("exporter").addEventListener("click", function () {
-          X.toast("Liste affichée exportée.");
-        });
-        document.querySelectorAll('a[href="#"]').forEach(function (a) {
-          a.addEventListener("click", function (e) { e.preventDefault(); });
+        $("more-btn").addEventListener("click", function () {
+          etat.n += PAGE;
+          dessiner();
+          if ($("more").hidden) {
+            var b = $("rows").querySelector("tr:last-child .c-act .btn");
+            if (b) b.focus();
+          }
         });
 
         dessiner();

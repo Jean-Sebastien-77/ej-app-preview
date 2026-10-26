@@ -1,8 +1,9 @@
 /* Express Juridique · Lifting 2026 · Logique LAB partagée
    Utilisée par lab.html (file de travail) et lab-dossier.html (onglet Vigilance LAB).
    - fiches d'identification fictives (siège, capital, dirigeant, bénéficiaires effectifs)
-   - règle unique des pièces attendues
-   - revues validées pendant la session (sessionStorage « ej-lab-revues »)
+   - règle unique des pièces attendues : reprises d'EJ (non demandées) et pièces demandées au client
+   - revues validées pendant la session (sessionStorage « ej-lab-revues »), demandes de validation (« ej-lab-demandes »)
+   - levées d'homonymie sur le gel des avoirs (sessionStorage « ej-lab-gel »)
    - collectes envoyées (sessionStorage « ej-collectes », lues aussi par suivi-actions.html)
    - fenêtre « Envoyer une collecte au client » et message de confirmation
    À charger après ej-missions-data.js (et ej-dpj-data.js si disponible). Données fictives. */
@@ -53,11 +54,32 @@
     return Math.round((dt(b) - dt(a)) / 86400000);
   }
 
+  function estPonctuelle(s) {
+    return (E.ponctuelles || []).indexOf(s) !== -1;
+  }
+  /* Entité suivie au titre du commissariat aux comptes : mandat ou mission ponctuelle */
   function estCAC(s) {
-    return E.mandats.indexOf(s) !== -1;
+    return E.mandats.indexOf(s) !== -1 || estPonctuelle(s);
   }
   function trouver(id) {
-    return E.societes.filter(function (x) { return x.id === id; })[0] || E.mandats.filter(function (x) { return x.id === id; })[0] || null;
+    function par(liste) { return (liste || []).filter(function (x) { return x.id === id; })[0]; }
+    return par(E.societes) || par(E.mandats) || par(E.ponctuelles) || null;
+  }
+  /* Dossiers LAB dans le périmètre du profil : clients EC, entités contrôlées (mandats) et missions ponctuelles CAC */
+  function dossiers(profil) {
+    var cac = E.mandats.concat(E.ponctuelles || []);
+    return profil === "ec" ? E.societes.slice() : profil === "cac" ? cac : E.societes.concat(cac);
+  }
+  /* Qui valide la revue : l'associé signataire de la mission ; le responsable LAB du cabinet
+     seulement pour une PPE, un risque élevé ou une homonymie à lever sur le gel des avoirs. */
+  /* risqueRetenu (facultatif) : niveau choisi dans une revue en cours, à la place du niveau actuel du dossier */
+  function validateur(s, profil, risqueRetenu) {
+    var L = s.lab || {};
+    var rlab = E.responsableLab(profil || window.EJ_PROFIL);
+    var risque = risqueRetenu || L.risque;
+    var raison = L.ppe ? "ppe" : risque === "eleve" ? "eleve" : L.gel === "a_verifier" ? "homonymie" : null;
+    var code = raison ? rlab : estCAC(s) ? s.signataire : s.associe || rlab;
+    return { code: code, nom: E.equipe[code].nom, raison: raison, responsableLab: code === rlab && !!raison };
   }
 
   /* ---------- Fiches d'identification (fictives, cohérentes avec EJM) ----------
@@ -126,47 +148,186 @@
     technopole: ["21 avenue de la Technopole, 34000 Montpellier", "85 000 €", "Yanis Belkacem, Président",
       [["Yanis Belkacem", "62 % du capital et des droits de vote"]],
       [["Fonds d'amorçage Littoral", "20 %"], ["Inès Moulin", "18 %"]]],
+    /* Missions ponctuelles du commissaire aux comptes (données inventées pour la maquette) */
+    orvane: ["9 rue des Fonderies, 25000 Besançon", "1 200 000 €", "Bertrand Orvain, Président",
+      [["Bertrand Orvain", "58 % du capital et des droits de vote"], ["Agnès Orvain", "30 % du capital et des droits de vote"]],
+      [["Fonds Industrie Franche-Comté", "12 %"]]],
+    kerlys: ["Zone portuaire de Kernével, 56260 Larmor-Plage", "50 000 €", "Yann Le Gall, gérant",
+      [["Yann Le Gall", "80 % du capital et des droits de vote"]],
+      [["Maëlle Le Gall", "20 %"]]],
+    brun: ["14 rue des Artisans, 49300 Cholet", "300 000 €", "Henri Brun, Président", []],
+    vetis: ["3 avenue Pasteur, 35000 Rennes", "750 000 €", "Claire Vétillard, Présidente",
+      [["Claire Vétillard", "46 % du capital et des droits de vote"], ["Nicolas Brémond", "32 % du capital et des droits de vote"]],
+      [["Santéo Participations", "22 %"]]],
+    pomone: ["Marché d'intérêt national, 94150 Rungis", "20 000 €", "Rachid Benamar, gérant",
+      [["Rachid Benamar", "100 % du capital et des droits de vote"]]],
   };
   function fiche(id) {
     return FICHES[id] || null;
   }
+  /* Activité : les missions ponctuelles n'en portent pas dans EJM (données inventées pour la maquette) */
+  var ACTIVITES = {
+    orvane: "Fabrication d'équipements industriels",
+    kerlys: "Location et entretien de bateaux de plaisance",
+    brun: "Menuiserie et agencement",
+    vetis: "Distribution de produits vétérinaires",
+    pomone: "Commerce de gros de fruits et légumes",
+  };
+  function activite(s) {
+    return s.activite || ACTIVITES[s.id] || "Activité non renseignée";
+  }
 
-  /* ---------- Pièces attendues : règle unique (nombre attendu = lab.pieces[1]) ---------- */
-  function piecesAttendues(s) {
-    var L = s.lab, P = L.pieces;
+  /* ---------- Gel des avoirs : correspondances possibles à lever (fiche du registre inventée) ----------
+     personne : nom retenu au dossier ; dossier / registre : date de naissance, lieu de naissance, nationalité */
+  var HOMONYMIES = {
+    kalipso: {
+      personne: "Karim Haddad",
+      registre: "HADDAD, Karim",
+      dossier: { naissance: "22/09/1981", lieu: "Marseille (13)", nationalite: "Française" },
+      liste: { naissance: "1968", lieu: "Alep (Syrie)", nationalite: "Syrienne" },
+    },
+  };
+  function homonymie(s) {
+    var h = HOMONYMIES[s.id];
+    if (h) return h;
+    var F = fiche(s.id);
+    var nom = F ? (F[3].length ? F[3][F[3].length - 1][0] : F[2].split(",")[0].trim()) : s.nom;
+    return { personne: nom, registre: nom.toUpperCase(), dossier: { naissance: "Au dossier", lieu: "Au dossier", nationalite: "Au dossier" }, liste: { naissance: "Au registre", lieu: "Au registre", nationalite: "Au registre" } };
+  }
+
+  /* ---------- Pièces attendues : règle unique (nombre attendu = lab.pieces[1]) ----------
+     Total = pièces reprises d'EJ (jamais demandées au client) + pièces demandées au client.
+     Reprise : [libellé, détail, source, date] ; pièce demandée : [libellé, détail].
+     Les reprises comptent comme reçues : reçues = max(lab.pieces[0], nombre de reprises).
+     La file (lab.html) et la fiche lisent les mêmes fonctions : mêmes chiffres partout. */
+  var ATTESTATION = "Attestation PPE et bénéficiaires effectifs";
+  function estClientEC(s) {
+    return E.societes.indexOf(s) !== -1;
+  }
+  function estMandat(s) {
+    return E.mandats.indexOf(s) !== -1;
+  }
+  /* Source des actes (statuts, procès-verbaux, nominations) détenus par EJ */
+  function sourceActes(s) {
+    var L = s.lab;
+    var dInpi = L.criblage || L.ouverture || E.today;
+    if (estPonctuelle(s)) return s.conseil && s.conseil.ej && s.conseil.formalite ? ["Formalité " + s.conseil.formalite, L.ouverture || E.today] : ["Connecteur INPI", dInpi];
+    if (estMandat(s)) return ["Connecteur INPI", dInpi];
+    var f = (L.changements || []).filter(function (c) { return /^Formalité/.test(c[2]); });
+    return f.length ? [f[f.length - 1][2], f[f.length - 1][0]] : ["Formalités EJ", L.ouverture || E.today];
+  }
+  var ID_BE = "Pièces d'identité des bénéficiaires effectifs";
+  var ID_DIR = "Pièce d'identité du dirigeant";
+  /* Formalité EJ où la pièce d'identité du dirigeant a été versée (numéro fictif, stable par dossier) */
+  function formaliteIdentite(s) {
+    var h = 0;
+    for (var i = 0; i < s.id.length; i++) h = (h * 31 + s.id.charCodeAt(i)) % 900;
+    var d = s.lab.ouverture || E.today;
+    return ["Formalité F-" + d.split("/")[2] + "-0" + (100 + h), d];
+  }
+  function nomDirigeant(s) {
+    var F = fiche(s.id);
+    return F ? F[2].split(",")[0].trim() : "";
+  }
+  function listesPieces(s) {
+    var L = s.lab, total = L.pieces[1];
     var F = fiche(s.id);
     var BE = F ? F[3] : [];
-    var association = s.forme === "Association";
-    var indirect = BE.some(function (b) { return /indirect/.test(b[1]); });
-    var holding = /^Holding/.test(s.activite);
-    var liste = association
-      ? [
+    if (s.forme === "Association")
+      return {
+        reprises: [],
+        demandees: [
           ["Statuts à jour", ""],
           ["Composition du bureau", "procès-verbal de la dernière assemblée"],
           ["Publication au Journal officiel", "déclaration de l'association"],
           ["Pièce d'identité du représentant légal", "la présidente de l'association"],
-          ["Justificatif de domicile du siège", ""],
-        ]
-      : [
-          ["Extrait RNE ou Kbis", "de moins de 3 mois"],
-          ["Statuts à jour", ""],
-          ["Pièce d'identité du dirigeant", ""],
-          ["Pièces d'identité des bénéficiaires effectifs", "une par bénéficiaire"],
-          ["Justificatif de domicile du siège", ""],
-        ];
-    if (P[1] > 5) liste.push(["Origine des fonds", "selon le cas"]);
-    var cand = [];
-    if (indirect) cand.push(["Organigramme de détention", "exigé : détention indirecte"]);
-    else if (holding) cand.push(["Organigramme du groupe", s.activite === "Holding animatrice" ? "filiales animées, pour la holding animatrice" : "périmètre des comptes consolidés"]);
-    if (L.ppe || L.risque === "eleve") cand.push(["Origine du patrimoine", "à documenter en cas de PPE ou de risque élevé"]);
-    cand.push(["Dernier bilan", "pour le profil d'activité"]);
-    return liste.concat(cand.slice(0, Math.max(0, P[1] - liste.length))).slice(0, P[1]);
+          [ATTESTATION, "à signer électroniquement par le représentant légal"],
+        ].slice(0, total),
+      };
+    var act = activite(s);
+    var clientEC = estClientEC(s);
+    var dirNom = nomDirigeant(s);
+    var autresBE = BE.filter(function (b) { return b[0] !== dirNom; }).map(function (b) { return b[0]; });
+    var indirect = BE.some(function (b) { return /indirect/.test(b[1]); });
+    var holding = /^Holding/.test(act);
+    var dInpi = L.criblage || L.ouverture || E.today;
+    var actes = sourceActes(s);
+    var rep = [
+      ["Extrait RNE", "tient lieu d'extrait Kbis", "Connecteur INPI", dInpi],
+      ["Statuts à jour et procès-verbaux", "", actes[0], actes[1]],
+    ];
+    /* Pièce d'identité du dirigeant : reprise seulement si EJ en détient une copie versée lors d'une formalité (client EC) */
+    if (clientEC) {
+      var fi = formaliteIdentite(s);
+      rep.push(["Identité du dirigeant", "pièce d'identité versée lors d'une formalité", fi[0], fi[1]]);
+    }
+    /* Reprises complémentaires, seulement si le total attendu le demande */
+    var extras = [["Extrait du registre des bénéficiaires effectifs", "accès réservé aux professionnels assujettis", "Connecteur INPI", dInpi]];
+    if (clientEC && (s.forme === "SAS" || s.forme === "SA")) extras.push(["Registre des mouvements de titres", "", "Registres EJ", actes[1]]);
+    var dem = [[ATTESTATION, "à signer électroniquement par le dirigeant"]];
+    if (!clientEC) dem.push([ID_DIR, dirNom]);
+    /* Identités des bénéficiaires effectifs autres que le dirigeant (sa pièce est déjà reprise ou demandée) */
+    if (!BE.length) dem.push([ID_BE, "en attente de l'identification des bénéficiaires effectifs"]);
+    else if (autresBE.length) dem.push([ID_BE, autresBE.join(", ")]);
+    /* Pièces selon le cas, par priorité */
+    var opt = [];
+    if (indirect) opt.push(["Organigramme de détention", "exigé : détention indirecte"]);
+    else if (holding) opt.push(["Organigramme du groupe", act === "Holding animatrice" ? "filiales animées, pour la holding animatrice" : "périmètre des comptes consolidés"]);
+    if (L.ppe || L.risque === "eleve") opt.push(["Origine du patrimoine", "PPE ou risque élevé"]);
+    opt.push(["Origine des fonds", "selon le cas"]);
+    if (L.risque === "eleve") opt.push(["Justificatifs de l'activité", "contrats, factures ou bons de commande"]);
+    /* Dernier bilan : jamais quand le cabinet tient ou certifie les comptes (client EC, mandat CAC) */
+    if (!clientEC && !estMandat(s)) opt.push(["Dernier bilan", "pour le profil d'activité"]);
+    dem = dem.concat(opt.slice(0, Math.max(0, total - rep.length - dem.length)));
+    while (rep.length + dem.length < total && extras.length) rep.push(extras.shift());
+    while (rep.length + dem.length < total) dem.push(["Pièce complémentaire", "à préciser"]);
+    rep = rep.slice(0, total);
+    return { reprises: rep, demandees: dem.slice(0, total - rep.length) };
   }
+  /* Changement de bénéficiaire effectif relevé par EJ depuis la dernière revue (date la plus récente, sinon null) */
+  function changementBE(s) {
+    var d = null;
+    (s.lab.changements || []).forEach(function (c) {
+      var m = /au capital \((\d+) %\)/.exec(c[1]);
+      if ((/bénéficiaire effecti/.test(c[1]) || (m && +m[1] > 25)) && (!d || dt(c[0]) > dt(d))) d = c[0];
+    });
+    return d;
+  }
+  /* État des pièces demandées : reçue, manquante, ou reçue avant un changement de bénéficiaire effectif (à renouveler) */
+  function etatPieces(s) {
+    var l = listesPieces(s), P = s.lab.pieces;
+    var nRec = Math.max(0, Math.min(P[1], Math.max(P[0], l.reprises.length)) - l.reprises.length);
+    var chBE = changementBE(s);
+    return l.demandees.map(function (p, j) {
+      var recue = j < nRec;
+      var perime = recue && chBE && (p[0] === ATTESTATION || p[0] === ID_BE) ? chBE : null;
+      return { lib: p[0], det: perime ? "à renouveler : changement de bénéficiaire effectif du " + chBE : p[1], recue: recue && !perime, perime: perime, rang: l.reprises.length + j };
+    });
+  }
+  /* Pièces d'identification manquantes (attestation, identités) : elles bloquent la validation d'une revue */
+  function identificationManquante(s) {
+    return etatPieces(s).filter(function (e) { return !e.recue && (e.lib === ATTESTATION || e.lib === ID_BE || e.lib === ID_DIR); }).map(function (e) { return e.lib; });
+  }
+  function piecesReprises(s) {
+    return listesPieces(s).reprises;
+  }
+  function piecesDemandees(s) {
+    return listesPieces(s).demandees;
+  }
+  function piecesAttendues(s) {
+    var l = listesPieces(s);
+    return l.reprises.concat(l.demandees);
+  }
+  /* Pièces reçues (reprises d'EJ comprises) */
+  function recues(s) {
+    return s.lab.pieces[1] - nbManquantes(s);
+  }
+  /* Pièces demandées au client et pas encore reçues : seules celles-ci sont à collecter */
   function piecesManquantes(s) {
-    return piecesAttendues(s).slice(s.lab.pieces[0]);
+    return etatPieces(s).filter(function (e) { return !e.recue; }).map(function (e) { return [e.lib, e.det]; });
   }
   function nbManquantes(s) {
-    return Math.max(0, s.lab.pieces[1] - s.lab.pieces[0]);
+    return piecesManquantes(s).length;
   }
 
   /* ---------- Destinataire de la collecte : dirigeant (DPJ pour une société cliente) ---------- */
@@ -193,47 +354,142 @@
     if (L.derniereRevue && L.prochaineRevue) return moisEntre(L.derniereRevue, L.prochaineRevue);
     return L.risque ? GRILLE_MOIS[L.risque] : 0;
   }
-  /* Validateur des revues passées : attribution stable (associé EC pour une société cliente, associée CAC pour une entité contrôlée) */
-  function validateurHistorique(s) {
-    return E.equipe[estCAC(s) ? "CD" : "TG"];
+  function objet(k) {
+    var r = lire(k);
+    return r && typeof r === "object" && !Array.isArray(r) ? r : {};
   }
   var CLE_REVUES = "ej-lab-revues";
   function revuesSession() {
-    var r = lire(CLE_REVUES);
-    return r && typeof r === "object" && !Array.isArray(r) ? r : {};
+    return objet(CLE_REVUES);
+  }
+  function revueSession(id) {
+    return revuesSession()[id] || null;
+  }
+  /* Validateur des revues passées : associé signataire de l'époque, attribution stable quel que soit le profil affiché.
+     Société cliente : s.associe ; entité CAC : s.signataire ; PPE ou risque élevé : responsable LAB (cabinet EC pour
+     une société cliente, cabinet CAC pour une entité contrôlée). Le risque pris en compte est celui d'avant la revue de la session. */
+  function validateurHistorique(s) {
+    var L = s.lab || {};
+    var rs = revueSession(s.id);
+    var risque = rs && rs.avant && rs.avant.risque !== undefined ? rs.avant.risque : L.risque;
+    var raison = L.ppe ? "ppe" : risque === "eleve" ? "eleve" : null;
+    var code = raison ? E.responsableLab(estCAC(s) ? "cac" : "ec") : estCAC(s) ? s.signataire : s.associe || E.responsableLab("ec");
+    var m = E.equipe[code];
+    return { code: code, nom: m.nom, role: m.role, raison: raison, responsableLab: !!raison };
   }
   function appliquerRevue(s, r) {
-    s.lab.statut = "a_jour";
+    s.lab.statut = r.conclusion === "fin" ? "fin_relation" : "a_jour";
     s.lab.derniereRevue = r.date;
     s.lab.prochaineRevue = r.prochaine;
+    if (r.risque) s.lab.risque = r.risque;
   }
-  /* Applique dès le chargement les revues validées pendant la session (la file et la fiche les reflètent) */
+  function validerRevue(s, par, o) {
+    var L = s.lab;
+    o = o || {};
+    var risque = o.risque || L.risque;
+    var fin = o.conclusion === "fin";
+    /* La périodicité suit le risque retenu (grille du cabinet), sauf ajustement reconduit (o.mois) ; fin de relation : plus de revue */
+    var mois = fin ? 0 : o.mois || (risque ? GRILLE_MOIS[risque] : periodiciteMois(L));
+    var r = {
+      date: E.today,
+      par: par,
+      code: o.code || "",
+      mois: mois,
+      ajustement: o.ajustement || "",
+      prochaine: fin ? null : plusMois(E.today, mois),
+      risque: risque,
+      conclusion: o.conclusion || "poursuivre",
+      commentaire: o.commentaire || "",
+      criteres: o.criteres || {},
+      avant: { statut: L.statut, derniereRevue: L.derniereRevue, prochaineRevue: L.prochaineRevue, risque: L.risque },
+    };
+    var tout = revuesSession();
+    tout[s.id] = r;
+    ecrire(CLE_REVUES, tout);
+    var d = demandes();
+    if (d[s.id]) {
+      delete d[s.id];
+      ecrire(CLE_DEMANDES, d);
+    }
+    appliquerRevue(s, r);
+    return r;
+  }
+  var CONCLUSIONS = { poursuivre: "Poursuivre la relation", renforcer: "Renforcer la vigilance", fin: "Mettre fin à la relation" };
+
+  /* ---------- Demandes de validation (revue préparée par un autre que le validateur) ---------- */
+  var CLE_DEMANDES = "ej-lab-demandes";
+  function demandes() {
+    return objet(CLE_DEMANDES);
+  }
+  function demandeValidation(id) {
+    return demandes()[id] || null;
+  }
+  function demanderValidation(s, par, a, o) {
+    var d = demandes();
+    o = o || {};
+    d[s.id] = { date: E.today, par: par, code: o.code || "", a: a, aCode: o.aCode || "", risque: o.risque || s.lab.risque, conclusion: o.conclusion || "poursuivre", commentaire: o.commentaire || "", criteres: o.criteres || {}, mois: o.mois || 0, ajustement: o.ajustement || "", renvoi: null };
+    ecrire(CLE_DEMANDES, d);
+    return d[s.id];
+  }
+  function retirerDemande(s) {
+    var d = demandes();
+    delete d[s.id];
+    ecrire(CLE_DEMANDES, d);
+  }
+  /* Le validateur renvoie la revue préparée, avec un commentaire */
+  function renvoyerRevue(s, par, commentaire) {
+    var d = demandes();
+    if (!d[s.id]) return null;
+    d[s.id].renvoi = { date: E.today, par: par, commentaire: commentaire };
+    ecrire(CLE_DEMANDES, d);
+    return d[s.id];
+  }
+
+  /* ---------- Gel des avoirs : levées d'homonymie de la session ----------
+     { personne, elements: { naissance, lieu, nationalite : "concorde" | "differe" }, piece, conclusion: "levee" | "confirmee", par, date } */
+  var CLE_GEL = "ej-lab-gel";
+  function leveesGel() {
+    return objet(CLE_GEL);
+  }
+  function leveeGel(id) {
+    return leveesGel()[id] || null;
+  }
+  function appliquerGel(s, g) {
+    if (g.conclusion === "levee") {
+      s.lab.gel = "ok";
+      s.lab.gelLevee = g;
+    } else if (g.conclusion === "confirmee") {
+      s.lab.gel = "a_verifier";
+      s.lab.gelConfirme = g;
+    }
+  }
+  /* Correspondance confirmée sur le gel des avoirs (session) : gel à appliquer, pas d'homonymie à lever */
+  function gelConfirme(s) {
+    var g = s ? leveeGel(s.id) : null;
+    return !!(g && g.conclusion === "confirmee");
+  }
+  function enregistrerGel(s, g) {
+    var tout = leveesGel();
+    g.date = E.today;
+    tout[s.id] = g;
+    ecrire(CLE_GEL, tout);
+    appliquerGel(s, g);
+    return g;
+  }
+
+  /* Applique dès le chargement les revues validées et les levées de la session (la file et la fiche les reflètent) */
   (function () {
     var r = revuesSession();
     Object.keys(r).forEach(function (id) {
       var s = trouver(id);
       if (s && r[id] && r[id].avant) appliquerRevue(s, r[id]);
     });
+    var g = leveesGel();
+    Object.keys(g).forEach(function (id) {
+      var s = trouver(id);
+      if (s && g[id] && g[id].conclusion) appliquerGel(s, g[id]);
+    });
   })();
-  function revueSession(id) {
-    return revuesSession()[id] || null;
-  }
-  function validerRevue(s, par) {
-    var L = s.lab;
-    var mois = periodiciteMois(L);
-    var r = {
-      date: E.today,
-      par: par,
-      mois: mois,
-      prochaine: plusMois(E.today, mois),
-      avant: { statut: L.statut, derniereRevue: L.derniereRevue, prochaineRevue: L.prochaineRevue },
-    };
-    var tout = revuesSession();
-    tout[s.id] = r;
-    ecrire(CLE_REVUES, tout);
-    appliquerRevue(s, r);
-    return r;
-  }
 
   /* ---------- Collectes envoyées (contrat partagé avec suivi-actions.html) ---------- */
   var CLE_COLLECTES = "ej-collectes";
@@ -296,6 +552,7 @@
     ".lab-pieces label{display:flex;align-items:flex-start;gap:10px;padding:7px 4px;border-radius:var(--ej-radius-sm);cursor:pointer}" +
     ".lab-pieces label:hover{background:var(--ej-neutral-50)}" +
     ".lab-pieces input{margin-top:3px;accent-color:var(--ej-action-600)}" +
+    ".lab-repris{margin-top:-6px;font-size:12.5px;color:var(--ej-neutral-500)}.lab-repris:empty{display:none}" +
     ".lab-modal-foot{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:14px 22px 18px;border-top:1px solid var(--ej-hairline)}" +
     ".lab-toast{position:fixed;left:50%;bottom:32px;z-index:110;transform:translate(-50%,16px);display:flex;align-items:center;gap:10px;max-width:calc(100vw - 32px);padding:12px 18px;border-radius:var(--ej-radius-lg);background:var(--ej-primary-900);color:var(--ej-white);font-size:14px;box-shadow:var(--ej-shadow-lg);opacity:0;visibility:hidden;transition:opacity var(--ej-transition-normal),transform var(--ej-transition-normal),visibility 0s linear 250ms}" +
     ".lab-toast.show{opacity:1;visibility:visible;transform:translate(-50%,0);transition:opacity var(--ej-transition-normal),transform var(--ej-transition-normal),visibility 0s}" +
@@ -364,8 +621,9 @@
       '<div class="lab-modal-head"><div><h2 id="col-title" tabindex="-1">Envoyer une collecte au client</h2><p id="col-soc"></p></div>' +
       '<button class="icon-btn" type="button" data-close aria-label="Fermer"><span class="ms">close</span></button></div>' +
       '<div class="lab-modal-body">' +
-      '<div><div class="lab-lbl" id="col-dest-lbl">Destinataire <span class="info-tip" data-tip="bas"><button type="button" class="info-tip-btn" aria-describedby="note-collecte" aria-label="Fonctionnement de la collecte"><span class="ms">info</span></button><span class="info-tip-pop" role="tooltip" id="note-collecte">Le client dépose ses pièces depuis un lien sécurisé, avec relances automatiques. Les pièces reçues sont versées au dossier LAB.</span></span></div><div class="lab-dest" id="col-dest"></div></div>' +
+      '<div><div class="lab-lbl" id="col-dest-lbl">Destinataire <span class="info-tip" data-tip="bas"><button type="button" class="info-tip-btn" aria-describedby="note-collecte" aria-label="Fonctionnement de la collecte"><span class="ms">info</span></button><span class="info-tip-pop" role="tooltip" id="note-collecte">Le client dépose ses pièces depuis un lien sécurisé, avec relances automatiques. L\'attestation PPE et bénéficiaires effectifs se signe en ligne (jesignexpert.com). Les pièces reçues sont versées au dossier LAB.</span></span></div><div class="lab-dest" id="col-dest"></div></div>' +
       '<fieldset class="lab-pieces" id="col-pieces"><legend class="lab-lbl" id="col-lbl">Pièces demandées</legend><div id="col-liste"></div></fieldset>' +
+      '<p class="lab-repris" id="col-repris"></p>' +
       "</div>" +
       '<div class="lab-modal-foot"><button class="btn btn-tertiary" type="button" data-close>Annuler</button>' +
       '<button class="btn btn-primary" type="button" id="col-send"><span class="ms">send</span>Envoyer la collecte</button></div>' +
@@ -440,6 +698,10 @@
     M.querySelector("#col-liste").innerHTML = pcs.map(function (p, i) {
       return '<label><input type="checkbox" checked data-p="' + i + '" value="' + esc(p[0]) + '" /><span>' + esc(p[0]) + (p[1] ? "<small>" + esc(p[1]) + "</small>" : "") + "</span></label>";
     }).join("");
+    var rep = piecesReprises(s);
+    M.querySelector("#col-repris").textContent = rep.length
+      ? "Déjà détenus par EJ, non demandés : " + rep.map(function (p) { return p[0]; }).join(", ") + "."
+      : "";
     majEnvoi();
     rendreInerte(true);
     M.inert = false;
@@ -476,9 +738,23 @@
     plusMois: plusMois,
     joursEntre: joursEntre,
     estCAC: estCAC,
+    estPonctuelle: estPonctuelle,
+    dossiers: dossiers,
+    validateur: validateur,
     trouver: trouver,
     fiche: fiche,
+    activite: activite,
+    homonymie: homonymie,
+    ATTESTATION: ATTESTATION,
     piecesAttendues: piecesAttendues,
+    piecesReprises: piecesReprises,
+    etatPieces: etatPieces,
+    identificationManquante: identificationManquante,
+    changementBE: changementBE,
+    ID_BE: ID_BE,
+    ID_DIR: ID_DIR,
+    piecesDemandees: piecesDemandees,
+    recues: recues,
     piecesManquantes: piecesManquantes,
     nbManquantes: nbManquantes,
     dirigeant: dirigeant,
@@ -487,6 +763,14 @@
     validateurHistorique: validateurHistorique,
     revueSession: revueSession,
     validerRevue: validerRevue,
+    CONCLUSIONS: CONCLUSIONS,
+    demandeValidation: demandeValidation,
+    demanderValidation: demanderValidation,
+    retirerDemande: retirerDemande,
+    renvoyerRevue: renvoyerRevue,
+    gelConfirme: gelConfirme,
+    leveeGel: leveeGel,
+    enregistrerGel: enregistrerGel,
     collectes: collectes,
     collectesDe: collectesDe,
     derniereCollecte: derniereCollecte,

@@ -186,6 +186,34 @@
       .afaire-act .btn {
         white-space: nowrap;
       }
+      .afaire-btns {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6px;
+      }
+      .afaire-bloc {
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--ej-warning-600);
+      }
+      .afaire-bloc a,
+      .lien-lab {
+        font-weight: 600;
+        color: var(--ej-action-700);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .lien-lab {
+        display: inline-block;
+        margin-top: 4px;
+        font-size: 13px;
+      }
+      .btn[aria-disabled="true"] {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
       .afaire-ech {
         display: flex;
         align-items: center;
@@ -483,6 +511,9 @@
           width: 100%;
           padding-left: 30px;
         }
+        .afaire-btns {
+          align-items: stretch;
+        }
         .afaire-act .btn {
           width: 100%;
           justify-content: center;
@@ -571,7 +602,8 @@
       </div>
     </div>
 
-    <script src="assets/ej-missions-data.js?v=20"></script>
+    <script src="assets/ej-missions-data.js?v=22"></script>
+    <script src="assets/ej-lab.js?v=4"></script>
     <script>
       /* Fiche d'une mission ponctuelle du commissaire aux comptes (apports, transformation, fusion).
          Rendu au DOMContentLoaded : ej-shell.js (chargé après) pose data-profil sur le body avant cet événement. */
@@ -646,12 +678,20 @@
             documents: copie(m0.documents),
             lm: copie(m0.lm),
             independance: copie(m0.independance),
-            lab: copie(m0.lab),
             honoraires: m0.honoraires,
             transmis: null,
             journal: [],
           };
         }
+
+        /* Le dossier LAB appartient au module LAB (lab.html, lab-dossier.html) : cette page le lit seulement.
+           ej-lab.js applique au chargement les revues validées dans la session. */
+        delete st.lab;
+        var LAB = (window.EJLAB && window.EJLAB.trouver(m0.id) || m0).lab;
+        function labAJour() {
+          return LAB.statut === "a_jour";
+        }
+        var URL_LAB = "lab-dossier.html?id=" + encodeURIComponent(m0.id) + "&from=mission";
 
         /* ---------- Référentiels ---------- */
         var ORDRE = ["designation", "acceptation", "pieces", "rapport", "signature", "depot", "termine"];
@@ -735,7 +775,6 @@
           if (i0 >= 1) add(a(0.05), "badge-check", "Désignation acceptée, acceptation de la mission engagée.", esc(signataire.nom));
           if (i0 >= 2) {
             add(a(0.2), "shield-check", "Déclaration d'indépendance signée.", esc(signataire.nom));
-            add(a(0.22), "scan-search", "Dossier LAB validé : " + lower1(E.RISQUE[m0.lab.risque] || "risque standard") + ".", esc(signataire.nom));
             add(a(0.25), "file-pen-line", "Lettre de mission signée (réf. " + m0.lm.ref + ").", esc(signataire.nom));
             add(a(0.27), "send", "Lien de dépôt sécurisé envoyé au conseil.", esc(signataire.nom));
             if (nRep) add(a(0.27), "database", (nRep > 1 ? "Statuts et extrait Kbis repris" : "Pièce reprise") + " d'EJ.", "Express Juridique");
@@ -815,7 +854,13 @@
               '<div class="afaire-txt"><strong>' + A.phrase + "</strong>" + (A.detail ? " " + A.detail : "") +
               '<div class="afaire-ech"><span>Dépôt avant le <strong>' + m0.depotAvant + "</strong> · assemblée le " + m0.assemblee + "</span>" +
               tip("delai", NOTE_DELAI, "Délai de dépôt du rapport") + ech + "</div></div>" +
-              '<div class="afaire-act"><button class="btn btn-primary btn-sm" type="button" data-act="avancer"><span class="ms">' + A.btnIco + "</span>" + esc(A.btn) + "</button></div></li></ul>";
+              '<div class="afaire-act"><div class="afaire-btns">' +
+              (A.bloque
+                ? '<button class="btn btn-primary btn-sm" type="button" data-act="avancer" aria-disabled="true" aria-describedby="afaire-bloc"><span class="ms">' + A.btnIco + "</span>" + esc(A.btn) + "</button>" +
+                  '<span class="afaire-bloc" id="afaire-bloc">Dossier LAB à valider · <a href="' + URL_LAB + '">Ouvrir le dossier LAB</a></span>'
+                : '<button class="btn btn-primary btn-sm" type="button" data-act="avancer"><span class="ms">' + A.btnIco + "</span>" + esc(A.btn) + "</button>") +
+              (A.partiel ? '<button class="btn btn-secondary btn-sm" type="button" data-act="partiel"><span class="ms">shield-check</span>Finaliser indépendance et lettre</button>' : "") +
+              "</div></div></li></ul>";
           }
 
           /* Cartes */
@@ -842,12 +887,13 @@
 
           /* Acceptation */
           var ind = st.independance.statut === "a_jour";
-          var labOk = st.lab.statut === "a_jour";
+          var labOk = labAJour();
           var lmOk = st.lm.statut === "signee";
           var ac = "";
           ac += kv("Indépendance", '<span class="oui-non ' + (ind ? "ok" : "warn") + '"><span class="ms">' + (ind ? "circle-check" : "circle-dashed") + "</span>" + esc(E.INDEP[st.independance.statut] || "Déclaration à faire") + "</span>");
-          ac += kv("Vigilance LAB", '<span class="oui-non ' + (labOk ? "ok" : "warn") + '"><span class="ms">' + (labOk ? "circle-check" : "circle-dashed") + "</span>" + esc(LAB_LIB[st.lab.statut] || st.lab.statut) + "</span>",
-            '<span class="val-sub"><span class="risk ' + (st.lab.risque ? "risk-" + st.lab.risque : "risk-na") + '">' + esc(st.lab.risque ? E.RISQUE[st.lab.risque] : "Risque non évalué") + "</span></span>");
+          ac += kv("Vigilance LAB", '<span class="oui-non ' + (labOk ? "ok" : "warn") + '"><span class="ms">' + (labOk ? "circle-check" : "circle-dashed") + "</span>" + esc(LAB_LIB[LAB.statut] || LAB.statut) + "</span>",
+            '<span class="val-sub"><span class="risk ' + (LAB.risque ? "risk-" + LAB.risque : "risk-na") + '">' + esc(LAB.risque ? E.RISQUE[LAB.risque] : "Risque non évalué") + "</span></span>" +
+            (labOk ? "" : '<a class="lien-lab" href="' + URL_LAB + '">Ouvrir le dossier LAB</a>'));
           ac += kv("Lettre de mission", '<span class="oui-non ' + (lmOk ? "ok" : "warn") + '"><span class="ms">' + (lmOk ? "circle-check" : "circle-dashed") + "</span>" + esc(LM_LIB[st.lm.statut] || st.lm.statut) + "</span>",
             (st.lm.ref ? '<span class="val-sub">Réf. ' + esc(st.lm.ref) + "</span>" : "") +
             (st.honoraires ? '<span class="val-sub">Honoraires : ' + esc(E.euros(st.honoraires)) + " HT</span>" : ""));
@@ -917,14 +963,16 @@
           if (e === "acceptation") {
             var manque = [];
             if (st.independance.statut !== "a_jour") manque.push("déclaration d'indépendance");
-            if (st.lab.statut === "a_ouvrir") manque.push("dossier LAB à ouvrir");
-            else if (st.lab.statut !== "a_jour") manque.push("dossier LAB à compléter");
+            if (LAB.statut === "a_ouvrir") manque.push("dossier LAB à ouvrir");
+            else if (!labAJour()) manque.push("dossier LAB à valider");
             if (st.lm.statut === "a_etablir" || !st.lm.ref) manque.push("lettre de mission à établir");
             else if (st.lm.statut !== "signee") manque.push("lettre de mission à faire signer");
             return {
               ico: "clipboard-check", btnIco: "badge-check", btn: "Finaliser l'acceptation",
               phrase: "Finaliser l'acceptation.",
               detail: manque.length ? "Reste : " + esc(manque.join(", ")) + "." : "",
+              bloque: !labAJour(),
+              partiel: !labAJour() && (st.independance.statut !== "a_jour" || st.lm.statut !== "signee"),
             };
           }
           if (e === "pieces") {
@@ -993,26 +1041,47 @@
           });
           return faits;
         }
-        function avancer() {
-          var e = st.etape, msg = "";
-          if (e === "designation") {
-            st.etape = "acceptation";
-            log("badge-check", "Désignation acceptée, acceptation de la mission engagée.");
-            msg = "Désignation acceptée. Acceptation de la mission engagée.";
-          } else if (e === "acceptation") {
-            var nouvLm = st.lm.statut !== "signee";
+        /* Indépendance et lettre de mission : finalisables avant la validation du dossier LAB */
+        function finaliserIndepLm() {
+          if (st.independance.statut !== "a_jour") {
             st.independance = { statut: "a_jour" };
-            st.lab = { statut: "a_jour", risque: st.lab.risque || "standard" };
+            log("shield-check", "Déclaration d'indépendance signée.");
+          }
+          if (st.lm.statut !== "signee") {
             if (!st.lm.ref) st.lm.ref = refLettre();
             st.lm.statut = "signee";
             if (!st.honoraires) st.honoraires = 5400;
             setDocs("a_produire", "signe", function (d) { return d[0] === "Lettre de mission"; });
             setDocs("a_signer", "signe", function (d) { return d[0] === "Lettre de mission"; });
+            log("file-pen-line", "Lettre de mission signée (réf. " + st.lm.ref + ").");
+          }
+        }
+        function annoncer(msg, ok) {
+          document.getElementById("retour").innerHTML = '<div class="alert ' + (ok ? "alert-success" : "alert-warning") + '"><span class="ms">' + (ok ? "circle-check" : "shield-alert") + "</span><div>" + esc(msg) + "</div></div>";
+        }
+        function partiel() {
+          finaliserIndepLm();
+          ecrire(st);
+          rendre();
+          annoncer("Indépendance et lettre de mission finalisées. Reste : dossier LAB à valider.", true);
+          var b = document.querySelector('#afaire [data-act="avancer"]');
+          (b || document.getElementById("afaire")).focus();
+        }
+        function avancer() {
+          var e = st.etape, msg = "";
+          if (e === "acceptation" && !labAJour()) {
+            annoncer("Acceptation non finalisée : dossier LAB à valider.", false);
+            return;
+          }
+          if (e === "designation") {
+            st.etape = "acceptation";
+            log("badge-check", "Désignation acceptée, acceptation de la mission engagée.");
+            msg = "Désignation acceptée. Acceptation de la mission engagée.";
+          } else if (e === "acceptation") {
+            finaliserIndepLm();
             st.pieces[0] = Math.max(st.pieces[0], nbReprises());
             st.etape = st.pieces[0] >= st.pieces[1] ? "rapport" : "pieces";
-            log("shield-check", "Déclaration d'indépendance signée.");
-            log("scan-search", "Dossier LAB validé : " + lower1(E.RISQUE[st.lab.risque]) + ".");
-            if (nouvLm) log("file-pen-line", "Lettre de mission signée (réf. " + st.lm.ref + ").");
+            log("badge-check", "Acceptation de la mission finalisée.");
             log("send", "Lien de dépôt sécurisé envoyé au conseil.");
             if (nbReprises()) log("database", "Statuts et extrait Kbis repris d'EJ.", "Express Juridique");
             msg = "Acceptation finalisée. Lien de dépôt envoyé à " + conseil.nom + ".";
@@ -1054,14 +1123,16 @@
           }
           ecrire(st);
           rendre();
-          document.getElementById("retour").innerHTML = '<div class="alert alert-success"><span class="ms">circle-check</span><div>' + esc(msg) + "</div></div>";
+          annoncer(msg, true);
           var b = document.querySelector('#afaire [data-act="avancer"]');
           (b || document.getElementById("afaire")).focus();
         }
 
         document.getElementById("contenu").addEventListener("click", function (ev) {
-          var b = ev.target.closest('[data-act="avancer"]');
-          if (b && !b.disabled) avancer();
+          var b = ev.target.closest("[data-act]");
+          if (!b || b.disabled) return;
+          if (b.getAttribute("data-act") === "partiel") partiel();
+          else if (b.getAttribute("data-act") === "avancer") avancer();
         });
 
         rendre();

@@ -539,17 +539,65 @@
       href: "suivi-actions.html", action: m.action,
     };
   }
-  /* Règle de la file LAB (lab.html) : homonymie à lever OU dossier pas « à jour » */
+  /* Règle « À traiter » de la file LAB (lab.html) : homonymie à lever, revue échue, pièces manquantes ou dossier à ouvrir */
   function labATraiter(s) {
-    return s.lab.gel === "a_verifier" || s.lab.statut !== "a_jour";
+    var st = s.lab.statut;
+    return s.lab.gel === "a_verifier" || st === "a_revoir" || st === "incomplet" || st === "a_ouvrir";
+  }
+  /* Périmètre LAB : règle unique de la file (EJLAB.dossiers, assets/ej-lab.js, chargé avant ce fichier).
+     ec = clients EC ; cac = mandats et missions ponctuelles ; mixte = tout. Profil lu comme le fait la page. */
+  function profilLab() {
+    var p = null;
+    try { p = document.body.getAttribute("data-profil"); } catch (e) {}
+    p = p || window.EJ_PROFIL;
+    return p === "cac" || p === "mixte" ? p : "ec";
+  }
+  function labDossiers(ctx) {
+    return window.EJLAB.dossiers(profilLab()).filter(function (s) { return okForme(s.forme, ctx); });
+  }
+  /* Entités contrôlées du périmètre CAC : mandats (filtres type et signataire) et missions ponctuelles (signataire seul) */
+  function labEntites(ctx) {
+    return window.EJLAB.dossiers("cac").filter(function (s) { return window.EJLAB.estPonctuelle(s) ? !ctx.f.signataire || ctx.f.signataire === s.signataire : okMandat(s, ctx); });
+  }
+  /* Gel des avoirs : homonymie confirmée = gel à appliquer (EJLAB.gelConfirme), sinon homonymie à lever */
+  function gelAppliquer(s) {
+    return s.lab.gel === "a_verifier" && !!window.EJLAB.gelConfirme && !!window.EJLAB.gelConfirme(s);
+  }
+  function labFin(s) {
+    return s.lab.statut === "fin_relation";
+  }
+  /* Répartition par risque : tout dossier tombe dans une catégorie. « Non évalué » reçoit les dossiers sans niveau ;
+     « Relation terminée » (catégorie dédiée, ajoutée seulement si elle n'est pas vide) reçoit les dossiers clos. */
+  function labParRisque(list) {
+    var ks = ["faible", "standard", "eleve"];
+    var vifs = list.filter(function (s) { return !labFin(s); });
+    var by = ks.map(function (k) { return vifs.filter(function (s) { return s.lab.risque === k; }); })
+      .concat([vifs.filter(function (s) { return ks.indexOf(s.lab.risque) === -1; })]);
+    var fin = list.filter(labFin);
+    if (fin.length) by.push(fin);
+    return by;
+  }
+  function labRisqueLabels(by) {
+    var l = ["Risque faible", "Risque standard", "Risque élevé", "Non évalué"];
+    var t = ["mint", "info", "warning", "muted"];
+    if (by.length > 4) { l.push("Relation terminée"); t.push("soft"); }
+    return { labels: l, tones: t };
+  }
+  function labRegle() {
+    var p = profilLab();
+    return p === "ec" ? "Clients du cabinet." : p === "cac" ? "Entités contrôlées, missions ponctuelles comprises." : "Clients du cabinet et entités contrôlées, missions ponctuelles comprises.";
+  }
+  function labCov(ctx) {
+    var n = labDossiers(ctx).length;
+    return n + " " + pl(n, "dossier LAB", "dossiers LAB") + formeLabel(ctx) + ".";
   }
   function labRow(s) {
     var l = s.lab;
-    var motif = l.statut === "incomplet" ? "Pièces reçues : " + l.pieces[0] + " sur " + l.pieces[1] : l.statut === "a_ouvrir" ? "Dossier jamais ouvert" : l.prochaineRevue ? "Revue prévue le " + l.prochaineRevue : "Revue à planifier";
+    var motif = l.statut === "incomplet" ? "Pièces reçues : " + window.EJLAB.recues(s) + " sur " + l.pieces[1] : l.statut === "a_ouvrir" ? "Dossier jamais ouvert" : l.statut === "fin_relation" ? "Plus de revue prévue" : l.prochaineRevue ? "Revue prévue le " + l.prochaineRevue : "Revue à planifier";
     return {
-      title: s.nom, forme: s.forme, meta: E.LAB_STATUT[l.statut] + " · " + motif + (l.gel === "a_verifier" ? " · homonymie gel des avoirs à lever" : ""),
+      title: s.nom, forme: s.forme, meta: E.LAB_STATUT[l.statut] + " · " + motif + (l.gel === "a_verifier" ? (gelAppliquer(s) ? " · gel des avoirs à appliquer" : " · homonymie gel des avoirs à lever") : ""),
       badge: { label: l.risque ? E.RISQUE[l.risque] : "Risque non évalué", tone: l.risque === "eleve" ? "warning" : l.risque ? "neutral" : "neutral" },
-      href: "lab-dossier.html?id=" + encodeURIComponent(s.id), action: l.gel === "a_verifier" ? "Lever l'homonymie" : l.statut === "a_ouvrir" ? "Ouvrir le dossier" : "Voir le dossier",
+      href: "lab-dossier.html?id=" + encodeURIComponent(s.id), action: gelAppliquer(s) ? "Appliquer le gel" : l.gel === "a_verifier" ? "Lever l'homonymie" : l.statut === "a_ouvrir" ? "Ouvrir le dossier" : "Voir le dossier",
     };
   }
   function lmRow(s) {
@@ -564,7 +612,7 @@
   }
   /* Ligne d'un dossier LAB d'entité contrôlée : ouvre le dossier LAB (onglet Vigilance LAB), pas la fiche mission */
   function mandLabRow(m, meta) {
-    return { title: m.nom, forme: m.forme, meta: meta, href: "lab-dossier.html?id=" + encodeURIComponent(m.id), action: m.lab.gel === "a_verifier" ? "Lever l'homonymie" : "Voir le dossier LAB" };
+    return { title: m.nom, forme: m.forme, meta: meta, href: "lab-dossier.html?id=" + encodeURIComponent(m.id), action: gelAppliquer(m) ? "Appliquer le gel" : m.lab.gel === "a_verifier" ? "Lever l'homonymie" : "Voir le dossier LAB" };
   }
   function mandRow(m, meta) {
     return { title: m.nom, forme: m.forme, meta: meta, href: "cac-mandat.html?id=" + encodeURIComponent(m.id), action: "Ouvrir la mission" };
@@ -688,7 +736,7 @@
       clo: { label: "Sociétés sans date de clôture", rows: s.filter(function (x) { return !x.cl; }).map(function (x) {
         return socRow(x, x.crea ? "En cours de création" : "Date de clôture absente du DPJ", { action: "Compléter la fiche" });
       }) },
-      lab: { label: "Dossiers LAB à traiter", rows: e.filter(labATraiter).map(labRow) },
+      lab: { label: "Dossiers LAB à traiter", rows: labDossiers(ctx).filter(labATraiter).map(labRow) },
       lm: { label: "Lettres de mission non signées", rows: e.filter(function (x) { return x.lm.statut !== "signee"; }).map(lmRow) },
     };
   }
@@ -1155,7 +1203,7 @@
     group: "ec", theme: "vigilance", kind: "cat", title: "Points de vigilance", viz: "barh", vizes: ["barh", "bar", "table"], dims: ["forme"], src: SRC.dpj + " ; " + SRC.lab + " ; " + SRC.lm,
     kw: ["points de vigilance", "vigilance", "alertes", "a verifier"],
     rule: "AG non suivies dans EJ (échéance dépassée, aucune formalité d'approbation dans EJ pour l'exercice ; repli pour les sociétés sans date de clôture : approuvées dans EJ l'an dernier, rien cette année) ; dossiers LAB à traiter (homonymie à lever, revue échue, pièces manquantes, dossier à ouvrir) ; lettres de mission non signées. Les retards légaux sont comptés à part.",
-    cov: function (ctx) { return covClot(ctx) + " " + COV_EJM; },
+    cov: function (ctx) { return covClot(ctx) + " " + labCov(ctx) + " Lettres de mission : " + ejms(ctx).length + " clients."; },
     compute: function (ctx) {
       var v = vigilance(ctx);
       var l = [v.ns, v.lab, v.lm];
@@ -1197,39 +1245,36 @@
   ind("lab_risque", {
     group: "ec", theme: "vigilance", kind: "cat", title: "Dossiers LAB par niveau de risque", viz: "donut", vizes: ["donut", "bar", "barh", "table"], dims: ["forme"], src: SRC.lab,
     kw: ["dossiers lab", "lab par risque", "niveau de risque", "lab", "anti blanchiment", "blanchiment"],
-    rule: "Dossiers LAB des clients, par niveau de risque évalué (faible, standard, élevé) ; « non évalué » tant que l'évaluation n'est pas faite.",
-    cov: function () { return COV_EJM; },
+    get rule() { return labRegle(); },
+    cov: labCov,
     compute: function (ctx) {
-      var ks = ["faible", "standard", "eleve", null];
-      var labels = ["Risque faible", "Risque standard", "Risque élevé", "Non évalué"];
-      var by = ks.map(function (k) { return ejms(ctx).filter(function (s) { return s.lab.risque === k; }).map(labRow); });
-      var r = catResult(labels, ["mint", "info", "warning", "muted"], by);
-      r.center = { value: nf(ejms(ctx).length), label: "dossiers" };
+      var list = labDossiers(ctx);
+      var by = labParRisque(list).map(function (l) { return l.map(labRow); });
+      var lt = labRisqueLabels(by);
+      var r = catResult(lt.labels, lt.tones, by);
+      r.center = { value: nf(list.length), label: "dossiers" };
       return r;
     },
   });
   ind("lab_a_revoir", {
     group: "ec", theme: "vigilance", kind: "kpi", title: "Dossiers LAB à traiter", dims: ["forme"], src: SRC.lab,
     kw: ["lab a traiter", "dossiers lab a traiter", "lab sont a traiter", "lab a revoir", "lab sont a revoir", "revues lab", "dossiers lab a revoir", "homonymie"],
-    rule: "Même règle que la file du dispositif LAB : dossier dont l'homonymie sur le gel des avoirs est à lever, ou dont le statut n'est pas « à jour » (revue échue, pièces manquantes, dossier à ouvrir). En profil mixte, seuls les clients de l'expertise comptable sont comptés ; les entités contrôlées le sont à part, dans « LAB des entités contrôlées ».",
-    cov: function () { return COV_EJM; },
+    get rule() { return labRegle(); },
+    cov: labCov,
     compute: function (ctx) {
-      var r = ejms(ctx).filter(labATraiter);
-      var mixte = false;
-      try { mixte = document.body.getAttribute("data-profil") === "mixte"; } catch (e) {}
-      var res = { value: r.length, display: nf(r.length), delta: null, sub: "sur " + ejms(ctx).length + " dossiers" + (mixte ? " clients" : ""), spark: null, alert: r.length > 0, rows: function () { return r.map(labRow); } };
-      if (mixte) res.title = "Dossiers LAB à traiter (clients EC)";
-      return res;
+      var list = labDossiers(ctx);
+      var r = list.filter(labATraiter);
+      return { value: r.length, display: nf(r.length), delta: null, sub: "sur " + list.length + " dossiers", spark: null, alert: r.length > 0, rows: function () { return r.map(labRow); } };
     },
   });
   ind("lab_revues_mois", {
     group: "ec", theme: "vigilance", kind: "series", title: "Revues LAB à faire", sub: "Par mois", viz: "bar", vizes: ["bar", "table"], dims: ["forme", "periode"], dir: "fwd", src: SRC.lab,
     kw: ["revues lab par mois", "revues lab", "revues a faire"],
-    rule: "Date de prochaine revue du dossier LAB. « Échues » : date dépassée. « À ouvrir ou compléter » : dossier sans revue datée (pièces manquantes, dossier jamais ouvert).",
-    cov: function () { return COV_EJM; },
+    get rule() { return labRegle(); },
+    cov: labCov,
     compute: function (ctx) {
       var ms = fwd(per(ctx));
-      var list = ejms(ctx);
+      var list = labDossiers(ctx).filter(function (s) { return !labFin(s); });
       var cs = ["Échues", "À compléter"].concat(cats(ms));
       var rows = [
         list.filter(function (s) { return s.lab.prochaineRevue && parse(s.lab.prochaineRevue) < TODAY; }),
@@ -1546,13 +1591,14 @@
   ind("cac_lab_risque", {
     group: "cac", theme: "cac_conf", kind: "cat", title: "LAB des entités contrôlées", sub: "Par niveau de risque", viz: "donut", vizes: ["donut", "bar", "barh", "table"], dims: ["type", "signataire"], src: SRC.lab + ", entités contrôlées",
     kw: ["lab des entites", "lab cac", "dossiers lab des entites controlees", "risque des entites"],
-    rule: "Dossiers LAB des entités contrôlées, par niveau de risque évalué. Comptés à part des dossiers LAB des clients EC.",
-    cov: covC,
+    rule: "Entités contrôlées, missions ponctuelles comprises.",
+    cov: function (ctx) { var n = labEntites(ctx).length; return n + " " + pl(n, "dossier LAB", "dossiers LAB") + "."; },
     compute: function (ctx) {
-      var ks = ["faible", "standard", "eleve", null];
-      var by = ks.map(function (k) { return mandats(ctx).filter(function (m) { return m.lab.risque === k; }).map(function (m) { return mandLabRow(m, (k ? E.RISQUE[k] : "Risque non évalué") + " · " + E.LAB_STATUT[m.lab.statut]); }); });
-      var r = catResult(["Risque faible", "Risque standard", "Risque élevé", "Non évalué"], ["mint", "info", "warning", "muted"], by);
-      r.center = { value: nf(mandats(ctx).length), label: "dossiers" };
+      var list = labEntites(ctx);
+      var by = labParRisque(list).map(function (l) { return l.map(function (m) { return mandLabRow(m, (m.lab.risque ? E.RISQUE[m.lab.risque] : "Risque non évalué") + " · " + E.LAB_STATUT[m.lab.statut]); }); });
+      var lt = labRisqueLabels(by);
+      var r = catResult(lt.labels, lt.tones, by);
+      r.center = { value: nf(list.length), label: "dossiers" };
       return r;
     },
   });

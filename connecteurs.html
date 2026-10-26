@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=19" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=21" />
     <style>
       .c-card {
         display: grid;
@@ -88,6 +89,55 @@
         font-style: italic;
         color: var(--ej-neutral-500);
       }
+      .c-logo.gels {
+        color: var(--ej-neutral-700);
+      }
+      .c-logo.gels b {
+        display: block;
+        font-size: 13px;
+        letter-spacing: 0.02em;
+      }
+      .c-logo.gels small {
+        display: block;
+        font-size: 8px;
+        font-weight: 500;
+        color: var(--ej-neutral-600);
+      }
+      .c-state-line {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+      /* Option payante d'un connecteur : sous la description, alignée sur elle */
+      .c-option {
+        grid-column: 2 / -1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px 24px;
+        margin-top: 4px;
+        padding-top: 16px;
+        border-top: 1px solid var(--ej-neutral-200);
+      }
+      .c-option-titre {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        font-family: var(--ej-font-display);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .c-option .c-desc {
+        margin-top: 4px;
+      }
+      .c-option-act {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        flex-shrink: 0;
+      }
     </style>
   </head>
   <body data-active="connecteurs">
@@ -160,6 +210,40 @@
               </div>
               <div class="c-state">
                 <span class="badge badge-success"><span class="ms">check</span>Connecté</span>
+              </div>
+              <div class="c-option">
+                <div>
+                  <div class="c-option-titre">Pappers KYC <span class="badge badge-neutral">Non activée</span></div>
+                  <p class="c-desc">Vérification des personnes politiquement exposées, sanctions internationales et presse négative, avec surveillance.</p>
+                </div>
+                <div class="c-option-act">
+                  <button class="btn btn-secondary btn-sm" type="button" title="Écran non maquetté">Activer</button>
+                  <span class="info-tip" data-tip="bas" data-tip-align="fin">
+                    <button type="button" class="info-tip-btn" aria-describedby="note-pappers-kyc" aria-label="À propos de Pappers KYC"><span class="ms">info</span></button>
+                    <span class="info-tip-pop" role="tooltip" id="note-pappers-kyc">Option payante de Pappers, à souscrire par le cabinet. Sans elle, le statut PPE repose sur l'attestation signée par le client.</span>
+                  </span>
+                </div>
+              </div>
+            </article>
+
+            <article class="card c-card">
+              <div class="c-brand">
+                <div class="c-logo gels" role="img" aria-label="DG Trésor"><span><b>DG Trésor</b><small>Registre des gels</small></span></div>
+                <a class="c-site" href="#"><span class="ms">link</span>Site web</a>
+              </div>
+              <div>
+                <div class="overline">GEL DES AVOIRS</div>
+                <p class="c-desc"><strong>Registre national des gels</strong> (DG Trésor). Contrôle quotidien des dirigeants, bénéficiaires effectifs et associés connus d'EJ.</p>
+              </div>
+              <div class="c-state">
+                <span class="badge badge-success"><span class="ms">check</span>Actif</span>
+                <span class="c-state-line">
+                  <span class="c-state-note">Gratuit, aucune configuration</span>
+                  <span class="info-tip" data-tip-align="fin">
+                    <button type="button" class="info-tip-btn" aria-describedby="note-gels" aria-label="À propos du registre des gels"><span class="ms">info</span></button>
+                    <span class="info-tip-pop" role="tooltip" id="note-gels">Source publique de la Direction générale du Trésor, interrogée par API.</span>
+                  </span>
+                </span>
               </div>
             </article>
           </div>
