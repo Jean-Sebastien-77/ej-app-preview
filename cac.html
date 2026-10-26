@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=19" />
-    <link rel="stylesheet" href="assets/ej-missions.css?v=21" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=23" />
     <style>
       /* ---- Page Missions CAC : styles locaux (à mutualiser si besoin) ---- */
       .cac-intro {
@@ -94,6 +94,10 @@
       .cac-table td:last-child {
         padding-right: 12px;
       }
+      .cac-table th {
+        white-space: normal;
+        vertical-align: bottom;
+      }
       .cac-table th .info-tip {
         margin-left: 2px;
         vertical-align: -5px;
@@ -163,6 +167,19 @@
         color: var(--ej-action-700);
         white-space: nowrap;
       }
+      .cac-table .verb {
+        height: auto;
+        min-height: 32px;
+        padding: 6px 12px;
+        max-width: 150px;
+        line-height: 1.25;
+        text-align: center;
+        white-space: normal;
+      }
+      .cell-ag .info-tip {
+        margin-left: 2px;
+        vertical-align: -5px;
+      }
       .open-link {
         display: inline-flex;
         align-items: center;
@@ -176,10 +193,6 @@
         flex-shrink: 0;
         transition: transform var(--ej-transition-fast);
       }
-      .cac-table .cell-open .open-link {
-        max-width: 130px;
-        line-height: 1.3;
-      }
       .cac-table tr:hover .open-link .ms {
         transform: translateX(2px);
       }
@@ -188,6 +201,131 @@
         text-align: center;
         color: var(--ej-neutral-500);
         font-size: 14px;
+      }
+
+      /* Fenêtre « Nouvelle mission ponctuelle » */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: color-mix(in srgb, var(--ej-primary-900) 32%, transparent);
+        backdrop-filter: blur(2px);
+      }
+      .modal-overlay[hidden] {
+        display: none;
+      }
+      .modal {
+        width: 100%;
+        max-width: 640px;
+        max-height: calc(100vh - 48px);
+        display: flex;
+        flex-direction: column;
+        background: var(--ej-white);
+        border-radius: var(--ej-radius-xl);
+        box-shadow: var(--ej-shadow-xl);
+      }
+      .modal-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 24px 16px;
+        border-bottom: 1px solid var(--ej-hairline);
+      }
+      .modal-head h2 {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .modal-body {
+        padding: 20px 24px;
+        overflow-y: auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px 20px;
+      }
+      .modal-body .full {
+        grid-column: 1 / -1;
+      }
+      .modal-foot {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 14px 24px 18px;
+        border-top: 1px solid var(--ej-hairline);
+      }
+      .nm-msg {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+      .nm-msg:empty {
+        display: none;
+      }
+      .nm-msg .ms {
+        font-size: 17px;
+        flex-shrink: 0;
+      }
+      .nm-msg.bloque {
+        color: var(--ej-error-600);
+        font-weight: 500;
+      }
+      .nm-msg.avert {
+        color: var(--ej-warning-600);
+        font-weight: 500;
+      }
+      .nm-msg.info {
+        color: var(--ej-neutral-600);
+      }
+      .nm-err {
+        font-size: 12.5px;
+        color: var(--ej-error-600);
+      }
+      .nm-err:empty {
+        display: none;
+      }
+      .form-input[aria-invalid="true"] {
+        border-color: var(--ej-error-600);
+      }
+      .form-input[readonly],
+      .form-input:disabled {
+        background: var(--ej-neutral-100);
+        color: var(--ej-neutral-700);
+      }
+      .nm-delai {
+        font-size: 13.5px;
+        color: var(--ej-neutral-700);
+      }
+      .nm-delai strong {
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .nm-ej {
+        align-self: end;
+        min-height: 42px;
+        align-items: center;
+      }
+      #nm-ok[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      @media (max-width: 600px) {
+        .modal-overlay {
+          padding: 12px;
+          align-items: flex-end;
+        }
+        .modal-body {
+          grid-template-columns: 1fr;
+        }
+        .modal-foot .btn {
+          flex: 1 1 auto;
+        }
       }
 
       /* Grand écran : les notes « i » de l'en-tête ne sont pas coupées par le cadre du tableau */
@@ -299,8 +437,13 @@
           padding-top: 10px;
           justify-content: flex-start;
         }
-        .cac-table .cell-open .open-link {
+        .cac-table .cell-open .verb {
           max-width: none;
+          width: 100%;
+        }
+        .cac-wrap,
+        .cac-wrap .table-scroll {
+          overflow: visible;
         }
         .cac-table tbody tr:hover td {
           background: transparent;
@@ -328,7 +471,7 @@
               </h1>
             </div>
             <div class="m-actions">
-              <button type="button" class="btn btn-primary" title="Écran non maquetté"><span class="ms">plus</span>Nouvelle mission ponctuelle</button>
+              <button type="button" class="btn btn-primary" id="nouvelle" aria-haspopup="dialog"><span class="ms">plus</span>Nouvelle mission ponctuelle</button>
             </div>
           </div>
 
@@ -347,7 +490,7 @@
                 <span class="info-tip">
                   <button type="button" class="info-tip-btn" aria-describedby="note-sigles" aria-label="Sigles et sources"><span class="ms">info</span></button>
                   <span class="info-tip-pop" role="tooltip" id="note-sigles">
-                    Sigles : ALPE, audit légal petite entreprise ; AG, assemblée générale ; CAC, commissaire aux comptes.
+                    Sigles : ALPE, audit légal des petites entreprises ; AG, assemblée générale ; AGOA, assemblée générale ordinaire annuelle, qui approuve les comptes ; CAC, commissaire aux comptes.
                     Sources des entités : registre national des entreprises (RNE), registre des bénéficiaires effectifs (RBE) ;
                     pour les associations, répertoire national des associations (RNA) et Journal officiel.
                   </span>
@@ -371,8 +514,76 @@
       </div>
     </div>
 
-    <script src="assets/ej-missions-data.js?v=22"></script>
-    <script src="assets/ej-lab.js?v=5"></script>
+    <div class="modal-overlay" id="nm" role="dialog" aria-modal="true" aria-labelledby="nm-title" hidden>
+      <form class="modal" id="nm-form" novalidate>
+        <div class="modal-head">
+          <h2 id="nm-title">Nouvelle mission ponctuelle</h2>
+          <button class="icon-btn" type="button" data-close aria-label="Fermer"><span class="ms">close</span></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="nm-siren">SIREN de la société</label>
+            <input class="form-input" id="nm-siren" type="text" inputmode="numeric" autocomplete="off" placeholder="9 chiffres" aria-describedby="nm-e-siren" />
+            <div class="nm-err" id="nm-e-siren"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="nm-nom">Dénomination</label>
+            <input class="form-input" id="nm-nom" type="text" autocomplete="off" aria-describedby="nm-e-nom" />
+            <div class="nm-err" id="nm-e-nom"></div>
+          </div>
+          <div class="nm-msg full" id="nm-verif" aria-live="polite"></div>
+          <div class="form-group">
+            <label class="form-label" for="nm-forme">Forme juridique</label>
+            <select class="form-input" id="nm-forme" aria-describedby="nm-e-forme"></select>
+            <div class="nm-err" id="nm-e-forme"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="nm-nature">Nature de la mission</label>
+            <select class="form-input" id="nm-nature">
+              <option value="apport">Apport en nature</option>
+              <option value="partiel">Apport partiel d'actif</option>
+              <option value="transformation">Transformation</option>
+              <option value="fusion">Fusion</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label class="form-label" for="nm-oper">Opération</label>
+            <input class="form-input" id="nm-oper" type="text" autocomplete="off" aria-describedby="nm-e-oper" />
+            <div class="nm-err" id="nm-e-oper"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="nm-mode">Mode de désignation</label>
+            <select class="form-input" id="nm-mode"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="nm-ddes">Date de désignation</label>
+            <input class="form-input" id="nm-ddes" type="date" aria-describedby="nm-e-ddes" />
+            <div class="nm-err" id="nm-e-ddes"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="nm-dass">Date de l'assemblée</label>
+            <input class="form-input" id="nm-dass" type="date" aria-describedby="nm-e-dass nm-delai" />
+            <div class="nm-err" id="nm-e-dass"></div>
+          </div>
+          <div class="nm-delai" id="nm-delai" aria-live="polite"></div>
+          <div class="form-group">
+            <label class="form-label" for="nm-conseil">Conseil de la société</label>
+            <input class="form-input" id="nm-conseil" type="text" autocomplete="off" aria-describedby="nm-e-conseil" />
+            <div class="nm-err" id="nm-e-conseil"></div>
+          </div>
+          <label class="check nm-ej"><input type="checkbox" id="nm-ej" /><span>Le conseil utilise Express Juridique</span></label>
+        </div>
+        <div class="modal-foot">
+          <button class="btn btn-tertiary" type="button" data-close>Annuler</button>
+          <button class="btn btn-primary" type="submit" id="nm-ok">Créer la mission</button>
+        </div>
+      </form>
+    </div>
+
+    <script src="assets/ej-missions-data.js?v=24"></script>
+    <script src="assets/ej-lab.js?v=7"></script>
+    <script src="assets/ej-cockpit-data.js?v=8"></script>
+    <script src="assets/ej-dpj-data.js?v=2"></script>
     <script>
       (function () {
         var E = window.EJM,
@@ -387,7 +598,7 @@
         var TODAY = d(E.today);
         var J = 86400000;
         function plus(date, n) {
-          return new Date(date.getTime() + n * J);
+          return new Date(date.getFullYear(), date.getMonth(), date.getDate() + n);
         }
         var FIN3M = plus(TODAY, 90);
         function fmt(date) {
@@ -487,6 +698,19 @@
           depot: "Transmettre le rapport",
           termine: "Ouvrir",
         };
+        /* Verbe canonique de la mission (EJM.verbePonctuelle, celui de cac-mission.html) avec l'état LAB réel ; repli sur l'étape */
+        function actionPonctuelle(p) {
+          var X = window.EJLAB && typeof window.EJLAB.trouver === "function" ? window.EJLAB.trouver(p.id) : null;
+          var lab = (X || p).lab;
+          if (typeof E.verbePonctuelle === "function") {
+            var v = E.verbePonctuelle(p, !!lab && lab.statut === "a_jour");
+            if (v && v.lib) {
+              var anc = v.ancre ? (String(v.ancre).charAt(0) === "#" ? v.ancre : "#" + v.ancre) : "";
+              return { lib: v.lib, href: hrefMission(p) + anc };
+            }
+          }
+          return { lib: ACTION_P[p.etape], href: hrefMission(p) };
+        }
         var FILTRES_P = {
           cours: { label: "En cours", test: enCours },
           terminees: { label: "Terminées", test: function (p) { return !enCours(p); } },
@@ -503,16 +727,16 @@
           nCtr = M.filter(function (m) { return m.type === "contractuel"; }).length;
         var TUILES = [
           { key: "mandats", titre: "Mandats", icone: "briefcase", valeur: M.length,
-            sub: nLegal + " légaux, " + nAlpe + " ALPE, " + nCtr + " contractuel",
-            regle: "Mandats légaux, audits légaux de petites entreprises (ALPE) et audit contractuel du cabinet.",
+            sub: nLegal + " légaux, " + nAlpe + " audits légaux des petites entreprises (ALPE), " + nCtr + " contractuel",
+            regle: "Mandats légaux, audits légaux des petites entreprises (ALPE) et audit contractuel du cabinet.",
             vue: "mandats", filtre: "tous" },
           { key: "rapports", titre: "Rapports à émettre d'ici 3 mois", icone: "file-text", valeur: lRap.length,
             sub: noms(lRap),
-            regle: "Mandats dont l'assemblée générale (AG) d'approbation est prévue entre le " + E.today + " et le " + fmt(FIN3M) + ".",
+            regle: "Mandats dont l'assemblée générale ordinaire annuelle (AGOA) d'approbation des comptes est prévue entre le " + E.today + " et le " + fmt(FIN3M) + ".",
             vue: "mandats", filtre: "rapports" },
           { key: "fin", titre: "Fins de mandat à préparer", icone: "calendar-clock", valeur: lFin.length, attention: true,
             sub: noms(lFin),
-            regle: "Le dernier exercice du mandat est l'exercice en cours : le mandat prend fin à l'issue de l'assemblée générale (AG) qui statue sur ces comptes. Audits contractuels exclus.",
+            regle: "Le dernier exercice du mandat est l'exercice en cours : le mandat prend fin à l'issue de l'assemblée générale ordinaire annuelle (AGOA) qui statue sur ces comptes. Audits contractuels exclus.",
             vue: "mandats", filtre: "fin" },
           { key: "ponc", titre: "Missions ponctuelles en cours", icone: "file-pen-line", valeur: lPonc.length,
             sub: noms(lPonc),
@@ -579,12 +803,16 @@
           }).join("");
         }
 
-        /* ---------- Note des délais retenus ---------- */
-        var NOTE_DELAIS = "Délais retenus pour la maquette : rapports à disposition 15 jours avant l'AG, dépôt du rapport ponctuel 8 jours avant l'assemblée. À valider par un professionnel.";
-        function noteDelais() {
+        /* ---------- Notes de délai : la règle et sa source ---------- */
+        var NOTE_RAPPORTS = "Rapports sur les comptes à la disposition des actionnaires 15 jours au moins avant l'assemblée (Code de commerce, art. R.225-89 pour les SA).";
+        function noteTip(id, texte, label) {
           return '<span class="info-tip" data-tip="bas">' +
-            '<button type="button" class="info-tip-btn" aria-describedby="note-delais" aria-label="Délais retenus"><span class="ms">info</span></button>' +
-            '<span class="info-tip-pop" role="tooltip" id="note-delais">' + esc(NOTE_DELAIS) + "</span></span>";
+            '<button type="button" class="info-tip-btn" aria-describedby="' + id + '" aria-label="' + esc(label) + '"><span class="ms">info</span></button>' +
+            '<span class="info-tip-pop" role="tooltip" id="' + id + '">' + esc(texte) + "</span></span>";
+        }
+        function noteDelaiMission(p) {
+          if (!p.delai) return "";
+          return noteTip("note-delai-" + p.id, "À la disposition des associés au siège : " + p.delai.texte + " (" + p.delai.ref + ").", "Règle de mise à disposition : " + p.nom);
         }
 
         /* ---------- Vue Mandats ---------- */
@@ -592,17 +820,24 @@
         var LM_LIB = { signee: "Signée", envoyee: "Envoyée", a_etablir: "À établir" };
         var LM_CLS = { signee: "badge-success", envoyee: "badge-progress", a_etablir: "badge-action" };
         var INDEP_LIB = { a_jour: "À jour", a_renouveler: "À renouveler", a_faire: "À faire" };
+        /* Même style que la file LAB : verbe en bouton secondaire, « Ouvrir » en lien */
+        function boutonAction(lib, href, nom) {
+          if (lib === "Ouvrir") {
+            return '<a class="open-link" href="' + esc(href) + '" aria-label="Ouvrir : ' + esc(nom) + '">Ouvrir<span class="ms">arrow_forward</span></a>';
+          }
+          return '<a class="btn btn-sm btn-secondary verb" href="' + esc(href) + '" aria-label="' + esc(lib + " : " + nom) + '">' + esc(lib) + "</a>";
+        }
         function celluleEntite(nom, href, sub) {
           return '<a href="' + esc(href) + '">' + esc(nom) + '</a><span class="cell-sub">' + esc(sub) + "</span>";
         }
         function celluleMandat(m) {
           var h = m.type === "contractuel" ? "Exercice " + m.premier : m.premier + " à " + m.dernier;
-          if (finMandat(m)) h += '<br><span class="badge badge-action">Dernier exercice</span>';
+          if (finMandat(m)) h += '<br><span class="badge badge-neutral">Dernier exercice</span>';
           return "<div>" + h + "</div>";
         }
         function celluleAg(m) {
           if (!m.ag) return '<div><span class="muted">Non fixée</span></div>';
-          return "<div><strong>" + m.ag + '</strong><span class="cell-sub">Rapports avant le ' + fmt(plus(d(m.ag), -15)) + "</span></div>";
+          return "<div><strong>" + m.ag + '</strong><span class="cell-sub">Rapports au plus tard le ' + fmt(plus(d(m.ag), -15)) + "</span></div>";
         }
         function ligneMandat(m) {
           var href = hrefMandat(m);
@@ -616,12 +851,12 @@
             '<td data-label="Lettre de mission"><div><span class="badge ' + LM_CLS[m.lm.statut] + '">' + LM_LIB[m.lm.statut] + "</span></div></td>" +
             '<td data-label="Indépendance"><div><span class="badge ' + (m.independance.statut === "a_jour" ? "badge-success" : "badge-action") + '">' + INDEP_LIB[m.independance.statut] + "</span></div></td>" +
             '<td data-label="Vigilance LAB"><div><span class="badge ' + (lab === "a_jour" ? "badge-success" : "badge-action") + '">' + esc(E.LAB_STATUT[lab]) + "</span></div></td>" +
-            '<td class="cell-open" data-label="Action"><a class="open-link" href="' + esc(a.href) + '" aria-label="' + esc(a.lib + " : " + m.nom) + '">' + esc(a.lib) + ' <span class="ms">arrow_forward</span></a></td>' +
+            '<td class="cell-open" data-label="Action">' + boutonAction(a.lib, a.href, m.nom) + "</td>" +
             "</tr>"
           );
         }
         var THEAD_M =
-          "<tr><th>Entité</th><th>Mandat</th><th>Prochaine AG " + noteDelais() + "</th><th>Lettre de mission</th><th>Indépendance</th><th>Vigilance LAB</th><th>Action</th></tr>";
+          "<tr><th>Entité</th><th>Mandat</th><th>Prochaine AG " + noteTip("note-delai-rapports", NOTE_RAPPORTS, "Règle de mise à disposition des rapports") + "</th><th>Lettre de mission</th><th>Indépendance</th><th>Vigilance LAB</th><th>Action</th></tr>";
 
         /* ---------- Vue Missions ponctuelles ---------- */
         function celluleEtape(p) {
@@ -631,7 +866,7 @@
           return "<div>" + h + "</div>";
         }
         function celluleEcheance(p) {
-          var h = "<strong>Dépôt avant le " + p.depotAvant + '</strong><span class="cell-sub">Assemblée le ' + p.assemblee + "</span>";
+          var h = "<strong>" + p.depotAvant + "</strong>" + noteDelaiMission(p) + '<span class="cell-sub">Assemblée le ' + p.assemblee + "</span>";
           if (enCours(p)) {
             var n = joursAvant(p);
             if (n < 0) h += '<span class="badge badge-error">Échéance dépassée</span>';
@@ -641,7 +876,9 @@
         }
         function lignePonctuelle(p) {
           var href = hrefMission(p);
-          var verbe = ACTION_P[p.etape];
+          var act = actionPonctuelle(p);
+          var verbe = act.lib;
+          href = act.href;
           return (
             '<tr data-href="' + esc(href) + '">' +
             '<td class="cell-ent" data-label="Entité">' + celluleEntite(p.nom, href, p.forme + " · " + p.siren) + "</td>" +
@@ -649,12 +886,12 @@
             '<td data-label="Étape">' + celluleEtape(p) + "</td>" +
             '<td class="cell-ag cell-ech" data-label="Échéance">' + celluleEcheance(p) + "</td>" +
             '<td class="cell-txt" data-label="Conseil"><div>' + esc(p.conseil.nom) + (p.conseil.ej ? '<br><span class="tag-ej">Sur EJ</span>' : "") + "</div></td>" +
-            '<td class="cell-open" data-label="Action"><a class="open-link" href="' + esc(href) + '" aria-label="' + esc(verbe + " : " + p.nom) + '">' + esc(verbe) + ' <span class="ms">arrow_forward</span></a></td>' +
+            '<td class="cell-open" data-label="Action">' + boutonAction(verbe, href, p.nom) + "</td>" +
             "</tr>"
           );
         }
         var THEAD_P =
-          "<tr><th>Entité</th><th>Mission</th><th>Étape</th><th>Échéance " + noteDelais() + "</th><th>Conseil</th><th>Action</th></tr>";
+          "<tr><th>Entité</th><th>Mission</th><th>Étape</th><th>À disposition au plus tard le</th><th>Conseil</th><th>Action</th></tr>";
 
         /* ---------- Tableau ---------- */
         function correspond(x, q, qd) {
@@ -730,9 +967,294 @@
           document.getElementById("tabs").scrollIntoView({ behavior: "smooth", block: "start" });
         });
         document.getElementById("rows").addEventListener("click", function (e) {
-          if (e.target.closest("a")) return;
+          if (e.target.closest("a, button, .info-tip")) return;
           var r = e.target.closest("[data-href]");
           if (r) location.href = r.getAttribute("data-href");
+        });
+
+        /* ---------- Nouvelle mission ponctuelle ---------- */
+        var CLE_NOUV = "ej-cac-nouvelles";
+        var REGIMES = {
+          apport: { nature: "apport", jours: 8, delai: { texte: "8 jours au moins avant l'assemblée", ref: "Code de commerce, art. R.225-136" }, rapports: ["Rapport du commissaire aux apports"] },
+          partiel: { nature: "apport", mois: 1, delai: { texte: "1 mois au moins avant l'assemblée", ref: "Code de commerce, régime des scissions (apport partiel d'actif)" }, rapports: ["Rapport du commissaire aux apports"] },
+          transformation: { nature: "transformation", jours: 8, delai: { texte: "8 jours au moins avant l'assemblée", ref: "Code de commerce, art. R.224-3" }, rapports: ["Rapport sur la valeur des biens et la situation nette"] },
+          fusion: { nature: "fusion", mois: 1, delai: { texte: "1 mois au moins avant l'assemblée", ref: "Code de commerce, régime des fusions" }, rapports: ["Rapport sur la valeur des apports", "Rapport sur la rémunération des apports"] },
+        };
+        var FORMES = ["SAS", "SASU", "SARL", "EURL", "SA", "SCI", "SELARL", "SNC", "Association"];
+        var NOTE_INDEP = "Règles d'indépendance du Code de commerce et du Code de déontologie de la profession.";
+        var nm = document.getElementById("nm");
+        var nmForm = document.getElementById("nm-form");
+        var nmDeclencheur = null;
+        var nmPre = null; /* société retrouvée par le SIREN : { nom, forme, dirigeant } */
+        var nmBloque = false;
+
+        function chiffres(x) {
+          return String(x || "").replace(/\D/g, "");
+        }
+        function isoVersFr(v) {
+          var p = String(v || "").split("-");
+          return p.length === 3 ? p[2] + "/" + p[1] + "/" + p[0] : "";
+        }
+        function reculer(fr, reg) {
+          var p = fr.split("/"), y = +p[2], mo = +p[1] - 1, jj = +p[0];
+          if (reg.mois) {
+            mo -= reg.mois;
+            if (mo < 0) { mo += 12; y--; }
+            return fmt(new Date(y, mo, Math.min(jj, new Date(y, mo + 1, 0).getDate())));
+          }
+          return fmt(plus(new Date(y, mo, jj), -reg.jours));
+        }
+        function sirenFormate(c) {
+          return c.slice(0, 3) + " " + c.slice(3, 6) + " " + c.slice(6, 9);
+        }
+        function slug(t) {
+          return norm(t).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "mission";
+        }
+        var MODE_JUDICIAIRE = "Ordonnance du président du tribunal de commerce";
+        var MODE_ASSOCIES = "Décision unanime des associés";
+        /* Fusion et apport partiel d'actif : désignation judiciaire ; apport et transformation : décision des associés ou ordonnance */
+        function majModes() {
+          var nat = document.getElementById("nm-nature").value;
+          var sel = document.getElementById("nm-mode");
+          var actuel = sel.value;
+          var modes = nat === "fusion" || nat === "partiel" ? [MODE_JUDICIAIRE] : [MODE_ASSOCIES, MODE_JUDICIAIRE];
+          sel.innerHTML = modes.map(function (x) { return "<option>" + esc(x) + "</option>"; }).join("");
+          sel.value = modes.indexOf(actuel) !== -1 ? actuel : modes[0];
+        }
+        function regime() {
+          return REGIMES[document.getElementById("nm-nature").value];
+        }
+
+        /* Rapprochement simulé avec le connecteur INPI : sociétés du cabinet, mandats CAC, DPJ */
+        function chercherSiren(c) {
+          var r = { client: null, mandat: null, pre: null };
+          E.societes.forEach(function (s) {
+            if (chiffres(s.siren) === c) { r.client = s; r.pre = r.pre || { nom: s.nom, forme: s.forme, src: "cabinet" }; }
+          });
+          M.forEach(function (m) {
+            if (chiffres(m.siren) === c) { r.mandat = m; r.pre = r.pre || { nom: m.nom, forme: m.forme, src: "cabinet" }; }
+          });
+          if (window.EJDPJ && window.EJDPJ.societes) {
+            window.EJDPJ.societes.forEach(function (f) {
+              if (!f.siren || chiffres(f.siren) !== c) return;
+              r.dpj = true;
+              r.pre = r.pre || { nom: f.nom, forme: f.forme, src: "dpj" };
+              var dir = f.dirigeants.filter(function (x) { return !x.fin; })[0] || f.dirigeants[0];
+              if (dir && r.pre) r.pre.dirigeant = dir.fonction ? dir.nom + ", " + dir.fonction : dir.nom;
+            });
+          }
+          return r;
+        }
+        function remplirFormes(valeur) {
+          var liste = FORMES.indexOf(valeur) === -1 && valeur ? FORMES.concat([valeur]) : FORMES;
+          document.getElementById("nm-forme").innerHTML = liste.map(function (f) {
+            return '<option value="' + esc(f) + '">' + esc(f) + "</option>";
+          }).join("");
+          if (valeur) document.getElementById("nm-forme").value = valeur;
+        }
+        function messageVerif(cls, icone, html) {
+          document.getElementById("nm-verif").className = "nm-msg full " + cls;
+          document.getElementById("nm-verif").innerHTML = '<span class="ms">' + icone + "</span><span>" + html + "</span>";
+        }
+        function verifierSiren() {
+          var c = chiffres(document.getElementById("nm-siren").value);
+          var nom = document.getElementById("nm-nom"), forme = document.getElementById("nm-forme");
+          var verif = document.getElementById("nm-verif");
+          if (nmPre) { nom.value = ""; remplirFormes(""); }
+          nmPre = null;
+          nmBloque = false;
+          nom.readOnly = false;
+          forme.disabled = false;
+          verif.className = "nm-msg full";
+          verif.innerHTML = "";
+          if (c.length === 9) {
+            var r = chercherSiren(c);
+            if (r.pre) {
+              nmPre = r.pre;
+              nom.value = r.pre.nom;
+              remplirFormes(r.pre.forme);
+              nom.readOnly = true;
+              forme.disabled = true;
+            }
+            if (r.client) {
+              nmBloque = true;
+              messageVerif("bloque", "ban", "Le cabinet présente les comptes de cette société : la mission est incompatible. " +
+                noteTip("nm-note-indep", NOTE_INDEP, "Règles d'indépendance"));
+            } else if (r.mandat) {
+              messageVerif("avert", "triangle-alert", "Le cabinet est commissaire aux comptes de cette entité : vérifiez la compatibilité avant d'accepter. " +
+                noteTip("nm-note-indep", NOTE_INDEP, "Règles d'indépendance"));
+            } else if (r.dpj) {
+              messageVerif("avert", "triangle-alert", "Société suivie par le cabinet dans Express Juridique : vérifiez qu'aucune mission ne crée d'incompatibilité. " +
+                noteTip("nm-note-indep", NOTE_INDEP, "Règles d'indépendance") + ' <span class="source"><span class="ms">landmark</span>DPJ du cabinet</span>');
+            } else if (r.pre) {
+              messageVerif("info", "landmark", "Société retrouvée dans le registre national des entreprises (RNE, INPI).");
+            } else {
+              messageVerif("info", "search", "Aucune société retrouvée pour ce SIREN : saisissez la dénomination et la forme.");
+            }
+          }
+          document.getElementById("nm-ok").disabled = nmBloque;
+          if (nmBloque) document.getElementById("nm-ok").setAttribute("title", "Création impossible : incompatibilité");
+          else document.getElementById("nm-ok").removeAttribute("title");
+        }
+        function majDelai() {
+          var el = document.getElementById("nm-delai");
+          var ass = isoVersFr(document.getElementById("nm-dass").value);
+          if (!ass) { el.innerHTML = ""; return; }
+          var reg = regime();
+          var lim = reculer(ass, reg);
+          el.innerHTML = "À disposition au siège au plus tard le <strong>" + lim + "</strong> " +
+            noteTip("nm-note-delai", "À la disposition des associés au siège : " + reg.delai.texte + " (" + reg.delai.ref + ").", "Règle de mise à disposition") +
+            (d(lim) < TODAY ? '<div class="nm-msg avert"><span class="ms">triangle-alert</span><span>Cette date limite est déjà passée.</span></div>' : "");
+        }
+        function erreur(champ, texte) {
+          var inp = document.getElementById("nm-" + champ), err = document.getElementById("nm-e-" + champ);
+          err.textContent = texte || "";
+          if (texte) inp.setAttribute("aria-invalid", "true"); else inp.removeAttribute("aria-invalid");
+          return !texte;
+        }
+        function dateIso(champ) {
+          var v = document.getElementById("nm-" + champ).value;
+          return /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : "";
+        }
+        function valider() {
+          var premier = null;
+          function ctl(champ, texte) {
+            if (!erreur(champ, texte) && !premier) premier = champ;
+          }
+          var c = chiffres(document.getElementById("nm-siren").value);
+          ctl("siren", c.length === 9 ? "" : "Le SIREN comporte 9 chiffres.");
+          ctl("nom", document.getElementById("nm-nom").value.trim() ? "" : "Indiquez la dénomination.");
+          ctl("forme", document.getElementById("nm-forme").value ? "" : "Indiquez la forme juridique.");
+          ctl("oper", document.getElementById("nm-oper").value.trim() ? "" : "Décrivez l'opération.");
+          var dd = dateIso("ddes"), da = dateIso("dass");
+          ctl("ddes", dd ? "" : "Indiquez la date de désignation.");
+          var txtAss = "";
+          if (!da) txtAss = "Indiquez la date de l'assemblée.";
+          else if (dd && da <= dd) txtAss = "L'assemblée doit suivre la désignation.";
+          else if (dd) {
+            var limite = reculer(isoVersFr(da), regime());
+            if (d(limite) < d(isoVersFr(dd))) txtAss = "La date limite de mise à disposition (" + limite + ") précède la désignation : choisissez une assemblée plus tardive.";
+          }
+          ctl("dass", txtAss);
+          ctl("conseil", document.getElementById("nm-conseil").value.trim() ? "" : "Indiquez le conseil de la société.");
+          if (premier) document.getElementById("nm-" + premier).focus();
+          return !premier;
+        }
+        function identifiantUnique(nom) {
+          var base = slug(nom), id = base, i = 2;
+          while (P.some(function (p) { return p.id === id; })) id = base + "-" + i++;
+          return id;
+        }
+        function creer() {
+          var c = chiffres(document.getElementById("nm-siren").value);
+          var reg = regime();
+          var ass = isoVersFr(dateIso("dass"));
+          var nom = document.getElementById("nm-nom").value.trim();
+          var oper = document.getElementById("nm-oper").value.trim();
+          var docs = [["Lettre de mission", "a_produire"]];
+          reg.rapports.forEach(function (r) { docs.push([r, "a_produire"]); });
+          docs.push(["Lettre d'affirmation", "a_produire"]);
+          var o = {
+            id: identifiantUnique(nom), nom: nom, siren: sirenFormate(c), forme: document.getElementById("nm-forme").value,
+            nature: reg.nature, signataire: "CD", delai: { texte: reg.delai.texte, ref: reg.delai.ref }, accord: null,
+            operation: oper, valeur: null,
+            designation: { mode: document.getElementById("nm-mode").value, date: isoVersFr(dateIso("ddes")) },
+            assemblee: ass, depotAvant: reculer(ass, reg),
+            etape: "designation", pieces: [0, 6], honoraires: null,
+            conseil: { nom: document.getElementById("nm-conseil").value.trim(), ej: document.getElementById("nm-ej").checked, formalite: null, libelle: oper },
+            lm: { statut: "a_etablir", ref: null }, independance: { statut: "a_faire" },
+            lab: { ouverture: null, criblage: null, risque: null, statut: "a_ouvrir", derniereRevue: null, prochaineRevue: null, be: 0, ppe: false, gel: "ok", pieces: [0, 5] },
+            documents: docs,
+          };
+          if (nmPre && nmPre.dirigeant) o.dirigeant = nmPre.dirigeant;
+          try {
+            var liste = JSON.parse(window.sessionStorage.getItem(CLE_NOUV) || "[]");
+            if (!Array.isArray(liste)) liste = [];
+            liste.push(o);
+            window.sessionStorage.setItem(CLE_NOUV, JSON.stringify(liste));
+          } catch (e) {
+            erreur("siren", "Création impossible : le stockage de la session est indisponible.");
+            return;
+          }
+          location.href = "cac-mission.html?id=" + encodeURIComponent(o.id);
+        }
+
+        /* Fenêtre : focus piégé, Échap, retour du focus sur le bouton */
+        function focusables() {
+          return Array.prototype.filter.call(
+            nm.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])'),
+            function (x) { return x.offsetParent !== null; }
+          );
+        }
+        /* Le reste de la page est masqué aux lecteurs d'écran tant que la fenêtre est ouverte */
+        function fondMasque(oui) {
+          Array.prototype.forEach.call(document.querySelectorAll("#ej-header, .ej-header, .app"), function (el) {
+            if (oui) el.setAttribute("aria-hidden", "true");
+            else el.removeAttribute("aria-hidden");
+          });
+        }
+        function ouvrirFenetre() {
+          nmDeclencheur = document.activeElement;
+          nmForm.reset();
+          nmPre = null;
+          remplirFormes("");
+          majModes();
+          ["siren", "nom", "forme", "oper", "ddes", "dass", "conseil"].forEach(function (c) { erreur(c, ""); });
+          document.getElementById("nm-nom").readOnly = false;
+          document.getElementById("nm-delai").innerHTML = "";
+          verifierSiren();
+          nm.hidden = false;
+          fondMasque(true);
+          document.body.style.overflow = "hidden";
+          document.getElementById("nm-siren").focus();
+        }
+        function fermerFenetre() {
+          nm.hidden = true;
+          fondMasque(false);
+          document.body.style.overflow = "";
+          if (nmDeclencheur && nmDeclencheur.focus) nmDeclencheur.focus();
+        }
+        document.getElementById("nouvelle").addEventListener("click", ouvrirFenetre);
+        nm.addEventListener("mousedown", function (e) {
+          if (e.target === nm) fermerFenetre();
+        });
+        nm.addEventListener("click", function (e) {
+          if (e.target.closest("[data-close]")) fermerFenetre();
+        });
+        nm.addEventListener("keydown", function (e) {
+          if (e.key === "Escape") {
+            /* Échap referme d'abord une note « i » ouverte (géré par ej-shell.js), sinon la fenêtre */
+            if (document.activeElement && document.activeElement.closest && document.activeElement.closest(".info-tip")) return;
+            e.preventDefault();
+            fermerFenetre();
+            return;
+          }
+          if (e.key !== "Tab") return;
+          var f = focusables();
+          if (!f.length) return;
+          var i = f.indexOf(document.activeElement);
+          if (e.shiftKey && (i <= 0)) { e.preventDefault(); f[f.length - 1].focus(); }
+          else if (!e.shiftKey && (i === -1 || i === f.length - 1)) { e.preventDefault(); f[0].focus(); }
+        });
+        document.getElementById("nm-siren").addEventListener("input", function () {
+          erreur("siren", "");
+          verifierSiren();
+        });
+        document.getElementById("nm-nature").addEventListener("change", function () {
+          majModes();
+          majDelai();
+          if (dateIso("dass") && dateIso("ddes")) erreur("dass", "");
+        });
+        document.getElementById("nm-ddes").addEventListener("input", majDelai);
+        document.getElementById("nm-dass").addEventListener("input", majDelai);
+        nmForm.addEventListener("input", function (e) {
+          var champ = e.target.id && e.target.id.slice(3);
+          if (champ && document.getElementById("nm-e-" + champ)) erreur(champ, "");
+        });
+        nmForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+          if (nmBloque) return;
+          if (valider()) creer();
         });
 
         /* ej-shell.js (chargé après) pose data-profil sur le body avant DOMContentLoaded */
@@ -743,6 +1265,6 @@
         dessiner();
       })();
     </script>
-    <script src="assets/ej-shell.js?v=24"></script>
+    <script src="assets/ej-shell.js?v=25"></script>
   </body>
 </html>

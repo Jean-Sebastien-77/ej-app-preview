@@ -163,50 +163,90 @@
   /* Missions ponctuelles du commissaire aux comptes, liées à une opération juridique.
      nature : apport (commissaire aux apports) | transformation (commissaire à la transformation) | fusion (commissaire à la fusion)
      etape : designation | acceptation | pieces | rapport | signature | depot | termine
-     assemblee : date de l'assemblée qui statue sur l'opération ; depotAvant : date limite de dépôt du rapport
-     (règle retenue pour la maquette : au plus tard 8 jours avant l'assemblée, à faire valider par un professionnel)
+     assemblee : date de l'assemblée qui statue sur l'opération ; depotAvant : date limite de mise à disposition du rapport
+     au siège social (faite par la société, après transmission par le commissaire) ; delai : règle applicable selon l'opération
+     dirigeant : signataire de la lettre d'affirmation (pour une fusion : dirigeants des sociétés concernées)
+     accord : accord de la société pour le partage des pièces et la transmission dans la formalité EJ du conseil (null = à recueillir)
+     transmis / miseADisposition : dates de transmission au conseil et de mise à disposition au siège (missions terminées)
      pieces : [reçues, attendues], déposées par le conseil de la société par un lien de dépôt, sans compte
      conseil : cabinet qui prépare l'opération. ej : true s'il utilise Express Juridique (le rapport signé
      rejoint alors directement sa formalité, avec l'accord de la société)
      lab : même structure que les dossiers EC (la file LAB les affiche en profil CAC ou mixte)
-     documents : [libellé, statut a_produire | brouillon | a_signer | signe | depose] */
+     documents : [libellé, statut a_produire | brouillon | a_signer | signe | depose] ; à l'acceptation, rapport et lettre
+     d'affirmation passent en brouillon (modèle du cabinet)
+     dirigeantAbsorbee : fusion, dirigeant de la société absorbée (second signataire de la lettre d'affirmation)
+     conclusions : { libellé du rapport : texte saisi par le signataire } (aucune conclusion rédigée par l'outil)
+     laEnvoi : date d'envoi de la lettre d'affirmation en signature au dirigeant
+     Le rapport est daté du jour de sa signature (la date de finalisation n'est pas la date du rapport). */
   var PONCTUELLES = [
-    { id: "orvane", nom: "ORVANE INDUSTRIES", siren: "834 210 576", forme: "SAS", nature: "apport", signataire: "CD",
+    { id: "orvane", nom: "ORVANE INDUSTRIES", siren: "834 210 576", forme: "SAS", nature: "apport", signataire: "CD", dirigeant: "Bertrand Orvain, Président", delai: { texte: "8 jours au moins avant l'assemblée", ref: "Code de commerce, art. R.225-136" }, accord: null,
       operation: "Augmentation de capital par apport de 100 % des titres de MÉTALIS SAS", valeur: 1850000,
       designation: { mode: "Décision unanime des associés", date: "02/10/2026" }, assemblee: "27/11/2026", depotAvant: "19/11/2026",
       etape: "pieces", pieces: [4, 7], honoraires: 6500,
       conseil: { nom: "CABINET MARCHAL & ASSOCIÉS", ej: true, formalite: "F-2026-0418", libelle: "Augmentation de capital par apport en nature" },
       lm: { statut: "signee", ref: "LM-CAC-2026-014" }, independance: { statut: "a_jour" }, lab: { ouverture: "25/09/2026", criblage: "18/10/2026", risque: "standard", statut: "a_jour", derniereRevue: "02/10/2026", prochaineRevue: "02/10/2028", be: 2, ppe: false, gel: "ok", pieces: [6, 6] },
-      documents: [["Lettre de mission", "signe"], ["Rapport du commissaire aux apports", "a_produire"], ["Lettre d'affirmation", "a_produire"]] },
-    { id: "kerlys", nom: "KERLYS", siren: "752 018 334", forme: "SARL", nature: "transformation", signataire: "CD",
+      documents: [["Lettre de mission", "signe"], ["Rapport du commissaire aux apports", "brouillon"], ["Lettre d'affirmation", "brouillon"]] },
+    { id: "kerlys", nom: "KERLYS", siren: "752 018 334", forme: "SARL", nature: "transformation", signataire: "CD", dirigeant: "Yann Le Gall, gérant", delai: { texte: "8 jours au moins avant l'assemblée", ref: "Code de commerce, art. R.224-3" }, accord: null,
       operation: "Transformation de la SARL en SAS", valeur: null,
       designation: { mode: "Décision unanime des associés", date: "15/09/2026" }, assemblee: "08/12/2026", depotAvant: "30/11/2026",
       etape: "rapport", pieces: [6, 6], honoraires: 3800,
       conseil: { nom: "SELARL VASSEUR AVOCATS", ej: false, formalite: null, libelle: "Transformation de SARL en SAS" },
       lm: { statut: "signee", ref: "LM-CAC-2026-011" }, independance: { statut: "a_jour" }, lab: { ouverture: "10/09/2026", criblage: "18/10/2026", risque: "faible", statut: "a_jour", derniereRevue: "15/09/2026", prochaineRevue: "15/09/2029", be: 1, ppe: false, gel: "ok", pieces: [5, 5] },
-      documents: [["Lettre de mission", "signe"], ["Rapport sur la valeur des biens et la situation nette", "brouillon"], ["Lettre d'affirmation", "a_signer"]] },
-    { id: "brun", nom: "ATELIERS BRUN", siren: "903 556 120", forme: "SAS", nature: "apport", signataire: "CD",
+      documents: [["Lettre de mission", "signe"], ["Rapport sur la valeur des biens et la situation nette", "brouillon"], ["Lettre d'affirmation", "brouillon"]] },
+    { id: "brun", nom: "ATELIERS BRUN", siren: "903 556 120", forme: "SAS", nature: "apport", signataire: "CD", dirigeant: "Henri Brun, Président", delai: { texte: "1 mois au moins avant l'assemblée", ref: "Code de commerce, régime des scissions (apport partiel d'actif)" }, accord: null,
       operation: "Apport partiel d'actif de la branche menuiserie", valeur: 640000,
-      designation: { mode: "Ordonnance du président du tribunal de commerce", date: "16/10/2026" }, assemblee: "15/01/2027", depotAvant: "07/01/2027",
+      designation: { mode: "Ordonnance du président du tribunal de commerce", date: "16/10/2026" }, assemblee: "15/01/2027", depotAvant: "15/12/2026",
       etape: "acceptation", pieces: [0, 8], honoraires: null,
       conseil: { nom: "CABINET MARCHAL & ASSOCIÉS", ej: true, formalite: "F-2026-0431", libelle: "Apport partiel d'actif" },
       lm: { statut: "a_etablir", ref: null }, independance: { statut: "a_faire" }, lab: { ouverture: null, criblage: null, risque: null, statut: "a_ouvrir", derniereRevue: null, prochaineRevue: null, be: 0, ppe: false, gel: "ok", pieces: [0, 5] },
       documents: [["Lettre de mission", "a_produire"], ["Rapport du commissaire aux apports", "a_produire"], ["Lettre d'affirmation", "a_produire"]] },
-    { id: "vetis", nom: "VETIS SANTÉ", siren: "811 470 925", forme: "SAS", nature: "fusion", signataire: "CD",
+    { id: "vetis", nom: "VETIS SANTÉ", siren: "811 470 925", forme: "SAS", nature: "fusion", signataire: "CD", dirigeant: "Claire Vétillard, Présidente", dirigeantAbsorbee: "Marc Delorme, Président", delai: { texte: "1 mois au moins avant l'assemblée", ref: "Code de commerce, régime des fusions" }, accord: { par: "Claire Vétillard, Présidente de VETIS SANTÉ", date: "03/09/2026", perimetre: "Pièces de la formalité F-2026-0396 et transmission du rapport signé dans cette formalité" },
       operation: "Fusion-absorption de SANTÉO DIFFUSION par VETIS SANTÉ", valeur: 2300000,
-      designation: { mode: "Ordonnance du président du tribunal de commerce", date: "01/09/2026" }, assemblee: "05/11/2026", depotAvant: "28/10/2026",
+      designation: { mode: "Ordonnance du président du tribunal de commerce", date: "01/09/2026" }, assemblee: "27/11/2026", depotAvant: "27/10/2026",
       etape: "signature", pieces: [9, 9], honoraires: 9200,
       conseil: { nom: "CABINET MARCHAL & ASSOCIÉS", ej: true, formalite: "F-2026-0396", libelle: "Fusion-absorption" },
       lm: { statut: "signee", ref: "LM-CAC-2026-009" }, independance: { statut: "a_jour" }, lab: { ouverture: "25/08/2026", criblage: "18/10/2026", risque: "standard", statut: "a_jour", derniereRevue: "01/09/2026", prochaineRevue: "01/09/2028", be: 2, ppe: false, gel: "ok", pieces: [6, 6] },
-      documents: [["Lettre de mission", "signe"], ["Rapport sur la valeur des apports", "a_signer"], ["Rapport sur la rémunération des apports", "a_signer"], ["Lettre d'affirmation", "signe"]] },
-    { id: "pomone", nom: "POMONE PRIMEURS", siren: "790 335 618", forme: "SARL", nature: "transformation", signataire: "CD",
+      documents: [["Lettre de mission", "signe"], ["Rapport sur la valeur des apports", "a_signer"], ["Rapport sur la rémunération des apports", "a_signer"], ["Lettre d'affirmation", "a_signer"]],
+      laEnvoi: "16/10/2026",
+      conclusions: {
+        "Rapport sur la valeur des apports": "Sur la base de nos travaux, nous n'avons pas relevé d'élément de nature à remettre en cause la valeur globale des apports retenue, soit 2 300 000 €. Nous estimons que cette valeur n'est pas surévaluée et qu'elle est au moins égale à l'augmentation de capital de la société absorbante, majorée de la prime de fusion.",
+        "Rapport sur la rémunération des apports": "Sur la base de nos travaux, nous estimons que le rapport d'échange retenu par les parties présente un caractère équitable. Les méthodes d'évaluation mises en œuvre nous paraissent pertinentes au regard des caractéristiques des deux sociétés.",
+      } },
+    { id: "pomone", nom: "POMONE PRIMEURS", siren: "790 335 618", forme: "SARL", nature: "transformation", signataire: "CD", dirigeant: "Rachid Benamar, gérant", delai: { texte: "8 jours au moins avant l'assemblée", ref: "Code de commerce, art. R.224-3" }, accord: null,
       operation: "Transformation de la SARL en SAS", valeur: null,
       designation: { mode: "Décision unanime des associés", date: "08/07/2026" }, assemblee: "30/09/2026", depotAvant: "22/09/2026",
-      etape: "termine", pieces: [6, 6], honoraires: 3200,
+      etape: "termine", pieces: [6, 6], honoraires: 3200, transmis: "18/09/2026", miseADisposition: "21/09/2026",
       conseil: { nom: "SELARL VASSEUR AVOCATS", ej: false, formalite: null, libelle: "Transformation de SARL en SAS" },
       lm: { statut: "signee", ref: "LM-CAC-2026-006" }, independance: { statut: "a_jour" }, lab: { ouverture: "01/07/2026", criblage: "18/10/2026", risque: "faible", statut: "a_jour", derniereRevue: "08/07/2026", prochaineRevue: "08/07/2029", be: 1, ppe: false, gel: "ok", pieces: [5, 5] },
       documents: [["Lettre de mission", "signe"], ["Rapport sur la valeur des biens et la situation nette", "depose"], ["Lettre d'affirmation", "signe"]] },
   ];
+
+  /* Missions ponctuelles créées pendant la session (cac.html, « Nouvelle mission ponctuelle ») :
+     sessionStorage["ej-cac-nouvelles"] = tableau d'objets de même forme, étape "designation". */
+  try {
+    var NOUV = JSON.parse(window.sessionStorage.getItem("ej-cac-nouvelles") || "[]");
+    if (Array.isArray(NOUV)) NOUV.forEach(function (m) {
+      if (m && m.id && !PONCTUELLES.some(function (x) { return x.id === m.id; })) PONCTUELLES.push(m);
+    });
+  } catch (e) { /* stockage indisponible : missions de démonstration seules */ }
+
+  /* Avancement des missions ponctuelles pendant la session : source unique, écrite par cac-mission.html
+     (sessionStorage["ej-cac-ponctuelles"] = { id: état }). Appliqué ici, toutes les pages qui chargent ce fichier
+     (liste CAC, cockpit, fiche) voient le même avancement. m._origine garde les données d'avant la session :
+     la fiche s'en sert pour dériver son journal sans appliquer deux fois l'avancement. */
+  var CHAMPS_AVANCEMENT = ["etape", "pieces", "documents", "lm", "independance", "honoraires", "accord", "accordDemande",
+    "transmis", "miseADisposition", "relances", "laEnvoi", "laSignee", "conclusions", "dateRapport"];
+  try {
+    var AV = JSON.parse(window.sessionStorage.getItem("ej-cac-ponctuelles") || "{}") || {};
+    PONCTUELLES.forEach(function (m) {
+      var s = AV[m.id];
+      if (!s || s.v !== 3) return;
+      m._origine = JSON.parse(JSON.stringify(m));
+      CHAMPS_AVANCEMENT.forEach(function (k) {
+        if (s[k] !== undefined) m[k] = JSON.parse(JSON.stringify(s[k]));
+      });
+    });
+  } catch (e) { /* stockage indisponible : avancement des données de démonstration */ }
 
   /* Bibliothèque de prestations (lettres de mission). Prix indicatifs du cabinet fictif. */
   var PRESTATIONS = [
@@ -251,8 +291,36 @@
       return PONCTUELLES.filter(function (m) { return m.id === id; })[0] || null;
     },
     NATURE: { apport: "Commissariat aux apports", transformation: "Commissariat à la transformation", fusion: "Commissariat à la fusion" },
-    ETAPE: { designation: "Désignation", acceptation: "Acceptation", pieces: "Pièces", rapport: "Rapport", signature: "Signature", depot: "Dépôt", termine: "Terminée" },
+    ETAPE: { designation: "Désignation", acceptation: "Acceptation", pieces: "Pièces", rapport: "Rapport", signature: "Signature", depot: "Transmission", termine: "Terminée" },
     DOC_STATUT: { a_produire: "À produire", brouillon: "Brouillon", a_signer: "À signer", signe: "Signé", depose: "Déposé" },
+    /* Verbe canonique d'une mission ponctuelle : l'action principale du bloc « À faire » de cac-mission.html.
+       labAJour : état réel du dossier LAB (module LAB). Retour : { lib, ancre } ; ancre = lien à ouvrir. */
+    verbePonctuelle: function (m, labAJour) {
+      var fiche = "cac-mission.html?id=" + encodeURIComponent(m.id) + "#afaire";
+      function v(lib) { return { lib: lib, ancre: fiche }; }
+      var e = m.etape, lm = m.lm || {}, ind = m.independance || {}, cs = m.conseil || {};
+      if (e === "designation") return v("Accepter la mission");
+      if (e === "acceptation") {
+        if (!labAJour) return { lib: "Voir le dossier LAB", ancre: "lab-dossier.html?id=" + encodeURIComponent(m.id) + "&from=mission" };
+        if (ind.statut !== "a_jour") return v("Signer la déclaration d'indépendance");
+        if (lm.statut === "brouillon") return v("Envoyer la lettre pour signature");
+        if (lm.statut === "envoyee") return v("Relancer la société");
+        if (lm.statut !== "signee") return v("Établir la lettre de mission");
+        return v("Accepter la mission");
+      }
+      if (e === "pieces") return v("Relancer le conseil");
+      if (e === "rapport") return v("Finaliser le rapport");
+      if (e === "signature") {
+        var la = (m.documents || []).filter(function (d) { return d[0] === "Lettre d'affirmation"; })[0];
+        if (la && la[1] !== "signe") return v(m.laEnvoi ? "Relancer le dirigeant" : "Envoyer en signature");
+        return v("Signer le rapport");
+      }
+      if (e === "depot") {
+        if (m.transmis) return v("Enregistrer la mise à disposition");
+        return v(cs.ej && cs.formalite && m.accord ? "Transmettre dans la formalité " + cs.formalite : "Transmettre au conseil");
+      }
+      return { lib: "Consulter la mission", ancre: "cac-mission.html?id=" + encodeURIComponent(m.id) };
+    },
     findMandat: function (id) {
       return MANDATS.filter(function (m) { return m.id === id; })[0] || null;
     },

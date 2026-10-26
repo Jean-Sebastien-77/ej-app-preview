@@ -74,9 +74,15 @@
   /* Qui valide la revue : l'associé signataire de la mission ; le responsable LAB du cabinet
      seulement pour une PPE, un risque élevé ou une homonymie à lever sur le gel des avoirs. */
   /* risqueRetenu (facultatif) : niveau choisi dans une revue en cours, à la place du niveau actuel du dossier */
+  /* Responsable LAB compétent pour un dossier : celui du commissariat aux comptes pour une entité CAC
+     (mandat ou mission ponctuelle), celui de l'expertise comptable pour un client EC, même en cabinet mixte */
+  function responsableLabDe(s) {
+    return E.responsableLab(estCAC(s) ? "cac" : "ec");
+  }
+  /* profil : gardé pour la compatibilité des appels (le responsable LAB dépend du dossier, pas du profil affiché) */
   function validateur(s, profil, risqueRetenu) {
     var L = s.lab || {};
-    var rlab = E.responsableLab(profil || window.EJ_PROFIL);
+    var rlab = responsableLabDe(s);
     var risque = risqueRetenu || L.risque;
     var raison = L.ppe ? "ppe" : risque === "eleve" ? "eleve" : L.gel === "a_verifier" ? "homonymie" : null;
     var code = raison ? rlab : estCAC(s) ? s.signataire : s.associe || rlab;
@@ -212,20 +218,15 @@
   function sourceActes(s) {
     var L = s.lab;
     var dInpi = L.criblage || L.ouverture || E.today;
-    if (estPonctuelle(s)) return s.conseil && s.conseil.ej && s.conseil.formalite ? ["Formalité " + s.conseil.formalite, L.ouverture || E.today] : ["Connecteur INPI", dInpi];
+    /* Mission ponctuelle : statuts et procès-verbaux repris de la formalité EJ du conseil seulement avec l'accord de la société ;
+       sans accord, ils sont demandés (null) */
+    if (estPonctuelle(s)) return s.conseil && s.conseil.ej && s.conseil.formalite && s.accord ? ["Formalité " + s.conseil.formalite, s.accord.date || L.ouverture || E.today] : null;
     if (estMandat(s)) return ["Connecteur INPI", dInpi];
     var f = (L.changements || []).filter(function (c) { return /^Formalité/.test(c[2]); });
     return f.length ? [f[f.length - 1][2], f[f.length - 1][0]] : ["Formalités EJ", L.ouverture || E.today];
   }
   var ID_BE = "Pièces d'identité des bénéficiaires effectifs";
   var ID_DIR = "Pièce d'identité du dirigeant";
-  /* Formalité EJ où la pièce d'identité du dirigeant a été versée (numéro fictif, stable par dossier) */
-  function formaliteIdentite(s) {
-    var h = 0;
-    for (var i = 0; i < s.id.length; i++) h = (h * 31 + s.id.charCodeAt(i)) % 900;
-    var d = s.lab.ouverture || E.today;
-    return ["Formalité F-" + d.split("/")[2] + "-0" + (100 + h), d];
-  }
   function nomDirigeant(s) {
     var F = fiche(s.id);
     return F ? F[2].split(",")[0].trim() : "";
@@ -253,20 +254,13 @@
     var holding = /^Holding/.test(act);
     var dInpi = L.criblage || L.ouverture || E.today;
     var actes = sourceActes(s);
-    var rep = [
-      ["Extrait RNE", "tient lieu d'extrait Kbis", "Connecteur INPI", dInpi],
-      ["Statuts à jour et procès-verbaux", "", actes[0], actes[1]],
-    ];
-    /* Pièce d'identité du dirigeant : reprise seulement si EJ en détient une copie versée lors d'une formalité (client EC) */
-    if (clientEC) {
-      var fi = formaliteIdentite(s);
-      rep.push(["Identité du dirigeant", "pièce d'identité versée lors d'une formalité", fi[0], fi[1]]);
-    }
-    /* Reprises complémentaires, seulement si le total attendu le demande */
+    /* Seules reprises d'EJ : extrait RNE (connecteur INPI), statuts et procès-verbaux du dossier, extrait du RBE.
+       La pièce d'identité du dirigeant est toujours demandée au client (une pièce versée pour une formalité ne change pas de finalité). */
+    var rep = [["Extrait RNE", "tient lieu d'extrait Kbis", "Connecteur INPI", dInpi]];
+    if (actes) rep.push(["Statuts à jour et procès-verbaux", "", actes[0], actes[1]]);
     var extras = [["Extrait du registre des bénéficiaires effectifs", "accès réservé aux professionnels assujettis", "Connecteur INPI", dInpi]];
-    if (clientEC && (s.forme === "SAS" || s.forme === "SA")) extras.push(["Registre des mouvements de titres", "", "Registres EJ", actes[1]]);
-    var dem = [[ATTESTATION, "à signer électroniquement par le dirigeant"]];
-    if (!clientEC) dem.push([ID_DIR, dirNom]);
+    var dem = [[ATTESTATION, "à signer électroniquement par le dirigeant"], [ID_DIR, dirNom]];
+    if (!actes) dem.push(["Statuts à jour et procès-verbaux", "à fournir par la société"]);
     /* Identités des bénéficiaires effectifs autres que le dirigeant (sa pièce est déjà reprise ou demandée) */
     if (!BE.length) dem.push([ID_BE, "en attente de l'identification des bénéficiaires effectifs"]);
     else if (autresBE.length) dem.push([ID_BE, autresBE.join(", ")]);
@@ -295,19 +289,61 @@
     return d;
   }
   /* État des pièces demandées : reçue, manquante, ou reçue avant un changement de bénéficiaire effectif (à renouveler) */
-  function etatPieces(s) {
-    var l = listesPieces(s), P = s.lab.pieces;
+  /* L'attestation PPE et bénéficiaires effectifs est renouvelée à chaque revue : signée lors de la dernière revue validée ;
+     revue échue : envoyée à la signature par EJ à l'échéance, signée deux jours plus tard. Un changement de bénéficiaire
+     effectif relevé depuis la dernière revue rend l'attestation et les identités des bénéficiaires à renouveler.
+     Une pièce à renouveler n'est pas reçue : elle compte parmi les manquantes. date : date de la pièce si connue (sinon null). */
+  function etatDemandees(s) {
+    var l = listesPieces(s), L = s.lab, P = L.pieces;
+    var marques = piecesMarquees(s.id);
     var nRec = Math.max(0, Math.min(P[1], Math.max(P[0], l.reprises.length)) - l.reprises.length);
     var chBE = changementBE(s);
+    var rs = revueSession(s.id);
+    var dRev = rs ? rs.avant.derniereRevue : L.derniereRevue;
+    var renouv = L.statut === "a_revoir" && L.prochaineRevue ? plusJours(L.prochaineRevue, 2) : null;
+    if (renouv && dt(renouv) > dt(E.today)) renouv = null;
     return l.demandees.map(function (p, j) {
       var recue = j < nRec;
+      var date = null;
+      if (recue && p[0] === ATTESTATION) date = rs ? rs.date : renouv && !chBE ? renouv : dRev && L.ouverture && dt(dRev) > dt(L.ouverture) ? dRev : null;
       var perime = recue && chBE && (p[0] === ATTESTATION || p[0] === ID_BE) ? chBE : null;
-      return { lib: p[0], det: perime ? "à renouveler : changement de bénéficiaire effectif du " + chBE : p[1], recue: recue && !perime, perime: perime, rang: l.reprises.length + j };
+      if (perime && p[0] === ATTESTATION) date = dRev && L.ouverture && dt(dRev) > dt(L.ouverture) ? dRev : null;
+      var m = marques[p[0]];
+      /* Pièce reçue pendant la session (marquée ou déposée) : reçue à cette date */
+      if (m && (!recue || perime)) return { lib: p[0], det: p[1], recue: true, perime: null, date: m.date, renouvelee: false, marquee: m, rang: l.reprises.length + j };
+      return { lib: p[0], det: perime ? "changement de bénéficiaire effectif du " + chBE : p[1], recue: recue && !perime, perime: perime, date: date, renouvelee: !!(recue && !perime && p[0] === ATTESTATION && renouv && !rs), rang: l.reprises.length + j };
     });
+  }
+  /* Règle unique des pièces d'un dossier (file, fiche, cockpit, fiches de mission, collectes) :
+     { attendues, recues, manquantes, aRenouveler, liste } ; liste = pièces reprises d'EJ puis pièces demandées */
+  function etatPieces(s) {
+    var rep = piecesReprises(s), dem = etatDemandees(s);
+    var manq = dem.filter(function (e) { return !e.recue; });
+    var liste = rep.map(function (p, i) { return { lib: p[0], det: p[1], recue: true, reprise: true, source: p[2], date: p[3], rang: i }; }).concat(dem);
+    return {
+      attendues: s.lab.pieces[1],
+      recues: s.lab.pieces[1] - manq.length,
+      manquantes: manq.length,
+      aRenouveler: manq.filter(function (e) { return !!e.perime; }).length,
+      liste: liste,
+    };
+  }
+  /* Pièces reçues pendant la session : marquées « reçue » ou déposées dans la fiche (sessionStorage « ej-lab-pieces ») */
+  var CLE_PIECES = "ej-lab-pieces";
+  function piecesMarquees(id) {
+    var t = objet(CLE_PIECES);
+    return t[id] && typeof t[id] === "object" ? t[id] : {};
+  }
+  function marquerRecue(s, lib, par, fichier) {
+    var t = objet(CLE_PIECES);
+    if (!t[s.id] || typeof t[s.id] !== "object") t[s.id] = {};
+    t[s.id][lib] = { date: E.today, par: par || "", fichier: fichier || "" };
+    ecrire(CLE_PIECES, t);
+    return t[s.id][lib];
   }
   /* Pièces d'identification manquantes (attestation, identités) : elles bloquent la validation d'une revue */
   function identificationManquante(s) {
-    return etatPieces(s).filter(function (e) { return !e.recue && (e.lib === ATTESTATION || e.lib === ID_BE || e.lib === ID_DIR); }).map(function (e) { return e.lib; });
+    return etatDemandees(s).filter(function (e) { return !e.recue && (e.lib === ATTESTATION || e.lib === ID_BE || e.lib === ID_DIR); }).map(function (e) { return e.lib; });
   }
   function piecesReprises(s) {
     return listesPieces(s).reprises;
@@ -325,7 +361,7 @@
   }
   /* Pièces demandées au client et pas encore reçues : seules celles-ci sont à collecter */
   function piecesManquantes(s) {
-    return etatPieces(s).filter(function (e) { return !e.recue; }).map(function (e) { return [e.lib, e.det]; });
+    return etatDemandees(s).filter(function (e) { return !e.recue; }).map(function (e) { return [e.lib, e.det]; });
   }
   function nbManquantes(s) {
     return piecesManquantes(s).length;
@@ -374,12 +410,12 @@
     var rs = revueSession(s.id);
     var risque = rs && rs.avant && rs.avant.risque !== undefined ? rs.avant.risque : L.risque;
     var raison = L.ppe ? "ppe" : risque === "eleve" ? "eleve" : null;
-    var code = raison ? E.responsableLab(estCAC(s) ? "cac" : "ec") : estCAC(s) ? s.signataire : s.associe || E.responsableLab("ec");
+    var code = raison ? responsableLabDe(s) : estCAC(s) ? s.signataire : s.associe || E.responsableLab("ec");
     var m = E.equipe[code];
     return { code: code, nom: m.nom, role: m.role, raison: raison, responsableLab: !!raison };
   }
   function appliquerRevue(s, r) {
-    s.lab.statut = r.conclusion === "fin" ? "fin_relation" : "a_jour";
+    s.lab.statut = r.conclusion === "fin" && !estCAC(s) ? "fin_relation" : "a_jour";
     s.lab.derniereRevue = r.date;
     s.lab.prochaineRevue = r.prochaine;
     if (r.risque) s.lab.risque = r.risque;
@@ -388,7 +424,7 @@
     var L = s.lab;
     o = o || {};
     var risque = o.risque || L.risque;
-    var fin = o.conclusion === "fin";
+    var fin = o.conclusion === "fin" && !estCAC(s);
     /* La périodicité suit le risque retenu (grille du cabinet), sauf ajustement reconduit (o.mois) ; fin de relation : plus de revue */
     var mois = fin ? 0 : o.mois || (risque ? GRILLE_MOIS[risque] : periodiciteMois(L));
     var r = {
@@ -402,6 +438,7 @@
       conclusion: o.conclusion || "poursuivre",
       commentaire: o.commentaire || "",
       criteres: o.criteres || {},
+      verifPPE: o.verifPPE || null,
       avant: { statut: L.statut, derniereRevue: L.derniereRevue, prochaineRevue: L.prochaineRevue, risque: L.risque },
     };
     var tout = revuesSession();
@@ -415,7 +452,24 @@
     appliquerRevue(s, r);
     return r;
   }
-  var CONCLUSIONS = { poursuivre: "Poursuivre la relation", renforcer: "Renforcer la vigilance", fin: "Mettre fin à la relation" };
+  var CONCLUSIONS = {
+    poursuivre: "Poursuivre la relation",
+    renforcer: "Renforcer la vigilance",
+    fin: "Mettre fin à la relation",
+    poursuivreMission: "Poursuivre la mission",
+    demission: "Envisager la démission",
+    interrompre: "Refuser ou interrompre la mission",
+  };
+  /* Conclusions possibles d'une revue : [code, libellé]. Mandat légal : la démission n'est possible que pour un motif légitime ;
+     mission ponctuelle : refus ou interruption ; « Mettre fin à la relation » est réservé aux clients en expertise comptable. */
+  function conclusions(s) {
+    if (estPonctuelle(s)) return [["poursuivreMission", CONCLUSIONS.poursuivreMission], ["renforcer", CONCLUSIONS.renforcer], ["interrompre", CONCLUSIONS.interrompre]];
+    if (estCAC(s)) return [["poursuivre", CONCLUSIONS.poursuivre], ["renforcer", CONCLUSIONS.renforcer], ["demission", CONCLUSIONS.demission]];
+    return [["poursuivre", CONCLUSIONS.poursuivre], ["renforcer", CONCLUSIONS.renforcer], ["fin", CONCLUSIONS.fin]];
+  }
+  function libConclusion(c) {
+    return CONCLUSIONS[c] || CONCLUSIONS.poursuivre;
+  }
 
   /* ---------- Demandes de validation (revue préparée par un autre que le validateur) ---------- */
   var CLE_DEMANDES = "ej-lab-demandes";
@@ -428,7 +482,7 @@
   function demanderValidation(s, par, a, o) {
     var d = demandes();
     o = o || {};
-    d[s.id] = { date: E.today, par: par, code: o.code || "", a: a, aCode: o.aCode || "", risque: o.risque || s.lab.risque, conclusion: o.conclusion || "poursuivre", commentaire: o.commentaire || "", criteres: o.criteres || {}, mois: o.mois || 0, ajustement: o.ajustement || "", renvoi: null };
+    d[s.id] = { date: E.today, par: par, code: o.code || "", a: a, aCode: o.aCode || "", risque: o.risque || s.lab.risque, conclusion: o.conclusion || "poursuivre", commentaire: o.commentaire || "", criteres: o.criteres || {}, mois: o.mois || 0, ajustement: o.ajustement || "", verifPPE: o.verifPPE || null, renvoi: null };
     ecrire(CLE_DEMANDES, d);
     return d[s.id];
   }
@@ -567,6 +621,25 @@
     l.push(c);
     ecrire(CLE_COLLECTES, l);
     return c;
+  }
+  /* Relances de collecte : { collecte, societeId, date, par } (sessionStorage « ej-collectes-relances ») */
+  var CLE_RELANCES = "ej-collectes-relances";
+  function relances() {
+    var l = lire(CLE_RELANCES);
+    return Array.isArray(l) ? l : [];
+  }
+  function relancesDe(societeId) {
+    return relances().filter(function (r) { return r && r.societeId === societeId; });
+  }
+  function relancesCollecte(collecteId) {
+    return relances().filter(function (r) { return r && r.collecte === collecteId; });
+  }
+  function relancerCollecte(collecteId, societeId, par) {
+    var l = relances();
+    var r = { collecte: collecteId, societeId: societeId, date: E.today, par: par || "" };
+    l.push(r);
+    ecrire(CLE_RELANCES, l);
+    return r;
   }
   /* Demande de pièces initiale (au journal du dossier) : envoyée deux jours après l'ouverture d'un dossier incomplet */
   function demandeInitiale(s) {
@@ -791,6 +864,7 @@
     estPonctuelle: estPonctuelle,
     dossiers: dossiers,
     validateur: validateur,
+    responsableLabDe: responsableLabDe,
     trouver: trouver,
     fiche: fiche,
     activite: activite,
@@ -799,6 +873,11 @@
     piecesAttendues: piecesAttendues,
     piecesReprises: piecesReprises,
     etatPieces: etatPieces,
+    etatDemandees: etatDemandees,
+    piecesMarquees: piecesMarquees,
+    marquerRecue: marquerRecue,
+    /* Option Pappers KYC (vérification PPE automatique) : inactive dans ce cabinet */
+    kycPappers: false,
     identificationManquante: identificationManquante,
     changementBE: changementBE,
     ID_BE: ID_BE,
@@ -814,6 +893,11 @@
     revueSession: revueSession,
     validerRevue: validerRevue,
     CONCLUSIONS: CONCLUSIONS,
+    conclusions: conclusions,
+    libConclusion: libConclusion,
+    relancesDe: relancesDe,
+    relancesCollecte: relancesCollecte,
+    relancerCollecte: relancerCollecte,
     demandeValidation: demandeValidation,
     demanderValidation: demanderValidation,
     retirerDemande: retirerDemande,

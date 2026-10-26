@@ -514,3 +514,164 @@
     animation: none !important;
   }
 }
+
+/* ---------- Frise d'étapes d'une mission (fiche mission ponctuelle CAC, réutilisable) ----------
+   <section class="card frise-etapes" aria-labelledby="fe-titre">
+     <h2 class="fe-titre" id="fe-titre">Progression · Étape 3 sur 6</h2>
+     <ol class="fe-list" style="--fe-n: 6">
+       <li class="fe-step is-done fe-seg-done">
+         <span class="fe-mark" aria-hidden="true"><span class="ms">check</span></span>
+         <span class="fe-txt"><span class="fe-lib">Pièces<span class="sr-only">, faite</span></span><span class="fe-sub">Fait le 12/10/2026</span></span>
+       </li>
+       <li class="fe-step is-current" aria-current="step">…</li>
+     </ol>
+   </section>
+   - États : is-done (pastille pleine cochée), is-current (anneau), is-todo (cercle vide).
+   - Étape en cours : is-blocked (cadenas, couleur avertissement), is-late (couleur erreur), is-alert (échéance proche).
+   - fe-seg-done : le trait qui part de l'étape vers la suivante est plein et coloré (jusqu'à l'étape en cours),
+     sinon pointillé neutre.
+   - Verticale sous 900 px, horizontale au-delà. Traits et pastilles à 3:1 au moins, textes à 4,5:1 au moins. */
+.frise-etapes {
+  padding: 18px 22px 20px;
+  margin-bottom: 16px;
+}
+.fe-titre {
+  margin-bottom: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ej-primary-900);
+}
+.fe-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+.fe-step {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  padding-bottom: 16px;
+}
+.fe-step:last-child {
+  padding-bottom: 0;
+}
+.fe-mark {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ej-white);
+  border: 2px solid var(--ej-neutral-500);
+  color: var(--ej-neutral-500);
+}
+.fe-mark .ms {
+  font-size: 15px;
+}
+.fe-step::after {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 32px;
+  bottom: 4px;
+  border-left: 2px dashed var(--ej-neutral-500);
+}
+.fe-step:last-child::after {
+  display: none;
+}
+.fe-step.fe-seg-done::after {
+  border-left-style: solid;
+  border-left-color: var(--ej-success-600);
+}
+.fe-txt {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding-top: 3px;
+}
+.fe-lib {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ej-primary-900);
+}
+.fe-sub {
+  margin-top: 1px;
+  font-size: 12.5px;
+  color: var(--ej-neutral-500);
+}
+.fe-step.is-done .fe-mark {
+  background: var(--ej-success-600);
+  border-color: var(--ej-success-600);
+  color: var(--ej-white);
+}
+.fe-step.is-current .fe-mark {
+  border-color: var(--ej-action-600);
+  background: var(--ej-action-600);
+  box-shadow: inset 0 0 0 5px var(--ej-white);
+}
+.fe-step.is-current .fe-lib {
+  color: var(--ej-action-700);
+}
+.fe-step.is-todo .fe-lib {
+  font-weight: 500;
+  color: var(--ej-neutral-600);
+}
+.fe-step.is-alert .fe-sub {
+  font-weight: 600;
+  color: var(--ej-warning-600);
+}
+.fe-step.is-blocked .fe-mark {
+  background: var(--ej-white);
+  border-color: var(--ej-warning-600);
+  color: var(--ej-warning-600);
+  box-shadow: none;
+}
+.fe-step.is-blocked .fe-lib,
+.fe-step.is-blocked .fe-sub {
+  color: var(--ej-warning-600);
+}
+.fe-step.is-late .fe-mark {
+  background: var(--ej-error-600);
+  border-color: var(--ej-error-600);
+  color: var(--ej-white);
+  box-shadow: none;
+}
+.fe-step.is-late .fe-lib,
+.fe-step.is-late .fe-sub {
+  color: var(--ej-error-600);
+}
+@media (min-width: 900px) {
+  .fe-list {
+    display: grid;
+    grid-template-columns: repeat(var(--fe-n, 6), minmax(0, 1fr));
+  }
+  .fe-step {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 0 6px;
+    text-align: center;
+  }
+  .fe-step::after {
+    left: calc(50% + 18px);
+    right: calc(-50% + 18px);
+    top: 13px;
+    bottom: auto;
+    border-left: none;
+    border-top: 2px dashed var(--ej-neutral-500);
+  }
+  .fe-step.fe-seg-done::after {
+    border-top-style: solid;
+    border-top-color: var(--ej-success-600);
+  }
+  .fe-txt {
+    align-items: center;
+    padding-top: 0;
+  }
+}

@@ -94,8 +94,8 @@
     '<a class="ej-logo" href="accueil.html" aria-label="Express Juridique, accueil"><img src="assets/ej-logo.svg" alt="Express Juridique" /></a>' +
     '<div class="header-right">' +
     '<div class="dropdown" data-dropdown>' +
-    '<button class="header-profil" type="button" aria-haspopup="true" title="Profil de démonstration"><span class="ms">eye</span><span class="hp-label">' + profilLabel + '</span><span class="ms">expand_more</span></button>' +
-    '<div class="dropdown-menu"><div class="dropdown-head">Profil de démonstration (maquette)</div>' +
+    '<button class="header-profil" type="button" aria-haspopup="true" title="Changer de vue"><span class="ms">eye</span><span class="hp-label">' + profilLabel + '</span><span class="ms">expand_more</span></button>' +
+    '<div class="dropdown-menu"><div class="dropdown-head">Vue par activité</div>' +
     PROFILS.map(function (p) {
       return '<a class="dropdown-item' + (p.id === profil ? " current" : "") + '" href="#" data-profil="' + p.id + '"><span class="ms">' + (p.id === profil ? "check" : "dot") + "</span>" + p.label + "</a>";
     }).join("") +

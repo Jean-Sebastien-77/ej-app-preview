@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=19" />
-    <link rel="stylesheet" href="assets/ej-missions.css?v=21" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=23" />
     <style>
       /* ---------- Sections numérotées (pattern nouvelle-formalite.html) ---------- */
       .nf-section {
@@ -128,6 +128,18 @@
       }
       .lm-cond .form-helper.warn {
         color: var(--ej-warning-600);
+      }
+      .lm-antidate {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 16px;
+      }
+      .lm-antidate[hidden] {
+        display: none;
+      }
+      .lm-antidate .alert {
+        font-size: 13.5px;
       }
 
       /* ---------- Mise en page : formulaire + aperçu ---------- */
@@ -790,7 +802,7 @@
               <section class="card nf-section">
                 <span class="list-icon"><span class="ms">building_2</span></span>
                 <div class="nf-body">
-                  <div class="nf-title"><span class="nf-num">1</span><span>Client</span><span class="info-tip" data-tip="bas"><button type="button" class="info-tip-btn" aria-describedby="note-client" aria-label="Information"><span class="ms">info</span></button><span class="info-tip-pop" role="tooltip" id="note-client">Identité du client reprise du DPJ de la société : vous n'avez rien à ressaisir.</span></span></div>
+                  <div class="nf-title"><span class="nf-num">1</span><span>Client</span><span class="info-tip" data-tip="bas"><button type="button" class="info-tip-btn" aria-describedby="note-client" aria-label="Information"><span class="ms">info</span></button><span class="info-tip-pop" role="tooltip" id="note-client">Identité du client reprise du dossier permanent juridique (DPJ) de la société : vous n'avez rien à ressaisir.</span></span></div>
                   <div class="form-group lm-mt">
                     <label class="form-label" for="lm-soc">Société concernée</label>
                     <select class="form-input" id="lm-soc"></select>
@@ -862,7 +874,7 @@
                       </select>
                     </div>
                     <div class="form-group">
-                      <label class="form-label" for="f-cab">Associé signataire</label>
+                      <label class="form-label" for="f-cab">Signataire du cabinet</label>
                       <select class="form-input" id="f-cab"></select>
                     </div>
                     <div class="form-group">
@@ -870,6 +882,10 @@
                       <input class="form-input" type="text" id="f-client" placeholder="Dirigeant de la société" />
                     </div>
                     <label class="check"><input type="checkbox" id="f-cg" checked />Joindre les conditions générales du cabinet en annexe</label>
+                  </div>
+                  <div class="lm-antidate" id="f-antidate" hidden>
+                    <div class="alert alert-warning"><span class="ms">warning</span><div id="f-antidate-txt"></div></div>
+                    <label class="check"><input type="checkbox" id="f-antidate-ok" /><span id="f-antidate-lbl"></span></label>
                   </div>
                 </div>
               </section>
@@ -888,7 +904,6 @@
           <!-- Barre d'action collante -->
           <div class="nf-bar">
             <div class="lm-bar-info">
-              <span class="badge badge-neutral" id="bar-badge">Nouvelle lettre</span>
               <span class="lm-bar-total" id="bar-total"></span>
             </div>
             <div class="lm-bar-msg" id="bar-msg"></div>
@@ -901,7 +916,7 @@
 
     <div class="lm-toast" id="lm-toast" role="status" aria-live="polite"><span class="ms">check_circle</span><span id="lm-toast-txt"></span></div>
 
-    <script src="assets/ej-missions-data.js?v=22"></script>
+    <script src="assets/ej-missions-data.js?v=24"></script>
     <script>
       (function () {
         var E = window.EJM;
@@ -984,8 +999,12 @@
         }
         /* Nouvelle lettre ou brouillon : prise d'effet au début de l'exercice qui suit la clôture à venir */
         function effetParDefaut(soc) { return jourSuivant(clotureApres(soc, AUJOURDHUI, false)); }
-        /* Renouvellement : l'exercice commence le lendemain de l'échéance réelle */
-        function effetRenouvellement(lm) { return jourSuivant(parseFr(lm.echeance)); }
+        /* Renouvellement : l'exercice commence le lendemain de l'échéance, sans remonter avant aujourd'hui
+           (une date antérieure se choisit à la main et demande une confirmation) */
+        function effetRenouvellement(lm) {
+          var d = jourSuivant(parseFr(lm.echeance));
+          return d < AUJOURDHUI ? AUJOURDHUI : d;
+        }
         function joursAvant(dateFr) { return Math.round((parseFr(dateFr) - AUJOURDHUI) / 86400000); }
         function clotureLabel(soc) {
           var p = soc.cloture.split("/");
@@ -1026,6 +1045,7 @@
           effet: "",
           duree: "tacite",
           signCab: "TG",
+          antidateConf: "", /* date d'effet antérieure à aujourd'hui confirmée par l'utilisateur */
           signClient: "",
           cg: true,
           ref: null,
@@ -1064,6 +1084,12 @@
           if ((S.mode === "signee" || S.mode === "a_renouveler") && S.signee) return S.signee;
           if (S.mode === "envoyee" && S.envoyee) return S.envoyee;
           return E.today;
+        }
+        /* Date d'effet choisie avant aujourd'hui : période exécutée sans lettre, à confirmer */
+        function antidate() {
+          if (!S.effet || S.periodeFin || isLocked()) return null;
+          var d = parseIso(S.effet);
+          return d < AUJOURDHUI ? { du: fmt(d), au: E.today } : null;
         }
         function isLocked() { return S.mode === "envoyee" || S.mode === "signee" || S.mode === "a_renouveler"; }
 
@@ -1117,9 +1143,20 @@
           resetRows(MODELE_PREST[id] || []);
         }
 
+        /* Signataires possibles d'une lettre de mission d'expertise comptable : associés experts-comptables */
+        function signataires() {
+          return Object.keys(E.equipe).filter(function (k) {
+            var r = E.equipe[k].role;
+            return /^Associ/.test(r) && r.indexOf("expert-comptable") !== -1;
+          });
+        }
         function ouvrirSociete(id) {
           S.id = id;
           S.signClient = dirigeant() ? dirigeant().nom : "";
+          /* Par défaut, l'associé de la société signe la lettre */
+          var so = socParId(id);
+          var possibles = signataires();
+          S.signCab = so && possibles.indexOf(so.associe) !== -1 ? so.associe : possibles[0];
         }
 
         /* ---------- Initialisation selon l'URL ---------- */
@@ -1146,16 +1183,19 @@
           ouvrirSociete(socUrl.id);
           S.lm = socUrl.lm;
           S.modele = modeleSuggere(socUrl);
-          if (socUrl.lm.statut === "absente") {
+          /* Une lettre signée dont l'échéance est dépassée est « À renouveler » */
+          var stLm = socUrl.lm.statut;
+          if (stLm === "signee" && joursAvant(socUrl.lm.echeance) < 0) stLm = "a_renouveler";
+          if (stLm === "absente") {
             S.effet = iso(effetParDefaut(socUrl));
             appliquerModele(S.modele);
           } else {
-            S.mode = socUrl.lm.statut;
+            S.mode = stLm;
             S.nature = "lettre";
             S.fixedSoc = true;
             S.ref = socUrl.lm.ref;
             prestationsDepuisLettre(socUrl);
-            if (socUrl.lm.statut === "brouillon") {
+            if (stLm === "brouillon") {
               S.effet = iso(effetParDefaut(socUrl));
             } else {
               /* Lettre envoyée, signée ou à renouveler : elle prend effet à sa signature */
@@ -1221,8 +1261,7 @@
           $("lm-prest").innerHTML = h;
 
           /* Associés signataires */
-          $("f-cab").innerHTML = Object.keys(E.equipe)
-            .filter(function (k) { return /^Associé/.test(E.equipe[k].role); })
+          $("f-cab").innerHTML = signataires()
             .map(function (k) { return '<option value="' + k + '">' + esc(E.equipe[k].nom) + " · " + esc(E.equipe[k].role) + "</option>"; })
             .join("");
         })();
@@ -1249,12 +1288,6 @@
           if (S.mode !== "signee") return false;
           return S.lm.reconduction !== false && joursAvant(S.lm.echeance) <= SEUIL_RENOUVELLEMENT_JOURS;
         }
-        function libRenouvellement(soc) {
-          var debut = effetRenouvellement(S.lm);
-          var fin = clotureApres(soc, debut, true);
-          return { debut: fmt(debut), fin: fmt(fin) };
-        }
-
         function renderHead() {
           var soc = curSoc();
           $("lm-title").textContent = S.mode === "new" ? "Nouvelle lettre de mission" : TITRES[S.nature] || "Lettre de mission";
@@ -1271,28 +1304,25 @@
           var soc = curSoc();
           var d = dirigeant();
           var h = "";
-          function alerte(cls, icone, corps, bouton) {
-            return '<div class="alert ' + cls + '"><span class="ms">' + icone + "</span><div>" + corps + "</div>" + (bouton || "") + "</div>";
+          function alerte(cls, icone, corps) {
+            return '<div class="alert ' + cls + '"><span class="ms">' + icone + "</span><div>" + corps + "</div></div>";
           }
           if (S.mode === "signee") {
             var rec = S.lm.reconduction !== false;
             h = alerte("alert-success", "check_circle",
-              "<strong>Lettre signée le " + esc(S.lm.signee) + "</strong> par " + esc(d ? d.nom : "le client") + ". Elle prend effet à sa signature et elle est en lecture seule : pour la modifier, créez un avenant. " +
+              "<strong>Signature électronique " + esc(d ? de(d.nom) : "du client") + ", le " + esc(S.lm.signee) + ".</strong> Lecture seule : pour modifier la lettre, créez un avenant. " +
               "La période en cours court jusqu'au " + esc(S.lm.echeance) + (rec ? ", puis la lettre est reconduite tacitement." : ".") +
-              (renouvelable() ? " L'échéance approche : vous pouvez préparer le renouvellement." : ""));
+              (renouvelable() ? " Vous pouvez préparer le renouvellement." : ""));
           } else if (S.mode === "envoyee") {
             h = alerte("alert-info", "send",
-              "<strong>Envoyée pour signature le " + esc(S.envoyee) + ".</strong> En attente de la signature " + esc(d ? de(d.nom) : "du client") + ". La lettre est verrouillée tant qu'elle n'est pas signée.");
+              "<strong>Signature attendue " + esc(d ? de(d.nom) : "du client") + "</strong> depuis l'envoi du " + esc(S.envoyee) + ". La lettre est verrouillée tant qu'elle n'est pas signée.");
           } else if (S.mode === "a_renouveler") {
-            var r = libRenouvellement(soc);
             h = alerte("alert-warning", "refresh_cw",
-              "<strong>" + (S.lm.reconduction === false ? "Lettre non reconduite, arrivée" : "Lettre arrivée") + " à échéance le " + esc(S.lm.echeance) + " : à renouveler.</strong><br>" +
-              "Renouveler à partir du " + esc(r.debut) + " (exercice clos le " + esc(r.fin) + "). Reprenez ses prestations dans une nouvelle lettre.",
-              '<button class="btn btn-primary btn-sm" type="button" data-act="renouveler"><span class="ms">refresh_cw</span>Renouveler</button>');
+              "<strong>Échéance atteinte le " + esc(S.lm.echeance) + (S.lm.reconduction === false ? ", sans reconduction." : ".") + "</strong> Les missions en cours ne sont plus couvertes par une lettre en vigueur." +
+              infoTip("note-renouv", "Le renouvellement crée une nouvelle lettre qui reprend les prestations et les honoraires de la lettre " + esc(S.lm.ref) + ". Vous les ajustez avant l'envoi."));
           } else if (S.nature === "renouvellement") {
-            var rn = libRenouvellement(soc);
             h = alerte("alert-brand", "refresh_cw",
-              "<strong>Renouvellement à partir du " + esc(rn.debut) + " (exercice clos le " + esc(rn.fin) + ").</strong> Les prestations de la lettre " + esc(S.lm.ref) + " sont reprises. Ajustez les honoraires avant l'envoi.");
+              "<strong>Prestations reprises de la lettre " + esc(S.lm.ref) + ".</strong> Ajustez les honoraires et la date d'effet avant l'envoi.");
           } else if (S.mode === "avenant") {
             h = alerte("alert-brand", "file_diff",
               "<strong>Avenant à la lettre " + esc(S.lm.ref) + " du " + esc(S.lm.signee) + ".</strong> Modifiez les prestations concernées : la lettre signée reste inchangée.");
@@ -1323,19 +1353,19 @@
           var lab = soc.lab;
           var lienLab = "lab-dossier.html?id=" + encodeURIComponent(soc.id);
           if (lab.statut === "a_jour") {
-            al += '<div class="alert alert-success"><span class="ms">shield_check</span><div><strong>Identification LAB à jour.</strong> Dernière revue le ' + esc(lab.derniereRevue) + ". L'envoi pour signature est possible.<br>" +
+            al += '<div class="alert alert-success"><span class="ms">shield_check</span><div><strong>Lutte contre le blanchiment (LAB) : identification à jour.</strong> Dernière revue le ' + esc(lab.derniereRevue) + ". L'envoi pour signature est possible.<br>" +
               '<a class="lm-alink" href="' + lienLab + '">Voir le dossier LAB</a></div></div>';
           } else if (lab.statut === "a_revoir") {
             var complet = lab.pieces[0] === lab.pieces[1];
-            al += '<div class="alert alert-warning"><span class="ms">shield_alert</span><div><strong>Revue LAB échue depuis le ' + esc(lab.prochaineRevue) + ".</strong> " +
+            al += '<div class="alert alert-warning"><span class="ms">shield_alert</span><div><strong>Lutte contre le blanchiment (LAB) : revue échue depuis le ' + esc(lab.prochaineRevue) + ".</strong> " +
               (complet ? "Le dossier est complet (" + lab.pieces[0] + "/" + lab.pieces[1] + " pièces). " : "Pièces : " + lab.pieces[0] + "/" + lab.pieces[1] + ". ") +
               "L'envoi reste possible (choix du cabinet).<br>" +
               '<a class="lm-alink" href="' + lienLab + '">Voir le dossier LAB</a></div></div>';
           } else if (lab.statut === "incomplet") {
-            al += '<div class="alert alert-warning"><span class="ms">shield_alert</span><div><strong>Identification LAB incomplète</strong> (' + lab.pieces[0] + " pièces reçues sur " + lab.pieces[1] + "). L'envoi pour signature sera possible une fois l'identification LAB complète.<br>" +
+            al += '<div class="alert alert-warning"><span class="ms">shield_alert</span><div><strong>Lutte contre le blanchiment (LAB) : identification incomplète</strong> (' + lab.pieces[0] + " pièces reçues sur " + lab.pieces[1] + "). L'envoi pour signature sera possible une fois l'identification LAB complète.<br>" +
               '<a class="lm-alink" href="' + lienLab + '">Compléter le dossier LAB</a></div></div>';
           } else {
-            al += '<div class="alert alert-warning"><span class="ms">shield_alert</span><div><strong>Dossier LAB non ouvert.</strong> L\'envoi pour signature sera possible une fois l\'identification LAB complète.<br>' +
+            al += '<div class="alert alert-warning"><span class="ms">shield_alert</span><div><strong>Lutte contre le blanchiment (LAB) : dossier non ouvert.</strong> L\'envoi pour signature sera possible une fois l\'identification LAB complète.<br>' +
               '<a class="lm-alink" href="' + lienLab + '">Ouvrir le dossier LAB</a></div></div>';
           }
           if (labGel(soc)) {
@@ -1415,14 +1445,20 @@
             alerte = "Renseignez la date d'effet.";
           } else {
             aide = "Exercice clos le " + fmt(finExo()) + ".";
-            if (parseIso(S.effet) < AUJOURDHUI) alerte = "Date d'effet antérieure à la date de la lettre : vérifiez-la.";
           }
           $("note-effet").textContent = aide;
           $("f-exo").textContent = alerte;
           $("f-exo").hidden = !alerte;
+          var ant = antidate();
+          $("f-antidate").hidden = !ant;
+          if (ant) {
+            $("f-antidate-txt").innerHTML = "<strong>Date d'effet antérieure à aujourd'hui.</strong> Du " + esc(ant.du) + " au " + esc(ant.au) + ", les missions ont été exécutées sans lettre en vigueur.";
+            $("f-antidate-lbl").textContent = "Je confirme que la lettre prend effet le " + ant.du + ".";
+            $("f-antidate-ok").checked = S.antidateConf === S.effet;
+          }
           $("f-duree").closest(".form-group").style.display = S.nature === "avenant" ? "none" : "";
           var d = dirigeant();
-          $("note-signataire").textContent = d ? "Dirigeant du DPJ : " + d.nom + ", " + d.qualite + "." : "";
+          $("note-signataire").textContent = d ? "Dirigeant inscrit au dossier permanent juridique : " + d.nom + ", " + d.qualite + "." : "";
           $("note-signataire").closest(".info-tip").hidden = !d;
         }
 
@@ -1449,7 +1485,7 @@
               ? "La présente lettre prend effet le " + esc(S.signee) + ", date de sa signature."
               : "La présente lettre prend effet à la date de sa signature par le client.";
             if (!rec && joursAvant(S.periodeFin) < 0) {
-              t += " Elle n'est pas reconduite : elle est arrivée à échéance le " + esc(S.periodeFin) + ".";
+              t += " Elle n'est pas reconduite : sa période en cours est arrivée à son terme.";
             } else {
               t += " La période en cours court jusqu'au " + esc(S.periodeFin) + ".";
               t += rec
@@ -1556,9 +1592,10 @@
           var boxCab, boxCli;
           var nomCli = sCli ? esc(sCli) : ph("signataire");
           var qualCli = d && d.nom === sCli ? ", " + esc(d.qualite) : "";
-          var libCab = "<b>Le cabinet</b>" + esc(cab ? cab.nom : "") + (cab ? ", associé" : "");
+          var fem = cab && /^Associée/.test(cab.role);
+          var libCab = "<b>Le cabinet</b>" + esc(cab ? cab.nom : "") + (cab ? (fem ? ", associée" : ", associé") : "");
           var libCli = "<b>Pour le client</b>" + nomCli + qualCli;
-          var mutCab = '<span class="mut">Pour le cabinet, l\'associé signataire</span>';
+          var mutCab = '<span class="mut">Pour le cabinet, ' + (fem ? "l\'associée signataire" : "l\'associé signataire") + "</span>";
           var mutCli = '<span class="mut">Bon pour accord, date et signature</span>';
           if (S.mode === "signee" || S.mode === "a_renouveler") {
             var ok = '<span class="st"><span class="ms">check_circle</span>Signée électroniquement le ' + esc(S.signee) + "</span>";
@@ -1583,6 +1620,8 @@
           if (labGel(soc)) return { ok: false, msg: "Envoi bloqué : homonymie gel des avoirs à lever dans le dossier LAB." };
           if (labIncomplet(soc)) return { ok: false, msg: "L'envoi pour signature sera possible une fois l'identification LAB complète." };
           if (!selected().length) return { ok: false, msg: "Ajoutez au moins une prestation pour envoyer la lettre." };
+          var ant = antidate();
+          if (ant && S.antidateConf !== S.effet) return { ok: false, msg: "Confirmez la prise d'effet au " + ant.du + " pour envoyer la lettre." };
           return { ok: true, msg: "Prête pour la signature électronique." };
         }
 
@@ -1592,9 +1631,6 @@
 
         function renderBar() {
           var ht = totalHT();
-          var b = BADGES[S.mode];
-          $("bar-badge").className = "badge " + b[0];
-          $("bar-badge").textContent = b[1];
           $("bar-total").innerHTML = ht ? "<strong>" + esc(money(ht)) + "</strong> HT par an" : "Aucune prestation";
 
           var msg = "", acts = "";
@@ -1603,11 +1639,9 @@
               btn("btn-secondary", "avenant", "file_diff", "Créer un avenant") +
               (renouvelable() ? btn("btn-primary", "renouveler", "refresh_cw", "Renouveler") : "");
           } else if (S.mode === "envoyee") {
-            msg = '<div class="alert alert-info"><span class="ms">clock</span><span>En attente de la signature du client.</span></div>';
             acts = btn("btn-primary", "relancer", "send", "Relancer le client", "Relancer");
           } else if (S.mode === "a_renouveler") {
-            msg = '<div class="alert alert-warning"><span class="ms">refresh_cw</span><span>' + (S.lm.reconduction === false ? "Lettre non reconduite, échue" : "Lettre échue") + " le " + esc(S.lm.echeance) + ".</span></div>";
-            acts = btn("btn-primary", "renouveler", "refresh_cw", "Renouveler à partir du " + libRenouvellement(curSoc()).debut, "Renouveler");
+            acts = btn("btn-primary", "renouveler", "refresh_cw", "Renouveler la lettre", "Renouveler");
           } else {
             var v = verdict();
             msg = '<div class="alert ' + (v.ok ? "alert-success" : "alert-warning") + '"><span class="ms">' + (v.ok ? "check_circle" : "warning") + "</span><span>" + esc(v.msg) + "</span></div>";
@@ -1733,7 +1767,8 @@
         Array.prototype.forEach.call(document.querySelectorAll('input[name="factu"]'), function (i) {
           i.addEventListener("change", function () { S.factu = i.value; refreshLight(); });
         });
-        $("f-effet").addEventListener("input", function (e) { S.effet = e.target.value; renderSheet(); });
+        $("f-effet").addEventListener("input", function (e) { S.effet = e.target.value; refreshLight(); });
+        $("f-antidate-ok").addEventListener("change", function (e) { S.antidateConf = e.target.checked ? S.effet : ""; renderBar(); });
         $("f-duree").addEventListener("change", function (e) { S.duree = e.target.value; renderSheet(); });
         $("f-cab").addEventListener("change", function (e) { S.signCab = e.target.value; renderSheet(); });
         $("f-client").addEventListener("input", function (e) { S.signClient = e.target.value; renderSheet(); });
@@ -1742,6 +1777,6 @@
         refreshAll();
       })();
     </script>
-    <script src="assets/ej-shell.js?v=24"></script>
+    <script src="assets/ej-shell.js?v=25"></script>
   </body>
 </html>

@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=19" />
-    <link rel="stylesheet" href="assets/ej-missions.css?v=21" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=23" />
     <style>
       /* ---- Dispositif LAB : file de travail (styles locaux) ---- */
 
@@ -405,10 +405,10 @@
           <div class="lab-head">
             <div>
               <div class="m-eyebrow">Missions &amp; conformité</div>
-              <h1 class="page-title">Dispositif LAB</h1>
+              <h1 class="page-title">Dispositif <abbr title="lutte anti-blanchiment">LAB</abbr></h1>
             </div>
             <div class="lab-head-act">
-              <button class="btn btn-secondary btn-sm" type="button" id="exporter" title="Écran non maquetté" aria-label="Exporter les dossiers"><span class="ms">download</span><span class="lab-exp-lbl">Exporter les dossiers</span></button>
+              <button class="btn btn-secondary btn-sm" type="button" id="exporter" aria-label="Exporter les dossiers du filtre affiché"><span class="ms">download</span><span class="lab-exp-lbl">Exporter les dossiers</span></button>
               <span class="info-tip" data-tip="bas">
                 <button type="button" class="info-tip-btn" aria-describedby="note-export" aria-label="Conservation des exports"><span class="ms">info</span></button>
                 <span class="info-tip-pop" role="tooltip" id="note-export">Export des dossiers et de leur historique, à conserver cinq ans (article L.561-12 du Code monétaire et financier).</span>
@@ -462,10 +462,10 @@
       </div>
     </div>
 
-    <script src="assets/ej-missions-data.js?v=22"></script>
-    <script src="assets/ej-cockpit-data.js?v=5"></script>
+    <script src="assets/ej-missions-data.js?v=24"></script>
+    <script src="assets/ej-cockpit-data.js?v=8"></script>
     <script src="assets/ej-dpj-data.js?v=2"></script>
-    <script src="assets/ej-lab.js?v=5"></script>
+    <script src="assets/ej-lab.js?v=7"></script>
     <script>
       /* Le shell (chargé après ce script) pose body[data-profil] et window.EJ_USER : la page se construit au DOMContentLoaded. */
       document.addEventListener("DOMContentLoaded", function () {
@@ -512,6 +512,10 @@
         }
         function nbj(n, unite) {
           return n + " " + unite + (n > 1 ? "s" : "");
+        }
+        function ilya(x) {
+          var n = jours(x);
+          return n <= 0 ? "aujourd'hui" : n === 1 ? "hier" : "il y a " + nbj(n, "jour");
         }
 
         /* Mission CAC en phase d'acceptation : la mission n'est pas acceptée tant que l'identification n'est pas complète */
@@ -687,13 +691,13 @@
         function celluleEcheance(s, k) {
           var L = s.lab;
           if (k === "gel" || k === "homonymie")
-            return L.criblage ? "Criblage du " + L.criblage + '<span class="c-sub">il y a ' + nbj(jours(L.criblage), "jour") + "</span>" : "Criblage à relancer";
+            return L.criblage ? "Contrôle du " + L.criblage + '<span class="c-sub">' + ilya(L.criblage) + "</span>" : "Contrôle à relancer";
           if (k === "fin") return L.derniereRevue ? '<span class="muted">Dernière revue le ' + L.derniereRevue + "</span>" : "";
           if (k === "revue") return '<span class="warn">Échue le ' + L.prochaineRevue + "</span>";
           if (k === "pieces") {
             var f = acceptation(s) && finAcceptation(s);
             if (f) return '<span class="warn">Avant le ' + f + '</span><span class="c-sub">fin de l\'acceptation</span>';
-            return L.ouverture ? "Ouvert le " + L.ouverture + '<span class="c-sub">il y a ' + nbj(jours(L.ouverture), "jour") + "</span>" : "";
+            return L.ouverture ? "Ouvert le " + L.ouverture + '<span class="c-sub">' + ilya(L.ouverture) + "</span>" : "";
           }
           if (k === "ouvrir") return '<span class="muted">Non ouvert</span><span class="c-sub">aucune diligence engagée</span>';
           return L.derniereRevue ? '<span class="muted">Revue validée le ' + L.derniereRevue + "</span>" : "";
@@ -714,15 +718,20 @@
             (nature ? esc(nature) + " · " : "") + esc(s.forme) + " · SIREN " + esc(s.siren)
           );
         }
+        /* Lien vers la fiche : garde le contexte de la file (filtre et recherche) pour le retour */
+        function hrefFiche(id) {
+          var h = "lab-dossier.html?id=" + encodeURIComponent(id) + "&from=lab";
+          if (etat.f !== "traiter") h += "&f=" + encodeURIComponent(etat.f);
+          if (etat.q.trim()) h += "&q=" + encodeURIComponent(etat.q.trim());
+          return h;
+        }
+        /* Société sans dossier : la fiche propose l'ouverture (pré-remplissage du DPJ, EJLAB.ouvrirDossier) */
         function ligneSans(f) {
-          var lien = X.trouver(f.id);
-          var href = lien ? "lab-dossier.html?id=" + encodeURIComponent(f.id) + "&from=lab" : "";
-          var nom = href ? '<a href="' + esc(href) + '">' + esc(f.nom) + "</a>" : '<span class="c-nom">' + esc(f.nom) + "</span>";
-          var act = href
-            ? '<a class="btn btn-sm btn-secondary verb" href="' + esc(href) + '" aria-label="Ouvrir le dossier : ' + esc(f.nom) + '">Ouvrir le dossier</a>'
-            : '<button class="btn btn-sm btn-secondary verb" type="button" title="Écran non maquetté" aria-label="Ouvrir le dossier : ' + esc(f.nom) + '">Ouvrir le dossier</button>';
+          var href = hrefFiche(f.id);
+          var nom = '<a href="' + esc(href) + '">' + esc(f.nom) + "</a>";
+          var act = '<a class="btn btn-sm btn-secondary verb" href="' + esc(href) + '" aria-label="Ouvrir le dossier : ' + esc(f.nom) + '">Ouvrir le dossier</a>';
           return (
-            '<tr data-id="' + esc(f.id) + '"' + (href ? ' data-href="' + esc(href) + '"' : ' class="sans-lien"') + ">" +
+            '<tr data-id="' + esc(f.id) + '" data-href="' + esc(href) + '">' +
             '<td class="c-soc">' + nom + '<span class="c-sub">' + esc(f.forme) + (f.siren ? " · SIREN " + esc(f.siren) : "") + "</span></td>" +
             '<td class="c-motif"><span class="motif k-ouvrir"><span class="ms">' + ICONE.ouvrir + "</span>Aucun dossier LAB</span></td>" +
             '<td class="c-act">' + act + "</td>" +
@@ -731,7 +740,7 @@
         }
         function ligne(s, avecResp) {
           var k = kDe(s);
-          var href = "lab-dossier.html?id=" + encodeURIComponent(s.id) + "&from=lab";
+          var href = hrefFiche(s.id);
           return (
             '<tr data-href="' + esc(href) + '" data-id="' + esc(s.id) + '">' +
             '<td class="c-soc"><a href="' + esc(href) + '">' + esc(s.nom) + "</a>" +
@@ -763,13 +772,19 @@
           var kb = cleTri(b, kDe(b));
           return ka[0] - kb[0] || ka[1] - kb[1] || a.nom.localeCompare(b.nom, "fr");
         }
+        /* Dossiers du filtre et de la recherche en cours, triés comme à l'écran */
+        function listeCourante() {
+          var q = norm(etat.q.trim());
+          var sans = etat.f === "sans";
+          return (sans ? SANS : S)
+            .filter(function (s) { return (sans || testFiltre(etat.f, s)) && trouve(s, q); })
+            .sort(sans ? function (a, b) { return a.nom.localeCompare(b.nom, "fr"); } : trier);
+        }
         function dessiner() {
           var q = norm(etat.q.trim());
           var sans = etat.f === "sans";
           var tous = etat.f === "tous";
-          var liste = (sans ? SANS : S)
-            .filter(function (s) { return (sans || testFiltre(etat.f, s)) && trouve(s, q); })
-            .sort(sans ? function (a, b) { return a.nom.localeCompare(b.nom, "fr"); } : trier);
+          var liste = listeCourante();
           var total = liste.length;
           if (sans) liste = liste.slice(0, etat.n);
           /* Colonne Responsable masquée quand elle n'a qu'une valeur */
@@ -812,7 +827,10 @@
            PROFIL === "cac" ? "Registres publics : registre national des entreprises (RNE), registre des bénéficiaires effectifs (RBE) et, pour les associations, répertoire national des associations (RNA). " :
            "DPJ : dossier permanent juridique, pour les clients en expertise comptable. Registres publics : RNE, RBE et, pour les associations, RNA. ") +
           "PPE : personne politiquement exposée. KYC : connaissance du client. " +
-          "La revue est validée par l'associé signataire de la mission ; " + esc(RLAB.nom) + ", responsable LAB du cabinet, valide celles des personnes politiquement exposées et des risques élevés, et lève les homonymies. " +
+          "La revue est validée par l'associé signataire de la mission ; " +
+          (MIXTE
+            ? esc(E.equipe[E.responsableLab("ec")].nom) + " (expertise comptable) et " + esc(E.equipe[E.responsableLab("cac")].nom) + " (commissariat aux comptes), responsables LAB, valident celles des personnes politiquement exposées et des risques élevés, et lèvent les homonymies. "
+            : esc(RLAB.nom) + ", responsable LAB du cabinet, valide celles des personnes politiquement exposées et des risques élevés, et lève les homonymies. ") +
           '<a href="connecteurs.html">Voir les connecteurs</a>';
         $("couverture").textContent =
           PROFIL === "ec" ? NEC + " dossiers du périmètre missions, sur " + E.totalSocietes + " sociétés suivies." :
@@ -830,6 +848,47 @@
             },
           });
         }
+
+        /* ---------- Export CSV (séparateur point-virgule, UTF-8 avec BOM, lisible par Excel) ---------- */
+        function cellule(v) {
+          v = String(v == null ? "" : v);
+          return /[";\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+        }
+        function exporter() {
+          var sans = etat.f === "sans";
+          var liste = listeCourante();
+          var lignes = [["Dénomination", "SIREN", "Statut", "Risque retenu", "Validateur", "Dernière revue", "Prochaine revue", "Pièces manquantes"]];
+          liste.forEach(function (s) {
+            if (sans) {
+              lignes.push([s.nom, s.siren || "", "Sans dossier LAB", "", "", "", "", ""]);
+              return;
+            }
+            var L = s.lab;
+            lignes.push([
+              s.nom, s.siren || "",
+              /* Statut le plus urgent d'abord : gel, homonymie, puis statut du dossier */
+              gelConfirme(s) ? "Gel à appliquer" : L.gel === "a_verifier" ? "Homonymie à lever" : E.LAB_STATUT[L.statut] || L.statut,
+              L.risque ? E.RISQUE[L.risque] : "Non évalué",
+              X.validateur(s, PROFIL).nom,
+              L.derniereRevue || "", L.prochaineRevue || "",
+              manquantes(s),
+            ]);
+          });
+          var csv = "\ufeff" + lignes.map(function (l) { return l.map(cellule).join(";"); }).join("\r\n");
+          var p = E.today.split("/");
+          var nom = "dossiers-lab-" + p[2] + "-" + p[1] + "-" + p[0] + ".csv";
+          var a = document.createElement("a");
+          a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+          a.download = nom;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(function () {
+            URL.revokeObjectURL(a.href);
+            a.remove();
+          }, 1000);
+          X.toast(liste.length + (liste.length > 1 ? " dossiers exportés" : " dossier exporté") + " dans " + esc(nom) + ".");
+        }
+        $("exporter").addEventListener("click", exporter);
 
         /* ---------- Événements ---------- */
         function choisir(e) {
@@ -869,6 +928,6 @@
         dessiner();
       });
     </script>
-    <script src="assets/ej-shell.js?v=24"></script>
+    <script src="assets/ej-shell.js?v=25"></script>
   </body>
 </html>

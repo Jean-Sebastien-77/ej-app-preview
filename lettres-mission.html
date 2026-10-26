@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=19" />
-    <link rel="stylesheet" href="assets/ej-missions.css?v=21" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=23" />
     <style>
       /* ---------- Honoraires (une ligne sobre) ---------- */
       .lm-total {
@@ -330,7 +330,7 @@
               <p class="page-desc">Contractualisez chaque mission client, puis suivez les signatures et les renouvellements.</p>
             </div>
             <div class="m-actions">
-              <a class="btn btn-secondary" href="#"><span class="ms">library</span>Modèles et prestations</a>
+              <a class="btn btn-secondary" href="#"><span class="ms">library</span>Gérer les modèles et prestations</a>
               <a class="btn btn-primary" href="lettre-mission.html"><span class="ms">add</span>Nouvelle lettre de mission</a>
             </div>
           </div>
@@ -376,7 +376,7 @@
 
     <div class="lm-toast" id="lm-toast" role="status" aria-live="polite"><span class="ms">check_circle</span><span id="lm-toast-txt"></span></div>
 
-    <script src="assets/ej-missions-data.js?v=22"></script>
+    <script src="assets/ej-missions-data.js?v=24"></script>
     <script>
       (function () {
         var E = window.EJM;
@@ -384,18 +384,25 @@
         var TOTAL_SUIVIES = E.totalSocietes;
         var AUJOURDHUI = parseDate(E.today);
 
+        /* Mêmes libellés que la fiche de la lettre (E.LM_STATUT) */
         var STATUT = {
-          signee: { cls: "badge-success", lab: "Signée" },
-          envoyee: { cls: "badge-progress", lab: "Envoyée" },
-          brouillon: { cls: "badge-neutral", lab: "Brouillon" },
-          a_renouveler: { cls: "badge-action", lab: "À renouveler" },
-          absente: { cls: "badge-action", lab: "Aucune lettre" },
+          signee: { cls: "badge-success", lab: E.LM_STATUT.signee },
+          envoyee: { cls: "badge-progress", lab: E.LM_STATUT.envoyee },
+          brouillon: { cls: "badge-neutral", lab: E.LM_STATUT.brouillon },
+          a_renouveler: { cls: "badge-action", lab: E.LM_STATUT.a_renouveler },
+          absente: { cls: "badge-action", lab: E.LM_STATUT.absente },
         };
         var ORDRE = { absente: 0, a_renouveler: 1, envoyee: 2, brouillon: 3, signee: 4 };
 
         function parseDate(s) {
           var p = s.split("/");
           return new Date(+p[2], +p[1] - 1, +p[0]);
+        }
+        /* Une lettre signée dont l'échéance est dépassée est « À renouveler », jamais « non signée » */
+        function statutDe(s) {
+          var l = s.lm;
+          if (l.statut === "signee" && l.echeance && parseDate(l.echeance) < AUJOURDHUI) return "a_renouveler";
+          return l.statut;
         }
         function norm(s) {
           return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
@@ -429,29 +436,29 @@
         var lignes = E.societes
           .map(function (s, i) { return { s: s, i: i }; })
           .sort(function (a, b) {
-            var d = ORDRE[a.s.lm.statut] - ORDRE[b.s.lm.statut];
+            var d = ORDRE[statutDe(a.s)] - ORDRE[statutDe(b.s)];
             return d !== 0 ? d : a.i - b.i;
           })
           .map(function (x) { return x.s; });
 
         function nb(statut) {
-          return E.societes.filter(function (s) { return s.lm.statut === statut; }).length;
+          return E.societes.filter(function (s) { return statutDe(s) === statut; }).length;
         }
         var nbDossiers = E.societes.length;
-        var signees = E.societes.filter(function (s) { return s.lm.statut === "signee"; });
-        var envoyees = E.societes.filter(function (s) { return s.lm.statut === "envoyee"; });
+        var signees = E.societes.filter(function (s) { return statutDe(s) === "signee"; });
+        var envoyees = E.societes.filter(function (s) { return statutDe(s) === "envoyee"; });
         var totalSignees = signees.reduce(function (t, s) { return t + s.lm.honoraires; }, 0);
         var totalEnvoyees = envoyees.reduce(function (t, s) { return t + s.lm.honoraires; }, 0);
 
         /* ---------- Tuiles ---------- */
         var TUILES = [
           { filtre: "signee", titre: "Signées", icone: "check_circle", n: nb("signee"),
-            regle: "Lettre au statut « Signée ». ", lien: "Voir les lettres signées" },
-          { filtre: "envoyee", titre: "En attente de signature", icone: "send", n: nb("envoyee"),
-            regle: "Lettre envoyée, signature du client attendue. ", lien: "Voir les lettres envoyées" },
+            regle: "Lettre signée dont l'échéance n'est pas dépassée. ", lien: "Voir les lettres signées" },
+          { filtre: "envoyee", titre: "Envoyées pour signature", icone: "send", n: nb("envoyee"),
+            regle: "Lettre envoyée au client, signature attendue. ", lien: "Voir les lettres envoyées" },
           { filtre: "a_renouveler", titre: "À renouveler", icone: "refresh_cw", n: nb("a_renouveler"),
-            regle: "Échéance atteinte, lettre non reconduite à renouveler. ", lien: "Voir les lettres à renouveler" },
-          { filtre: "absente", titre: "Sociétés sans lettre", icone: "file_x", n: nb("absente"), attention: true,
+            regle: "Lettre signée dont l'échéance est atteinte sans reconduction. ", lien: "Voir les lettres à renouveler" },
+          { filtre: "absente", titre: "Aucune lettre", icone: "file_x", n: nb("absente"), attention: true,
             regle: "Dossier missions ouvert, aucune lettre rattachée. ", lien: "Voir les sociétés sans lettre" },
         ];
         function infoTip(id, texte) {
@@ -478,18 +485,18 @@
         document.getElementById("lm-total").innerHTML =
           '<span class="ms">euro</span>' +
           "<span>Honoraires annuels HT des lettres signées : <strong>" + E.euros(totalSignees) + "</strong></span>" +
-          '<span class="lm-total-sub">' + E.euros(totalEnvoyees) + " en attente de signature</span>" +
+          '<span class="lm-total-sub">' + E.euros(totalEnvoyees) + " envoyés pour signature</span>" +
           infoTip("note-perimetre", "Périmètre : " + nbDossiers + " sociétés avec dossier missions sur " + TOTAL_SUIVIES + " suivies.");
 
         /* ---------- Filtres rapides ---------- */
         var FILTRES = [
           { id: "tout", lab: "Toutes", test: function () { return true; } },
-          { id: "signee", lab: "Signées", test: function (s) { return s.lm.statut === "signee"; } },
-          { id: "envoyee", lab: "En attente de signature", test: function (s) { return s.lm.statut === "envoyee"; } },
-          { id: "brouillon", lab: "Brouillons", test: function (s) { return s.lm.statut === "brouillon"; } },
-          { id: "a_renouveler", lab: "À renouveler", warn: true, test: function (s) { return s.lm.statut === "a_renouveler"; } },
-          { id: "absente", lab: "Sans lettre", warn: true, test: function (s) { return s.lm.statut === "absente"; } },
-          { id: "lab", lab: "LAB à compléter", warn: true, test: labBloque },
+          { id: "signee", lab: "Signées", test: function (s) { return statutDe(s) === "signee"; } },
+          { id: "envoyee", lab: "Envoyées pour signature", test: function (s) { return statutDe(s) === "envoyee"; } },
+          { id: "brouillon", lab: "Brouillons", test: function (s) { return statutDe(s) === "brouillon"; } },
+          { id: "a_renouveler", lab: "À renouveler", warn: true, test: function (s) { return statutDe(s) === "a_renouveler"; } },
+          { id: "absente", lab: "Aucune lettre", warn: true, test: function (s) { return statutDe(s) === "absente"; } },
+          { id: "lab", lab: "Lutte anti-blanchiment (LAB) à compléter", warn: true, test: labBloque },
         ];
         var etat = { filtre: "tout", q: "" };
 
@@ -506,18 +513,17 @@
         /* ---------- Lignes ---------- */
         function celluleDate(s) {
           var l = s.lm;
-          var tard = l.echeance && parseDate(l.echeance) < AUJOURDHUI;
-          if (l.statut === "signee") {
-            return "Signée le " + l.signee +
-              '<span class="lm-date-sub' + (tard ? " late" : "") + '">Échéance ' + l.echeance + (tard ? " (dépassée)" : "") + "</span>";
+          var st = statutDe(s);
+          if (st === "signee") {
+            return "Signée le " + l.signee + '<span class="lm-date-sub">Échéance ' + l.echeance + "</span>";
           }
-          if (l.statut === "envoyee") {
+          if (st === "envoyee") {
             return "Envoyée le " + l.envoyee + '<span class="lm-date-sub">Échéance ' + l.echeance + "</span>";
           }
-          if (l.statut === "a_renouveler") {
+          if (st === "a_renouveler") {
             return "Échue le " + l.echeance + '<span class="lm-date-sub late">Signée le ' + l.signee + "</span>";
           }
-          if (l.statut === "brouillon") {
+          if (st === "brouillon") {
             return "Échéance prévue " + l.echeance;
           }
           return '<span class="muted">·</span>';
@@ -531,14 +537,14 @@
         }
         function action(s) {
           var href = "lettre-mission.html?id=" + encodeURIComponent(s.id);
-          var st = s.lm.statut;
+          var st = statutDe(s);
           if (st === "envoyee") return '<button class="btn btn-secondary btn-sm" type="button" data-relance="' + esc(s.nom) + '">Relancer</button>';
           if (st === "a_renouveler") return '<a class="btn btn-primary btn-sm" href="' + href + '">Renouveler</a>';
           if (st === "absente") return '<a class="btn btn-primary btn-sm" href="' + href + '">Créer</a>';
           return '<a class="btn btn-secondary btn-sm" href="' + href + '">Ouvrir</a>';
         }
         function ligne(s) {
-          var st = STATUT[s.lm.statut];
+          var st = STATUT[statutDe(s)];
           var href = "lettre-mission.html?id=" + encodeURIComponent(s.id);
           var eq = E.equipe[s.resp];
           var lab = "";
@@ -553,8 +559,8 @@
             '<td class="c-ref' + (s.lm.ref ? "" : " is-empty") + '">' + (s.lm.ref ? '<span class="lm-ref">' + esc(s.lm.ref) + "</span>" : '<span class="muted">·</span>') + "</td>" +
             '<td class="c-miss">' + cellulesMissions(s) + "</td>" +
             '<td class="c-hon' + (s.lm.honoraires != null ? "" : " is-empty") + '">' + (s.lm.honoraires != null ? E.euros(s.lm.honoraires) : '<span class="muted">·</span>') + "</td>" +
-            '<td class="c-statut"><span class="badge ' + st.cls + '" title="' + esc(E.LM_STATUT[s.lm.statut]) + '">' + st.lab + "</span></td>" +
-            '<td class="c-date' + (s.lm.statut === "absente" ? " is-empty" : "") + '"><div class="lm-date">' + celluleDate(s) + "</div></td>" +
+            '<td class="c-statut"><span class="badge ' + st.cls + '">' + st.lab + "</span></td>" +
+            '<td class="c-date' + (statutDe(s) === "absente" ? " is-empty" : "") + '"><div class="lm-date">' + celluleDate(s) + "</div></td>" +
             '<td class="c-resp"><span class="lm-resp"><span class="avatar avatar-xs" style="background:' + eq.couleur + '">' + esc(s.resp) + '</span><span class="n-full">' + esc(eq.nom) + '</span><span class="n-short" title="' + esc(eq.nom) + '">' + esc(eq.nom.split(" ")[0] + " " + eq.nom.split(" ")[1].charAt(0) + ".") + "</span></span></td>" +
             '<td class="c-act">' + action(s) + "</td>" +
             "</tr>"
@@ -624,6 +630,6 @@
         render();
       })();
     </script>
-    <script src="assets/ej-shell.js?v=24"></script>
+    <script src="assets/ej-shell.js?v=25"></script>
   </body>
 </html>

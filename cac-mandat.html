@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=19" />
-    <link rel="stylesheet" href="assets/ej-missions.css?v=21" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=23" />
     <style>
       /* ---- En-tête entité (repris de lab-dossier.html) ---- */
       .soc-head {
@@ -290,7 +290,7 @@
         display: block;
         margin-top: 2px;
         font-size: 11.5px;
-        color: var(--ej-warning-600);
+        color: var(--ej-neutral-600);
       }
       .frise li.passe {
         background: var(--ej-neutral-50);
@@ -319,9 +319,9 @@
         gap: 12px 16px;
         margin-top: 18px;
         padding: 14px 16px;
-        border: 1px solid var(--ej-attention-500);
+        border: 1px solid var(--ej-info-600);
         border-radius: var(--ej-radius-lg);
-        background: var(--ej-attention-100);
+        background: var(--ej-info-100);
       }
       .fin-box .t {
         display: flex;
@@ -334,7 +334,7 @@
       }
       .fin-box .t .ms {
         font-size: 18px;
-        color: var(--ej-attention-500);
+        color: var(--ej-info-600);
       }
 
       /* Aperçu de la lettre de mission (repris de lettre-mission.html) */
@@ -357,6 +357,9 @@
       .lm-head .m {
         font-size: 12.5px;
         color: var(--ej-neutral-500);
+      }
+      .lm-kv {
+        margin-top: 16px;
       }
       .lm-det {
         margin-top: 14px;
@@ -605,6 +608,48 @@
         color: var(--ej-neutral-500);
       }
 
+      /* Impression de la fiche (Exporter la fiche) : contenu seul, sans l'habillage de l'application */
+      @media print {
+        .ej-header,
+        #ej-header,
+        .sidebar,
+        #ej-sidebar,
+        .ej-footer,
+        #ej-footer,
+        .help-bubble,
+        .back-link,
+        .tabs,
+        .actions-bar,
+        .info-tip,
+        .lm-det,
+        #retour {
+          display: none !important;
+        }
+        body {
+          background: none;
+        }
+        .app {
+          display: block;
+        }
+        .page {
+          max-width: none;
+          padding: 0;
+        }
+        .card {
+          box-shadow: none;
+          break-inside: avoid;
+        }
+        .d-body {
+          padding: 12px 0 0;
+        }
+        .alert {
+          break-inside: avoid;
+        }
+        a {
+          text-decoration: none;
+        }
+      }
+
       @media (max-width: 760px) {
         .soc-head {
           flex-direction: column;
@@ -772,8 +817,8 @@
       </div>
     </div>
 
-    <script src="assets/ej-missions-data.js?v=22"></script>
-    <script src="assets/ej-lab.js?v=5"></script>
+    <script src="assets/ej-missions-data.js?v=24"></script>
+    <script src="assets/ej-lab.js?v=7"></script>
     <script>
       /* Rendu au DOMContentLoaded : ej-shell.js (chargé après) pose data-profil sur le body avant cet événement */
       document.addEventListener("DOMContentLoaded", function () {
@@ -851,8 +896,9 @@
         var finMandatDate = m.cloture + "/" + m.dernier;
         var nbExo = m.dernier - m.premier + 1;
         var enAcceptation = m.lm.statut === "a_etablir";
+        var TYPE_LIB = { legal: E.TYPE_MANDAT.legal, alpe: "Audit légal des petites entreprises (ALPE) · trois exercices", contractuel: E.TYPE_MANDAT.contractuel };
         var agDate = m.ag ? dt(m.ag) : null;
-        var limiteRapports = m.ag ? plusJours(m.ag, -15) : null; /* rapports à disposition 15 jours avant l'AG (délai de la maquette) */
+        var limiteRapports = m.ag ? plusJours(m.ag, -15) : null; /* rapports à disposition 15 jours au moins avant l'assemblée */
         var signataire = E.equipe[m.signataire];
         var equipe = [m.signataire].concat(m.equipe);
         var lmSignee = m.lm.statut === "signee";
@@ -883,23 +929,38 @@
           "<div>" +
           '<h1 class="soc-name">' + esc(m.nom) + "</h1>" +
           '<div class="soc-form">' + esc(m.forme) + esc(libForme) + " · " + esc(m.activite) + " " +
-          tip("sigles", "Sigles : AG, assemblée générale ; CAC, commissaire aux comptes ; LAB, lutte contre le blanchiment ; ALPE, audit légal petite entreprise.", "Sigles") + "</div>" +
+          tip("sigles", "Sigles : AG, assemblée générale ; AGOA, assemblée générale ordinaire annuelle, qui approuve les comptes ; CAC, commissaire aux comptes ; LAB, lutte contre le blanchiment ; ALPE, audit légal des petites entreprises.", "Sigles") + "</div>" +
           '<div class="soc-greffe">SIREN : <strong>' + esc(m.siren) + "</strong> · Signataire : <strong>" + esc(signataire.nom) + "</strong> " +
           tip("interne", "Cette fiche est interne au cabinet de commissariat aux comptes (CAC) : elle n'est jamais visible de l'entité contrôlée.", "Visibilité de la fiche") + "</div>" +
           "</div>" +
-          '<div class="soc-ids"><span class="type">' + esc(E.TYPE_MANDAT[m.type]) + "</span>" +
-          "<span>Exercice clos le " + m.ex.clos + "</span>" + (finMandat ? '<span class="badge badge-action">Dernier exercice</span>' : "") + "</div>";
+          '<div class="soc-ids"><span class="type">' + esc(TYPE_LIB[m.type]) + "</span>" +
+          "<span>Exercice clos le " + m.ex.clos + "</span>" + (finMandat ? '<span class="badge badge-neutral">Dernier exercice</span>' : "") + "</div>";
 
         /* ---------- Onglets de la fiche : Mission · Vigilance LAB ---------- */
         document.getElementById("tabs").innerHTML =
           '<a class="tab active" aria-current="page" href="cac-mandat.html?id=' + encodeURIComponent(m.id) + '">Mission</a>' +
           '<a class="tab" href="lab-dossier.html?id=' + encodeURIComponent(m.id) + '">Vigilance LAB</a>';
 
+        /* ---------- Pièces LAB : le comptage vient de la file LAB (aucune règle recopiée ici) ---------- */
+        function compte(x) {
+          return typeof x === "number" ? x : x && x.length != null ? x.length : 0;
+        }
+        function piecesLab() {
+          var X = window.EJLAB;
+          if (X && typeof X.etatPieces === "function") {
+            var e = X.etatPieces(m);
+            if (e && !Array.isArray(e) && e.recues != null && e.attendues != null) return { rec: compte(e.recues), att: compte(e.attendues) };
+          }
+          if (X && typeof X.recues === "function") return { rec: X.recues(m), att: L.pieces[1] };
+          return { rec: L.pieces[0], att: L.pieces[1] };
+        }
+        var PL = piecesLab();
+
         /* ---------- Alertes contextuelles ---------- */
         var al = [];
         if (enAcceptation) {
           var manque = [];
-          if (L.statut !== "a_jour") manque.push("l'identification LAB (" + L.pieces[0] + " pièce" + (L.pieces[0] > 1 ? "s" : "") + " sur " + L.pieces[1] + ")");
+          if (L.statut !== "a_jour") manque.push("l'identification LAB (" + PL.rec + " pièce" + (PL.rec > 1 ? "s" : "") + " sur " + PL.att + ")");
           if (indep.statut !== "a_jour") manque.push("la déclaration d'indépendance de l'équipe");
           al.push('<div class="alert alert-brand"><span class="ms">clipboard-check</span><div><strong>Mission en cours d\'acceptation.</strong> À réunir avant d\'accepter : ' +
             (manque.length ? manque.join(", ") : "tous les éléments sont réunis") + '. <a href="#acceptation">Voir la check-list</a>.</div></div>');
@@ -920,18 +981,18 @@
           al.push('<div class="alert alert-warning"><span class="ms">shield-check</span><div><strong>Déclaration d\'indépendance à faire.</strong> Aucune déclaration de l\'équipe n\'est enregistrée pour cette entité. <a href="#independance">Voir l\'indépendance</a>.</div></div>');
         }
         if (labRetard) {
-          al.push('<div class="alert alert-warning"><span class="ms">history</span><div><strong>Revue LAB échue depuis le ' + L.prochaineRevue + " (" + labRetard + " jours).</strong> Reprendre l'évaluation, compléter les pièces manquantes (" + L.pieces[0] + " sur " + L.pieces[1] + ' reçues) et faire valider la revue. <a href="lab-dossier.html?id=' + encodeURIComponent(m.id) + '">Ouvrir l\'onglet Vigilance LAB</a>.</div></div>');
+          al.push('<div class="alert alert-warning"><span class="ms">history</span><div><strong>Revue LAB échue depuis le ' + L.prochaineRevue + " (" + labRetard + " jours).</strong> Reprendre l'évaluation, compléter les pièces manquantes (" + PL.rec + " sur " + PL.att + ' reçues) et faire valider la revue. <a href="lab-dossier.html?id=' + encodeURIComponent(m.id) + '">Ouvrir l\'onglet Vigilance LAB</a>.</div></div>');
         }
         if (finMandat) {
-          al.push('<div class="alert alert-info"><span class="ms">calendar-clock</span><div><strong>Fin de mandat.</strong> Le mandat prend fin à l\'issue de l\'assemblée générale (AG) qui statuera sur les comptes de l\'exercice clos le ' + finMandatDate +
-            (m.ag ? " (AG prévue le " + m.ag + ")" : "") + '. <a href="#mandat">Préparer le renouvellement</a>.</div></div>');
+          al.push('<div class="alert alert-info"><span class="ms">calendar-clock</span><div><strong>Fin de mandat.</strong> Le mandat prend fin à l\'issue de l\'assemblée générale ordinaire annuelle (AGOA) qui statuera sur les comptes de l\'exercice clos le ' + finMandatDate +
+            (m.ag ? " (AG prévue le " + m.ag + ")" : "") + ".</div></div>");
         }
         document.getElementById("alerts").innerHTML = al.join("");
 
         /* ---------- Barre d'actions ---------- */
         document.getElementById("actions").innerHTML =
           (finMandat ? '<a class="btn btn-primary" href="#mandat"><span class="ms">repeat</span>Préparer le renouvellement ou la fin de mission</a>' : "") +
-          '<a class="btn ' + (finMandat ? "btn-secondary" : "btn-primary") + '" href="#"><span class="ms">download</span>Exporter la fiche</a>' +
+          '<button type="button" class="btn btn-secondary" id="exporter"><span class="ms">download</span>Exporter la fiche</button>' +
           (!lmSignee ? tip("demarrage", enAcceptation && !lmEnvoyee ? "La mission ne démarre pas avant l'acceptation, puis la signature de la lettre." : "La mission ne démarre pas avant la signature de la lettre.", "Démarrage de la mission") : "");
 
         /* ---------- Sections ---------- */
@@ -950,7 +1011,7 @@
 
         /* 1. Mandat */
         var rows = "";
-        rows += kv("Type de mission", esc(E.TYPE_MANDAT[m.type]));
+        rows += kv("Type de mission", esc(TYPE_LIB[m.type]));
         rows += kv("Exercices couverts", contr
           ? "Un exercice : clos le " + m.cloture + "/" + m.premier
           : m.premier + " à " + m.dernier + " (" + NB[nbExo] + " exercices)",
@@ -962,7 +1023,7 @@
           var apres = m.dernier - anExo;
           rows += kv("Fin de mandat", "À l'issue de l'assemblée générale (AG) qui statuera sur les comptes de l'exercice clos le " + finMandatDate,
             finMandat
-              ? '<span class="val-sub warn">Exercice en cours : c\'est le dernier du mandat</span>'
+              ? '<span class="val-sub">Exercice en cours : c\'est le dernier du mandat</span>'
               : '<span class="val-sub">' + apres + " exercice" + (apres > 1 ? "s" : "") + " à venir après l'exercice en cours</span>");
         }
         if (cocacNom) rows += kv("Cocommissaire aux comptes", esc(cocacNom), '<span class="val-sub">Travaux coordonnés avec le cabinet</span>');
@@ -988,7 +1049,7 @@
             " " + tip("renouvellement", "Le renouvellement est proposé par l'organe de l'entité, pas par le cabinet.", "Renouvellement du mandat") + "</div>" +
             '<button class="btn btn-secondary btn-sm" type="button" title="Écran non maquetté"><span class="ms">send</span>Informer l\'entité</button></div>';
         }
-        out.push(carte("briefcase", contr ? "Mission" : "Mandat", E.TYPE_MANDAT[m.type], "",
+        out.push(carte("briefcase", contr ? "Mission" : "Mandat", TYPE_LIB[m.type], "",
           '<dl class="kv">' + rows + "</dl>" +
           '<h3 class="sous-titre">' + (contr ? "Exercice couvert" : "Exercices du mandat") + "</h3>" +
           '<ol class="frise" aria-label="' + (contr ? "Exercice couvert" : "Exercices du mandat") + '">' + frise + "</ol>" + boxFin, "mandat"));
@@ -996,18 +1057,18 @@
         /* 2. Rapports de l'exercice */
         var kvE = "";
         if (!contr) {
-          kvE += kv("AG d'approbation", m.ag ? m.ag : "AG non fixée", '<span class="val-sub">Comptes de l\'exercice clos le ' + m.ex.clos + "</span>");
+          kvE += kv("Assemblée générale ordinaire annuelle (AGOA)", m.ag ? m.ag : "AG non fixée", '<span class="val-sub">Comptes de l\'exercice clos le ' + m.ex.clos + "</span>");
         }
         var RAP = [];
         if (contr) {
           RAP.push(["Rapport d'audit contractuel", "À convenir avec l'entité"]);
         } else {
-          var limite = limiteRapports ? "Avant le " + limiteRapports : "AG non fixée";
+          var limite = limiteRapports ? "Au plus tard le " + limiteRapports : "AG non fixée";
           RAP.push(["Rapport sur les comptes annuels", limite]);
           RAP.push(["Rapport spécial sur les conventions" + (estAsso ? "" : " réglementées"), limite]);
           if (consolide || cocacNom) RAP.push(["Rapport sur les comptes consolidés", limite]);
         }
-        var tabRap = '<div class="table-scroll"><table class="rtable"><thead><tr><th>Rapport</th><th>Date limite' + (contr ? "" : " " + tip("delai", "Délai retenu pour la maquette : rapports à disposition 15 jours avant l'AG. À valider par un professionnel.", "Délai de mise à disposition")) + '</th><th>Statut</th></tr></thead><tbody>' +
+        var tabRap = '<div class="table-scroll"><table class="rtable"><thead><tr><th>Rapport</th><th>Date limite' + (contr ? "" : " " + tip("delai", "Rapports sur les comptes à la disposition des actionnaires 15 jours au moins avant l'assemblée (Code de commerce, art. R.225-89 pour les SA).", "Règle de mise à disposition des rapports")) + '</th><th>Statut</th></tr></thead><tbody>' +
           RAP.map(function (r) {
             return "<tr>" +
               '<td class="cell-main" data-label="Rapport"><span class="nom">' + esc(r[0]) + "</span></td>" +
@@ -1026,17 +1087,33 @@
         }
         out.push(carte("calendar-check", "Rapports de l'exercice", "Exercice clos le " + m.ex.clos, "", corpsRap, "rapports"));
 
-        /* 4. Lettre de mission CAC */
+        /* 4. Lettre de mission CAC
+           Une lettre signée ne se réécrit pas : l'aperçu montre la version signée (équipe et honoraires d'alors) ;
+           les valeurs en vigueur viennent des avenants datés. Données de la démonstration, cohérentes avec EJM. */
+        var LM_HISTO = {
+          vertalis: { hon: 26500, equipe: ["JD"], av: [{ d: "03/09/2024", h: [26500, 29300] }, { d: "20/01/2025", eq: "Léa Fontaine remplace Jean Dupond" }, { d: "15/09/2025", h: [29300, 31200] }] },
+          nordia: { hon: 23800, equipe: ["JD"], av: [{ d: "12/09/2025", h: [23800, 25200] }] },
+          "clinique-parc": { hon: 33000, equipe: ["JD"], av: [{ d: "10/09/2024", h: [33000, 34500] }, { d: "22/01/2025", eq: "Léa Fontaine remplace Jean Dupond" }, { d: "08/09/2025", h: [34500, 36000] }] },
+          halios: { hon: 46000, equipe: ["LF"], av: [{ d: "14/09/2023", h: [46000, 49000] }, { d: "13/01/2025", eq: "Jean Dupond rejoint l'équipe" }, { d: "09/09/2025", h: [49000, 52000] }] },
+          dorval: { hon: 7000, equipe: ["JD"], av: [{ d: "08/09/2025", h: [7000, 7400] }] },
+          brioche: { hon: 5900, equipe: ["JD"], av: [{ d: "15/09/2025", h: [5900, 6300] }] },
+          soleil: { hon: 8200, equipe: ["JD"], av: [{ d: "06/09/2023", h: [8200, 8800] }, { d: "10/09/2025", h: [8800, 9500] }] },
+        };
+        var H = lmSignee && LM_HISTO[m.id] ? LM_HISTO[m.id] : { hon: m.honoraires, equipe: m.equipe, av: [] };
+        var avenants = H.av.filter(function (a) { return dt(a.d) <= TODAY; });
+        function nomsEquipe(codes) {
+          return [m.signataire].concat(codes).map(function (k) { return E.equipe[k].nom; }).join(", ");
+        }
+        var parAn = contr ? "" : " par an";
         var LM_BADGE = { signee: "badge-success", envoyee: "badge-progress", a_etablir: "badge-neutral" };
         var LM_LIB = { signee: "Signée", envoyee: "Envoyée pour signature", a_etablir: "À établir" };
-        var lmMeta = (m.lm.statut === "a_etablir" ? "Lettre à établir" :
-          esc(m.lm.ref) + (lmSignee ? " · signée le " + m.lm.date : " · envoyée le " + m.lm.date + ", en attente de signature")) +
-          " · honoraires " + esc(E.euros(m.honoraires)) + " HT" + (contr ? "" : " par an");
+        var lmMeta = m.lm.statut === "a_etablir" ? "Lettre à établir" :
+          esc(m.lm.ref) + (lmSignee ? " · signée le " + m.lm.date : " · envoyée le " + m.lm.date + ", en attente de signature");
         var btnRelance = lmEnvoyee
           ? '<button class="btn btn-secondary btn-sm" type="button" id="relance"><span class="ms">send</span>Relancer la signature</button>'
           : "";
         var titreLM = m.type === "legal" ? "Lettre de mission · commissariat aux comptes"
-          : m.type === "alpe" ? "Lettre de mission · audit légal d'une petite entreprise"
+          : m.type === "alpe" ? "Lettre de mission · audit légal des petites entreprises"
           : "Lettre de mission · audit contractuel";
         var n = 0;
         function titre(t) { n++; return "<h4>" + n + ". " + t + "</h4>"; }
@@ -1045,7 +1122,7 @@
           '<div class="lm-sh-dest"><strong>' + esc(m.nom) + "</strong> · " + esc(m.forme) + "<br>SIREN " + esc(m.siren) + "<br>À l'attention " + esc(de(F[2])) + ", " + esc(F[3].charAt(0).toLowerCase() + F[3].slice(1)) + "</div>" +
           '<h3 class="lm-sh-title">' + titreLM + "</h3>" +
           "<p><strong>Objet :</strong> " + (contr ? "audit contractuel des comptes de l'exercice clos le " + m.ex.clos
-            : (alpe ? "mission d'audit légal d'une petite entreprise (ALPE) pour les exercices " : "mission de commissariat aux comptes pour les exercices ") + m.premier + " à " + m.dernier +
+            : (alpe ? "mission d'audit légal des petites entreprises (ALPE) pour les exercices " : "mission de commissariat aux comptes pour les exercices ") + m.premier + " à " + m.dernier +
               (consolide ? ", y compris la certification des comptes consolidés" : "")) + ".</p>" +
           "<p>Madame, Monsieur,</p><p>Nous vous confirmons les termes et conditions de la mission que vous nous confiez.</p>";
         sheet += titre("Objet et nature de la mission");
@@ -1064,15 +1141,15 @@
         sheet += "<p>" + (contr
           ? "La mission porte sur l'exercice clos le " + m.ex.clos + ". Elle prend fin avec la remise du rapport d'audit contractuel."
           : "La mission porte sur " + NB[nbExo] + " exercices, de l'exercice " + m.premier + " à l'exercice " + m.dernier + ", à compter de la nomination du " + m.nomination + ".") + "</p>";
-        sheet += titre("Rapports de l'exercice en cours");
-        sheet += "<p>Rapports relatifs à l'exercice clos le " + m.ex.clos + (limiteRapports ? ", mis à disposition avant le " + limiteRapports + ", pour l'assemblée générale d'approbation prévue le " + m.ag : "") + ".</p>";
-        sheet += titre("Équipe de l'exercice en cours");
+        sheet += titre("Rapports");
+        sheet += "<p>Pour chaque exercice, les rapports sont remis avant l'assemblée générale qui approuve les comptes.</p>";
+        sheet += titre(lmSignee ? "Équipe à la signature" : "Équipe");
         sheet += "<p>Signataire : " + esc(signataire.nom) + ", " + esc(signataire.role.toLowerCase()) + ". " +
-          (m.equipe.length
-            ? "Équipe : " + m.equipe.map(function (k) { return esc(E.equipe[k].nom) + ", " + esc(E.equipe[k].role.toLowerCase()); }).join(" ; ") + "."
+          (H.equipe.length
+            ? "Équipe : " + H.equipe.map(function (k) { return esc(E.equipe[k].nom) + ", " + esc(E.equipe[k].role.toLowerCase()); }).join(" ; ") + "."
             : "Aucun auditeur supplémentaire affecté à ce stade.") + "</p>";
         sheet += titre("Honoraires");
-        sheet += '<table class="lm-sh-table"><tr><td>Honoraires ' + (contr ? "de la mission" : "annuels") + ' HT<small>Exercice en cours</small></td><td>' + esc(E.euros(m.honoraires)) + "</td></tr></table>";
+        sheet += '<table class="lm-sh-table"><tr><td>Honoraires ' + (contr ? "de la mission" : "annuels") + ' HT<small>Exercice ' + m.premier + '</small></td><td>' + esc(E.euros(H.hon)) + "</td></tr></table>";
         sheet += titre("Obligations réciproques");
         sheet += "<ul><li>Le cabinet exécute sa mission selon les normes d'exercice professionnel, dans le respect du secret professionnel et de son indépendance.</li>" +
           "<li>L'entité met à disposition, dans les délais convenus, les documents, informations et accès nécessaires à la mission.</li>" +
@@ -1080,13 +1157,38 @@
         sheet += '<div class="lm-sh-sign"><div><strong>Pour le cabinet</strong>' + esc(signataire.nom) + "<br>" + (lmSignee ? "Signée le " + m.lm.date : "Signature à venir") + "</div>" +
           "<div><strong>Pour l'entité</strong>" + esc(F[2]) + "<br>" + (lmSignee ? "Signée le " + m.lm.date : "En attente de signature") + "</div></div>";
 
-        out.push(carte("file-pen-line", "Lettre de mission CAC", "", btnRelance,
-          '<div class="lm-head"><div><div class="t">' + esc(titreLM) +
-          (contr ? "" : " " + tip("duree-lettre", "La lettre porte sur la durée du mandat, soit les exercices " + m.premier + " à " + m.dernier + ". Dans l'aperçu, l'équipe et les honoraires sont ceux de l'exercice en cours, mis à jour chaque année.", "Durée couverte par la lettre")) +
+        /* Valeurs signées et valeurs en vigueur (avenants) */
+        var corpsLM = '<div class="lm-head"><div><div class="t">' + esc(titreLM) +
+          (contr ? "" : " " + tip("duree-lettre", "La lettre porte sur la durée du mandat, soit les exercices " + m.premier + " à " + m.dernier + ". Une lettre signée n'est pas modifiée : l'équipe et les honoraires en vigueur sont ceux des avenants.", "Durée couverte par la lettre")) +
           '</div><div class="m">' + lmMeta + '</div></div>' +
-          '<span class="badge ' + LM_BADGE[m.lm.statut] + '">' + LM_LIB[m.lm.statut] + "</span></div>" +
-          '<details class="lm-det"><summary><span class="ms">file-text</span>Aperçu de la lettre<span class="ms chev-d">chevron-down</span></summary>' +
-          '<div class="lm-desk"><div class="lm-sheet">' + sheet + "</div></div></details>", "lettre"));
+          '<span class="badge ' + LM_BADGE[m.lm.statut] + '">' + LM_LIB[m.lm.statut] + "</span></div>";
+        var kvL = "";
+        if (lmSignee && avenants.length) {
+          var ev = avenants.filter(function (a) { return a.h; });
+          var dernierH = ev.length ? ev[ev.length - 1] : null;
+          var evE = avenants.filter(function (a) { return a.eq; });
+          var dernierE = evE.length ? evE[evE.length - 1] : null;
+          kvL += kv("Honoraires à la signature", esc(E.euros(H.hon)) + " HT" + parAn, '<span class="val-sub">Exercice ' + m.premier + "</span>");
+          kvL += kv("Équipe à la signature", esc(nomsEquipe(H.equipe)));
+          kvL += kv("Honoraires en vigueur", esc(E.euros(m.honoraires)) + " HT" + parAn,
+            '<span class="val-sub">Exercice ' + anExo + (dernierH ? ", avenant du " + dernierH.d : "") + "</span>");
+          kvL += kv("Équipe en vigueur", esc(nomsEquipe(m.equipe)), dernierE ? '<span class="val-sub">Avenant du ' + dernierE.d + "</span>" : "");
+        } else {
+          kvL += kv("Honoraires " + (contr ? "de la mission" : "annuels"), esc(E.euros(m.honoraires)) + " HT" + parAn);
+        }
+        corpsLM += '<dl class="kv lm-kv">' + kvL + "</dl>";
+        if (avenants.length) {
+          corpsLM += '<h3 class="sous-titre">Avenants</h3><div class="table-scroll"><table class="rtable"><thead><tr><th>Date</th><th>Avenant</th><th>Effet</th></tr></thead><tbody>' +
+            avenants.map(function (a) {
+              return "<tr>" +
+                '<td class="cell-main" data-label="Date"><span class="nom">' + a.d + "</span></td>" +
+                '<td data-label="Avenant">' + (a.h ? "Honoraires" : "Équipe") + "</td>" +
+                '<td data-label="Effet">' + (a.h ? "Honoraires portés de " + esc(E.euros(a.h[0])) + " à " + esc(E.euros(a.h[1])) + " HT" + parAn : esc(a.eq)) + "</td></tr>";
+            }).join("") + "</tbody></table></div>";
+        }
+        corpsLM += '<details class="lm-det"><summary><span class="ms">file-text</span>' + (lmSignee ? "Aperçu de la lettre signée" : "Aperçu de la lettre") + '<span class="ms chev-d">chevron-down</span></summary>' +
+          '<div class="lm-desk"><div class="lm-sheet">' + sheet + "</div></div></details>";
+        out.push(carte("file-pen-line", "Lettre de mission CAC", "", btnRelance, corpsLM, "lettre"));
 
         /* 5. Indépendance et acceptation */
         var indBadge = indep.statut === "a_jour" ? '<span class="badge badge-success">' + E.INDEP.a_jour + "</span>"
@@ -1145,6 +1247,9 @@
         if (m.nomination) ajoute(m.nomination, "stamp", "Nomination comme commissaire aux comptes " + de(m.nom) + ".", esc(signataire.nom));
         if (m.lm.date) ajoute(m.lm.date, lmSignee ? "file-pen-line" : "send", lmSignee ? "Lettre de mission signée (réf. " + m.lm.ref + ")." : "Lettre de mission envoyée pour signature (réf. " + m.lm.ref + ").", esc(signataire.nom));
         if (indep.date) ajoute(indep.date, "shield-check", "Déclaration d'indépendance de l'équipe" + (indep.statut === "a_renouveler" ? " (à renouveler)." : "."), esc(equipe.map(function (k) { return E.equipe[k].nom; }).join(", ")), indep.statut === "a_renouveler");
+        avenants.forEach(function (a) {
+          ajoute(a.d, a.h ? "file-pen-line" : "users", a.h ? "Avenant d'honoraires : " + E.euros(a.h[0]) + " portés à " + E.euros(a.h[1]) + " HT." : "Avenant d'équipe : " + a.eq + ".", esc(signataire.nom));
+        });
         if (L.ouverture) ajoute(L.ouverture, "folder-open", "Dossier de vigilance LAB ouvert.", esc(E.equipe[E.responsableLab("cac")].nom));
         if (L.derniereRevue) ajoute(L.derniereRevue, "shield-check", "Revue LAB validée (risque " + (L.risque ? E.RISQUE[L.risque].replace("Risque ", "") : "non évalué") + ").", esc(E.equipe[E.responsableLab("cac")].nom));
         rapportsEmis.forEach(function (x) {
@@ -1160,6 +1265,8 @@
         document.getElementById("sections").innerHTML = out.join("");
 
         /* ---------- Interactions ---------- */
+        var bX = document.getElementById("exporter");
+        if (bX) bX.addEventListener("click", function () { window.print(); });
         var retour = document.getElementById("retour");
         var bR = document.getElementById("relance");
         if (bR)
@@ -1170,6 +1277,6 @@
           });
       });
     </script>
-    <script src="assets/ej-shell.js?v=24"></script>
+    <script src="assets/ej-shell.js?v=25"></script>
   </body>
 </html>

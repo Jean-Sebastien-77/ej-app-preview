@@ -10,6 +10,19 @@
   "use strict";
   var E = window.EJM;
 
+  /* ---------- Couleurs : une teinte désigne un état, jamais un objet ----------
+     alerte (warning)      : retard, échéance dépassée, risque élevé, à renouveler
+     afaire (attention)    : action attendue du cabinet (à signer, à établir, à vérifier, à préparer)
+     encours (info)        : en cours ou en attente d'un tiers (en signature, envoyée)
+     fait (mint)           : terminé, conforme, à jour, risque faible, documents prêts
+     neutre (primary)      : volume ou comptage sans état
+     attenue (muted)       : brouillon, non évalué, sans objet
+     comparaison (n1)      : N-1, sociétés civiles comptées à part
+     Catégories sans état (forme juridique, type de mandat) : teintes neutres CAT, jamais celles d'état. */
+  var T = { alerte: "warning", afaire: "attention", encours: "info", fait: "mint", neutre: "primary", attenue: "muted", comparaison: "n1" };
+  var FORME_TONE = { SAS: "primary", SARL: "soft", SA: "accent", SELARL: "muted", "Sociétés civiles": "n1" };
+  var CAT = ["primary", "accent", "soft"];
+
   /* ---------- Repères de temps ---------- */
   var TODAY = new Date(2026, 9, 19);
   var CALC = "19/10/2026 à 07:00";
@@ -218,9 +231,9 @@
     { soc: "CL OPTIC", ref: "#GC-2026-143", dep: "#2 · Comptes annuels", st: "pret", date: "16/09/2026", by: "Marc Renaud" },
   ];
   var DEP_ST = {
-    a_signer: { label: "Documents à signer", action: "Lancer la signature", tone: "attention" },
-    sig: { label: "En signature", action: "Suivre la signature", tone: "info" },
-    pret: { label: "Prêt à déposer", action: "Déposer au Guichet unique", tone: "primary" },
+    a_signer: { label: "Documents à signer", action: "Lancer la signature", tone: T.afaire },
+    sig: { label: "En signature", action: "Suivre la signature", tone: T.encours },
+    pret: { label: "Prêt à déposer", action: "Déposer au Guichet unique", tone: T.fait },
   };
 
   /* ---------- Formalités : 164 au total, 20 au statut « Formulaire en cours » ----------
@@ -579,7 +592,7 @@
   }
   function labRisqueLabels(by) {
     var l = ["Risque faible", "Risque standard", "Risque élevé", "Non évalué"];
-    var t = ["mint", "info", "warning", "muted"];
+    var t = [T.fait, T.neutre, T.alerte, T.attenue];
     if (by.length > 4) { l.push("Relation terminée"); t.push("soft"); }
     return { labels: l, tones: t };
   }
@@ -642,7 +655,10 @@
   }
   var COV_EJM = "Lettres de mission et dossiers LAB : " + E.societes.length + " sociétés couvertes.";
   var COV_CAC = "Tous les mandats CAC du cabinet (" + E.mandats.length + ").";
-  var COV_PONCT = "Toutes les missions ponctuelles du cabinet (" + (E.ponctuelles || []).length + ").";
+  /* Lue à l'affichage : les missions créées pendant la session sont fusionnées dans EJM.ponctuelles */
+  function covPonct() {
+    return "Toutes les missions ponctuelles du cabinet (" + (E.ponctuelles || []).length + ").";
+  }
 
   /* ---------- Séries de base ---------- */
   function agSeries(ctx, months, keepHeld) {
@@ -737,7 +753,7 @@
         return socRow(x, x.crea ? "En cours de création" : "Date de clôture absente du DPJ", { action: "Compléter la fiche" });
       }) },
       lab: { label: "Dossiers LAB à traiter", rows: labDossiers(ctx).filter(labATraiter).map(labRow) },
-      lm: { label: "Lettres de mission non signées", rows: e.filter(function (x) { return x.lm.statut !== "signee"; }).map(lmRow) },
+      lm: { label: "Lettres de mission à signer ou à renouveler", rows: e.filter(function (x) { return x.lm.statut !== "signee"; }).map(lmRow) },
     };
   }
   function echeances(ctx) {
@@ -880,7 +896,7 @@
     cov: function (ctx) { return "Toutes les sociétés du cabinet (" + socs(ctx).length + formeLabel(ctx) + ")."; },
     compute: function (ctx) {
       var groups = ["SAS", "SARL", "SA", "SELARL", "Sociétés civiles"];
-      var tones = ["primary", "info", "accent", "mint", "muted"];
+      var tones = groups.map(function (g) { return FORME_TONE[g]; });
       var by = groups.map(function (g) { return socs(ctx).filter(function (s) { return grpForme(s.f) === g; }); });
       var keep = groups.map(function (g, i) { return by[i].length > 0; });
       var cats = groups.filter(function (g, i) { return keep[i]; });
@@ -953,7 +969,7 @@
         cats.push(FAM.autre);
         rows.push(rest);
       }
-      return catResult(cats, cats.map(function (c, i) { return i === 0 ? "primary" : "info"; }), rows.map(function (l) { return l.map(formRow); }));
+      return catResult(cats, cats.map(function (c, i) { return i === 0 ? "primary" : "soft"; }), rows.map(function (l) { return l.map(formRow); }));
     },
   });
   ind("ops_statut", {
@@ -968,10 +984,10 @@
       }
       var cats = ["Approbation des comptes", "Modification de capital", "Constitution", "Autres opérations"];
       var st = [
-        { name: "Formulaire en cours", tone: "muted", rows: fams.map(function (k) { return forms(ctx).filter(function (f) { return f.st === "en_cours" && famOf(f.ref) === k; }).map(formRow); }) },
-        { name: "Documents à signer", tone: "attention", rows: fams.map(function (k) { return deps(ctx).filter(function (d) { return d.st === "a_signer" && famOf(d.ref) === k; }).map(depRow); }) },
-        { name: "En signature", tone: "info", rows: fams.map(function (k) { return deps(ctx).filter(function (d) { return d.st === "sig" && famOf(d.ref) === k; }).map(depRow); }) },
-        { name: "Prêt à déposer", tone: "primary", rows: fams.map(function (k) { return deps(ctx).filter(function (d) { return d.st === "pret" && famOf(d.ref) === k; }).map(depRow); }) },
+        { name: "Formulaire en cours", tone: T.attenue, rows: fams.map(function (k) { return forms(ctx).filter(function (f) { return f.st === "en_cours" && famOf(f.ref) === k; }).map(formRow); }) },
+        { name: "Documents à signer", tone: T.afaire, rows: fams.map(function (k) { return deps(ctx).filter(function (d) { return d.st === "a_signer" && famOf(d.ref) === k; }).map(depRow); }) },
+        { name: "En signature", tone: T.encours, rows: fams.map(function (k) { return deps(ctx).filter(function (d) { return d.st === "sig" && famOf(d.ref) === k; }).map(depRow); }) },
+        { name: "Prêt à déposer", tone: T.fait, rows: fams.map(function (k) { return deps(ctx).filter(function (d) { return d.st === "pret" && famOf(d.ref) === k; }).map(depRow); }) },
       ];
       return {
         kind: "matrix", categories: cats, stacked: true,
@@ -1076,11 +1092,11 @@
       var bs = ks.map(function (k) { return rows.map(function (l) { return l.filter(function (x) { return !x.s.civ && x.a.etat === k; }); }); });
       var civ = onlyCiv(rows);
       var names = [ETATS.prep, ETATS.form, ETATS.gen];
-      var tones = ["primary", "accent", "mint"];
+      var tones = [T.afaire, T.attenue, T.fait];
       if (sum(lens(civ))) {
         bs.push(civ);
         names.push("Sociétés civiles (à part)");
-        tones.push("n1");
+        tones.push(T.comparaison);
       }
       return {
         kind: "matrix", stacked: true, hideZeros: true, categories: cats(ms), titles: longs(ms), months: ms,
@@ -1102,7 +1118,7 @@
       var rows = agSeries(ctx, ms);
       var groups = ["SAS", "SARL", "SA", "SELARL", "Sociétés civiles"];
       var names = ["SAS", "SARL", "SA", "SELARL", "Sociétés civiles (à part)"];
-      var tones = ["primary", "soft", "accent", "muted", "n1"];
+      var tones = groups.map(function (g) { return FORME_TONE[g]; });
       var by = groups.map(function (g) { return rows.map(function (l) { return l.filter(function (x) { return grpForme(x.s.f) === g; }); }); });
       var keep = by.map(function (b) { return sum(lens(b)) > 0; });
       var gi = groups.map(function (g, i) { return i; }).filter(function (i) { return keep[i]; });
@@ -1194,7 +1210,7 @@
       var v = vigilance(ctx);
       var t = v.ag.rows.length + v.dep.rows.length;
       return {
-        value: t, display: nf(t), delta: null, sub: "dont " + v.ag.rows.length + " AG hors délai", spark: null, alert: t > 0,
+        value: t, display: nf(t), delta: null, sub: "dont " + v.ag.rows.length + " AG hors délai", spark: null, alert: t > 0 ? "alerte" : false,
         rows: function () { return v.ag.rows.concat(v.dep.rows); },
       };
     },
@@ -1207,7 +1223,7 @@
     compute: function (ctx) {
       var v = vigilance(ctx);
       var l = [v.ns, v.lab, v.lm];
-      var r = catResult(l.map(function (x) { return x.label; }), ["info", "warning", "attention"], l.map(function (x) { return x.rows; }));
+      var r = catResult(l.map(function (x) { return x.label; }), [T.afaire, T.afaire, T.afaire], l.map(function (x) { return x.rows; }));
       r.useTones = true;
       return r;
     },
@@ -1219,7 +1235,7 @@
     cov: covClot,
     compute: function (ctx) {
       var v = vigilance(ctx);
-      return catResult(["Suivies l'an dernier", "Sans historique EJ", "Sans clôture (repli)"], ["primary", "soft", "muted"], v.ns.parts, { useTones: true });
+      return catResult(["Approuvées dans EJ l'an dernier", "Aucune approbation dans EJ depuis un an", "Sans date de clôture"], [T.afaire, T.afaire, T.afaire], v.ns.parts, { useTones: true, note: v.ns.rows.length + " " + pl(v.ns.rows.length, "AG non suivie", "AG non suivies") + " au total" });
     },
   });
   ind("ag_hors_delai", {
@@ -1229,7 +1245,7 @@
     cov: covClot,
     compute: function (ctx) {
       var r = vigilance(ctx).ag.rows;
-      return { value: r.length, display: nf(r.length), delta: null, sub: "exercice de la campagne", spark: null, alert: r.length > 0, rows: function () { return r; } };
+      return { value: r.length, display: nf(r.length), delta: null, sub: "exercice de la campagne", spark: null, alert: r.length > 0 ? "alerte" : false, rows: function () { return r; } };
     },
   });
   ind("depots_retard", {
@@ -1239,7 +1255,7 @@
     cov: covClot,
     compute: function (ctx) {
       var r = vigilance(ctx).dep.rows;
-      return { value: r.length, display: nf(r.length), delta: null, sub: "délai de dépôt dépassé", spark: null, alert: r.length > 0, rows: function () { return r; } };
+      return { value: r.length, display: nf(r.length), delta: null, sub: "délai de dépôt dépassé", spark: null, alert: r.length > 0 ? "alerte" : false, rows: function () { return r; } };
     },
   });
   ind("lab_risque", {
@@ -1298,13 +1314,13 @@
     compute: function (ctx) {
       var ks = ["signee", "envoyee", "brouillon", "a_renouveler", "absente"];
       var by = ks.map(function (k) { return ejms(ctx).filter(function (s) { return s.lm.statut === k; }).map(lmRow); });
-      return catResult(ks.map(function (k) { return E.LM_STATUT[k]; }), ["mint", "info", "muted", "warning", "attention"], by, { useTones: true });
+      return catResult(ks.map(function (k) { return E.LM_STATUT[k]; }), [T.fait, T.encours, T.attenue, T.alerte, T.afaire], by, { useTones: true });
     },
   });
   ind("lm_non_signees", {
-    group: "ec", theme: "vigilance", kind: "kpi", title: "Lettres non signées", dims: ["forme"], src: SRC.lm,
-    kw: ["lettres non signees", "lettres de mission non signees", "lettres a signer"],
-    rule: "Lettre au statut autre que « Signée » : brouillon, envoyée, à renouveler ou absente.",
+    group: "ec", theme: "vigilance", kind: "kpi", title: "Lettres de mission à signer ou à renouveler", dims: ["forme"], src: SRC.lm,
+    kw: ["lettres non signees", "lettres de mission non signees", "lettres a signer", "lettres a renouveler", "lettres de mission a renouveler", "lettres de mission a signer", "a signer ou a renouveler", "lettres de mission sont a signer", "lettres sont a signer"],
+    rule: "Lettre au statut autre que « Signée » : brouillon, envoyée pour signature, absente (à signer ou à établir), ou à renouveler (lettre signée dont l'échéance est atteinte).",
     cov: function () { return COV_EJM; },
     compute: function (ctx) {
       var r = ejms(ctx).filter(function (s) { return s.lm.statut !== "signee"; });
@@ -1394,17 +1410,19 @@
     return COV_CAC;
   }
   ind("cac_missions", {
-    group: "cac", theme: "cac_missions", kind: "kpi", title: "Mandats", dims: ["type", "signataire"], src: SRC.cac,
+    group: "cac", theme: "cac_missions", kind: "kpi", title: "Mandats", dims: ["type", "signataire", "periode"], dir: "back", src: SRC.cac,
     kw: ["mandats", "nombre de mandats", "combien de mandats", "entites controlees", "missions cac"],
-    rule: "Mandats de commissariat aux comptes suivis : mandats légaux, audits légaux petites entreprises et audits contractuels. Variation : mandats acceptés sur les 12 derniers mois. Les missions ponctuelles (apports, fusions, transformations) sont comptées à part.",
+    rule: "Mandats de commissariat aux comptes suivis : mandats légaux, audits légaux petites entreprises et audits contractuels. Variation et courbe : mandats entrés dans le portefeuille (date de nomination, sinon d'ouverture du dossier LAB) sur la période du tableau, mois par mois. Les missions ponctuelles (apports, fusions, transformations) sont comptées à part.",
     cov: covC,
     compute: function (ctx) {
       var l = mandats(ctx);
-      var lim = new Date(2025, 9, 20);
-      var nouv = l.filter(function (m) { return parse(m.nomination || m.lab.ouverture) >= lim; }).length;
+      var n = per(ctx);
+      var ms = back(n);
+      function debut(m) { return parse(m.nomination || m.lab.ouverture); }
+      var nouv = l.filter(function (m) { return debut(m) >= ms[0].from; }).length;
       return {
-        value: l.length, display: nf(l.length), delta: "+" + nouv + " sur les 12 derniers mois", deltaTone: nouv ? "up" : "flat",
-        spark: [2021, 2022, 2023, 2024, 2025, 2026].map(function (y) { return l.filter(function (m) { return m.premier <= y; }).length; }),
+        value: l.length, display: nf(l.length), delta: "+" + nouv + " sur les " + n + " derniers mois", deltaTone: nouv ? "up" : "flat",
+        spark: ms.map(function (mo) { var fin = mo.idx === CUR ? TODAY : mo.to; return l.filter(function (m) { return debut(m) <= fin; }).length; }),
         rows: function () { return l.map(function (m) { return mandRow(m, E.TYPE_MANDAT[m.type] + " · exercice clos le " + m.ex.clos); }); },
       };
     },
@@ -1468,42 +1486,75 @@
     group: "cac", theme: "cac_missions", kind: "kpi", title: "Missions ponctuelles en cours", dims: ["signataire"], src: SRC.cac + ", missions ponctuelles",
     kw: ["missions ponctuelles en cours", "missions ponctuelles sont en cours", "combien de missions ponctuelles", "nombre de missions ponctuelles", "missions ponctuelles ouvertes"],
     rule: "Missions ponctuelles du commissaire aux comptes (apports, transformations, fusions) dont l'étape n'est pas « Terminée ».",
-    cov: function () { return COV_PONCT; },
+    cov: covPonct,
     compute: function (ctx) {
       var all = ponctuelles(ctx);
       var l = all.filter(enCours);
       l.sort(function (a, b) { return parse(a.depotAvant) - parse(b.depotAvant); });
       return {
         value: l.length, display: nf(l.length), delta: null, sub: "sur " + all.length + " " + pl(all.length, "mission ponctuelle", "missions ponctuelles"), spark: null,
-        rows: function () { return l.map(function (p) { return ponctRow(p, E.NATURE[p.nature] + " · " + E.ETAPE[p.etape] + " · dépôt avant le " + p.depotAvant); }); },
+        rows: function () { return l.map(function (p) { return ponctRow(p, E.NATURE[p.nature] + " · " + E.ETAPE[p.etape] + " · mise à disposition au plus tard le " + p.depotAvant); }); },
       };
     },
   });
   ind("cac_ponct_etapes", {
     group: "cac", theme: "cac_missions", kind: "cat", title: "Missions ponctuelles par étape", viz: "barh", vizes: ["barh", "bar", "table"], dims: ["signataire"], src: SRC.cac + ", missions ponctuelles",
     kw: ["missions ponctuelles par etape", "missions ponctuelles", "etapes des missions ponctuelles", "avancement des missions ponctuelles", "missions ponctuelles par etapes"],
-    rule: "Missions ponctuelles en cours (apports, transformations, fusions) par étape, dans l'ordre : désignation, acceptation, pièces, rapport, signature, dépôt. Missions terminées exclues.",
-    cov: function () { return COV_PONCT; },
+    rule: "Missions ponctuelles en cours (apports, transformations, fusions) par étape, dans l'ordre : " + ["designation", "acceptation", "pieces", "rapport", "signature", "depot"].map(function (k) { return E.ETAPE[k].toLowerCase(); }).join(", ") + ". Missions terminées exclues.",
+    cov: covPonct,
     compute: function (ctx) {
       var ks = ["designation", "acceptation", "pieces", "rapport", "signature", "depot"];
       var l = ponctuelles(ctx).filter(enCours);
-      var by = ks.map(function (k) { return l.filter(function (p) { return p.etape === k; }).map(function (p) { return ponctRow(p, E.NATURE[p.nature] + " · dépôt avant le " + p.depotAvant); }); });
+      var by = ks.map(function (k) { return l.filter(function (p) { return p.etape === k; }).map(function (p) { return ponctRow(p, E.NATURE[p.nature] + " · mise à disposition au plus tard le " + p.depotAvant); }); });
       return catResult(ks.map(function (k) { return E.ETAPE[k]; }), ks.map(function () { return "primary"; }), by);
     },
   });
+  function delaiTxt(p) {
+    return p.delai && p.delai.texte ? " · " + p.delai.texte : "";
+  }
   ind("cac_ponct_depots", {
-    group: "cac", theme: "cac_missions", kind: "list", title: "Dépôts de rapports ponctuels à venir", sub: "Date limite de dépôt", viz: "list", vizes: ["list"], dims: ["signataire"], src: SRC.cac + ", missions ponctuelles",
-    kw: ["depots de rapports ponctuels", "depots de rapports", "rapports ponctuels a deposer", "depots a venir", "prochains depots de rapports", "depots ponctuels"],
-    rule: "Missions ponctuelles en cours, triées par date limite de dépôt du rapport. Règle retenue : dépôt au plus tard 8 jours avant l'assemblée qui statue sur l'opération, à faire valider par un professionnel. Une date dépassée est mise en avant.",
-    cov: function () { return COV_PONCT; },
+    group: "cac", theme: "cac_missions", kind: "list", title: "Rapports ponctuels à mettre à disposition", sub: "Au siège de la société, avant le", viz: "list", vizes: ["list"], dims: ["signataire"], src: SRC.cac + ", missions ponctuelles",
+    kw: ["rapports ponctuels a mettre a disposition", "mise a disposition des rapports", "mise a disposition", "depots de rapports ponctuels", "depots de rapports", "rapports ponctuels a deposer", "depots a venir", "prochains depots de rapports", "depots ponctuels"],
+    rule: "Missions ponctuelles en cours, triées par date limite de mise à disposition du rapport au siège de la société, avant l'assemblée qui statue sur l'opération. Le délai dépend de l'opération et figure sur chaque ligne. Une date dépassée est mise en avant.",
+    cov: covPonct,
     compute: function (ctx) {
       var l = ponctuelles(ctx).filter(enCours);
       l.sort(function (a, b) { return parse(a.depotAvant) - parse(b.depotAvant); });
       return {
-        kind: "list", columns: ["Date", "Entité", "Mission"],
+        kind: "list", columns: ["Avant le", "Entité", "Mission"], showHead: true,
         items: l.slice(0, 10).map(function (p) { return { date: p.depotAvant, title: p.nom, forme: p.forme, label: E.NATURE[p.nature] + " · " + E.ETAPE[p.etape], href: "cac-mission.html?id=" + encodeURIComponent(p.id), action: "Ouvrir la mission", urgent: parse(p.depotAvant) < TODAY }; }),
         total: l.length,
-        rows: function () { return l.map(function (p) { return ponctRow(p, "Dépôt avant le " + p.depotAvant + " · " + E.NATURE[p.nature] + " · " + E.ETAPE[p.etape]); }); },
+        rows: function () { return l.map(function (p) { return ponctRow(p, "Mise à disposition au plus tard le " + p.depotAvant + delaiTxt(p) + " · " + E.NATURE[p.nature] + " · " + E.ETAPE[p.etape]); }); },
+      };
+    },
+  });
+  /* Écarts du commissariat aux comptes qui appellent une action : échéance dépassée ou sous dix jours */
+  ind("cac_urgences", {
+    group: "cac", theme: "cac_missions", kind: "kpi", title: "Échéances dépassées ou sous 10 jours", dims: ["type", "signataire"], src: SRC.cac + ", missions ponctuelles",
+    kw: ["echeances depassees", "echeances sous 10 jours", "echeances urgentes", "retards cac", "urgences", "a traiter en urgence", "rapports en retard", "echeances cac depassees"],
+    rule: "Missions ponctuelles en cours dont la date limite de mise à disposition du rapport est dépassée ou tombe dans les 10 jours, et rapports de mandat (15 jours avant l'AG) à émettre dans les 10 jours ou en retard, AG non encore tenue.",
+    cov: function (ctx) { return COV_CAC + " " + covPonct(); },
+    compute: function (ctx) {
+      var lim = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate() + 10);
+      var items = [];
+      var apres = null;
+      mandats(ctx).forEach(function (m) {
+        if (!m.ag || parse(m.ag) < TODAY) return;
+        var d = rapportDu(m);
+        if (d > lim && (!apres || d < apres)) apres = d;
+        if (d <= lim) items.push({ d: d, late: d < TODAY, row: mandRow(m, "Rapport à émettre au plus tard le " + fmt(d) + " · AG prévue le " + m.ag) });
+      });
+      ponctuelles(ctx).filter(enCours).forEach(function (p) {
+        var d = parse(p.depotAvant);
+        if (d > lim && (!apres || d < apres)) apres = d;
+        if (d <= lim) items.push({ d: d, late: d < TODAY, row: ponctRow(p, "Mise à disposition au plus tard le " + p.depotAvant + delaiTxt(p) + " · " + E.NATURE[p.nature] + " · " + E.ETAPE[p.etape]) });
+      });
+      items.sort(function (a, b) { return a.d - b.d; });
+      items.forEach(function (x) { x.row.badge = x.late ? { label: "Échéance dépassée", tone: "action" } : { label: "Sous 10 jours", tone: "progress" }; });
+      var late = items.filter(function (x) { return x.late; }).length;
+      return {
+        value: items.length, display: nf(items.length), delta: null, sub: items.length ? (late ? "dont " + late + " " + pl(late, "dépassée", "dépassées") + " · " : "") + "la plus proche au plus tard le " + fmt(items[0].d) : apres ? "Prochaine échéance au plus tard le " + fmt(apres) : "Aucune échéance à venir", spark: null,
+        alert: late ? "alerte" : items.length > 0, rows: function () { return items.map(function (x) { return x.row; }); },
       };
     },
   });
@@ -1516,7 +1567,7 @@
       var ks = ["legal", "alpe", "contractuel"];
       var lab = ["Mandat légal", "Audit légal petite entreprise", "Audit contractuel"];
       var by = ks.map(function (k) { return mandats(ctx).filter(function (m) { return m.type === k; }).map(function (m) { return mandRow(m, E.TYPE_MANDAT[m.type]); }); });
-      var r = catResult(lab, ["primary", "info", "mint"], by);
+      var r = catResult(lab, CAT, by);
       r.center = { value: nf(mandats(ctx).length), label: "mandats" };
       return r;
     },
@@ -1541,7 +1592,7 @@
         kind: "matrix", stacked: true, hideZeros: true, categories: cats(ms), titles: longs(ms), months: ms,
         series: [
           { name: "AG d'approbation", values: ag.map(function (l) { return l.length; }), tone: "primary" },
-          { name: "Fin de mandat", values: fin.map(function (l) { return l.length; }), tone: "attention" },
+          { name: "Fin de mandat", values: fin.map(function (l) { return l.length; }), tone: T.afaire },
         ],
         rows: function (si, ci) {
           var sets = si == null ? src : [src[si]];
@@ -1558,7 +1609,7 @@
     compute: function (ctx) {
       var ys = [2026, 2027, 2028, 2029, 2030];
       var by = ys.map(function (y) { return mandats(ctx).filter(function (m) { return m.type !== "contractuel" && m.dernier === y; }).map(function (m) { return mandRow(m, "Dernier exercice " + m.dernier + " · " + E.TYPE_MANDAT[m.type]); }); });
-      return catResult(ys.map(String), ys.map(function (y, i) { return i === 0 ? "attention" : "primary"; }), by);
+      return catResult(ys.map(String), ys.map(function (y, i) { return i === 0 ? T.afaire : T.neutre; }), by);
     },
   });
   ind("cac_indep", {
@@ -1569,7 +1620,7 @@
     compute: function (ctx) {
       var ks = ["a_jour", "a_renouveler", "a_faire"];
       var by = ks.map(function (k) { return mandats(ctx).filter(function (m) { return m.independance.statut === k; }).map(function (m) { return mandRow(m, E.INDEP[k] + (m.independance.date ? " · " + m.independance.date : "")); }); });
-      var r = catResult(["À jour", "À renouveler", "À faire"], ["mint", "warning", "attention"], by);
+      var r = catResult(["À jour", "À renouveler", "À faire"], [T.fait, T.alerte, T.afaire], by);
       r.center = { value: nf(mandats(ctx).length), label: "mandats" };
       return r;
     },
@@ -1583,7 +1634,7 @@
       var ks = ["signee", "envoyee", "a_etablir"];
       var lab = ["Signée", "Envoyée", "À établir"];
       var by = ks.map(function (k, i) { return mandats(ctx).filter(function (m) { return m.lm.statut === k; }).map(function (m) { return mandRow(m, lab[i] + (m.lm.ref ? " · " + m.lm.ref : "")); }); });
-      var r = catResult(lab, ["mint", "info", "attention"], by);
+      var r = catResult(lab, [T.fait, T.encours, T.afaire], by);
       r.center = { value: nf(mandats(ctx).length), label: "mandats" };
       return r;
     },
@@ -1615,10 +1666,12 @@
   }
   var BOARDS = [
     { id: "ec_vue", group: "ec", title: "Vue d'ensemble", icon: "layout_dashboard", widgets: [
-      W("soc_suivies", "S"), W("form_ouvertes", "S"), W("ag_6m", "S"), W("retards_legaux", "S"),
-      W("ag_mois", "M"), W("form_mois", "M"), W("portefeuille_forme", "M"), W("ops_statut", "M"), W("vig_points", "M"), W("form_types", "M"),
+      /* lecture stratégique : les retards qui appellent une action d'abord, en grand ; six widgets au plus (profil mixte compris) */
+      W("retards_legaux", "L"),
+      W("vig_points", "M"), W("ag_mois", "M"),
+      W("ag_6m", "M"), W("soc_suivies", "M"),
       /* visibles en profil mixte seulement */
-      W("section_cac", "L"), W("cac_missions", "S"), W("cac_rapports_3m", "S"), W("cac_fins", "S"), W("cac_ponct_cours", "S"),
+      W("section_cac", "L"), W("cac_urgences", "L"),
     ] },
     { id: "ec_charge", group: "ec", title: "Charge juridique", icon: "calendar", widgets: [
       W("ag_mois_etat", "L"), W("depots_mois", "M"), W("dpj_couverture", "M"), W("echeances", "L"),
@@ -1631,8 +1684,9 @@
       W("docs_a_signer", "S"), W("prets_a_deposer", "S"), W("form_en_cours", "S"), W("sans_mouvement", "S"), W("file_jour", "L"),
     ] },
     { id: "cac_vue", group: "cac", title: "Vue d'ensemble CAC", icon: "briefcase", widgets: [
-      W("cac_missions", "S"), W("cac_rapports_3m", "S"), W("cac_fins", "S"), W("cac_ponct_cours", "S"),
-      W("cac_rapports_mois", "M"), W("cac_echeances_mois", "M"), W("cac_ponct_etapes", "M"), W("cac_types", "M"), W("cac_ponct_depots", "L"),
+      W("cac_urgences", "L"),
+      W("cac_missions", "S"), W("cac_rapports_3m", "S"), W("cac_ponct_cours", "S"), W("cac_fins", "S"),
+      W("cac_rapports_mois", "L"),
     ] },
     { id: "cac_mandats", group: "cac", title: "Mandats et indépendance", icon: "file_pen_line", widgets: [
       W("cac_fins_annee", "M"), W("cac_indep", "M"), W("cac_lm", "M"), W("cac_lab_risque", "M"),
@@ -1662,7 +1716,7 @@
       pats.push({ p: p, type: type, id: id, cap: !!cap });
     }
     var names = SOC.map(function (s) { return s.n; });
-    E.societes.concat(E.mandats).forEach(function (s) {
+    E.societes.concat(E.mandats, E.ponctuelles || []).forEach(function (s) {
       if (names.indexOf(s.nom) === -1) names.push(s.nom);
     });
     names.push("ARVEL AUDIT");
@@ -1783,7 +1837,7 @@
   }
 
   window.EJC = {
-    TODAY: TODAY, CALC: CALC, MOIS: MOIS, MOIS_C: MOIS_C, MOIS_N: MOIS_N, CUR: CUR,
+    TONE: T, FORME_TONE: FORME_TONE, CAT: CAT, TODAY: TODAY, CALC: CALC, MOIS: MOIS, MOIS_C: MOIS_C, MOIS_N: MOIS_N, CUR: CUR,
     fmt: fmt, parse: parse, month: month, back: back, fwd: fwd, nf: nf, pl: pl, fold: fold,
     FORMES: FORMES, CIVILES: CIVILES, CREATEURS: CREATEURS, PEOPLE: PEOPLE,
     TYPES_MISSION: { legal: "Mandat légal", alpe: "Audit légal petite entreprise", contractuel: "Audit contractuel" },

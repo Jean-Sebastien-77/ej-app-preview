@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=19" />
-    <link rel="stylesheet" href="assets/ej-missions.css?v=21" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=23" />
     <style>
       /* Cockpit en canevas de tableaux (préfixe cv-). Aucune nouvelle couleur : tokens de ej-app.css. */
       .page.cv-page {
@@ -24,9 +24,6 @@
       /* La bulle d'aide fixe recouvrait des widgets : sur le cockpit, l'aide passe par « Demander à l'IA » */
       body[data-active="cockpit"] .help-bubble {
         display: none;
-      }
-      body.cv-ai-open .main {
-        transition: padding-right var(--ej-transition-normal);
       }
 
       /* ---------- En-tête ---------- */
@@ -394,6 +391,21 @@
         border-radius: 50%;
         background: var(--ej-attention-500);
       }
+      /* Retard légal ou échéance dépassée : teinte d'alerte (le point d'attention reste réservé aux actions à mener) */
+      .cv-alert.is-late .cv-w-title::before {
+        background: var(--ej-warning-600);
+      }
+      /* Chiffre clé en grand (lecture stratégique) : le chiffre domine, la liste s'ouvre par un vrai bouton */
+      .cv-w.cv-L.is-kpi .cv-kpi-val {
+        font-size: 52px;
+      }
+      .cv-w.cv-L.is-kpi .cv-kpi-delta {
+        font-size: 14px;
+      }
+      .cv-kpi-list {
+        align-self: flex-start;
+        margin-top: 14px;
+      }
       .cv-spark {
         margin-top: auto;
         padding-top: 10px;
@@ -419,6 +431,15 @@
       }
       .cv-list.nodate .cv-li {
         grid-template-columns: minmax(0, 1fr) auto;
+      }
+      .cv-li-h {
+        padding-top: 6px;
+        padding-bottom: 6px;
+        border-top: 0;
+        font-size: 11.5px;
+        font-weight: 600;
+        color: var(--ej-neutral-500);
+        background: var(--ej-neutral-50);
       }
       .cv-li-date {
         font-variant-numeric: tabular-nums;
@@ -1835,6 +1856,38 @@
       .cv-rt .cv-forme {
         margin-left: 5px;
       }
+      /* Réponse dans le panneau (480 px) : colonnes lisibles, défilement horizontal plutôt que texte écrasé, société figée à gauche */
+      .cv-ai .cv-rt {
+        min-width: 540px;
+        font-size: 13px;
+      }
+      .cv-ai .cv-rt th,
+      .cv-ai .cv-rt td {
+        padding: 9px 12px;
+        line-height: 1.4;
+      }
+      .cv-ai .cv-rt td {
+        min-width: 104px;
+      }
+      .cv-ai .cv-rt .cv-rt-soc {
+        min-width: 168px;
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        background: var(--ej-white);
+      }
+      .cv-ai .cv-rt th:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+      }
+      .cv-ai .cv-rt tbody tr:nth-child(even) td {
+        background: var(--ej-neutral-50);
+      }
+      .cv-ai .cv-rt .cv-forme {
+        display: block;
+        margin: 1px 0 0;
+      }
       .cv-more {
         margin-top: 8px;
       }
@@ -1850,6 +1903,41 @@
       .cv-src .ms {
         font-size: 13px;
         margin-right: -10px;
+      }
+      .cv-evi {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        margin: -4px 0 -4px -6px;
+        border-radius: var(--ej-radius-full);
+        color: var(--ej-neutral-500);
+      }
+      .cv-evi:hover,
+      .cv-evi[aria-expanded="true"] {
+        background: var(--ej-primary-50);
+        color: var(--ej-primary-900);
+      }
+      .cv-evi .ms {
+        margin: 0;
+        font-size: 16px;
+      }
+      .cv-evn {
+        margin-top: 6px;
+        padding: 10px 12px;
+        border: 1px solid var(--ej-neutral-100);
+        border-radius: var(--ej-radius-md);
+        background: var(--ej-neutral-50);
+        font-size: 12.5px;
+        color: var(--ej-neutral-700);
+      }
+      .cv-evn[hidden] {
+        display: none;
+      }
+      .cv-evn-h {
+        font-weight: 600;
+        color: var(--ej-neutral-800);
       }
       .cv-cov {
         list-style: none;
@@ -1867,6 +1955,9 @@
       .cv-cov .ms {
         font-size: 13px;
         color: var(--ej-attention-500);
+      }
+      .cv-cov li {
+        justify-content: space-between;
       }
       .cv-menu.up {
         top: auto;
@@ -2061,6 +2152,13 @@
       .cv-toast[hidden] {
         display: none;
       }
+      .cv-toast-link {
+        flex: 1 1 280px;
+        min-width: 200px;
+        height: 32px;
+        padding: 0 10px;
+        font-size: 12.5px;
+      }
       .cv-toast button {
         color: var(--ej-logo-mint);
         font-weight: 600;
@@ -2068,22 +2166,10 @@
         border-radius: var(--ej-radius-sm);
       }
 
-      @media (min-width: 1280px) {
-        body.cv-ai-open .main {
-          padding-right: 480px;
-        }
-        body.cv-ai-open .help-bubble {
-          display: none;
-        }
-        body.cv-ai-open .cv-w.is-kpi .cv-w-title {
-          white-space: normal;
-        }
-      }
-      /* Panneau de l'assistant ouvert : le canevas se resserre, les chiffres clés passent à deux par ligne */
-      @media (min-width: 1280px) and (max-width: 1679px) {
-        body.cv-ai-open .cv-w.cv-S {
-          grid-column: span 6;
-        }
+      /* Panneau de l'assistant ouvert : il se superpose au canevas (même largeur, 480 px) sans le comprimer.
+         Un seul champ de saisie visible : la barre du canevas s'efface, le champ du panneau prend le relais. */
+      body.cv-ai-open .cv-ask {
+        display: none;
       }
       @media (max-width: 1100px) {
         .cv-w.cv-S {
@@ -2142,6 +2228,12 @@
           grid-column: span 1;
           padding: 14px 14px 12px;
         }
+        .cv-w.cv-L.is-kpi {
+          grid-column: span 2;
+        }
+        .cv-w.cv-L.is-kpi .cv-kpi-val {
+          font-size: 38px;
+        }
         .cv-w.is-kpi .cv-w-title {
           white-space: normal;
           font-size: 13px;
@@ -2165,6 +2257,9 @@
         .cv-li-date {
           grid-column: 1 / -1;
           font-size: 12px;
+        }
+        .cv-li-h {
+          display: none;
         }
         .cv-li-main {
           flex-direction: column;
@@ -2296,7 +2391,7 @@
             <form class="cv-ask" id="cv-ask" role="search">
               <span class="ms" aria-hidden="true">sparkles</span>
               <label class="sr-only" for="cv-ask-input">Question à l'assistant</label>
-              <input id="cv-ask-input" type="text" autocomplete="off" maxlength="400" placeholder="Posez une question au DPJ ou modifiez ce tableau…" />
+              <input id="cv-ask-input" type="text" autocomplete="off" maxlength="400" placeholder="Question sur le dossier permanent juridique (DPJ)…" />
               <button type="submit" aria-label="Envoyer à l'assistant"><span class="ms">arrow_up</span></button>
             </form>
           </div>
@@ -2339,7 +2434,7 @@
         </div>
         <div class="cv-ai-in">
           <label class="sr-only" for="cv-ai-input">Votre question ou demande</label>
-          <textarea id="cv-ai-input" rows="1" maxlength="400" placeholder="Posez une question sur les sociétés du DPJ"></textarea>
+          <textarea id="cv-ai-input" rows="1" maxlength="400" placeholder="Posez une question sur les sociétés du dossier permanent juridique (DPJ)"></textarea>
           <button type="submit" class="btn btn-primary" id="cv-ai-send" aria-label="Envoyer"><span class="ms">send</span></button>
         </div>
       </form>
@@ -2366,9 +2461,9 @@
     </div>
     <div class="cv-toast" id="cv-toast" role="status" aria-live="polite" hidden></div>
 
-    <script src="assets/ej-missions-data.js?v=22"></script>
-    <script src="assets/ej-lab.js?v=5"></script>
-    <script src="assets/ej-cockpit-data.js?v=5"></script>
+    <script src="assets/ej-missions-data.js?v=24"></script>
+    <script src="assets/ej-lab.js?v=7"></script>
+    <script src="assets/ej-cockpit-data.js?v=8"></script>
     <script src="assets/ej-dpj-data.js?v=2"></script>
     <script src="assets/ej-charts.js?v=2"></script>
     <script>
@@ -2522,13 +2617,15 @@
           ST.seq = maxU;
           ST.boards = freshBoards();
           ST.order = C.BOARDS.map(function (b) { return b.id; });
-          /* Enregistrement antérieur à la version 3 : la Vue d'ensemble CAC contenait des indicateurs retirés du catalogue, elle repart de son modèle */
+          /* Enregistrement antérieur à la version 3 : la Vue d'ensemble CAC contenait des indicateurs retirés du catalogue, elle repart de son modèle.
+             Antérieur à la version 4 : les deux Vues d'ensemble sont recomposées (retards en tête, six widgets au plus), elles repartent de leur modèle */
           var oldV = !saved || typeof saved.v !== "number" ? 1 : saved.v;
+          function vueRecomposee(id) { return (id === "cac_vue" && oldV < 3) || ((id === "cac_vue" || id === "ec_vue") && oldV < 4); }
           if (saved && saved.boards && typeof saved.boards === "object") {
             Object.keys(saved.boards).forEach(function (id) {
               var sb = saved.boards[id];
               if (!sb || !Array.isArray(sb.widgets)) return;
-              if (id === "cac_vue" && oldV < 3) return;
+              if (vueRecomposee(id)) return;
               var seen = {};
               var ws = sb.widgets.map(cleanW).filter(Boolean).map(function (w) {
                 if (seen[w.uid]) w.uid = null;
@@ -2547,7 +2644,7 @@
             });
           }
           if (saved && saved.last && typeof saved.last === "object") ST.last = saved.last;
-          var journalFx = function (e) { return oldV < 3 && e.fx && e.fx.b === "cac_vue" ? null : e.fx && typeof e.fx === "object" ? e.fx : null; };
+          var journalFx = function (e) { return e.fx && vueRecomposee(e.fx.b) ? null : e.fx && typeof e.fx === "object" ? e.fx : null; };
           if (saved && Array.isArray(saved.journal)) {
             ST.journal = saved.journal.filter(function (e) { return e && typeof e.text === "string"; }).slice(0, 30).map(function (e) {
               var id = typeof e.id === "number" ? e.id : 0;
@@ -2561,7 +2658,7 @@
         /* Rien n'est enregistré pendant le mode Modifier : seul « Terminer » enregistre */
         function save(force) {
           if (ST.edit && !force) return;
-          var data = { v: 3, boards: {}, last: ST.last, journal: ST.journal.slice(0, 30) };
+          var data = { v: 4, boards: {}, last: ST.last, journal: ST.journal.slice(0, 30) };
           ST.order.forEach(function (id) {
             var b = ST.boards[id];
             if (!b) return;
@@ -2652,7 +2749,7 @@
           } else {
             a.innerHTML =
               '<button type="button" class="btn btn-secondary btn-sm" data-act="edit" data-k="act-edit" aria-label="Modifier le tableau">' + ms("edit") + '<span class="cv-lbl">Modifier</span></button>' +
-              '<button type="button" class="btn btn-primary btn-sm" data-act="ai" data-k="act-ai" aria-label="Assistant : interroger le DPJ ou composer le tableau" aria-expanded="' + !$("cv-ai").hidden + '">' + ms("sparkles") + '<span class="cv-lbl">Assistant</span></button>' +
+              '<button type="button" class="btn btn-primary btn-sm" data-act="ai" data-k="act-ai" aria-label="Assistant : interroger le dossier permanent juridique (DPJ) ou composer le tableau" aria-expanded="' + !$("cv-ai").hidden + '">' + ms("sparkles") + '<span class="cv-lbl">Assistant</span></button>' +
               '<button type="button" class="btn btn-secondary btn-sm" data-act="share" aria-label="Partager le tableau">' + ms("share_2") + '<span class="cv-lbl">Partager</span></button>';
           }
           document.title = b.title + " · Cockpit · Express Juridique";
@@ -2810,7 +2907,7 @@
           var sub = wSub(b, w, I, res);
           var na = naFilters(b, I, w);
           var head = I.kind === "heading";
-          var cls = head ? "cv-sec" : "card cv-w cv-" + w.size + (I.kind === "kpi" ? " is-kpi" : "") + (res && res.alert ? " cv-alert" : "");
+          var cls = head ? "cv-sec" : "card cv-w cv-" + w.size + (I.kind === "kpi" ? " is-kpi" : "") + (res && res.alert ? " cv-alert" + (res.alert === "alerte" ? " is-late" : "") : "");
           var h = '<section class="' + cls + '" data-uid="' + w.uid + '" aria-labelledby="t-' + w.uid + '"' + (ST.edit ? ' draggable="true"' : "") + ">";
           if (head) {
             h += '<h2 class="cv-sec-t" id="t-' + w.uid + '">' + esc(title) + "</h2>";
@@ -2851,6 +2948,7 @@
             var d = res.delta ? '<span class="cv-kpi-delta ' + (res.deltaTone || "") + '">' + esc(res.delta) + "</span>" : res.sub ? '<span class="cv-kpi-delta">' + esc(res.sub) + "</span>" : "";
             return '<button type="button" class="cv-kpi" data-list="' + w.uid + '" data-k="kpi-' + w.uid + '" aria-label="Voir la liste : ' + esc(res.display + " " + wTitle(w, res)) + '"><span class="cv-kpi-val">' + esc(res.display) + "</span>" + d + "</button>" +
               (res.note ? '<span class="cv-kpi-note">' + esc(res.note) + "</span>" : "") +
+              (w.size === "L" ? '<button type="button" class="btn btn-secondary btn-sm cv-kpi-list" data-list="' + w.uid + '" data-k="kl-' + w.uid + '">' + ms("list") + "Voir la liste</button>" : "") +
               (res.spark ? '<div class="cv-spark" data-spark="' + w.uid + '"></div>' : res.meter ? '<div class="cv-meter"><div class="meter"><span style="width:' + Math.min(100, Math.round((res.meter.value / res.meter.max) * 100)) + '%"></span></div></div>' : "");
           }
           if (viz === "gauge") {
@@ -2865,7 +2963,10 @@
             }).join("");
             var foot = '<div class="cv-foot">' + (res.total > res.items.length ? '<button type="button" class="cv-link" data-list="' + w.uid + '">Voir les ' + res.total + "</button>" : "") +
               (res.more ? '<a class="cv-link" href="' + esc(res.more.href) + '">' + esc(res.more.label) + ms("arrow_right") + "</a>" : "") + "</div>";
-            return '<ul class="cv-list' + (nodate ? " nodate" : "") + '">' + li + "</ul>" + (res.total > res.items.length || res.more ? foot : "");
+            var lh = res.showHead && res.columns && !nodate
+              ? '<li class="cv-li cv-li-h" aria-hidden="true"><span>' + esc(res.columns[0]) + "</span><span>" + esc(res.columns[1] + " · " + res.columns[2]) + "</span><span></span></li>"
+              : "";
+            return '<ul class="cv-list' + (nodate ? " nodate" : "") + '">' + lh + li + "</ul>" + (res.total > res.items.length || res.more ? foot : "");
           }
           if (viz === "table") return tableHtml(w, res, I);
           return '<div class="cv-chart" data-chart="' + w.uid + '"></div>';
@@ -3320,16 +3421,66 @@
           toastT = setTimeout(function () { t.hidden = true; }, acts ? 9000 : undo ? 6000 : 2600);
         }
 
-        /* Partager : copie l'adresse de la page */
-        function shareBoard() {
-          var done = function () { toast("Lien du tableau copié"); };
-          var fail = function () { toast("Copie impossible : copiez l'adresse depuis la barre du navigateur."); };
-          try {
-            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(location.href).then(done, fail);
-            else fail();
-          } catch (e) {
-            fail();
+        /* Partager : le lien copié contient le tableau (?tableau=) et le profil (?profil=) ; cockpit.html ouvre ce tableau à l'arrivée.
+           Un tableau personnalisé n'est enregistré que dans le navigateur de son auteur : le lien le rouvre là, pas ailleurs. */
+        var PROFILS_OK = ["ec", "cac", "mixte"];
+        function shareUrl() {
+          return location.href.split(/[?#]/)[0] + "?tableau=" + encodeURIComponent(cur().id) + "&profil=" + PROFIL;
+        }
+        function copyText(txt, ok, ko) {
+          var prev = document.activeElement;
+          function legacy() {
+            var done = false;
+            try {
+              var ta = document.createElement("textarea");
+              ta.value = txt;
+              ta.setAttribute("readonly", "");
+              ta.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+              document.body.appendChild(ta);
+              ta.select();
+              done = document.execCommand("copy");
+              document.body.removeChild(ta);
+            } catch (e) {
+              done = false;
+            }
+            if (prev && prev.focus) prev.focus();
+            done ? ok() : ko();
           }
+          try {
+            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok, legacy);
+            else legacy();
+          } catch (e) {
+            legacy();
+          }
+        }
+        /* Copie impossible : message d'échec et lien sélectionné, à copier à la main */
+        function toastLink(url) {
+          var t = $("cv-toast");
+          t.innerHTML = "<span>Copie impossible. Copiez ce lien :</span>" +
+            '<input type="text" class="form-input cv-toast-link" readonly value="' + esc(url) + '" aria-label="Lien du tableau" />' +
+            '<button type="button" data-act="toastclose">Fermer</button>';
+          t.hidden = false;
+          t._undo = null;
+          clearTimeout(toastT);
+          toastT = setTimeout(function () { t.hidden = true; }, 30000);
+          var i = t.querySelector("input");
+          i.focus();
+          i.select();
+        }
+        function shareBoard() {
+          var url = shareUrl();
+          var perso = !!cur().custom;
+          copyText(url, function () {
+            toast(perso ? "Lien copié. Ce tableau personnalisé n'existe que dans ce navigateur." : "Lien du tableau copié");
+          }, function () {
+            toastLink(url);
+          });
+        }
+        /* Arrivée par un lien partagé : profil adapté si le tableau n'existe pas dans le profil courant, puis ouverture du tableau */
+        function sharedParams() {
+          var q = new URLSearchParams(location.search);
+          var pf = q.get("profil");
+          return { tableau: q.get("tableau"), profil: PROFILS_OK.indexOf(pf) !== -1 ? pf : null };
         }
 
         /* ---------- Rendu global ---------- */
@@ -3366,7 +3517,7 @@
         var XL = false;
         var aiOrigin = null;
         var editing = null;
-        var PH = { dpj: "Posez une question sur les sociétés du DPJ", compose: "Ajouter, transformer, filtrer, créer un tableau" };
+        var PH = { dpj: "Posez une question sur les sociétés du dossier permanent juridique (DPJ)", compose: "Ajouter, transformer, filtrer, créer un tableau" };
         var FOOT = {
           dpj: "Noms, e-mails, téléphones et identifiants masqués avant l'envoi au modèle.",
           compose: "Noms, e-mails, téléphones et identifiants masqués avant l'envoi au modèle.",
@@ -3468,15 +3619,15 @@
           var b = cur();
           if (!visList(b).length)
             return PROFIL === "cac"
-              ? ["Ajoute les rapports à émettre par mois", "Ajoute les missions ponctuelles par étape", "Ajoute les fins de mandat par année", "Crée un tableau Rapports avec les rapports à émettre et les dépôts de rapports ponctuels"]
-              : ["Crée un tableau Vigilance avec les dossiers LAB et les lettres non signées", "Ajoute la charge d'AG par mois comparée à l'an dernier", "Ajoute le portefeuille par forme juridique", "Ajoute les formalités créées par mois"];
+              ? ["Ajoute les rapports à émettre par mois", "Ajoute les missions ponctuelles par étape", "Ajoute les fins de mandat par année", "Crée un tableau Rapports avec les rapports à émettre et les rapports ponctuels à mettre à disposition"]
+              : ["Crée un tableau Vigilance avec les dossiers LAB et les lettres à signer", "Ajoute la charge d'AG par mois comparée à l'an dernier", "Ajoute le portefeuille par forme juridique", "Ajoute les formalités créées par mois"];
           var S = {
-            ec_vue: ["Ajoute la charge d'AG par mois comparée à l'an dernier", "Transforme la répartition par forme en barres", "Crée un tableau Vigilance avec les dossiers LAB et les lettres non signées", "Combien d'AG sont à tenir en juin pour les SAS ?"],
+            ec_vue: ["Ajoute la charge d'AG par mois comparée à l'an dernier", "Transforme les points de vigilance en barres", "Crée un tableau Vigilance avec les dossiers LAB et les lettres à signer", "Combien d'AG sont à tenir en juin pour les SAS ?"],
             ec_charge: ["Filtre la vue sur les SAS", "Ajoute les dépôts en retard", "Combien d'AG sont à tenir en juin ?", "Combien de dépôts des comptes sont à faire ?"],
             ec_vigilance: ["Transforme les lettres de mission par statut en anneau", "Filtre la vue sur les SAS", "Combien de dossiers LAB sont à traiter ?", "Ajoute les points de vigilance"],
             ec_file: ["Ajoute les prochaines échéances", "Filtre la vue sur les SARL", "Combien de documents sont à signer ?", "Combien de formalités sont en cours ?"],
-            cac_vue: ["Ajoute les fins de mandat par année", "Transforme les mandats par type en barres", "Combien de fins de mandat sont à préparer ?", "Combien de missions ponctuelles sont en cours ?"],
-            cac_mandats: ["Ajoute les missions ponctuelles par étape", "Filtre la vue sur les mandats légaux", "Combien de déclarations d'indépendance sont à renouveler ?", "Crée un tableau Rapports avec les rapports à émettre et les dépôts de rapports ponctuels"],
+            cac_vue: ["Ajoute les fins de mandat par année", "Ajoute les mandats par type en barres", "Combien de fins de mandat sont à préparer ?", "Combien de missions ponctuelles sont en cours ?"],
+            cac_mandats: ["Ajoute les missions ponctuelles par étape", "Filtre la vue sur les mandats légaux", "Combien de déclarations d'indépendance sont à renouveler ?", "Crée un tableau Rapports avec les rapports à émettre et les rapports ponctuels à mettre à disposition"],
           };
           return S[id] || (chipGroups(b).cac && !chipGroups(b).ec ? S.cac_vue : S.ec_vue);
         }
@@ -3629,7 +3780,7 @@
         function emptyHtml() {
           var ex = DPJ.examples.map(function (e) { return e.question; });
           var dp = PROFIL === "cac" ? [ex[4], ex[0], ex[5]] : [ex[0], ex[1], ex[2], ex[4], ex[5]];
-          var a = sgGroup("database", "Interroger le DPJ", dp, "dpj");
+          var a = sgGroup("database", "Interroger le dossier permanent juridique (DPJ)", dp, "dpj");
           var b = sgGroup("layout_dashboard", "Composer « " + cur().title + " »", suggestions().slice(0, 3), "compose");
           return '<div class="cv-empty">' + (PROFIL === "cac" ? b + a : a + b) + "</div>";
         }
@@ -3642,7 +3793,7 @@
         }
         function swHtml(m) {
           return '<p class="cv-sw" data-mid="' + esc(m.id) + '">' + ms(m.to === "dpj" ? "database" : "layout_dashboard") + "<span>" +
-            (m.to === "dpj" ? "J'ai compris une question sur le DPJ." : "J'ai compris une demande de composition du cockpit.") + "</span>" +
+            (m.to === "dpj" ? "J'ai compris une question sur le dossier permanent juridique (DPJ)." : "J'ai compris une demande de composition du cockpit.") + "</span>" +
             (m.done ? "" : '<button type="button" class="cv-link" data-reask="' + esc(m.id) + '">' + (m.to === "dpj" ? "Basculer en composition ?" : "Interroger le DPJ ?") + "</button>") + "</p>";
         }
         /* Élément qui défile : le fil, ou tout le panneau sur téléphone (saisie collée en bas) */
@@ -4142,7 +4293,7 @@
           });
           if (!ids.length) {
             if (reserved.length) return replyReserved(raw, reserved[0]);
-            push(card("circle_alert", "Aucun indicateur reconnu", "<p>Précisez le contenu du tableau, par exemple « avec les dossiers LAB et les lettres non signées ». </p>", raw));
+            push(card("circle_alert", "Aucun indicateur reconnu", "<p>Précisez le contenu du tableau, par exemple « avec les dossiers LAB et les lettres à signer ». </p>", raw));
             return;
           }
           ids.slice().forEach(function (id) {
@@ -6058,12 +6209,14 @@
             if (r.rows.length > 10) h += '<button type="button" class="cv-link cv-more" data-more="' + esc(m.id) + '">' + (m.all ? "Afficher les 10 premières" : "Voir les " + (r.rows.length - 10) + " autres") + "</button>";
           }
           var ev = DPJ.societes.length - nonEval(r);
-          h += '<p class="cv-src">' + ms("database") + "<span>DPJ · mis à jour le " + esc(r.maj) + "</span><span>Évaluées : " + ev + " sociétés sur " + DPJ.societes.length + "</span></p>";
-          if (r.exclus.length)
-            h += '<ul class="cv-cov">' + r.exclus.map(function (x) {
-              return "<li>" + ms("circle_alert") + "<span>" + x.count + " " + C.pl(x.count, "société", "sociétés") + " " + esc(x.motif) + ", non " + C.pl(x.count, "évaluée", "évaluées") + "</span>" +
+          var nex = nonEval(r);
+          h += '<p class="cv-src">' + ms("database") + "<span>Dossier permanent juridique (DPJ) · mis à jour le " + esc(r.maj) + "</span><span>Évaluées : " + ev + " sociétés sur " + DPJ.societes.length + "</span>" +
+            (nex ? '<button type="button" class="cv-evi" data-evi="' + esc(m.id) + '" aria-expanded="false" aria-controls="evn-' + esc(m.id) + '" aria-label="Pourquoi ' + nex + " " + C.pl(nex, "société n'est pas évaluée", "sociétés ne sont pas évaluées") + ' ?">' + ms("info") + "</button>" : "") + "</p>";
+          if (nex)
+            h += '<div class="cv-evn" id="evn-' + esc(m.id) + '" hidden><p class="cv-evn-h">' + nex + " " + C.pl(nex, "société exclue du calcul", "sociétés exclues du calcul") + "</p><ul class=\"cv-cov\">" + r.exclus.map(function (x) {
+              return "<li><span>" + x.count + " " + C.pl(x.count, "société", "sociétés") + " " + esc(x.motif) + "</span>" +
                 '<button type="button" class="cv-link" data-excl="' + esc(m.id) + "|" + esc(x.field) + '">Les lister</button></li>';
-            }).join("") + "</ul>";
+            }).join("") + "</ul></div>";
           var pl = m.pinned || {};
           h += '<div class="cv-msg-actions">' +
             '<button type="button" class="btn btn-secondary btn-sm" data-csv="' + esc(m.id) + '"' + (n ? "" : " disabled") + ">" + ms("download") + "Exporter</button>" +
@@ -6187,6 +6340,10 @@
             }
             if (a === "ai") return $("cv-ai").hidden ? openAI() : closeAI();
             if (a === "share") return shareBoard();
+            if (a === "toastclose") {
+              $("cv-toast").hidden = true;
+              return;
+            }
             if (a === "add") return openCatalogue();
             if (a === "reset") {
               var snapR = snapshot();
@@ -6433,6 +6590,14 @@
             updMsg(um);
             return;
           }
+          if ((x = t.closest("[data-evi]"))) {
+            var evn = $("evn-" + x.getAttribute("data-evi"));
+            if (evn) {
+              evn.hidden = !evn.hidden;
+              x.setAttribute("aria-expanded", String(!evn.hidden));
+            }
+            return;
+          }
           if ((x = t.closest("[data-excl]"))) {
             var xk2 = x.getAttribute("data-excl").split("|");
             var xm = findMsg(xk2[0]);
@@ -6531,11 +6696,29 @@
         function init() {
           var p = document.body.getAttribute("data-profil");
           PROFIL = p === "cac" || p === "mixte" ? p : "ec";
+          var shared = sharedParams();
+          if (shared.tableau && shared.profil && shared.profil !== PROFIL) {
+            var sdef = C.BOARDS.filter(function (d) { return d.id === shared.tableau; })[0];
+            if (sdef && !(sdef.group === "ec" ? PROFIL !== "cac" : PROFIL !== "ec")) {
+              try { localStorage.setItem("ej-profil", shared.profil); } catch (e) {}
+              location.reload();
+              return;
+            }
+          }
           load();
+          var sharedMiss = false;
+          if (shared.tableau) {
+            if (ST.boards[shared.tableau] && boardOk(ST.boards[shared.tableau])) {
+              ST.cur = shared.tableau;
+              setLast();
+            } else sharedMiss = true;
+            try { history.replaceState(null, "", location.pathname); } catch (e) {}
+          }
           loadConvs();
           renderAll();
           renderJournal();
           syncModeUI();
+          if (sharedMiss) toast("Ce tableau n'existe pas dans ce navigateur : le tableau par défaut est ouvert.");
           document.addEventListener("click", onClick);
           document.addEventListener("keydown", onKey);
           $("cv-ai-form").addEventListener("submit", function (e) {
@@ -6618,6 +6801,6 @@
         document.addEventListener("DOMContentLoaded", init);
       })();
     </script>
-    <script src="assets/ej-shell.js?v=24"></script>
+    <script src="assets/ej-shell.js?v=25"></script>
   </body>
 </html>

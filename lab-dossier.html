@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=19" />
-    <link rel="stylesheet" href="assets/ej-missions.css?v=21" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=23" />
     <style>
       /* ---- En-tête société (repris de societe.html ; en-tête entité pour une mission CAC) ---- */
       .soc-head {
@@ -705,6 +705,62 @@
       .afaire-fin .afaire-ico {
         color: var(--ej-neutral-500);
       }
+      .piece .btn-tertiary {
+        flex-shrink: 0;
+      }
+      .dropzone .dz-champ {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+        text-align: left;
+      }
+      .dropzone select {
+        max-width: 100%;
+      }
+      .dz-file {
+        position: relative;
+        cursor: pointer;
+      }
+      .dz-input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+      }
+      .dz-file:focus-within {
+        outline: 2px solid var(--ej-action-600);
+        outline-offset: 3px;
+        border-radius: var(--ej-radius-sm);
+      }
+      .dropzone.dz-on {
+        border-color: var(--ej-action-600);
+        background: var(--ej-action-50);
+      }
+      .rv-opt {
+        display: inline-flex;
+        align-items: flex-start;
+        gap: 4px;
+      }
+      .rv-ppe {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px 14px;
+        border: 1px solid var(--ej-hairline);
+        border-radius: var(--ej-radius-md);
+        background: var(--ej-neutral-50);
+      }
+      .rv-ppe legend {
+        float: left;
+        width: 100%;
+        margin-bottom: 0;
+      }
+      abbr[title] {
+        text-decoration: underline dotted;
+        text-underline-offset: 2px;
+        cursor: help;
+      }
       .rv-btns {
         display: flex;
         flex-wrap: wrap;
@@ -1092,10 +1148,10 @@
       </div>
     </div>
 
-    <script src="assets/ej-missions-data.js?v=22"></script>
-    <script src="assets/ej-cockpit-data.js?v=5"></script>
+    <script src="assets/ej-missions-data.js?v=24"></script>
+    <script src="assets/ej-cockpit-data.js?v=8"></script>
     <script src="assets/ej-dpj-data.js?v=2"></script>
-    <script src="assets/ej-lab.js?v=5"></script>
+    <script src="assets/ej-lab.js?v=7"></script>
     <script>
       (function () {
         var E = window.EJM,
@@ -1162,12 +1218,44 @@
         if (s ? !cac : !!fDpj) $("page").classList.add("page-narrow");
         /* Dossier d'une mission que le profil n'exerce pas (ouvert par un lien direct) */
         var horsProfil = (PROFIL === "cac" && !cac) || (PROFIL === "ec" && cac);
+        /* Sigles : le premier usage visible de la page porte une abréviation accessible (sauf s'il est déjà développé) */
+        var ABBR = { LAB: "lutte anti-blanchiment", PPE: "personne politiquement exposée", RBE: "registre des bénéficiaires effectifs", RNE: "registre national des entreprises", DPJ: "dossier permanent juridique" };
+        function abreger() {
+          var root = $("page"), faits = {};
+          Array.prototype.forEach.call(root.querySelectorAll("abbr"), function (a) { faits[a.textContent] = true; });
+          var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+          var noeuds = [], n;
+          while ((n = w.nextNode())) noeuds.push(n);
+          noeuds.forEach(function (t) {
+            var par = t.parentNode;
+            if (!par || par.closest(".info-tip-pop, [hidden], option, select, textarea, abbr, script, style, .ms, .oui-non, .badge, .risk")) return;
+            Object.keys(ABBR).forEach(function (k) {
+              if (faits[k] || !t.parentNode) return;
+              var v = t.nodeValue;
+              if (v.indexOf("(" + k + ")") !== -1) {
+                faits[k] = true;
+                return;
+              }
+              var m = new RegExp("\\b" + k + "\\b").exec(v);
+              if (!m) return;
+              faits[k] = true;
+              var apres = t.splitText(m.index);
+              apres.splitText(k.length);
+              var ab = document.createElement("abbr");
+              ab.title = ABBR[k];
+              ab.textContent = k;
+              apres.parentNode.replaceChild(ab, apres);
+              t = ab.nextSibling || t;
+            });
+          });
+        }
         function neutraliser() {
           document.querySelectorAll('a[href="#"]').forEach(function (a) {
             if (a.dataset.neutre) return;
             a.dataset.neutre = "1";
             a.addEventListener("click", function (e) { e.preventDefault(); });
           });
+          abreger();
         }
 
         /* Lien retour : vers la file LAB (même filtre, même recherche) quand on en vient, sinon vers la liste d'origine */
@@ -1175,12 +1263,30 @@
           var b = $("back");
           if (depuisFile) {
             var qs = "";
-            try {
-              qs = sessionStorage.getItem("ej-lab-file") || "";
-            } catch (e) {}
-            if (!/^(\?[\w%.+=&-]*)?$/.test(qs)) qs = "";
+            var pf = params.get("f"), pq = params.get("q");
+            if (pf !== null || pq !== null) {
+              var u = new URLSearchParams();
+              if (pf && /^[a-z]+$/.test(pf)) u.set("f", pf);
+              if (pq && pq.trim()) u.set("q", pq.trim());
+              qs = u.toString() ? "?" + u.toString() : "";
+            } else {
+              try {
+                qs = sessionStorage.getItem("ej-lab-file") || "";
+              } catch (e) {}
+              if (!/^(\?[\w%.+=&-]*)?$/.test(qs)) qs = "";
+            }
             lib = "Dispositif LAB";
             href = "lab.html" + qs;
+          }
+          /* Venu de la fiche de mission CAC : retour vers elle */
+          if (!depuisFile && params.get("from") === "mission" && s && cac) {
+            if (X.estPonctuelle(s)) {
+              lib = (E.NATURE[s.nature] || "Mission") + " · " + s.nom;
+              href = "cac-mission.html?id=" + encodeURIComponent(s.id);
+            } else {
+              lib = "Mission · " + s.nom;
+              href = "cac-mandat.html?id=" + encodeURIComponent(s.id);
+            }
           }
           b.innerHTML = '<span class="ms">chevron_left</span>' + esc(lib);
           b.href = href;
@@ -1430,7 +1536,7 @@
           else afficherSociete(DP.byId(s.id) || { id: s.id, nom: s.nom, forme: s.forme, siren: s.siren, siege: null, immatriculation: null });
 
           /* Utilisateur connecté (ej-shell.js) : il valide la revue s'il en est le validateur (EJLAB.validateur) */
-          var RL = E.responsableLab(PROFIL);
+          var RL = X.responsableLabDe(s);
           var RLAB = E.equipe[RL];
           var USER = window.EJ_USER || { nom: RLAB.nom, initiales: RL };
           var USER_CODE = USER.code || USER.initiales || RL;
@@ -1488,6 +1594,7 @@
             flux: { helios: 1, kpl3d: 1, orvea: 1, "groupe-bmr": 1, neolab: 1, kalipso: 2, vertalis: 1, nordia: 1, halios: 1, marees: 1, orvane: 1 }[s.id] || 0,
             detention: indirect ? 1 : 0,
             distance: s.id === "orvea" ? 1 : 0,
+            ppe: L.ppe ? 2 : 0,
             operations: { paprika: 1, helios: 1, kpl3d: 1, "cap-esterel": 1, "azur-holding": 1, "urban-fit": 1, "groupe-bmr": 1, kalipso: 1, sotrab: 1, "clinique-parc": 1, halios: 1, marees: 1, orvane: 1, vetis: 1 }[s.id] || 0,
           };
           var CRITERES = [
@@ -1499,6 +1606,8 @@
               v: [association ? "Association sans capital : représentant légal retenu à défaut de bénéficiaire effectif" : holdingAnimatrice ? "Détention directe, holding animatrice" : holding ? "Détention directe, holding de tête d'un groupe" : "Détention directe par des personnes physiques", "Détention en partie indirecte (un bénéficiaire effectif via une société)", ""] },
             { k: "distance", lib: "Relation à distance", poids: "Moyen",
               v: ["Relation en face à face", "Relation à distance, sans rencontre", ""] },
+            { k: "ppe", lib: "Personne politiquement exposée", poids: "Fort", fixe: true,
+              v: ["Aucune PPE déclarée", "", "Oui : " + esc(BE.length ? BE[0][0] : dirNom) + ", déclarée par le client"] },
             { k: "operations", lib: "Nature et montant des opérations", poids: "Moyen",
               v: ["Opérations courantes et récurrentes", "Montants significatifs ou opérations en espèces", "Opérations inhabituelles"] },
           ];
@@ -1520,6 +1629,10 @@
           }
           function peutValider(risque) {
             return USER_CODE === valideur(risque).code;
+          }
+          /* En cabinet mixte, deux responsables LAB : celui de l'expertise comptable et celui du commissariat aux comptes */
+          function libRLAB() {
+            return PROFIL === "mixte" ? (cac ? "Responsable LAB du commissariat aux comptes" : "Responsable LAB de l'expertise comptable") : "Responsable LAB du cabinet";
           }
           function tipValideur(v, cle) {
             return v.responsableLab ? " " + tip(cle, NOTE_RLAB, "Pourquoi le responsable LAB") : "";
@@ -1551,10 +1664,10 @@
           }
           /* Attestation PPE et bénéficiaires effectifs : signée (date) ou attendue */
           function attestation() {
-            var e = X.etatPieces(s).filter(function (x) { return x.lib === X.ATTESTATION; })[0];
+            var e = X.etatDemandees(s).filter(function (x) { return x.lib === X.ATTESTATION; })[0];
             if (!e) return null;
-            if (e.recue) return { date: dateRecue(e.rang) };
-            if (e.perime) return { attendue: true, ancienne: dateRecue(e.rang), perime: e.perime };
+            if (e.recue) return { date: e.date || dateRecue(e.rang), renouvelee: e.renouvelee };
+            if (e.perime) return { attendue: true, ancienne: e.date || dateRecue(e.rang), perime: e.perime };
             return { attendue: true };
           }
           function alerteGel(cle) {
@@ -1589,6 +1702,12 @@
 
           /* ---------- Formulaire de levée d'homonymie (dans le bloc « À faire ») ---------- */
           var ELEMENTS = [["naissance", "Date de naissance"], ["lieu", "Lieu de naissance"], ["nationalite", "Nationalité"]];
+          var SOURCES_PPE = ["Déclarations publiées par la HATVP", "Journal officiel et sources publiques", "Presse et sources ouvertes", "Entretien avec le client"];
+          if (X.kycPappers) SOURCES_PPE.unshift("Pappers KYC");
+          /* Résultat de la vérification PPE du cabinet, tel qu'il s'affiche */
+          function libVerif(v) {
+            return (v.resultat === "aucune" ? "aucune PPE identifiée" : "PPE confirmée") + " (" + v.source.charAt(0).toLowerCase() + v.source.slice(1) + ")";
+          }
           var PIECES_LEVEE = cac
             ? ["Pièce d'identité", "Passeport", "Extrait d'acte de naissance"]
             : ["Pièce d'identité reprise des formalités EJ", "Passeport", "Extrait d'acte de naissance"];
@@ -1676,6 +1795,8 @@
               '<p class="rv-sum"><span id="rv-crit-etat">' + texteCrit() + '</span> · <button type="button" class="rv-lien" id="rv-crit" aria-expanded="' + rv.crit + '" aria-controls="rv-crit-liste">' + (rv.crit ? "Replier" : "Modifier") + "</button></p>" +
               '<div class="rv-crits" id="rv-crit-liste"' + (rv.crit ? "" : " hidden") + ">" +
               CRITERES.map(function (c) {
+                if (c.fixe)
+                  return '<div class="rv-crit"><span class="rv-lbl">' + c.lib + ' <span class="rv-poids">Poids ' + c.poids.toLowerCase() + '</span></span><span class="rv-note">' + N[LV[c.k]] + " : " + c.v[LV[c.k]] + "</span></div>";
                 var cur = niveauCrit(c.k);
                 var val = rv.criteres[c.k] != null ? rv.criteres[c.k] : cur;
                 return '<div class="rv-crit"><label class="rv-lbl" for="rv-c-' + c.k + '">' + c.lib + ' <span class="rv-poids">Poids ' + c.poids.toLowerCase() + "</span></label>" +
@@ -1688,10 +1809,20 @@
               (rv.moisAdj
                 ? '<label class="check"><input type="checkbox" id="rv-reconduire"' + (rv.reconduire ? " checked" : "") + " />Reconduire la périodicité de " + esc(libPeriode(rv.moisAdj)) + " (" + esc(rv.motifAdj) + ")</label>"
                 : "") +
-              '<p class="rv-note" id="rv-per" aria-live="polite">' + texteProchaine(rv.risque) + "</p></div>" +
+              '<p class="rv-note" id="rv-per" aria-live="polite">' + texteProchaine(rv.risque) + "</p>" +
+              '<fieldset class="rv-choix rv-ppe"><legend class="rv-lbl">Vérification PPE par le cabinet ' + tip("rv-ppe-verif", "Le statut PPE ne repose pas sur la seule attestation du client : le cabinet consigne sa propre vérification à chaque revue.", "Vérification PPE par le cabinet") + "</legend>" +
+              '<div class="rv-radios">' + radio("rv-ppe-res", "aucune", "Aucune PPE identifiée", rv.ppeRes === "aucune") +
+              radio("rv-ppe-res", "confirmee", "PPE confirmée" + (L.ppe ? " : " + esc(BE.length ? BE[0][0] : dirNom) : ""), rv.ppeRes === "confirmee") + "</div>" +
+              '<div class="lv-field"><label class="rv-lbl" for="rv-ppe-src">Source consultée</label><select class="form-input" id="rv-ppe-src">' +
+              SOURCES_PPE.map(function (x) { return "<option" + (rv.ppeSrc === x ? " selected" : "") + ">" + esc(x) + "</option>"; }).join("") + "</select></div>" +
+              '<p class="rv-sign">Vérification de ' + esc(USER.nom) + " le " + esc(E.today) + "</p></fieldset></div>" +
               /* c) Conclusion */
               '<div class="rv-part"><fieldset class="rv-choix"><legend class="rv-h">Conclusion</legend><div class="rv-radios rv-col">' +
-              ["poursuivre", "renforcer", "fin"].map(function (c) { return radio("rv-concl", c, X.CONCLUSIONS[c], rv.conclusion === c); }).join("") + "</div></fieldset>" +
+              X.conclusions(s).map(function (c) {
+                var t = c[0] === "demission" ? tip("rv-demission", "Le commissaire aux comptes ne peut démissionner que pour un motif légitime, dans les conditions prévues par les textes.", "Démission du commissaire aux comptes")
+                  : c[0] === "interrompre" ? tip("rv-interrompre", "Mission refusée ou interrompue lorsque les mesures de vigilance ne peuvent pas être mises en œuvre.", "Refus ou interruption de la mission") : "";
+                return '<span class="rv-opt">' + radio("rv-concl", c[0], c[1], rv.conclusion === c[0]) + (t ? " " + t : "") + "</span>";
+              }).join("") + "</div></fieldset>" +
               '<label class="rv-lbl" for="rv-com">Commentaire <span class="rv-poids">facultatif</span></label>' +
               '<textarea class="form-input" id="rv-com" rows="3" aria-describedby="rv-live">' + esc(rv.commentaire) + "</textarea>" +
               '<p class="rv-sign" id="rv-sign">' + (peutValider() ? "Revue de " : "Préparée par ") + esc(USER.nom) + " le " + esc(E.today) + "</p></div>" +
@@ -1777,13 +1908,14 @@
             else if (homonymie)
               items.push({
                 ico: "shield-alert", warn: true,
+                debloque: true,
                 titre: "Homonymie à lever sur le gel des avoirs.",
                 txt: "Le contrôle du " + esc(L.criblage) + " a relevé une correspondance possible sur " + esc(homNom) + ".",
                 act: function (p) { return '<button class="btn ' + (p ? "btn-primary" : "btn-secondary") + ' btn-sm" type="button" id="lever" aria-expanded="' + !!ui.hom + '" aria-controls="form-lever"><span class="ms">scan-search</span>Lever l\'homonymie</button>'; },
                 apres: ui.hom ? formLever() : "",
               });
             if (L.statut === "a_revoir") {
-              var it = { ico: "history", warn: true, titre: "Revue échue depuis le " + esc(L.prochaineRevue) + " (" + retardJ + " jours).", txt: "", act: null, apres: "" };
+              var it = { ico: "history", warn: true, revue: true, titre: "En retard de " + retardJ + " jour" + (retardJ > 1 ? "s" : "") + " : revue échue le " + esc(L.prochaineRevue) + ".", txt: "", act: null, apres: "" };
               var btnRevue = function (p) { return '<button class="btn ' + (p ? "btn-primary" : "btn-secondary") + ' btn-sm" type="button" id="faire-revue" aria-expanded="' + !!ui.rv + '" aria-controls="revue"><span class="ms">clipboard-check</span>' + (DV && USER_CODE === DV.aCode && !DV.renvoi ? "Valider la revue préparée" : "Faire la revue") + "</button>"; };
               if (DV && DV.renvoi) {
                 it.txt = "Revue renvoyée par " + esc(DV.renvoi.par) + " le " + esc(DV.renvoi.date) + " : « " + esc(DV.renvoi.commentaire) + " ».";
@@ -1802,6 +1934,7 @@
             if (incomplete)
               items.push({
                 ico: "file-clock",
+                debloque: true,
                 titre: "Identification incomplète : " + nRec + " pièce" + (nRec > 1 ? "s" : "") + " reçue" + (nRec > 1 ? "s" : "") + " sur " + P[1] + ".",
                 txt: (L.be === 0 ? "Les bénéficiaires effectifs ne sont pas encore identifiés. " : "") + (collecte ? "Collecte envoyée le " + esc(collecte.date) + ", en attente du client." : ""),
                 act: function (p) { return btnCollecte("afaire", p); },
@@ -1809,6 +1942,7 @@
             else if (manq > 0 && !fin)
               items.push({
                 ico: "file-clock",
+                debloque: true,
                 titre: nPieces(manq) + " : " + esc(X.piecesManquantes(s).map(function (p) { return p[0]; }).join(", ")) + ".",
                 txt: collecte ? "Collecte envoyée le " + esc(collecte.date) + ", en attente du client." : "",
                 act: function (p) { return btnCollecte("afaire", p); },
@@ -1828,7 +1962,13 @@
               }
               items.push({ ico: "lock", warn: !!limite, titre: esc(blocage), txt: txtLim, act: null });
             }
-            var txtRS = RS ? "Revue validée le " + esc(RS.date) + " par " + esc(RS.par) + " : " + esc(X.CONCLUSIONS[RS.conclusion || "poursuivre"].toLowerCase()) + "." : "";
+            /* Revue impossible à valider : l'action qui débloque (pièces, homonymie) passe en tête et devient l'action principale */
+            if (L.statut === "a_revoir" && blocages().length) {
+              var deb = items.filter(function (x) { return x.debloque; });
+              if (deb.length)
+                items = deb.concat(items.filter(function (x) { return x.revue; }), items.filter(function (x) { return !x.debloque && !x.revue; }));
+            }
+            var txtRS = RS ? "Revue validée le " + esc(RS.date) + " par " + esc(RS.par) + " : " + esc(X.libConclusion(RS.conclusion).toLowerCase()) + "." : "";
             var dFin = fin ? (RS ? RS.date : L.derniereRevue) : null;
             /* Dossier à jour avec une action restante : le statut reste dit, une seule fois, en tête du bloc */
             if (items.length && L.statut === "a_jour")
@@ -1942,10 +2082,11 @@
             else if (att && att.perime) ppeRes = '<span class="oui-non warn"><span class="ms">circle-dashed</span>Attestation à renouveler</span>';
             else ppeRes = '<span class="oui-non muted"><span class="ms">circle-dashed</span>Attestation en attente</span>';
             var detPPE = att && att.date
-              ? "Déclarée par le client : attestation signée par " + esc(dirNom) + " le " + esc(att.date) + "."
+              ? "Déclarée par le client : attestation signée par " + esc(dirNom) + " le " + esc(att.date) + (att.renouvelee ? ", renouvelée pour la revue" : "") + "."
               : att && att.perime
                 ? "Déclarée par le client le " + esc(att.ancienne) + ", avant le changement de bénéficiaire effectif du " + esc(att.perime) + " : attestation à renouveler."
                 : "Déclarée par le client : attestation à signer par " + esc(dirNom) + ".";
+            if (RS && RS.verifPPE) detPPE += '</div><div class="oblig-det">Vérifiée par le cabinet le ' + esc(RS.verifPPE.date) + " par " + esc(RS.verifPPE.par) + " : " + esc(libVerif(RS.verifPPE)) + ".";
             var corpsCrib =
               '<div class="oblig-row crib-row"><div class="oblig-txt"><div class="oblig-lib">Gel des avoirs</div>' +
               '<div class="oblig-det">Contrôle quotidien sur le Registre national des gels (DG Trésor)' + (criblee ? " · dernier contrôle le " + esc(L.criblage) : "") + "</div>" +
@@ -1971,7 +2112,8 @@
             else perVal = '<span class="muted">À définir après l\'évaluation</span>';
             var resultat = L.risque
               ? '<div class="resultat"><div><span class="overline">Niveau de risque retenu</span><div class="val"><span class="risk risk-' + L.risque + '">' + E.RISQUE[L.risque] + "</span>" +
-                (L.ppe ? " " + tip("ppe-niveau", NOTE_PPE, "PPE et niveau de risque") : "") + '<span class="val-sub">' + esc(retenu()) + "</span></div></div>" +
+                (L.ppe ? " " + tip("ppe-niveau", NOTE_PPE, "PPE et niveau de risque") : "") + '<span class="val-sub">' + esc(retenu()) + "</span>" +
+                (L.ppe && L.risque === "eleve" ? '<span class="val-sub">Motif : personne politiquement exposée (' + esc(BE.length ? BE[0][0] : dirNom) + ")</span>" : "") + "</div></div>" +
                 '<div><span class="overline">Vigilance</span><div class="val">' + VIG[L.risque] + (L.risque === "faible" ? " " + tip("vigilance-faible", "Faculté sous conditions, à justifier au dossier.", "Vigilance simplifiée") : "") + "</div></div>" +
                 '<div><span class="overline">Périodicité de revue</span><div class="val">' + perVal + "</div></div></div>"
               : '<div class="resultat"><div style="grid-column:1/-1"><span class="overline">Niveau de risque</span><div class="val">Non évalué. Évaluation possible après identification des bénéficiaires effectifs.</div></div></div>';
@@ -1980,7 +2122,8 @@
               resultat, "evaluation", "Critères de la grille du " + E.cabinet + " : une proposition. Le niveau de risque est retenu par le professionnel à chaque revue."));
 
             /* 4. Pièces justificatives : reprises d'EJ (cochées), puis pièces demandées au client (assets/ej-lab.js) */
-            var REP = X.piecesReprises(s), DEM = X.etatPieces(s);
+            var REP = X.piecesReprises(s), DEM = X.etatDemandees(s);
+            var peutRecevoir = !!L.ouverture && !fin;
             var piecesHtml = REP.map(function (p, i) {
               return '<div class="piece"><span class="ms etat recu" aria-hidden="true">circle-check</span>' +
                 '<div class="txt"><div class="lib">' + esc(p[0]) + "</div>" +
@@ -1989,20 +2132,31 @@
             }).join("") + DEM.map(function (e) {
               var recue = e.recue;
               var det = e.det ? esc(e.det) : "";
-              var etat = recue
-                ? (e.lib === X.ATTESTATION ? "Signée électroniquement le " + dateRecue(e.rang) : "Reçue le " + dateRecue(e.rang) + (det ? " · " + det : ""))
-                : e.perime ? "Reçue le " + dateRecue(e.rang) + ", " + det
+              var dE = e.date || dateRecue(e.rang);
+              var etat = e.marquee
+                ? (e.marquee.fichier ? "Déposée le " + dE + " · " + esc(e.marquee.fichier) : "Reçue le " + dE + " · marquée par " + esc(e.marquee.par))
+                : recue
+                ? (e.lib === X.ATTESTATION ? "Signée électroniquement le " + dE + (e.renouvelee ? " · renouvelée pour la revue" : "") : "Reçue le " + dE + (det ? " · " + det : ""))
+                : e.perime ? "À renouveler · reçue le " + dE + ", antérieure au " + det
                 : "Manquante" + (det ? " · " + det : "");
               return '<div class="piece">' +
                 (recue ? '<span class="ms etat recu" aria-hidden="true">circle-check</span>' : '<span class="ms etat manque" aria-hidden="true">circle-dashed</span>') +
                 '<div class="txt"><div class="lib">' + esc(e.lib) + "</div>" +
-                '<div class="det' + (recue ? "" : " warn") + '">' + etat + "</div></div></div>";
+                '<div class="det' + (recue ? "" : " warn") + '">' + etat + "</div></div>" +
+                (!recue && peutRecevoir ? '<button class="btn btn-tertiary btn-sm" type="button" data-recue="' + esc(e.lib) + '" aria-label="Marquer comme reçue : ' + esc(e.lib) + '"><span class="ms">check</span>Marquer comme reçue</button>' : "") +
+                "</div>";
             }).join("");
+            var aRecevoir = DEM.filter(function (e) { return !e.recue; });
+            var depot = peutRecevoir && aRecevoir.length
+              ? '<div class="dropzone" id="dz"><span class="ms" aria-hidden="true">upload</span>' +
+                '<div class="dz-champ"><label class="rv-lbl" for="dz-piece">Pièce déposée</label><select class="form-input" id="dz-piece">' +
+                aRecevoir.map(function (e) { return "<option>" + esc(e.lib) + "</option>"; }).join("") + "</select></div>" +
+                '<label class="dz-file"><input type="file" id="dz-file" class="dz-input" /><span>Glissez le fichier ici ou <u>parcourez vos fichiers</u></span></label></div>'
+              : "";
             out.push(carte("file-check", "Pièces justificatives",
               nRec + " pièce" + (nRec > 1 ? "s" : "") + " reçue" + (nRec > 1 ? "s" : "") + " sur " + P[1] + " attendues" + (REP.length ? ", dont " + REP.length + " reprise" + (REP.length > 1 ? "s" : "") + " d'EJ" : ""),
               "" /* la demande de pièces est dans le bloc « À faire », pas en double ici */,
-              '<div class="pieces">' + piecesHtml + "</div>" +
-              '<div class="dropzone"><span class="ms">upload</span><span>Glissez des pièces ici ou <u>parcourez vos fichiers</u></span></div>', "pieces",
+              '<div class="pieces">' + piecesHtml + "</div>" + depot, "pieces",
               REP.length ? "Ce qu'Express Juridique détient déjà (connecteur INPI, formalités, registres) n'est pas demandé au client." : ""));
 
             /* 5. Diligences et historique (validations passées attribuées de façon stable) */
@@ -2029,7 +2183,7 @@
               if (H.derniereRevue && L.gel !== "a_verifier") ajoute(H.derniereRevue, "badge-check", "Revue validée.", nomValideur());
               var di = X.demandeInitiale(s);
               if (di) ajoute(di.date, "mail", "Demande de pièces envoyée au client (" + di.n + " manquante" + (di.n > 1 ? "s" : "") + ").", esc(resp.nom));
-              if (att && (att.date || att.ancienne)) ajoute(att.date || att.ancienne, "file-signature", "Attestation PPE et bénéficiaires effectifs signée par " + dirNom + (L.ppe ? " : PPE déclarée (" + (ppeNom || dirNom) + ")." : " : aucune PPE déclarée."), "Signature électronique · jesignexpert.com");
+              if (att && (att.date || att.ancienne)) ajoute(att.date || att.ancienne, "file-signature", "Attestation PPE et bénéficiaires effectifs " + (att.renouvelee ? "renouvelée pour la revue, " : "") + "signée par " + dirNom + (L.ppe ? " : PPE déclarée (" + (ppeNom || dirNom) + ")." : " : aucune PPE déclarée."), "Signature électronique · jesignexpert.com");
               if (criblee) {
                 if (homonymie || confirme || levee) ajoute(L.criblage, "shield-alert", "Gel des avoirs : correspondance possible sur " + homNom + " au contrôle quotidien, à lever.", "Registre national des gels · DG Trésor", true);
                 else if (!BE.length) ajoute(L.criblage, "shield-check", "Gel des avoirs : société et dirigeant contrôlés, aucune correspondance. Bénéficiaires effectifs contrôlés dès leur identification.", "Registre national des gels · DG Trésor", true);
@@ -2047,13 +2201,22 @@
               X.collectesDe(s.id).forEach(function (c) {
                 ajoute(c.date, "send", "Collecte envoyée à " + c.destinataire + " : " + c.pieces.length + " pièce" + (c.pieces.length > 1 ? "s" : "") + " demandée" + (c.pieces.length > 1 ? "s" : "") + " (" + c.pieces.join(", ") + ").", esc(c.par || "Cabinet"));
               });
-              if (DV) ajoute(DV.date, "send", "Revue préparée (" + X.CONCLUSIONS[DV.conclusion].toLowerCase() + ", " + E.RISQUE[DV.risque].toLowerCase() + "), validation demandée à " + DV.a + "." + (DV.commentaire ? " Commentaire : " + DV.commentaire : ""), esc(DV.par));
+              var MQ = X.piecesMarquees(s.id);
+              Object.keys(MQ).forEach(function (lib) {
+                var m = MQ[lib];
+                ajoute(m.date, "file-check", m.fichier ? "Pièce déposée : " + lib + " (" + m.fichier + ")." : "Pièce reçue : " + lib + ".", esc(m.par || "Cabinet"));
+              });
+              X.relancesDe(s.id).forEach(function (r) {
+                ajoute(r.date, "bell-ring", "Relance du client pour la collecte de pièces (aucune pièce ajoutée).", esc(r.par || "Cabinet"));
+              });
+              if (DV) ajoute(DV.date, "send", "Revue préparée (" + X.libConclusion(DV.conclusion).toLowerCase() + ", " + E.RISQUE[DV.risque].toLowerCase() + "), validation demandée à " + DV.a + "." + (DV.commentaire ? " Commentaire : " + DV.commentaire : ""), esc(DV.par));
               if (DV && DV.renvoi) ajoute(DV.renvoi.date, "undo-2", "Revue renvoyée à " + DV.par + " : " + DV.renvoi.commentaire, esc(DV.renvoi.par), true);
               if (RS) {
                 var mods = Object.keys(RS.criteres || {}).map(libCrit);
-                ajoute(RS.date, RS.conclusion === "fin" ? "circle-off" : "badge-check", "Revue validée : " + X.CONCLUSIONS[RS.conclusion || "poursuivre"].toLowerCase() + ", " + E.RISQUE[RS.risque || L.risque].toLowerCase() + " retenu." +
+                ajoute(RS.date, RS.conclusion === "fin" ? "circle-off" : "badge-check", "Revue validée : " + X.libConclusion(RS.conclusion).toLowerCase() + ", " + E.RISQUE[RS.risque || L.risque].toLowerCase() + " retenu." +
                   (mods.length ? " Critères modifiés : " + mods.join(", ").toLowerCase() + "." : "") +
                   (RS.ajustement ? " Périodicité de " + libPeriode(RS.mois) + " reconduite (" + RS.ajustement + ")." : "") +
+                  (RS.verifPPE ? " Vérification PPE par le cabinet : " + libVerif(RS.verifPPE) + "." : "") +
                   (RS.commentaire ? " Commentaire : " + RS.commentaire : "") +
                   (RS.prochaine ? " Prochaine revue le " + RS.prochaine + "." : " Relation terminée : aucune prochaine revue."), esc(RS.par));
               }
@@ -2064,7 +2227,7 @@
               '<div><span class="overline">Dernière revue</span><div class="val">' + (L.derniereRevue ? L.derniereRevue + (parDerniere ? '<span class="norm">par ' + esc(parDerniere) + "</span>" : "") : '<span class="muted">Jamais validée</span>') + "</div></div>" +
               '<div><span class="overline">Prochaine revue</span><div class="val">' + (fin ? '<span class="muted">Aucune, relation terminée</span>' : L.prochaineRevue ? L.prochaineRevue + (enRetard ? '<span class="late">En retard de ' + retardJ + " jours</span>" : "") : '<span class="muted">Fixée à la validation</span>') + "</div></div>" +
               '<div><span class="overline">Validation</span><div class="val">' + esc(V.nom) + tipValideur(V, "revue-rlab") +
-              '<span class="norm">' + (V.responsableLab ? "Responsable LAB du cabinet" : esc(E.equipe[V.code].role)) + "</span></div></div></div>";
+              '<span class="norm">' + (V.responsableLab ? libRLAB() : esc(E.equipe[V.code].role)) + "</span></div></div></div>";
             out.push(carte("history", "Diligences et historique", "", "",
               revueHtml +
               '<ul class="journal" id="journal">' + J.map(function (j) {
@@ -2093,7 +2256,10 @@
               crit: false,
               criteres: DV && DV.criteres ? JSON.parse(JSON.stringify(DV.criteres)) : {},
               risque: (DV && DV.risque) || L.risque || "standard",
-              conclusion: (DV && DV.conclusion) || "poursuivre",
+              conclusion: (DV && DV.conclusion) || X.conclusions(s)[0][0],
+              ppeSrc: DV && DV.verifPPE ? DV.verifPPE.source : SOURCES_PPE[0],
+              /* Option Pappers KYC active : résultat pré-rempli ; sinon, le professionnel le renseigne */
+              ppeRes: DV && DV.verifPPE ? DV.verifPPE.resultat || "confirmee" : X.kycPappers ? (L.ppe ? "confirmee" : "aucune") : null,
               commentaire: (DV && DV.commentaire) || "",
               moisAdj: adj ? moisAct : 0,
               motifAdj: adj ? MOTIFS[s.id] || "décision du professionnel" : "",
@@ -2109,7 +2275,20 @@
               criteres: criteresModifies(),
               mois: ui.rv.reconduire ? ui.rv.moisAdj : 0,
               ajustement: ui.rv.reconduire ? ui.rv.motifAdj : "",
+              verifPPE: ui.rv.ppeRes ? { resultat: ui.rv.ppeRes, source: ui.rv.ppeSrc, date: E.today, par: USER.nom } : null,
             };
+          }
+          /* PPE : la vérification du cabinet est requise avant de valider ou de transmettre la revue */
+          function verifPPEManquante() {
+            if (ui.rv.ppeRes) return false;
+            var r = document.querySelectorAll('input[name="rv-ppe-res"]');
+            Array.prototype.forEach.call(r, function (x) {
+              x.setAttribute("aria-invalid", "true");
+              x.setAttribute("aria-describedby", "rv-live");
+            });
+            $("rv-live").textContent = "Indiquez le résultat de la vérification PPE par le cabinet et la source consultée.";
+            if (r[0]) r[0].focus();
+            return true;
           }
           /* Critères réellement modifiés (par rapport à la dernière revue) */
           function criteresModifies() {
@@ -2120,7 +2299,32 @@
             });
             return o;
           }
+          /* Pièce reçue (marquée ou déposée) : enregistrée au dossier, la validation se débloque quand tout est reçu */
+          function recevoir(lib, fichier) {
+            if (!lib) return;
+            X.marquerRecue(s, lib, USER.nom, fichier);
+            rendre();
+            focusApres(document.getElementById("dz-piece") ? "#dz-piece" : "#pieces");
+            X.toast(esc(lib) + " : pièce " + (fichier ? "déposée" : "reçue") + ".");
+          }
           var corps = $("lab-corps");
+          corps.addEventListener("dragover", function (e) {
+            var z = e.target.closest && e.target.closest("#dz");
+            if (!z) return;
+            e.preventDefault();
+            z.classList.add("dz-on");
+          });
+          corps.addEventListener("dragleave", function (e) {
+            var z = e.target.closest && e.target.closest("#dz");
+            if (z) z.classList.remove("dz-on");
+          });
+          corps.addEventListener("drop", function (e) {
+            var z = e.target.closest && e.target.closest("#dz");
+            if (!z) return;
+            e.preventDefault();
+            var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+            if (f) recevoir($("dz-piece").value, f.name);
+          });
           corps.addEventListener("click", function (e) {
             var b = e.target.closest("button");
             if (!b || b.disabled) return;
@@ -2156,7 +2360,7 @@
               return;
             }
             if (b.id === "rv-valider") {
-              if (blocages().length) return;
+              if (blocages().length || verifPPEManquante()) return;
               var r = X.validerRevue(s, USER.nom, optionsRevue());
               ui.rv = null;
               rendre();
@@ -2187,7 +2391,7 @@
               return;
             }
             if (b.id === "rv-demander") {
-              if (blocages().length) return;
+              if (blocages().length || verifPPEManquante()) return;
               var V = valideur();
               var o = optionsRevue();
               o.aCode = V.code;
@@ -2196,6 +2400,10 @@
               rendre();
               focusApres("#afaire");
               X.toast("Revue transmise à " + esc(V.nom) + " pour validation.");
+              return;
+            }
+            if (b.hasAttribute("data-recue")) {
+              recevoir(b.getAttribute("data-recue"), "");
               return;
             }
             if (b.id === "lever") {
@@ -2248,6 +2456,10 @@
           /* Saisies : l'état est gardé sans redessiner (le focus reste en place) */
           corps.addEventListener("change", function (e) {
             var t = e.target;
+            if (t.id === "dz-file") {
+              if (t.files && t.files[0]) recevoir($("dz-piece").value, t.files[0].name);
+              return;
+            }
             if (ui.rv && t.hasAttribute("data-crit")) {
               ui.rv.criteres[t.getAttribute("data-crit")] = +t.value;
               $("rv-crit-etat").textContent = texteCrit();
@@ -2256,6 +2468,16 @@
             if (ui.rv && t.name === "rv-risque") {
               ui.rv.risque = t.value;
               majRevue();
+              return;
+            }
+            if (ui.rv && t.id === "rv-ppe-src") {
+              ui.rv.ppeSrc = t.value;
+              return;
+            }
+            if (ui.rv && t.name === "rv-ppe-res") {
+              ui.rv.ppeRes = t.value;
+              Array.prototype.forEach.call(document.querySelectorAll('input[name="rv-ppe-res"]'), function (x) { x.removeAttribute("aria-invalid"); });
+              $("rv-live").textContent = "";
               return;
             }
             if (ui.rv && t.id === "rv-reconduire") {
@@ -2293,6 +2515,6 @@
         }
       })();
     </script>
-    <script src="assets/ej-shell.js?v=24"></script>
+    <script src="assets/ej-shell.js?v=25"></script>
   </body>
 </html>
