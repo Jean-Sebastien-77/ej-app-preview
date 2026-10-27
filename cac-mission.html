@@ -1230,6 +1230,7 @@
               '<div class="band-btns">' +
               '<button class="btn ' + (etapeRapport ? "btn-primary" : "btn-secondary") + ' btn-sm" type="button" data-act="apercu" data-doc="rapport" aria-haspopup="dialog"><span class="ms">file-text</span>Rapport</button>' +
               '<button class="btn btn-secondary btn-sm" type="button" data-act="apercu" data-doc="la" aria-haspopup="dialog"><span class="ms">file-pen-line</span>Lettre d\'affirmation</button>' +
+              '<button class="btn btn-secondary btn-sm" type="button" data-act="apercu" data-doc="recap" aria-haspopup="dialog"><span class="ms">clipboard-list</span>Récap client</button>' +
               "</div>";
           } else {
             band.hidden = true;
@@ -1827,6 +1828,33 @@
             '<div class="sh-sign"><div><strong>' + esc(signataire.nom) + "</strong>Pour le cabinet<br>" + cab + "</div>" +
             "<div><strong>" + esc(dirigeant || "Pour la société") + "</strong>Pour la société<br>" + soc + "</div></div></article>";
         }
+        /* Récap client : synthèse d'avancement à transmettre à la société, en lecture
+           seule (export PDF par l'aperçu). Point fort absorbé de l'outil Rapport CAC
+           (décision JS 2026-10-27) : le contenu est dérivé de l'état réel de la mission,
+           jamais saisi à la main. */
+        function docRecap() {
+          var fini = idx(st.etape) >= idx("termine");
+          var n = Math.min(idx(st.etape) + 1, FRISE.length);
+          var P = etatPieces();
+          var attendues = P.filter(function (p) { return p.etat === "attendue"; });
+          var reprises = P.filter(function (p) { return p.etat === "reprise"; });
+          var nR = nbRecues();
+          var h = ligne("Avancement", fini ? "Mission terminée" : "Étape " + n + " sur " + FRISE.length + " · " + (E.ETAPE[st.etape] || ""));
+          h += ligne("Pièces du dossier", nR + " reçue" + (nR > 1 ? "s" : "") + " sur " + st.pieces[1] +
+            (reprises.length ? ", dont " + reprises.length + " reprise" + (reprises.length > 1 ? "s" : "") + " de vos dossiers sans ressaisie" : ""));
+          var r0 = rapports()[0];
+          h += ligne(rapports().length > 1 ? "Rapports" : "Rapport", E.DOC_STATUT[r0[1]] + (r0[1] === "depose" && st.transmis ? ", transmis le " + st.transmis : ""));
+          var LA0 = la();
+          if (LA0) h += ligne("Lettre d'affirmation", DOC_FEM[LA0[1]] || E.DOC_STATUT[LA0[1]]);
+          return '<article class="apercu-sheet">' + enteteDoc("Récapitulatif de mission") +
+            '<h3 class="sh-title">Récap client · ' + esc(E.NATURE[nature]) + "</h3>" +
+            blocSociete() +
+            "<h4>Où en est la mission</h4>" + '<dl class="sh-kv">' + h + "</dl>" +
+            (attendues.length
+              ? "<h4>Pièces à nous transmettre</h4><ul>" + attendues.map(function (p) { return "<li>" + esc(p.lib) + "</li>"; }).join("") + "</ul>"
+              : '<p class="sh-mut">Aucune pièce en attente de votre part.</p>') +
+            '<div class="sh-sign"><div><strong>' + esc(signataire.nom) + "</strong>" + esc(qualite) + "<br>Votre interlocuteur pour cette mission</div></div></article>";
+        }
         function focusables() {
           return Array.prototype.filter.call(AP.querySelectorAll("button, a[href], textarea, input, select, [tabindex]:not([tabindex='-1'])"), function (el) {
             return !el.disabled && el.offsetParent !== null;
@@ -1835,11 +1863,11 @@
         function ouvrirApercu(type, origine, focusLib) {
           apType = type;
           apOrigine = origine || document.activeElement;
-          var editable = type !== "lm" && idx(st.etape) < idx("signature");
-          var T = { rapport: rapports().length > 1 ? "Rapports" : "Rapport", la: "Lettre d'affirmation", lm: "Lettre de mission" };
+          var editable = type !== "lm" && type !== "recap" && idx(st.etape) < idx("signature");
+          var T = { rapport: rapports().length > 1 ? "Rapports" : "Rapport", la: "Lettre d'affirmation", lm: "Lettre de mission", recap: "Récap client" };
           document.getElementById("ap-titre").textContent = "Aperçu · " + T[type];
-          document.getElementById("ap-sous").textContent = "Modèle du cabinet · " + (m0.nom || "");
-          document.getElementById("ap-doc").innerHTML = type === "rapport" ? docRapport() : type === "la" ? docLA() : docLM();
+          document.getElementById("ap-sous").textContent = (type === "recap" ? "Synthèse à transmettre à la société · " : "Modèle du cabinet · ") + (m0.nom || "");
+          document.getElementById("ap-doc").innerHTML = type === "rapport" ? docRapport() : type === "la" ? docLA() : type === "recap" ? docRecap() : docLM();
           document.getElementById("ap-msg").textContent = "";
           document.getElementById("ap-foot").innerHTML =
             '<button class="btn btn-tertiary" type="button" data-act="ap-fermer">Fermer</button>' +
