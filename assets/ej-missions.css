@@ -132,8 +132,11 @@
   transform: translateX(2px);
 }
 .stat.attention {
-  background: linear-gradient(180deg, var(--ej-attention-100), var(--ej-white) 75%);
+  /* Feedback JS 2026-10-27 : carte blanche, seuls le contour et le chiffre portent la couleur */
   border-color: var(--ej-attention-500);
+}
+.stat.attention .stat-value {
+  color: var(--ej-attention-500);
 }
 
 /* ---------- Niveau de risque (point + libellé) ---------- */
