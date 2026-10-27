@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=19" />
-    <link rel="stylesheet" href="assets/ej-missions.css?v=23" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=24" />
     <style>
       /* ---------- Honoraires (une ligne sobre) ---------- */
       .lm-total {
@@ -452,13 +452,13 @@
 
         /* ---------- Tuiles ---------- */
         var TUILES = [
-          { filtre: "signee", titre: "Signées", icone: "check_circle", n: nb("signee"),
+          { filtre: "signee", titre: "Signées", n: nb("signee"),
             regle: "Lettre signée dont l'échéance n'est pas dépassée. ", lien: "Voir les lettres signées" },
-          { filtre: "envoyee", titre: "Envoyées pour signature", icone: "send", n: nb("envoyee"),
+          { filtre: "envoyee", titre: "Envoyées pour signature", n: nb("envoyee"),
             regle: "Lettre envoyée au client, signature attendue. ", lien: "Voir les lettres envoyées" },
-          { filtre: "a_renouveler", titre: "À renouveler", icone: "refresh_cw", n: nb("a_renouveler"),
+          { filtre: "a_renouveler", titre: "À renouveler", n: nb("a_renouveler"),
             regle: "Lettre signée dont l'échéance est atteinte sans reconduction. ", lien: "Voir les lettres à renouveler" },
-          { filtre: "absente", titre: "Aucune lettre", icone: "file_x", n: nb("absente"), attention: true,
+          { filtre: "absente", titre: "Aucune lettre", n: nb("absente"), attention: true,
             regle: "Dossier missions ouvert, aucune lettre rattachée. ", lien: "Voir les sociétés sans lettre" },
         ];
         function infoTip(id, texte) {
@@ -473,7 +473,7 @@
             '<div class="card stat' + (t.attention ? " attention" : "") + '">' +
             '<div class="stat-top"><span class="stat-title">' + t.titre +
             infoTip("note-tuile-" + t.filtre, t.regle + "<strong>" + t.n + " sur " + nbDossiers + "</strong> sociétés du périmètre.") +
-            '</span><span class="ms">' + t.icone + "</span></div>" +
+            "</span></div>" +
             '<div class="stat-value">' + t.n + "</div>" +
             '<div class="stat-sub">sur ' + nbDossiers + " sociétés</div>" +
             '<a class="stat-link" href="#lm-liste" data-filter="' + t.filtre + '">' + t.lien + '<span class="ms">arrow_forward</span></a>' +

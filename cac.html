@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=19" />
-    <link rel="stylesheet" href="assets/ej-missions.css?v=23" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=24" />
     <style>
       /* ---- Page Missions CAC : styles locaux (à mutualiser si besoin) ---- */
       .cac-intro {
@@ -726,19 +726,19 @@
           nAlpe = M.filter(function (m) { return m.type === "alpe"; }).length,
           nCtr = M.filter(function (m) { return m.type === "contractuel"; }).length;
         var TUILES = [
-          { key: "mandats", titre: "Mandats", icone: "briefcase", valeur: M.length,
+          { key: "mandats", titre: "Mandats", valeur: M.length,
             sub: nLegal + " légaux, " + nAlpe + " audits légaux des petites entreprises (ALPE), " + nCtr + " contractuel",
             regle: "Mandats légaux, audits légaux des petites entreprises (ALPE) et audit contractuel du cabinet.",
             vue: "mandats", filtre: "tous" },
-          { key: "rapports", titre: "Rapports à émettre d'ici 3 mois", icone: "file-text", valeur: lRap.length,
+          { key: "rapports", titre: "Rapports à émettre d'ici 3 mois", valeur: lRap.length,
             sub: noms(lRap),
             regle: "Mandats dont l'assemblée générale ordinaire annuelle (AGOA) d'approbation des comptes est prévue entre le " + E.today + " et le " + fmt(FIN3M) + ".",
             vue: "mandats", filtre: "rapports" },
-          { key: "fin", titre: "Fins de mandat à préparer", icone: "calendar-clock", valeur: lFin.length, attention: true,
+          { key: "fin", titre: "Fins de mandat à préparer", valeur: lFin.length, attention: true,
             sub: noms(lFin),
             regle: "Le dernier exercice du mandat est l'exercice en cours : le mandat prend fin à l'issue de l'assemblée générale ordinaire annuelle (AGOA) qui statue sur ces comptes. Audits contractuels exclus.",
             vue: "mandats", filtre: "fin" },
-          { key: "ponc", titre: "Missions ponctuelles en cours", icone: "file-pen-line", valeur: lPonc.length,
+          { key: "ponc", titre: "Missions ponctuelles en cours", valeur: lPonc.length,
             sub: noms(lPonc),
             regle: "Missions liées à une opération (apport, transformation, fusion) dont le rapport n'est pas encore déposé.",
             vue: "ponctuelles", filtre: "cours" },
@@ -750,7 +750,7 @@
             '<span class="info-tip">' +
             '<button type="button" class="info-tip-btn" aria-describedby="note-tuile-' + t.key + '" aria-label="Règle de calcul : ' + esc(t.titre) + '"><span class="ms">info</span></button>' +
             '<span class="info-tip-pop" role="tooltip" id="note-tuile-' + t.key + '"><strong>Règle :</strong> ' + esc(t.regle) + "</span></span>" +
-            '</span><span class="ms">' + t.icone + "</span></div>" +
+            "</span></div>" +
             '<div class="stat-value">' + t.valeur + "</div>" +
             '<div class="stat-sub stat-sub-names">' + esc(t.sub) + "</div>" +
             '<a class="stat-link" href="?vue=' + t.vue + '" data-vue="' + t.vue + '" data-filtre="' + t.filtre + '">Voir la liste <span class="ms">arrow_forward</span></a></div>'
