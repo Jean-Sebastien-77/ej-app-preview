@@ -483,11 +483,12 @@ svg {
   font-size: 16px;
 }
 .btn-primary {
-  background: var(--ej-primary-900);
+  /* Feedback JS 2026-10-27 : CTA en violet du logo, survol plus foncé */
+  background: var(--ej-action-600);
   color: #fff;
 }
 .btn-primary:hover {
-  background: var(--ej-action-600);
+  background: var(--ej-action-700);
   box-shadow: 0 10px 24px -10px rgba(93, 88, 215, 0.55);
 }
 .btn-primary:active {
