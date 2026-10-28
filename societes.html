@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=20" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=24" />
     <style>
       .s-count {
         font-size: 14px;
@@ -43,9 +44,20 @@
         justify-content: center;
         margin-top: 24px;
       }
+      /* Écran étroit : la date passe sous la société */
+      @media (max-width: 760px) {
+        #societes .list-row {
+          flex-wrap: wrap;
+        }
+        .s-right {
+          margin-left: 0;
+          width: 100%;
+          justify-content: space-between;
+        }
+      }
     </style>
   </head>
-  <body data-active="societes">
+  <body class="m-resp" data-active="societes">
     <div id="ej-header"></div>
     <div class="app">
       <div id="ej-sidebar"></div>
@@ -73,7 +85,7 @@
       </div>
     </div>
 
-    <script src="assets/ej-missions-data.js?v=24"></script>
+    <script src="assets/ej-missions-data.js?v=28"></script>
     <script src="assets/ej-cockpit-data.js?v=8"></script>
     <script src="assets/ej-dpj-data.js?v=2"></script>
     <script>
@@ -140,23 +152,102 @@
         }
         return null;
       }
-      document.getElementById("societes").innerHTML = DATA.map(function (s) {
-        var siren =
-          s[1] === "En cours de création."
-            ? '<span class="badge badge-progress" style="height:22px;font-size:11px">En cours de création</span>'
-            : "SIREN : " + esc(s[1]);
-        var id = idDpj(s[0], s[1]);
+      /* Cabinet actif, lu comme le fait ej-shell.js (chargé en fin de page) : SELARL VASSEUR AVOCATS => « conseil »,
+         sinon le profil du cabinet DELMAS (ec, cac, mixte ; ec par défaut). */
+      function profilActif() {
+        try {
+          if (localStorage.getItem("ej-cabinet") === "vasseur") return "conseil";
+          var p = localStorage.getItem("ej-profil");
+          if (p === "ec" || p === "cac" || p === "mixte") return p;
+        } catch (e) {}
+        return "ec";
+      }
+      function cleDate(d) {
+        var p = String(d || "").split("/");
+        return p.length === 3 ? p[2] + p[1] + p[0] : "";
+      }
+      function ligne(href, nom, metaHtml, droiteHtml) {
         return (
-          '<a class="list-row" href="societe.html' + (id ? "?id=" + encodeURIComponent(id) : "") + '">' +
+          '<a class="list-row" href="' + href + '">' +
           '<span class="list-icon"><span class="ms">storefront</span></span>' +
-          '<div class="s-info"><span class="row-title">' + esc(s[0]) + "</span>" +
-          '<span class="row-meta">' + siren + "</span></div>" +
-          '<div class="s-right"><span>Dernière mise à jour le ' + s[2] + "</span>" +
+          '<div class="s-info"><span class="row-title">' + esc(nom) + "</span>" +
+          '<span class="row-meta">' + metaHtml + "</span></div>" +
+          '<div class="s-right">' + droiteHtml +
           '<span class="ms chev">arrow_forward</span></div>' +
           "</a>"
         );
-      }).join("");
+      }
+      function pluriel(n, mot) {
+        return n + " " + mot + (n > 1 ? "s" : "");
+      }
+      /* Sociétés EC (tableau DATA) */
+      function lignesEc() {
+        return DATA.map(function (s) {
+          var siren =
+            s[1] === "En cours de création."
+              ? '<span class="badge badge-progress" style="height:22px;font-size:11px">En cours de création</span>'
+              : "SIREN : " + esc(s[1]);
+          var id = idDpj(s[0], s[1]);
+          return ligne("societe.html" + (id ? "?id=" + encodeURIComponent(id) : ""), s[0], siren, "<span>Dernière mise à jour le " + s[2] + "</span>");
+        });
+      }
+      /* Entités dont le cabinet est commissaire aux comptes */
+      function lignesCac(avecBadge) {
+        var liste = window.EJM && window.EJM.societesCac ? window.EJM.societesCac() : [];
+        return liste.map(function (c) {
+          var nm = c.mandats.length, np = c.ponctuelles.length;
+          var parts = [];
+          if (nm) parts.push(pluriel(nm, "mandat"));
+          if (np) parts.push(nm ? pluriel(np, "mission") : np + (np > 1 ? " missions ponctuelles" : " mission ponctuelle"));
+          var droite =
+            (avecBadge ? '<span class="badge badge-neutral" style="height:22px;font-size:11px">Commissariat aux comptes</span>' : "") +
+            "<span>" + esc(parts.join(" \u00b7 ")) + "</span>";
+          return ligne("societe.html?cac=" + encodeURIComponent(c.cle), c.nom, "SIREN : " + esc(c.siren), droite);
+        });
+      }
+      /* Sociétés du conseil (SELARL VASSEUR AVOCATS) : dernière mise à jour = formalité la plus récemment modifiée */
+      function lignesConseil() {
+        var C = window.EJM && window.EJM.conseil ? window.EJM.conseil : { societes: [], formalites: [] };
+        return C.societes
+          .map(function (s) {
+            var maj = s.ajout;
+            C.formalites.forEach(function (f) {
+              if (f.societe === s.id && f.maj && cleDate(f.maj) > cleDate(maj)) maj = f.maj;
+            });
+            return { s: s, maj: maj };
+          })
+          .sort(function (a, b) {
+            return cleDate(b.maj) < cleDate(a.maj) ? -1 : cleDate(b.maj) > cleDate(a.maj) ? 1 : 0;
+          })
+          .map(function (x) {
+            return ligne("societe.html?id=" + encodeURIComponent(x.s.id), x.s.nom, "SIREN : " + esc(x.s.siren), "<span>Dernière mise à jour le " + esc(x.maj) + "</span>");
+          });
+      }
+
+      (function () {
+        var profil = profilActif();
+        var lignes, total = null;
+        if (profil === "conseil") {
+          lignes = lignesConseil();
+          total = lignes.length;
+        } else if (profil === "cac") {
+          lignes = lignesCac(false);
+          total = lignes.length;
+        } else if (profil === "mixte") {
+          var cac = lignesCac(true);
+          lignes = lignesEc().concat(cac);
+          total = 135 + cac.length;
+        } else {
+          lignes = lignesEc();
+        }
+        document.getElementById("societes").innerHTML = lignes.length
+          ? lignes.join("")
+          : '<div class="list-row"><span class="row-meta">Aucune société pour le moment.</span></div>';
+        if (total !== null) document.querySelector(".s-count").textContent = pluriel(total, "société");
+        /* Listes complètes : pas de « Voir plus » pour le conseil et le commissaire aux comptes seul */
+        if (profil === "conseil" || profil === "cac") document.querySelector(".s-more").style.display = "none";
+      })();
     </script>
-    <script src="assets/ej-shell.js?v=25"></script>
+    <script src="assets/ej-shell.js?v=27"></script>
   </body>
 </html>

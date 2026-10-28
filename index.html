@@ -137,6 +137,15 @@
           ],
         },
         {
+          title: "Parcours KERLYS · Transformation de SARL en SAS",
+          items: [
+            ["formalite.html?ref=F-2026-0409&cabinet=vasseur", "topic", "Côté conseil : la formalité", "SELARL VASSEUR AVOCATS, intervention du commissaire"],
+            ["societe.html?id=kerlys&cabinet=vasseur", "storefront", "Côté conseil : la fiche société", "Formalités de KERLYS"],
+            ["societe.html?cac=752018334&cabinet=delmas&profil=cac", "briefcase", "Côté commissaire : la fiche société", "Onglet Missions CAC, nouvelle mission"],
+            ["cac-mission.html?id=kerlys&cabinet=delmas&profil=cac", "file_check", "Côté commissaire : la mission", "Pièces, rapport, journal"],
+          ],
+        },
+        {
           title: "Formalités",
           items: [
             ["formalites.html", "topic", "Liste des formalités", "164 formalités, filtres, statuts"],
@@ -191,8 +200,19 @@
             "</div></section>"
           );
         }).join("") +
-        '<div class="alert alert-info note"><span class="ms">info</span><span>Données fictives. Assistant IA simulé. Contenus réglementaires (LAB, lettres de mission, missions CAC) à faire valider par un professionnel. Écrans « Propositions 2027 » à valider par EJ. Certaines listes longues sont tronquées. Le sélecteur de profil, dans l\'en-tête des écrans, bascule entre expert-comptable, commissaire aux comptes et cabinet mixte.</span></div>';
+        '<div class="alert alert-info note"><span class="ms">info</span><span>Données fictives. Assistant IA simulé. Contenus réglementaires (LAB, lettres de mission, missions CAC) à faire valider par un professionnel. Écrans « Propositions 2027 » à valider par EJ. Certaines listes longues sont tronquées. Le parcours KERLYS montre deux comptes distincts : le conseil (SELARL VASSEUR AVOCATS) et le commissaire (CABINET DELMAS EXPERTISE), à changer avec le sélecteur « Cabinet actif » de l\'en-tête. Toutes les dates partent du 19 octobre 2026. Le modèle de rapport du commissaire est un exemple, à remplacer par un modèle validé par le cabinet ; joindre un rapport, signer et remettre n\'envoient rien. Le sélecteur de profil, dans l\'en-tête des écrans, bascule entre expert-comptable, commissaire aux comptes et cabinet mixte.</span></div>';
+      /* Les pages lisent la vue avant le shell : on la pose au clic, avant la navigation */
+      document.addEventListener("click", function (e) {
+        var a = e.target.closest("a.tile");
+        if (!a) return;
+        var h = a.getAttribute("href");
+        var c = /[?&]cabinet=(vasseur|delmas)\b/.exec(h), p = /[?&]profil=(ec|cac|mixte)\b/.exec(h);
+        try {
+          if (c) localStorage.setItem("ej-cabinet", c[1]);
+          if (p) localStorage.setItem("ej-profil", p[1]);
+        } catch (err) {}
+      });
     </script>
-    <script src="assets/ej-shell.js?v=25"></script>
+    <script src="assets/ej-shell.js?v=27"></script>
   </body>
 </html>

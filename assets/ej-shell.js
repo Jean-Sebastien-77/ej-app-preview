@@ -8,10 +8,10 @@
     { id: "formalites", label: "Formalités", icon: "topic", href: "formalites.html" },
     { id: "societes", label: "Sociétés", icon: "storefront", href: "societes.html" },
     { id: "suivi", label: "Suivi des actions", icon: "table_chart", href: "suivi-actions.html" },
-    { id: "ifu", label: "Export IFU 2025", sub: "Assistance à la décla.", icon: "price_change", href: "export-ifu.html" },
-    { section: "Missions & conformité" },
+    { id: "ifu", label: "Export IFU 2025", sub: "Assistance à la décla.", icon: "price_change", href: "export-ifu.html", profils: ["ec", "cac", "mixte"] },
+    { section: "Missions & conformité", profils: ["ec", "cac", "mixte"] },
     { id: "lettres", label: "Lettres de mission", icon: "file_pen_line", href: "lettres-mission.html", profils: ["ec", "mixte"] },
-    { id: "lab", label: "Dispositif LAB", sub: "Lutte anti-blanchiment", icon: "shield_check", href: "lab.html" },
+    { id: "lab", label: "Dispositif LAB", sub: "Lutte anti-blanchiment", icon: "shield_check", href: "lab.html", profils: ["ec", "cac", "mixte"] },
     { id: "cac", label: "Missions CAC", sub: "Mandats et missions ponctuelles", icon: "briefcase", href: "cac.html", profils: ["cac", "mixte"] },
     { section: "Administration" },
     { id: "connecteurs", label: "Connecteurs", icon: "cable", href: "connecteurs.html" },
@@ -45,15 +45,38 @@
     { id: "mixte", label: "Cabinet mixte EC et CAC" },
   ];
   var profil = "ec";
+  /* Liens de l'index : ?cabinet=vasseur|delmas et ?profil=ec|cac|mixte posent la vue avant l'affichage */
+  try {
+    var qc = /[?&]cabinet=(vasseur|delmas)\b/.exec(location.search);
+    if (qc) localStorage.setItem("ej-cabinet", qc[1]);
+    var qp = /[?&]profil=(ec|cac|mixte)\b/.exec(location.search);
+    if (qp) localStorage.setItem("ej-profil", qp[1]);
+  } catch (e) {}
   try {
     var saved = localStorage.getItem("ej-profil");
     if (PROFILS.some(function (p) { return p.id === saved; })) profil = saved;
   } catch (e) {}
+  /* Cabinet actif simulé : le cabinet DELMAS (EC et CAC) ou le conseil de KERLYS, SELARL VASSEUR AVOCATS.
+     Deux comptes distincts : le conseil ne voit ni les missions ni le LAB du cabinet DELMAS.
+     Côté conseil, body[data-profil] vaut "conseil" et le sélecteur de vue par activité disparaît. */
+  var CABINETS = [
+    { id: "delmas", nom: "CABINET DELMAS EXPERTISE" },
+    { id: "vasseur", nom: "SELARL VASSEUR AVOCATS" },
+  ];
+  var cabinet = "delmas";
+  try {
+    if (localStorage.getItem("ej-cabinet") === "vasseur") cabinet = "vasseur";
+  } catch (e) {}
+  var cabinetNom = CABINETS.filter(function (c) { return c.id === cabinet; })[0].nom;
+  if (cabinet === "vasseur") profil = "conseil";
   document.body.setAttribute("data-profil", profil);
-  var profilLabel = PROFILS.filter(function (p) { return p.id === profil; })[0].label;
+  document.body.setAttribute("data-cabinet", cabinet);
+  var profilLabel = profil === "conseil" ? "" : PROFILS.filter(function (p) { return p.id === profil; })[0].label;
   window.EJ_PROFIL = profil;
-  /* Utilisateur connecté simulé : l'associée CAC en profil cac, sinon l'associé EC. */
-  var user = profil === "cac" ? { initiales: "CD", nom: "Claire Dubois" } : { initiales: "TG", nom: "Thomas Girard" };
+  window.EJ_CABINET = { id: cabinet, nom: cabinetNom };
+  /* Utilisateur connecté simulé : l'associée CAC en profil cac, l'avocate au conseil, sinon l'associé EC. */
+  var user = profil === "conseil" ? { initiales: "AV", nom: "Anne Vasseur" }
+    : profil === "cac" ? { initiales: "CD", nom: "Claire Dubois" } : { initiales: "TG", nom: "Thomas Girard" };
   window.EJ_USER = user;
 
   var css =
@@ -93,18 +116,21 @@
     '<button class="menu-btn icon-btn" type="button" aria-label="Ouvrir le menu" data-menu><span class="ms">menu</span></button>' +
     '<a class="ej-logo" href="accueil.html" aria-label="Express Juridique, accueil"><img src="assets/ej-logo.svg" alt="Express Juridique" /></a>' +
     '<div class="header-right">' +
+    (profil === "conseil" ? "" :
     '<div class="dropdown" data-dropdown>' +
     '<button class="header-profil" type="button" aria-haspopup="true" title="Changer de vue"><span class="ms">eye</span><span class="hp-label">' + profilLabel + '</span><span class="ms">expand_more</span></button>' +
     '<div class="dropdown-menu"><div class="dropdown-head">Vue par activité</div>' +
     PROFILS.map(function (p) {
       return '<a class="dropdown-item' + (p.id === profil ? " current" : "") + '" href="#" data-profil="' + p.id + '"><span class="ms">' + (p.id === profil ? "check" : "dot") + "</span>" + p.label + "</a>";
     }).join("") +
-    "</div></div>" +
+    "</div></div>") +
     '<div class="dropdown" data-dropdown>' +
-    '<button class="header-company" type="button" aria-haspopup="true"><span class="ms">domain</span>CABINET DELMAS EXPERTISE<span class="ms">expand_more</span></button>' +
+    '<button class="header-company" type="button" aria-haspopup="true"><span class="ms">domain</span>' + cabinetNom + '<span class="ms">expand_more</span></button>' +
     '<div class="dropdown-menu"><div class="dropdown-head">Cabinet actif</div>' +
-    '<a class="dropdown-item current" href="#"><span class="ms">check</span>CABINET DELMAS EXPERTISE</a></div>' +
-    "</div>" +
+    CABINETS.map(function (c) {
+      return '<a class="dropdown-item' + (c.id === cabinet ? " current" : "") + '" href="#" data-cabinet="' + c.id + '"><span class="ms">' + (c.id === cabinet ? "check" : "dot") + "</span>" + c.nom + "</a>";
+    }).join("") +
+    "</div></div>" +
     '<span class="header-sep"></span>' +
     '<div class="dropdown" data-dropdown>' +
     '<button class="header-user" type="button" aria-haspopup="true"><span class="avatar avatar-sm">' + user.initiales + "</span>" + user.nom + '<span class="ms">expand_more</span></button>' +
@@ -155,7 +181,10 @@
       [
         { id: "accueil", label: "Accueil", icon: "home", href: "accueil.html?tab=accueil" },
         { id: "cockpit", label: "Cockpit", icon: "layout_dashboard", href: "cockpit.html" },
-      ].map(function (t) {
+      ].filter(function (t) {
+        /* Le cockpit porte les données du cabinet DELMAS : absent côté conseil */
+        return !(profil === "conseil" && t.id === "cockpit");
+      }).map(function (t) {
         var on = t.id === homeTab;
         return '<a class="tab' + (on ? " active" : "") + '" href="' + t.href + '"' + (on ? ' aria-current="page"' : "") + '><span class="ms">' + t.icon + "</span>" + t.label + "</a>";
       }).join("") +
@@ -288,6 +317,14 @@
       e.preventDefault();
       try { localStorage.setItem("ej-profil", pick.getAttribute("data-profil")); } catch (err) {}
       location.reload();
+      return;
+    }
+    /* Changement de cabinet : retour à l'accueil, les pages d'un compte n'existent pas dans l'autre */
+    var cab = e.target.closest("[data-cabinet]");
+    if (cab && cab.tagName === "A") {
+      e.preventDefault();
+      try { localStorage.setItem("ej-cabinet", cab.getAttribute("data-cabinet")); } catch (err) {}
+      location.href = "accueil.html?tab=accueil";
       return;
     }
     if (e.target.closest("[data-menu]")) {

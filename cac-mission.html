@@ -57,6 +57,15 @@
         color: var(--ej-primary-900);
         word-break: break-word;
       }
+      .soc-name a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .soc-name a:hover,
+      .soc-name a:focus-visible {
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
       .soc-form {
         margin-top: 2px;
         font-size: 14px;
@@ -676,6 +685,220 @@
         border-top: 1px solid var(--ej-hairline);
       }
 
+      /* ---- Pièces : provenance, versions, facultatives, périmètre du partage ---- */
+      .r-act {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .p-src {
+        display: inline-flex;
+        align-items: center;
+        max-width: 100%;
+        height: 20px;
+        padding: 0 8px;
+        margin-right: 6px;
+        border: 1px solid var(--ej-neutral-200);
+        border-radius: var(--ej-radius-full);
+        background: var(--ej-neutral-50);
+        font-size: 11.5px;
+        font-weight: 500;
+        color: var(--ej-neutral-600);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: 1px;
+      }
+      .p-opt-t {
+        margin-top: 18px;
+        padding-top: 12px;
+        border-top: 1px solid var(--ej-neutral-100);
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--ej-neutral-600);
+      }
+      .rows.p-opt {
+        margin-top: 8px;
+      }
+      .rows.p-opt li {
+        padding: 8px 0;
+      }
+      .rows.p-opt .r-lib {
+        font-size: 13px;
+        color: var(--ej-neutral-700);
+      }
+      .p-partage {
+        display: flex;
+        gap: 10px;
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px solid var(--ej-neutral-100);
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--ej-neutral-600);
+      }
+      .p-partage .ms {
+        flex-shrink: 0;
+        margin-top: 2px;
+        font-size: 16px;
+        color: var(--ej-neutral-500);
+      }
+      .p-partage > div {
+        min-width: 0;
+        word-break: break-word;
+      }
+      .p-partage strong {
+        font-weight: 600;
+        color: var(--ej-neutral-800);
+      }
+      /* Versions d'un rapport, sous sa ligne */
+      .r-vers {
+        flex: 1 1 100%;
+        min-width: 0;
+        padding-left: 30px;
+      }
+      .rows .vers li {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px 12px;
+        padding: 5px 0;
+        border-top: none;
+        font-size: 13px;
+        color: var(--ej-neutral-700);
+      }
+      .vers .v-txt {
+        flex: 1 1 220px;
+        min-width: 0;
+        word-break: break-word;
+      }
+      .vers .v-cur {
+        font-weight: 600;
+        color: var(--ej-neutral-900);
+      }
+      .v-act {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .v-act .btn {
+        white-space: nowrap;
+      }
+      .v-ret {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 4px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--ej-success-600);
+      }
+      .v-ret .ms {
+        flex-shrink: 0;
+        font-size: 15px;
+      }
+
+      /* ---- Fenêtres courtes (joindre un rapport, remise d'une version) ---- */
+      .apercu.apercu-sm .apercu-box {
+        max-width: 540px;
+      }
+      .apercu.apercu-sm .apercu-desk {
+        padding: 18px 22px 8px;
+        background: var(--ej-white);
+      }
+      .dlg-body > p {
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--ej-neutral-700);
+      }
+      .dlg-field {
+        margin-top: 14px;
+      }
+      .dlg-field label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ej-neutral-700);
+      }
+      .dlg-field input[type="file"] {
+        display: block;
+        width: 100%;
+        margin-top: 6px;
+        padding: 8px 10px;
+        border: 1px solid var(--ej-neutral-400);
+        border-radius: var(--ej-radius-md);
+        background: var(--ej-white);
+        font: inherit;
+        font-size: 13.5px;
+        color: var(--ej-neutral-900);
+      }
+      .dlg-field input:focus-visible,
+      .dlg-check input:focus-visible {
+        outline: 2px solid var(--ej-action-600);
+        outline-offset: 2px;
+      }
+      .dlg-field input[aria-invalid="true"] {
+        border-color: var(--ej-error-600);
+      }
+      .dlg-check {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-top: 16px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--ej-neutral-900);
+        cursor: pointer;
+      }
+      .dlg-check input {
+        flex-shrink: 0;
+        width: 18px;
+        height: 18px;
+        margin-top: 1px;
+        accent-color: var(--ej-action-600);
+      }
+      .dlg-aide {
+        margin: 4px 0 0 28px;
+        font-size: 12.5px;
+        color: var(--ej-neutral-600);
+      }
+      .rm-doc {
+        padding: 12px 0;
+        border-bottom: 1px solid var(--ej-neutral-100);
+      }
+      .rm-doc:first-child {
+        padding-top: 0;
+      }
+      .rm-doc > strong {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .rm-kv {
+        display: grid;
+        grid-template-columns: 120px minmax(0, 1fr);
+        gap: 4px 12px;
+        margin-top: 8px;
+        font-size: 13.5px;
+      }
+      .rm-kv dt {
+        color: var(--ej-neutral-600);
+      }
+      .rm-kv dd {
+        min-width: 0;
+        color: var(--ej-neutral-900);
+        word-break: break-word;
+      }
+      .rm-dest {
+        padding: 12px 0 6px;
+      }
+      .rm-note {
+        margin-top: 8px;
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--ej-neutral-700);
+      }
+
       @media (max-width: 1180px) {
         .d-grid {
           grid-template-columns: 1fr;
@@ -758,6 +981,22 @@
           width: 100%;
           justify-content: center;
           white-space: normal;
+        }
+        .r-vers {
+          padding-left: 30px;
+        }
+        .v-act,
+        .v-act .btn {
+          width: 100%;
+          justify-content: center;
+          white-space: normal;
+        }
+        .rm-kv {
+          grid-template-columns: 1fr;
+          gap: 0;
+        }
+        .rm-kv dd {
+          margin-bottom: 6px;
         }
         .apercu {
           align-items: flex-end;
@@ -880,7 +1119,7 @@
       </div>
     </div>
 
-    <script src="assets/ej-missions-data.js?v=24"></script>
+    <script src="assets/ej-missions-data.js?v=28"></script>
     <script src="assets/ej-lab.js?v=7"></script>
     <script>
       /* Fiche d'une mission ponctuelle du commissaire aux comptes (apports, transformation, fusion).
@@ -902,6 +1141,16 @@
           return;
         }
         document.title = (m0.nom || "Mission") + " · Mission ponctuelle CAC · Express Juridique";
+        /* Fiche société du portefeuille CAC (societe.html?cac=<SIREN en chiffres>) : lien du nom et retour from=societe */
+        var cleSoc = String(m0.siren || "").replace(/\D/g, "");
+        var urlSoc = cleSoc.length === 9 ? "societe.html?cac=" + cleSoc : "";
+        if (urlSoc && new URLSearchParams(location.search).get("from") === "societe") {
+          var bl = document.querySelector(".back-link");
+          if (bl) {
+            bl.setAttribute("href", urlSoc);
+            bl.innerHTML = '<span class="ms">chevron_left</span>' + esc(m0.nom || "Société");
+          }
+        }
         /* Données d'avant la session (journal dérivé, état initial) */
         var M = m0._origine || m0;
 
@@ -1151,22 +1400,69 @@
           var nDep = Math.max(0, st.pieces[0] - nRep0);
           st.recues = l0.filter(function (l) { return !(collecte() && sourceReprise(l)); }).slice(0, nDep);
         }
-        function etatPieces() {
+        /* Ancien état des pièces (reprise, déposée, attendue) : sert seulement à dériver le détail des pièces */
+        function etatPiecesAncien() {
           return listePieces().map(function (lib) {
             var src = sourceReprise(lib);
             if (src) return { lib: lib, etat: collecte() ? "reprise" : "prevue", src: src };
             return { lib: lib, etat: st.recues.indexOf(lib) !== -1 ? "deposee" : "attendue" };
           });
         }
+        /* Détail des pièces (contrat EJM : piecesDetail). Données initiales de la mission si présentes, sinon dérivé :
+           reprise → registre ou formalité ; déposée → lien de dépôt ; reçue = contrôlée à partir de l'étape Rapport. */
+        function deriverPieces() {
+          var avance = idx(st.etape) >= idx("rapport");
+          var dRep = st.dates.acceptation || D;
+          return etatPiecesAncien().map(function (p) {
+            var x = { lib: p.lib, source: null, origine: null, dateDoc: null, version: null, recuperee: null, etat: "attendue", historique: [], motif: null, optionnelle: false };
+            if (p.etat === "reprise" || p.etat === "prevue") {
+              var reg = /INPI/.test(p.src);
+              x.source = reg ? "registre" : "operation";
+              x.origine = p.src;
+              if (p.etat === "reprise") {
+                x.recuperee = dRep;
+                x.version = (reg ? "Récupéré le " : "Repris le ") + dRep;
+                x.etat = avance ? "controlee" : "recue";
+              } else x.etat = "disponible";
+            } else if (p.etat === "deposee") {
+              x.source = "depot";
+              x.origine = "Lien de dépôt du conseil";
+              x.etat = avance ? "controlee" : "recue";
+            }
+            return x;
+          });
+        }
+        if (!st.piecesDetail || !st.piecesDetail.length) {
+          st.piecesDetail = M.piecesDetail && M.piecesDetail.length ? copie(M.piecesDetail) : deriverPieces();
+        }
+        st.piecesDetail.forEach(function (p) { if (!p.historique) p.historique = []; });
+        var RECU = { recue: 1, controlee: 1, retenue: 1 };
+        /* Pièce comptée dans le total : ni facultative encore disponible, ni sans objet */
+        function compte(p) {
+          return !(p.optionnelle && p.etat === "disponible") && p.etat !== "sans_objet";
+        }
+        function pieces() { return st.piecesDetail; }
         function nbRecues() {
-          return etatPieces().filter(function (p) { return p.etat === "reprise" || p.etat === "deposee"; }).length;
+          return pieces().filter(function (p) { return compte(p) && RECU[p.etat]; }).length;
+        }
+        function nbAttendues() {
+          return pieces().filter(compte).length;
         }
         function piecesCompletes() {
-          return nbRecues() >= st.pieces[1];
+          return nbRecues() >= nbAttendues();
+        }
+        /* Pièces demandées au conseil : attendues ou à remplacer (jamais une pièce disponible dans une source) */
+        function enAttente() {
+          return pieces().filter(function (p) { return compte(p) && (p.etat === "attendue" || p.etat === "a_remplacer"); });
+        }
+        /* Pièces qui bloquent la signature du rapport */
+        function bloquantes() {
+          return pieces().filter(function (p) { return compte(p) && (p.etat === "recue" || p.etat === "a_remplacer"); });
         }
         function ecrire() {
-          /* « pieces » partagé avec les autres pages : [reçues (reprises comprises une fois la collecte ouverte), attendues] */
-          st.pieces[0] = nbRecues();
+          /* « pieces » partagé avec les autres pages : [reçues (reçue, contrôlée, retenue), attendues (hors facultatives disponibles et sans objet)] */
+          st.pieces = [nbRecues(), nbAttendues()];
+          syncVersions();
           var tout = lireTout();
           tout[m0.id] = st;
           MEM = tout;
@@ -1177,7 +1473,77 @@
         function rapports() { return st.documents.filter(estRapport); }
         function la() { return st.documents.filter(estLA)[0] || null; }
         function transmettreDansEJ() { return !!(conseilEJ && st.accord); }
-        var DOC_FEM = { signe: "Signée", depose: "Déposée" };
+
+        /* ---------- Versions des rapports et remises (contrat EJM : versions, remises) ----------
+           Version courante = la plus récente. Brouillon, finalisée, signée et remise sont des états distincts.
+           État initial dérivé du statut du document ; d[1] reste le jalon de la mission (jamais en recul). */
+        function versionsDe(lib) {
+          st.versions = st.versions || {};
+          return st.versions[lib] || (st.versions[lib] = []);
+        }
+        function courante(lib) {
+          var vs = versionsDe(lib);
+          return vs[vs.length - 1] || null;
+        }
+        function syncVersions() {
+          st.versions = st.versions || {};
+          rapports().forEach(function (d) {
+            var vs = versionsDe(d[0]);
+            if (vs.length || d[1] === "a_produire") return;
+            var s = d[1];
+            vs.push({
+              n: 1, origine: "modele", fichier: null,
+              etat: s === "brouillon" ? "brouillon" : s === "a_signer" ? "finalise" : "signe",
+              creee: st.dates.acceptation || D,
+              finalisee: s !== "brouillon" ? st.dates.rapport || null : null,
+              signee: s === "signe" || s === "depose" ? st.dateRapport || null : null,
+              remise: s === "depose" ? st.transmis || null : null,
+            });
+          });
+          if (!st.remises) {
+            st.remises = [];
+            rapports().forEach(function (d) {
+              if (d[1] === "depose" && st.transmis)
+                st.remises.push({ doc: d[0], n: 1, date: st.transmis, operation: transmettreDansEJ() ? conseil.formalite : null, destinataire: conseil.nom || null });
+            });
+          }
+        }
+        syncVersions();
+        function nouvelleVersion(lib, origine, fichier, finalisee) {
+          var vs = versionsDe(lib);
+          var v = { n: vs.length + 1, origine: origine, fichier: fichier || null, etat: finalisee ? "finalise" : "brouillon",
+            creee: E.today, finalisee: finalisee ? E.today : null, signee: null, remise: null };
+          vs.push(v);
+          return v;
+        }
+        /* Rapports dont une version signée plus récente que la dernière remise reste à remettre */
+        function aRemettre() {
+          return rapports().map(function (d) {
+            var sig = versionsDe(d[0]).filter(function (v) { return v.etat === "signe"; });
+            var der = sig[sig.length - 1];
+            var rem = (st.remises || []).filter(function (r) { return r.doc === d[0]; });
+            var prev = rem[rem.length - 1] || null;
+            if (!der || der.remise || (prev && prev.n >= der.n)) return null;
+            return { d: d, v: der, prev: prev };
+          }).filter(Boolean);
+        }
+        function nomRapport(lib) { return rapports().length > 1 ? lib : "Rapport"; }
+        function origineVersion(v) {
+          return v.origine === "joint" ? "jointe : " + (v.fichier || "fichier joint") : "préparée depuis le modèle du cabinet";
+        }
+        /* Version retenue par le conseil pour son dossier de dépôt (lecture seule, compte du conseil) */
+        function retenueConseil(lib) {
+          if (!conseilEJ) return null;
+          try {
+            var r = JSON.parse(sessionStorage.getItem("ej-conseil-retenues") || "{}") || {};
+            var x = r[conseil.formalite];
+            if (!x || x.n == null) return null;
+            return !x.doc || x.doc === lib || rapports().length === 1 ? x : null;
+          } catch (e) {
+            return null;
+          }
+        }
+        var DOC_FEM = { signe: "Signée", depose: "Remise" };
         function badgeDoc(d) {
           if (!d) return "";
           var lib = /^Lettre/.test(d[0]) && DOC_FEM[d[1]] ? DOC_FEM[d[1]] : E.DOC_STATUT[d[1]];
@@ -1203,7 +1569,6 @@
           var ie = idx(e);
           var termine = e === "termine";
           var transmis = !!st.transmis;
-          var ep = etatPieces();
           var recues = nbRecues();
           var etapeRapport = e === "rapport";
 
@@ -1211,7 +1576,7 @@
           document.getElementById("head").innerHTML =
             '<div class="soc-motif" aria-hidden="true"><i class="m1"></i><i class="m2"></i></div>' +
             "<div>" +
-            '<h1 class="soc-name">' + esc(m0.nom || "Mission") + "</h1>" +
+            '<h1 class="soc-name">' + (urlSoc ? '<a href="' + esc(urlSoc) + '">' + esc(m0.nom || "Mission") + "</a>" : esc(m0.nom || "Mission")) + "</h1>" +
             '<div class="soc-form">' + esc(m0.forme || "") + (m0.siren ? " · SIREN " + esc(m0.siren) : "") + "</div>" +
             (m0.operation ? '<div class="soc-op">' + esc(m0.operation) + "</div>" : "") +
             '<div class="soc-greffe">Signataire : <strong>' + esc(signataire.nom) + "</strong></div>" +
@@ -1381,28 +1746,93 @@
             carte("shield-check", "Acceptation", "", "", '<dl class="kv">' + ac + "</dl>", "acceptation") +
             "</div>";
 
-          /* Pièces */
+          /* Pièces : provenance, date du document, version, un seul état par ligne.
+             Facultatives disponibles et pièces sans objet regroupées en bas. */
           var PI = {
-            deposee: ["file-check", "ok", "badge-success", "Déposée par le conseil"],
-            reprise: ["database", "ej", "badge-brand", "Reprise d'EJ"],
-            prevue: ["database", "ej", "badge-neutral", "Reprise d'EJ prévue"],
+            disponible: ["database", "ej", "badge-neutral", "Disponible dans la source"],
+            retenue: ["database", "ok", "badge-brand", "Retenue pour la mission"],
             attendue: ["file-clock", "", "badge-neutral", "Attendue"],
+            recue: ["file-search", "", "badge-ech", "Reçue, à contrôler"],
+            controlee: ["file-check", "ok", "badge-success", "Contrôlée"],
+            a_remplacer: ["file-warning", "", "badge-error", "À remplacer"],
+            sans_objet: ["file-x", "", "badge-neutral", "Sans objet"],
           };
-          var lstP = '<ul class="rows">' + ep.map(function (p, i) {
-            var c = PI[p.etat];
-            var bouton = p.etat === "attendue" && collecte()
-              ? '<span class="r-act"><button class="btn btn-secondary btn-sm" type="button" data-act="recue" data-piece="' + i + '"><span class="ms">check</span>Marquer comme reçue<span class="sr-only"> : ' + esc(p.lib) + "</span></button></span>"
-              : "";
-            return '<li><span class="ms r-ico ' + c[1] + '" aria-hidden="true">' + c[0] + '</span><span class="r-lib">' + esc(p.lib) +
-              (p.src ? '<span class="val-sub">' + esc(p.src) + "</span>" : "") + '</span><span class="badge ' + c[2] + '">' + c[3] + "</span>" + bouton + "</li>";
-          }).join("") + "</ul>";
-          var descP = '<span class="compte">' + recues + " sur " + st.pieces[1] + " reçue" + (recues > 1 ? "s" : "") + "</span> · lien de dépôt sécurisé, sans compte" +
+          var actifP = collecte() && !termine;
+          function btnP(act, i, ico, lib, nom) {
+            return '<button class="btn btn-secondary btn-sm" type="button" data-act="' + act + '" data-piece="' + i + '"><span class="ms">' + ico + "</span>" + lib +
+              '<span class="sr-only"> : ' + esc(nom) + "</span></button>";
+          }
+          function lignePiece(p, i) {
+            var c = PI[p.etat] || PI.attendue;
+            var det = [];
+            if (p.dateDoc) det.push("Document du " + p.dateDoc);
+            if (p.version) det.push(p.version);
+            else if (p.recuperee) det.push("Récupérée le " + p.recuperee);
+            var sub = "";
+            if (p.origine || det.length)
+              sub += '<span class="val-sub">' + (p.origine ? '<span class="p-src">' + esc(p.origine) + "</span>" : "") + esc(det.join(" · ")) + "</span>";
+            if (p.etat === "sans_objet" && p.motif) sub += '<span class="val-sub">' + esc(p.motif) + "</span>";
+            if (p.etat === "a_remplacer") sub += '<span class="val-sub">Nouvelle version demandée' + (p.demandee ? " le " + esc(p.demandee) : "") + "</span>";
+            (p.historique || []).forEach(function (h) {
+              sub += '<span class="val-sub">' + esc(h.version || "Version précédente") + " · " + (h.etat === "remplacee" ? "remplacée" : esc(h.etat || "")) + "</span>";
+            });
+            var acts = [];
+            if (actifP) {
+              if (p.etat === "recue") acts.push(btnP("p-controler", i, "check", "Contrôler", p.lib));
+              if (p.etat === "disponible") acts.push(btnP("p-retenir", i, "bookmark-check", "Retenir pour la mission", p.lib));
+              if (p.etat === "attendue" || p.etat === "a_remplacer") acts.push(btnP("recue", i, "check", "Marquer comme reçue", p.lib));
+              if (p.etat === "recue" || p.etat === "controlee") acts.push(btnP("p-remplacer", i, "refresh-cw", "Demander une nouvelle version", p.lib));
+            }
+            return '<li><span class="ms r-ico ' + c[1] + '" aria-hidden="true">' + c[0] + '</span><span class="r-lib">' + esc(p.lib) + sub +
+              '</span><span class="badge ' + c[2] + '">' + c[3] + "</span>" + (acts.length ? '<span class="r-act">' + acts.join("") + "</span>" : "") + "</li>";
+          }
+          var lP = "", lO = "";
+          pieces().forEach(function (p, i) {
+            if ((p.optionnelle && p.etat === "disponible") || p.etat === "sans_objet") lO += lignePiece(p, i);
+            else lP += lignePiece(p, i);
+          });
+          var nAtt = nbAttendues();
+          var nCtrl = pieces().filter(function (p) { return compte(p) && p.etat === "controlee"; }).length;
+          var nRet = pieces().filter(function (p) { return compte(p) && p.etat === "retenue"; }).length;
+          /* Périmètre du partage avec le conseil (règle produit : notes internes et LAB jamais partagées) */
+          var nomC = conseil.nom || "le conseil de la société";
+          var partage = conseilEJ && st.accord
+            ? "Partagé avec <strong>" + esc(nomC) + "</strong> : " + esc(lower1(st.accord.perimetre || "pièces de la formalité " + conseil.formalite)) + ". Accord donné le " + esc(st.accord.date) + " par " + esc(st.accord.par) + "."
+            : conseilEJ
+              ? "Partage avec <strong>" + esc(nomC) + "</strong> dans la formalité " + esc(conseil.formalite) + " : accord de la société à recueillir."
+              : "Échanges avec <strong>" + esc(nomC) + "</strong> par lien de dépôt sécurisé, limités aux pièces attendues.";
+          var lstP = (lP ? '<ul class="rows">' + lP + "</ul>" : "") +
+            (lO ? '<p class="p-opt-t" id="p-opt-t">Pièces facultatives</p><ul class="rows p-opt" aria-labelledby="p-opt-t">' + lO + "</ul>" : "") +
+            '<div class="p-partage"><span class="ms" aria-hidden="true">users</span><div><p>' + partage + "</p><p>Les notes internes et appréciations LAB ne sont pas partagées.</p></div></div>";
+          var descP = '<span class="compte">' + recues + " reçue" + (recues > 1 ? "s" : "") + " sur " + nAtt + " · " + nCtrl + " contrôlée" + (nCtrl > 1 ? "s" : "") +
+            (nRet ? " · " + nRet + " retenue" + (nRet > 1 ? "s" : "") : "") + "</span> · lien de dépôt sécurisé, sans compte" +
             (st.relances.length ? " · relancé le " + esc(st.relances[st.relances.length - 1]) : "");
           var cartePieces = carte("folder-open", "Pièces", descP, "", lstP, "pieces");
 
-          /* Documents : inventaire (les aperçus du rapport et de la lettre d'affirmation sont dans le bandeau) */
+          /* Documents : inventaire. Chaque rapport : deux voies (joindre ou préparer depuis le modèle) et ses versions. */
+          var actifD = ie >= idx("pieces") && !termine;
+          var ouvRap = ie < idx("signature");
+          function ligneVersion(lib, v, k, cur) {
+            var etats = [];
+            /* Version jamais signée et dépassée par une plus récente : remplacée */
+            if (!cur && v.etat !== "signe") etats.push("Remplacée par une version plus récente");
+            else if (v.etat === "brouillon") etats.push("Brouillon");
+            else if (v.etat === "finalise") etats.push("Finalisée par le commissaire");
+            if (v.etat === "signe") etats.push("Signée le " + (v.signee || ""));
+            if (v.remise) etats.push("Remise le " + v.remise);
+            var act = "";
+            if (cur && actifD) {
+              var sr = '<span class="sr-only"> : ' + esc(lib) + ", version " + v.n + "</span>";
+              if (v.etat === "brouillon" && v.origine === "joint" && ie >= idx("signature"))
+                act = '<button class="btn btn-secondary btn-sm" type="button" data-act="v-finaliser" data-r="' + k + '"><span class="ms">file-check</span>Finaliser cette version' + sr + "</button>";
+              else if (v.etat === "finalise" && ie >= idx("depot"))
+                act = '<button class="btn btn-secondary btn-sm" type="button" data-act="v-signer" data-r="' + k + '"><span class="ms">signature</span>Signer cette version' + sr + "</button>";
+            }
+            return '<li><span class="v-txt' + (cur ? " v-cur" : "") + '">' + esc("Version " + v.n + " · " + origineVersion(v) + " · " + etats.join(" · ")) + "</span>" +
+              (act ? '<span class="v-act">' + act + "</span>" : "") + "</li>";
+          }
           var lstD = '<ul class="rows">' + st.documents.map(function (d) {
-            var s = d[1], meta = "", act = "";
+            var s = d[1], meta = "", act = "", vers = "";
             if (estLM(d)) {
               meta = L.ref ? "Réf. " + L.ref : "";
               if (L.statut !== "a_etablir") act = '<button class="btn btn-secondary btn-sm" type="button" data-act="apercu" data-doc="lm" aria-haspopup="dialog"><span class="ms">eye</span>Aperçu et export<span class="sr-only"> : lettre de mission</span></button>';
@@ -1414,14 +1844,30 @@
                 act = '<button class="btn btn-secondary btn-sm" type="button" data-act="la-signee"><span class="ms">check</span>Marquer comme signée</button>';
               }
             } else {
+              var k = rapports().indexOf(d);
+              var vs = versionsDe(d[0]);
               meta = s === "depose" && st.transmis ? "Transmis le " + st.transmis
                 : s === "signe" && st.dateRapport ? "Signé et daté du " + st.dateRapport
                 : st.dates.rapport && idx(e) >= idx("signature") ? "Finalisé le " + st.dates.rapport : "";
+              var srR = rapports().length > 1 ? '<span class="sr-only"> : ' + esc(d[0]) + "</span>" : "";
+              if (actifD) {
+                act = '<button class="btn btn-secondary btn-sm" type="button" data-act="joindre" data-r="' + k + '" aria-haspopup="dialog"><span class="ms">paperclip</span>Joindre un rapport' + srR + "</button>";
+                if (ouvRap) act += '<button class="btn btn-secondary btn-sm" type="button" data-act="apercu" data-doc="rapport" aria-haspopup="dialog"><span class="ms">file-text</span>Préparer depuis un modèle' + srR + "</button>";
+              }
+              if (st.transmis && !termine && aRemettre().some(function (x) { return x.d === d; }))
+                act += '<button class="btn btn-primary btn-sm" type="button" data-act="remettre-nv" aria-haspopup="dialog"><span class="ms">send</span>Remettre une nouvelle version' + srR + "</button>";
+              if (vs.length) {
+                vers = '<div class="r-vers"><ul class="vers" aria-label="' + esc("Versions · " + d[0]) + '">' +
+                  vs.slice().reverse().map(function (v) { return ligneVersion(d[0], v, k, v === vs[vs.length - 1]); }).join("") + "</ul>";
+                var ret = retenueConseil(d[0]);
+                if (ret) vers += '<p class="v-ret"><span class="ms" aria-hidden="true">badge-check</span>Version ' + esc(ret.n) + " retenue par le conseil pour le dossier de dépôt" + (ret.date ? " le " + esc(ret.date) : "") + ".</p>";
+                vers += "</div>";
+              }
             }
             return '<li><span class="ms r-ico ' + (s === "signe" || s === "depose" ? "ok" : "") + '" aria-hidden="true">file-text</span><span class="r-lib"><strong>' + esc(d[0]) + "</strong>" +
-              (meta ? '<span class="val-sub">' + esc(meta) + "</span>" : "") + "</span>" + badgeDoc(d) + (act ? '<span class="r-act">' + act + "</span>" : "") + "</li>";
+              (meta ? '<span class="val-sub">' + esc(meta) + "</span>" : "") + "</span>" + badgeDoc(d) + (act ? '<span class="r-act">' + act + "</span>" : "") + vers + "</li>";
           }).join("") + "</ul>";
-          var carteDocs = carte("files", "Documents", "Modèles du cabinet · signature électronique", "", lstD, "documents");
+          var carteDocs = carte("files", "Documents", "Modèles du cabinet ou rapport joint · signature électronique", "", lstD, "documents");
 
           /* Journal (replié au-delà de 5 lignes) */
           var J = BASE.map(function (j, k) { return { d: j.d, n: k, i: j.i, t: j.t, w: j.w }; });
@@ -1498,22 +1944,27 @@
             return A;
           }
           if (e === "pieces") {
-            var att = etatPieces().filter(function (p) { return p.etat === "attendue"; });
+            var att = enAttente();
             A.act = "relance";
             A.btnIco = "send";
             A.ico = "folder-open";
             A.phrase = "Pièces attendues du conseil.";
-            A.detail = "Reçues : " + nbRecues() + " sur " + st.pieces[1] + (att.length ? ". Attendues : " + esc(att.map(function (p) { return lower1(p.lib); }).join(", ")) : "") + "." +
+            A.detail = "Reçues : " + nbRecues() + " sur " + nbAttendues() + (att.length ? ". Attendues : " + esc(att.map(function (p) { return lower1(p.lib); }).join(", ")) : "") + "." +
               (st.relances.length ? " Dernière relance le " + esc(st.relances[st.relances.length - 1]) + "." : "");
             return A;
           }
           if (e === "rapport") {
-            var manqueC = rapports().filter(function (d) { return !st.conclusions[d[0]]; });
+            var manqueC = sansConclusion();
+            var joints = rapports().map(function (d) { return courante(d[0]); }).filter(function (v) { return v && v.origine === "joint"; });
+            var nbBl = bloquantes().length;
             A.act = "finaliser";
             A.btnIco = "file-check";
             A.ico = "file-pen-line";
             A.phrase = "Finaliser le rapport.";
-            A.detail = manqueC.length ? "Conclusion du commissaire à saisir dans l'aperçu du rapport." : "Conclusion saisie.";
+            A.detail = manqueC.length ? "Conclusion du commissaire à saisir dans l'aperçu du rapport."
+              : joints.length === rapports().length ? "Version " + joints.map(function (v) { return v.n; }).join(" et ") + " jointe, conclusion dans le fichier."
+              : "Conclusion saisie.";
+            if (nbBl) A.detail += " " + nbBl + " pièce" + (nbBl > 1 ? "s" : "") + " à contrôler ou à remplacer avant la signature.";
             return A;
           }
           if (e === "signature") {
@@ -1529,6 +1980,27 @@
               A.ico = "clock";
               A.phrase = "Lettre d'affirmation en attente de signature.";
               A.detail = "Envoyée le " + esc(st.laEnvoi) + " à " + esc(nomsLA()) + ".";
+            } else if (bloquantes().length) {
+              /* Signature refusée tant qu'une pièce est à contrôler ou à remplacer */
+              var bl = bloquantes();
+              var ac = bl.filter(function (p) { return p.etat === "recue"; });
+              var ar = bl.filter(function (p) { return p.etat === "a_remplacer"; });
+              A.act = "voir-pieces";
+              A.btn = "Voir les pièces";
+              A.btnIco = "folder-open";
+              A.ico = "folder-open";
+              A.phrase = "Pièces à contrôler ou à remplacer avant la signature.";
+              A.detail = (ac.length ? "À contrôler : " + esc(ac.map(function (p) { return lower1(p.lib); }).join(", ")) + ". " : "") +
+                (ar.length ? "À remplacer : " + esc(ar.map(function (p) { return lower1(p.lib); }).join(", ")) + ". " : "") +
+                "Le rapport ne peut pas être signé avant.";
+            } else if (aFinaliser().length) {
+              var af = aFinaliser();
+              A.act = "finaliser";
+              A.btn = "Finaliser la version";
+              A.btnIco = "file-check";
+              A.ico = "file-pen-line";
+              A.phrase = (af.length > 1 ? "Versions des rapports" : "Version " + (af[0].v ? af[0].v.n : 1)) + " à finaliser avant la signature.";
+              A.detail = "La version la plus récente " + (af.length > 1 ? "des rapports" : "du rapport") + " est encore un brouillon.";
             } else {
               A.act = "signer";
               A.btnIco = "signature";
@@ -1545,12 +2017,13 @@
             A.ico = "building-2";
             A.phrase = "Mise à disposition au siège à confirmer par le conseil.";
             A.detail = "Rapport transmis le " + esc(st.transmis) + ".";
+            if (aRemettre().length) A.second = bouton("remettre-nv", "send", "Remettre une nouvelle version");
             return A;
           }
           A.act = "transmettre";
           A.btnIco = "send";
           A.ico = "send";
-          A.phrase = "Transmettre le rapport signé au conseil.";
+          A.phrase = "Remettre le rapport signé au conseil.";
           A.detail = transmettreDansEJ()
             ? "Formalité EJ " + esc(conseil.formalite) + (conseil.libelle ? " · " + esc(conseil.libelle) : "") + ", " + esc(conseil.nom) + ". " + tip("accord-t", NOTE_ACCORD, "Transmission dans la formalité")
             : "Envoi à " + esc(conseil.nom || "conseil") + " par lien de téléchargement." + (conseilEJ ? " " + tip("accord-t", NOTE_ACCORD, "Transmission dans la formalité") : "");
@@ -1595,7 +2068,7 @@
           if (st.etape === "pieces" && piecesCompletes()) {
             st.etape = "rapport";
             st.dates.pieces = E.today;
-            log("folder-check", "Pièces complètes : " + st.pieces[1] + " sur " + st.pieces[1] + ".", conseil.nom);
+            log("folder-check", "Pièces complètes : " + nbAttendues() + " sur " + nbAttendues() + ".", conseil.nom);
             return true;
           }
           return false;
@@ -1609,15 +2082,110 @@
           var br = setDocs("brouillon", function (d) { return (estRapport(d) || estLA(d)) && d[1] === "a_produire"; });
           if (br.length) log("file-text", "Brouillons créés depuis le modèle du cabinet : rapport et lettre d'affirmation.");
           log("send", "Lien de dépôt sécurisé envoyé au conseil.");
-          var rep = etatPieces().filter(function (p) { return p.etat === "reprise"; });
-          if (rep.some(function (p) { return /INPI/.test(p.src); })) log("database", "Extrait RNE repris par le connecteur INPI.", "Express Juridique");
-          if (rep.some(function (p) { return /Formalité/.test(p.src); })) log("database", "Statuts et décision de désignation repris de la formalité EJ " + conseil.formalite + ".", "Express Juridique");
+          /* Reprise des pièces disponibles dans une source (registre, formalité) : reçues, à contrôler */
+          var rep = pieces().filter(function (p) { return p.etat === "disponible" && !p.optionnelle && p.source; });
+          rep.forEach(function (p) {
+            p.etat = "recue";
+            p.recuperee = E.today;
+            p.version = (p.source === "registre" ? "Récupéré le " : "Repris le ") + E.today;
+          });
+          if (rep.some(function (p) { return /INPI/.test(p.origine || ""); })) log("database", "Extrait RNE repris par le connecteur INPI.", "Express Juridique");
+          if (rep.some(function (p) { return /Formalité/.test(p.origine || ""); })) log("database", "Statuts et décision de désignation repris de la formalité EJ " + conseil.formalite + ".", "Express Juridique");
           verifierPieces();
           return true;
         }
         function messageAcceptation(base) {
           return st.etape === "pieces" || st.etape === "rapport" ? base + " Mission acceptée, lien de dépôt envoyé à " + (conseil.nom || "conseil") + "." : base;
         }
+        /* Rapports dont la version courante (voie modèle) n'a pas de conclusion saisie */
+        function sansConclusion() {
+          return rapports().filter(function (d) {
+            var c = courante(d[0]);
+            return (!c || (c.origine === "modele" && c.etat === "brouillon")) && !st.conclusions[d[0]];
+          });
+        }
+        /* Rapports dont la version courante est encore un brouillon (ou absente) */
+        function aFinaliser() {
+          return rapports().map(function (d) { return { d: d, v: courante(d[0]) }; }).filter(function (x) { return !x.v || x.v.etat === "brouillon"; });
+        }
+        /* Actions sur une pièce identifiée (index dans le détail des pièces) */
+        function libVersionPiece(p) {
+          if (p.version && /^Version/.test(p.version)) return p.version;
+          return "Version " + ((p.historique || []).length + 1) + (p.version ? " · " + lower1(p.version) : p.recuperee ? " · reçue le " + p.recuperee : "");
+        }
+        function actionPiece(a, i) {
+          var p = pieces()[i];
+          if (!p || !collecte()) return;
+          if (a === "recue") {
+            if (p.etat !== "attendue" && p.etat !== "a_remplacer") return;
+            var dep = !p.source || p.source === "depot";
+            if (p.etat === "a_remplacer") {
+              /* La nouvelle version remplace l'ancienne, qui ne garde pas son contrôle */
+              p.historique.push({ version: libVersionPiece(p), etat: "remplacee", note: "Remplacée le " + E.today });
+              p.version = "Version " + (p.historique.length + 1) + " " + (p.source === "registre" ? "récupérée" : dep ? "déposée" : "reprise") + " le " + E.today;
+              p.demandee = null;
+              p.dateDoc = null;
+            } else {
+              p.source = p.source || "depot";
+              p.origine = p.origine || "Lien de dépôt du conseil";
+              p.version = "Déposée le " + E.today;
+            }
+            p.recuperee = E.today;
+            p.etat = "recue";
+            p.controleeLe = null;
+            if (st.recues.indexOf(p.lib) === -1) st.recues.push(p.lib);
+            log("file-check", "Pièce reçue : " + lower1(p.lib) + (p.historique.length ? " (" + lower1(p.version) + ")" : "") + ".", dep ? conseil.nom : "Express Juridique");
+            var fini = verifierPieces();
+            apres(fini ? "Pièce reçue. Pièces complètes : " + nbAttendues() + " sur " + nbAttendues() + "." : "Pièce reçue, à contrôler : " + lower1(p.lib) + ".");
+          } else if (a === "p-controler") {
+            if (p.etat !== "recue") return;
+            p.etat = "controlee";
+            p.controleeLe = E.today;
+            log("file-check", "Pièce contrôlée : " + lower1(p.lib) + ".");
+            apres("Pièce contrôlée : " + lower1(p.lib) + ".");
+          } else if (a === "p-retenir") {
+            if (p.etat !== "disponible") return;
+            p.etat = "retenue";
+            p.recuperee = E.today;
+            log("database", "Pièce retenue pour la mission : " + lower1(p.lib) + (p.origine ? ", reprise de la source « " + p.origine + " »" : "") + ".");
+            verifierPieces();
+            apres("Pièce retenue pour la mission, sans nouvelle demande : " + lower1(p.lib) + ".");
+          } else if (a === "p-remplacer") {
+            if (p.etat !== "recue" && p.etat !== "controlee") return;
+            p.etat = "a_remplacer";
+            p.demandee = E.today;
+            log("refresh-cw", "Nouvelle version demandée : " + lower1(p.lib) + ".");
+            apres("Nouvelle version demandée : " + lower1(p.lib) + ". La pièce est à remplacer.");
+          } else return;
+          /* Focus : prochaine action de la carte Pièces */
+          var b = document.querySelector('#pieces [data-piece="' + i + '"]') ||
+            document.querySelector('#pieces [data-act="p-controler"], #pieces [data-act="recue"], #pieces [data-act="p-retenir"]');
+          if (b) b.focus();
+        }
+        /* Actions sur la version courante d'un rapport (après la première signature) */
+        function actionVersion(a, k) {
+          var d = rapports()[k];
+          if (!d) return;
+          var c = courante(d[0]);
+          if (!c) return;
+          if (a === "v-finaliser") {
+            if (c.etat !== "brouillon") return;
+            c.etat = "finalise";
+            c.finalisee = E.today;
+            log("file-check", nomRapport(d[0]) + " version " + c.n + " finalisé par " + signataire.nom + ".");
+            apres("Version " + c.n + " finalisée.");
+          } else if (a === "v-signer") {
+            if (c.etat !== "finalise") return;
+            if (bloquantes().length) return annoncer("Signature impossible : " + bloquantes().length + " pièce" + (bloquantes().length > 1 ? "s" : "") + " à contrôler ou à remplacer.", false);
+            c.etat = "signe";
+            c.signee = E.today;
+            log("signature", nomRapport(d[0]) + " version " + c.n + " signé électroniquement par " + signataire.nom + ", daté du " + E.today + ".");
+            apres("Version " + c.n + " signée électroniquement. Elle peut être remise au conseil.");
+            var r = document.querySelector('#documents [data-act="remettre-nv"]');
+            if (r) r.focus();
+          }
+        }
+
         var ACTIONS = {
           accepter: function () {
             st.etape = "acceptation";
@@ -1676,20 +2244,35 @@
             apres(messageAcceptation("").trim());
           },
           relance: function () {
-            var manq = st.pieces[1] - nbRecues();
+            var manq = enAttente().length;
             st.relances.push(E.today);
             log("send", "Relance envoyée au conseil : " + manq + " pièce" + (manq > 1 ? "s attendues" : " attendue") + ".");
             apres("Relance envoyée à " + (conseil.nom || "conseil") + ".");
           },
+          /* Finalisation : voie modèle = conclusion saisie obligatoire ; version jointe = conclusion dans le fichier */
           finaliser: function () {
-            var manqueC = rapports().filter(function (d) { return !st.conclusions[d[0]]; });
+            syncVersions();
+            var manqueC = sansConclusion();
             if (manqueC.length) return ouvrirApercu("rapport", document.querySelector("#afaire .afaire-btns .btn"), manqueC[0][0]);
-            setDocs("a_signer", function (d) { return estRapport(d) && d[1] !== "signe" && d[1] !== "depose"; });
-            setDocs("a_signer", function (d) { return estLA(d) && d[1] !== "signe"; });
-            st.dates.rapport = E.today;
-            st.etape = "signature";
-            log("file-check", "Rapport finalisé.");
-            apres("Rapport finalisé. Lettre d'affirmation prête à envoyer à " + nomsLA() + ".");
+            var faites = [];
+            rapports().forEach(function (d) {
+              var c = courante(d[0]) || nouvelleVersion(d[0], "modele", null, false);
+              if (c.etat === "brouillon") {
+                c.etat = "finalise";
+                c.finalisee = E.today;
+              }
+              faites.push(c.n);
+            });
+            if (st.etape === "rapport") {
+              setDocs("a_signer", function (d) { return estRapport(d) && d[1] !== "signe" && d[1] !== "depose"; });
+              setDocs("a_signer", function (d) { return estLA(d) && d[1] !== "signe"; });
+              st.dates.rapport = E.today;
+              st.etape = "signature";
+              log("file-check", rapports().length > 1 ? "Rapports finalisés." : "Rapport finalisé (version " + faites[0] + ").");
+              return apres("Rapport finalisé. Lettre d'affirmation prête à envoyer à " + nomsLA() + ".");
+            }
+            log("file-check", (rapports().length > 1 ? "Versions des rapports finalisées" : "Version " + faites[0] + " du rapport finalisée") + " par " + signataire.nom + ".");
+            apres("Version finalisée. Signature du rapport possible.");
           },
           "la-envoyer": function () {
             var LA = la();
@@ -1712,22 +2295,37 @@
           signer: function () {
             var LA = la();
             if (LA && LA[1] !== "signe") return annoncer("Lettre d'affirmation en attente de signature de " + nomsLA() + ".", false);
+            if (bloquantes().length) return annoncer("Signature impossible : " + bloquantes().length + " pièce" + (bloquantes().length > 1 ? "s" : "") + " à contrôler ou à remplacer.", false);
+            syncVersions();
+            if (aFinaliser().length) return annoncer("Signature impossible : version du rapport à finaliser.", false);
+            var ns = [];
+            rapports().forEach(function (d) {
+              var c = courante(d[0]);
+              if (c && c.etat === "finalise") {
+                c.etat = "signe";
+                c.signee = E.today;
+              }
+              if (c) ns.push(c.n);
+            });
             setDocs("signe", function (d) { return estRapport(d) && d[1] === "a_signer"; });
             st.dates.signature = E.today;
             st.dateRapport = E.today;
             st.etape = "depot";
-            log("signature", "Rapport signé électroniquement par " + signataire.nom + ", daté du " + E.today + ".");
+            log("signature", (rapports().length > 1 ? "Rapports" : "Rapport version " + ns[0]) + " signé" + (rapports().length > 1 ? "s" : "") + " électroniquement par " + signataire.nom + ", daté du " + E.today + ".");
             apres("Rapport signé électroniquement et daté du " + E.today + ".");
           },
+          /* Remise d'une version déterminée : fenêtre de confirmation */
           transmettre: function () {
-            setDocs("depose", function (d) { return estRapport(d) && d[1] === "signe"; });
-            st.transmis = E.today;
-            if (transmettreDansEJ()) {
-              log("send", "Rapport transmis dans la formalité EJ " + conseil.formalite + ", avec l'accord de la société.");
-              return apres("Rapport transmis dans la formalité " + conseil.formalite + ".");
-            }
-            log("send", "Rapport transmis au conseil par lien de téléchargement.");
-            apres("Rapport transmis à " + (conseil.nom || "conseil") + " par lien de téléchargement.");
+            ouvrirRemise(document.querySelector('#afaire [data-act="transmettre"]'));
+          },
+          "remettre-nv": function () {
+            ouvrirRemise(document.activeElement);
+          },
+          "voir-pieces": function () {
+            var cible = document.querySelector('#pieces [data-act="p-controler"], #pieces [data-act="recue"]') || document.getElementById("pieces");
+            if (cible.id === "pieces") cible.setAttribute("tabindex", "-1");
+            cible.scrollIntoView({ block: "center" });
+            cible.focus();
           },
           mad: function () {
             st.miseADisposition = E.today;
@@ -1747,8 +2345,22 @@
               perimetre: "Pièces de la formalité " + conseil.formalite + " et transmission du rapport signé dans cette formalité",
             };
             log("handshake", "Accord de la société signé par " + nomDirigeant + ".", dirigeant);
-            if (collecte() && etatPieces().some(function (p) { return /Formalité/.test(p.src || ""); }))
-              log("database", "Statuts et décision de désignation repris de la formalité EJ " + conseil.formalite + ".", "Express Juridique");
+            /* Pièces de la formalité désormais partagées : reprises sans nouvelle demande au conseil */
+            var repris = false;
+            pieces().forEach(function (p) {
+              if (p.etat !== "attendue") return;
+              var src = sourceReprise(p.lib);
+              if (!src || !/Formalité/.test(src)) return;
+              p.source = "operation";
+              p.origine = src;
+              if (collecte()) {
+                p.etat = "recue";
+                p.recuperee = E.today;
+                p.version = "Repris le " + E.today;
+                repris = true;
+              } else p.etat = "disponible";
+            });
+            if (repris) log("database", "Statuts et décision de désignation repris de la formalité EJ " + conseil.formalite + ".", "Express Juridique");
             verifierPieces();
             apres("Accord de la société enregistré.");
           },
@@ -1793,7 +2405,7 @@
             return '<article class="apercu-sheet">' + enteteDoc(meta) +
               '<h3 class="sh-title">' + esc(d[0]) + "</h3>" +
               blocSociete() +
-              (complet ? "" : '<span class="sh-note">Pièces reçues : ' + nbRecues() + " sur " + st.pieces[1] + "</span>") +
+              (complet ? "" : '<span class="sh-note">Pièces reçues : ' + nbRecues() + " sur " + nbAttendues() + "</span>") +
               "<h4>Diligences</h4><ul>" + dil.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" +
               "<h4>Conclusion</h4>" + concl +
               '<div class="sh-sign"><div><strong>' + esc(signataire.nom) + "</strong>" + esc(qualite) + "<br>" +
@@ -1835,12 +2447,11 @@
         function docRecap() {
           var fini = idx(st.etape) >= idx("termine");
           var n = Math.min(idx(st.etape) + 1, FRISE.length);
-          var P = etatPieces();
-          var attendues = P.filter(function (p) { return p.etat === "attendue"; });
-          var reprises = P.filter(function (p) { return p.etat === "reprise"; });
+          var attendues = collecte() ? enAttente() : pieces().filter(function (p) { return compte(p) && p.etat === "attendue"; });
+          var reprises = pieces().filter(function (p) { return compte(p) && RECU[p.etat] && p.source && p.source !== "depot"; });
           var nR = nbRecues();
           var h = ligne("Avancement", fini ? "Mission terminée" : "Étape " + n + " sur " + FRISE.length + " · " + (E.ETAPE[st.etape] || ""));
-          h += ligne("Pièces du dossier", nR + " reçue" + (nR > 1 ? "s" : "") + " sur " + st.pieces[1] +
+          h += ligne("Pièces du dossier", nR + " reçue" + (nR > 1 ? "s" : "") + " sur " + nbAttendues() +
             (reprises.length ? ", dont " + reprises.length + " reprise" + (reprises.length > 1 ? "s" : "") + " de vos dossiers sans ressaisie" : ""));
           var r0 = rapports()[0];
           h += ligne(rapports().length > 1 ? "Rapports" : "Rapport", E.DOC_STATUT[r0[1]] + (r0[1] === "depose" && st.transmis ? ", transmis le " + st.transmis : ""));
@@ -1851,7 +2462,7 @@
             blocSociete() +
             "<h4>Où en est la mission</h4>" + '<dl class="sh-kv">' + h + "</dl>" +
             (attendues.length
-              ? "<h4>Pièces à nous transmettre</h4><ul>" + attendues.map(function (p) { return "<li>" + esc(p.lib) + "</li>"; }).join("") + "</ul>"
+              ? "<h4>Pièces à nous transmettre</h4><ul>" + attendues.map(function (p) { return "<li>" + esc(p.lib) + (p.etat === "a_remplacer" ? " (nouvelle version)" : "") + "</li>"; }).join("") + "</ul>"
               : '<p class="sh-mut">Aucune pièce en attente de votre part.</p>') +
             '<div class="sh-sign"><div><strong>' + esc(signataire.nom) + "</strong>" + esc(qualite) + "<br>Votre interlocuteur pour cette mission</div></div></article>";
         }
@@ -1861,6 +2472,7 @@
           });
         }
         function ouvrirApercu(type, origine, focusLib) {
+          AP.classList.remove("apercu-sm");
           apType = type;
           apOrigine = origine || document.activeElement;
           var editable = type !== "lm" && type !== "recap" && idx(st.etape) < idx("signature");
@@ -1887,6 +2499,93 @@
           }
           (cible || document.getElementById("ap-titre")).focus();
         }
+        /* ---------- Fenêtres courtes : joindre un rapport, remise d'une version ---------- */
+        var joindreLib = null;
+        function ouvrirFenetre(type, origine, titre, sous, corps, pied, focusId) {
+          apType = type;
+          apOrigine = origine || document.activeElement;
+          AP.classList.add("apercu-sm");
+          document.getElementById("ap-titre").textContent = titre;
+          document.getElementById("ap-sous").textContent = sous;
+          document.getElementById("ap-doc").innerHTML = corps;
+          document.getElementById("ap-msg").textContent = "";
+          document.getElementById("ap-foot").innerHTML = pied;
+          AP.hidden = false;
+          document.body.classList.add("apercu-ouvert");
+          (focusId && document.getElementById(focusId) || document.getElementById("ap-titre")).focus();
+        }
+        function ouvrirJoindre(k, origine) {
+          var d = rapports()[k];
+          if (!d) return;
+          joindreLib = d[0];
+          var n = versionsDe(d[0]).length + 1;
+          ouvrirFenetre("joindre", origine, "Joindre un rapport", d[0] + " · version " + n,
+            '<div class="dlg-body"><p>Rapport préparé dans votre outil habituel. Il devient la version ' + n + " de ce rapport, sans modifier les versions précédentes.</p>" +
+            '<div class="dlg-field"><label for="j-fichier">Fichier du rapport (PDF ou Word)</label>' +
+            '<input id="j-fichier" type="file" accept=".pdf,.docx" aria-describedby="j-err" /><div class="concl-err" id="j-err"></div></div>' +
+            '<label class="dlg-check"><input type="checkbox" id="j-final" aria-describedby="j-aide" />Version finalisée par le commissaire</label>' +
+            '<p class="dlg-aide" id="j-aide">Sinon, la version reste un brouillon. La conclusion figure dans le fichier joint.</p></div>',
+            '<button class="btn btn-tertiary" type="button" data-act="ap-fermer">Annuler</button>' +
+            '<button class="btn btn-primary" type="button" data-act="ap-joindre"><span class="ms">paperclip</span>Joindre cette version</button>', "j-fichier");
+        }
+        function confirmerJoindre() {
+          var f = document.getElementById("j-fichier");
+          var fichier = f && f.files && f.files[0];
+          if (!fichier || !/\.(pdf|docx)$/i.test(fichier.name)) {
+            f.setAttribute("aria-invalid", "true");
+            document.getElementById("j-err").textContent = "Choisissez un fichier PDF ou Word (.docx).";
+            f.focus();
+            return;
+          }
+          var fin = document.getElementById("j-final").checked;
+          var lib = joindreLib;
+          var v = nouvelleVersion(lib, "joint", fichier.name, fin);
+          setDocs("brouillon", function (d) { return d[0] === lib && d[1] === "a_produire"; });
+          log("paperclip", nomRapport(lib) + " version " + v.n + " joint : " + fichier.name + (fin ? ", finalisé par le commissaire." : ", en brouillon."));
+          apOrigine = null;
+          AP.hidden = true;
+          document.body.classList.remove("apercu-ouvert");
+          apres("Version " + v.n + " jointe" + (fin ? " et finalisée." : ", en brouillon."));
+          var b = document.querySelector('#documents [data-act="joindre"][data-r="' + rapports().map(function (d) { return d[0]; }).indexOf(lib) + '"]');
+          if (b && st.etape !== "rapport") b.focus();
+        }
+        function ouvrirRemise(origine) {
+          var L = aRemettre();
+          if (!L.length) return annoncer("Aucune version signée à remettre.", false);
+          var dansEJ = transmettreDansEJ();
+          function kvr(k, v) { return "<dt>" + esc(k) + "</dt><dd>" + esc(v) + "</dd>"; }
+          var corps = L.map(function (x) {
+            return '<div class="rm-doc"><strong>' + esc(x.d[0]) + '</strong><dl class="rm-kv">' +
+              kvr("Version", "Version " + x.v.n + " · " + origineVersion(x.v)) +
+              kvr("Signature", "Signé électroniquement par " + signataire.nom + " le " + (x.v.signee || "")) + "</dl>" +
+              (x.prev ? '<p class="rm-note">Remplace la version ' + esc(x.prev.n) + " remise le " + esc(x.prev.date) + " pour le conseil, qui choisit la version retenue pour le dépôt.</p>" : "") +
+              "</div>";
+          }).join("") +
+            '<div class="rm-dest"><dl class="rm-kv">' +
+            kvr("Opération", dansEJ ? "Formalité " + conseil.formalite + (conseil.libelle ? " · " + conseil.libelle : "") : "Hors Express Juridique, lien de téléchargement") +
+            kvr("Destinataire", conseil.nom || "Conseil de la société") + "</dl>" +
+            (conseilEJ && !st.accord ? '<p class="rm-note">' + esc(NOTE_ACCORD) + "</p>" : "") + "</div>";
+          ouvrirFenetre("remise", origine, L.length > 1 ? "Remettre les rapports signés" : "Remettre le rapport signé", m0.nom || "", corps,
+            '<button class="btn btn-tertiary" type="button" data-act="ap-fermer">Annuler</button>' +
+            '<button class="btn btn-primary" type="button" data-act="ap-remettre"><span class="ms">send</span>' + (L.length > 1 ? "Remettre ces versions" : "Remettre cette version") + "</button>");
+        }
+        function confirmerRemise() {
+          var L = aRemettre();
+          if (!L.length) return fermerApercu();
+          var dansEJ = transmettreDansEJ();
+          L.forEach(function (x) {
+            x.v.remise = E.today;
+            st.remises.push({ doc: x.d[0], n: x.v.n, date: E.today, operation: dansEJ ? conseil.formalite : null, destinataire: conseil.nom || null });
+            x.d[1] = "depose";
+            log("send", nomRapport(x.d[0]) + " version " + x.v.n + (dansEJ ? " remis dans la formalité EJ " + conseil.formalite + "." : " transmis au conseil par lien de téléchargement."));
+          });
+          if (!st.transmis) st.transmis = E.today;
+          apOrigine = null;
+          AP.hidden = true;
+          document.body.classList.remove("apercu-ouvert");
+          apres((L.length > 1 ? "Rapports signés remis" : "Version " + L[0].v.n + " remise") +
+            (dansEJ ? " dans la formalité " + conseil.formalite + "." : (conseil.nom ? " à " + conseil.nom : " au conseil") + " par lien de téléchargement."));
+        }
         function fermerApercu() {
           AP.hidden = true;
           document.body.classList.remove("apercu-ouvert");
@@ -1908,7 +2607,14 @@
               t.parentNode.querySelector(".concl-err").textContent = "";
             });
             setDocs("brouillon", function (d) { return estRapport(d) && d[1] === "a_produire"; });
-            log("file-text", "Brouillon " + (rapports().length > 1 ? "des rapports" : "du rapport") + " enregistré.");
+            /* Voie modèle : met à jour la version brouillon du modèle, sinon crée une nouvelle version */
+            var nv = [];
+            rapports().forEach(function (d) {
+              var c = courante(d[0]);
+              if (!c || !(c.origine === "modele" && c.etat === "brouillon")) nv.push(nouvelleVersion(d[0], "modele", null, false).n);
+            });
+            log("file-text", "Brouillon " + (rapports().length > 1 ? "des rapports" : "du rapport") + " enregistré" +
+              (nv.length ? " (version " + nv.join(" et ") + ", préparée depuis le modèle du cabinet)" : "") + ".");
             if (nouv) log("pencil-line", "Conclusion saisie par " + signataire.nom + ".");
             msg = "Brouillon enregistré.";
           } else if (apType === "la") {
@@ -1952,6 +2658,14 @@
           if (a === "ap-fermer") fermerApercu();
           else if (a === "ap-imprimer") window.print();
           else if (a === "ap-enregistrer") enregistrerApercu();
+          else if (a === "ap-joindre") confirmerJoindre();
+          else if (a === "ap-remettre") confirmerRemise();
+        });
+        AP.addEventListener("change", function (ev) {
+          if (ev.target.id === "j-fichier") {
+            ev.target.removeAttribute("aria-invalid");
+            document.getElementById("j-err").textContent = "";
+          }
         });
 
         /* ---------- Délégation des clics et saisies de la page ---------- */
@@ -1970,23 +2684,15 @@
           if (!b || b.disabled) return;
           var a = b.getAttribute("data-act");
           if (a === "apercu") return ouvrirApercu(b.getAttribute("data-doc"), b);
-          if (a === "recue") {
-            var p = etatPieces()[+b.getAttribute("data-piece")];
-            if (!p || p.etat !== "attendue") return;
-            st.recues.push(p.lib);
-            log("file-check", "Pièce reçue : " + lower1(p.lib) + ".", conseil.nom);
-            var fini = verifierPieces();
-            apres(fini ? "Pièce reçue. Pièces complètes : " + st.pieces[1] + " sur " + st.pieces[1] + "." : "Pièce reçue : " + lower1(p.lib) + ".");
-            var suivante = document.querySelector('#pieces [data-act="recue"]');
-            if (suivante) suivante.focus();
-            return;
-          }
+          if (a === "recue" || /^p-/.test(a)) return actionPiece(a, +b.getAttribute("data-piece"));
+          if (a === "joindre") return ouvrirJoindre(+b.getAttribute("data-r"), b);
+          if (/^v-/.test(a)) return actionVersion(a, +b.getAttribute("data-r"));
           if (ACTIONS[a]) ACTIONS[a]();
         });
 
         rendre();
       });
     </script>
-    <script src="assets/ej-shell.js?v=25"></script>
+    <script src="assets/ej-shell.js?v=27"></script>
   </body>
 </html>

@@ -311,6 +311,76 @@
         min-height: 42px;
         align-items: center;
       }
+      .form-group[hidden],
+      .nm-ej[hidden],
+      .nm-set[hidden] {
+        display: none;
+      }
+      .nm-set {
+        min-width: 0;
+        margin: 0;
+        padding: 0;
+        border: 0;
+      }
+      .nm-set legend {
+        padding: 0;
+        margin-bottom: 8px;
+      }
+      .nm-radios {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 24px;
+      }
+      .nm-lien {
+        color: var(--ej-action-600);
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      #nm-inv-msg {
+        margin-top: 2px;
+      }
+      .inv-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+      .inv-list:empty {
+        display: none;
+      }
+      .inv-card {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px 16px;
+        padding: 14px 20px;
+        background: var(--ej-action-50);
+        border-color: var(--ej-action-100);
+      }
+      .inv-card > .ms {
+        flex-shrink: 0;
+        font-size: 20px;
+        color: var(--ej-action-700);
+      }
+      .inv-txt {
+        flex: 1 1 280px;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        font-size: 14px;
+        color: var(--ej-neutral-800);
+      }
+      .inv-txt strong {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ej-action-700);
+      }
+      .inv-sub {
+        font-size: 13px;
+        color: var(--ej-neutral-600);
+      }
       #nm-ok[disabled] {
         opacity: 0.5;
         cursor: not-allowed;
@@ -480,6 +550,7 @@
           <div class="tabs cac-tabs" id="tabs" role="tablist" aria-label="Vues des missions CAC"></div>
 
           <div id="panel" role="tabpanel" aria-labelledby="tab-mandats">
+            <div class="inv-list" id="invites"></div>
             <div class="cac-filters" id="liste">
               <div class="toolbar">
                 <label class="search">
@@ -521,23 +592,48 @@
           <button class="icon-btn" type="button" data-close aria-label="Fermer"><span class="ms">close</span></button>
         </div>
         <div class="modal-body">
-          <div class="form-group">
+          <fieldset class="nm-set full">
+            <legend class="form-label">Société concernée</legend>
+            <div class="nm-radios">
+              <label class="radio"><input type="radio" name="nm-soc" value="port" checked />Société du portefeuille</label>
+              <label class="radio"><input type="radio" name="nm-soc" value="autre" />Autre société</label>
+            </div>
+          </fieldset>
+          <div class="form-group full" id="nm-g-port">
+            <label class="form-label" for="nm-port">Société du portefeuille</label>
+            <select class="form-input" id="nm-port" aria-describedby="nm-e-port"></select>
+            <div class="nm-err" id="nm-e-port"></div>
+          </div>
+          <div class="form-group" id="nm-g-siren" hidden>
             <label class="form-label" for="nm-siren">SIREN de la société</label>
             <input class="form-input" id="nm-siren" type="text" inputmode="numeric" autocomplete="off" placeholder="9 chiffres" aria-describedby="nm-e-siren" />
             <div class="nm-err" id="nm-e-siren"></div>
           </div>
-          <div class="form-group">
+          <div class="form-group" id="nm-g-nom" hidden>
             <label class="form-label" for="nm-nom">Dénomination</label>
             <input class="form-input" id="nm-nom" type="text" autocomplete="off" aria-describedby="nm-e-nom" />
             <div class="nm-err" id="nm-e-nom"></div>
           </div>
           <div class="nm-msg full" id="nm-verif" aria-live="polite"></div>
-          <div class="form-group">
+          <div class="form-group" id="nm-g-forme" hidden>
             <label class="form-label" for="nm-forme">Forme juridique</label>
             <select class="form-input" id="nm-forme" aria-describedby="nm-e-forme"></select>
             <div class="nm-err" id="nm-e-forme"></div>
           </div>
-          <div class="form-group">
+          <fieldset class="nm-set full">
+            <legend class="form-label">Rattachement à une opération</legend>
+            <div class="nm-radios">
+              <label class="radio"><input type="radio" name="nm-rat" value="ej" />Rattacher à une opération partagée par un conseil</label>
+              <label class="radio"><input type="radio" name="nm-rat" value="libre" checked />Sans opération EJ</label>
+            </div>
+          </fieldset>
+          <div class="form-group full" id="nm-g-inv" hidden>
+            <label class="form-label" for="nm-inv">Opération partagée par un conseil</label>
+            <select class="form-input" id="nm-inv" aria-describedby="nm-e-inv nm-inv-msg"></select>
+            <div class="nm-err" id="nm-e-inv"></div>
+            <div class="nm-msg" id="nm-inv-msg" aria-live="polite"></div>
+          </div>
+          <div class="form-group full">
             <label class="form-label" for="nm-nature">Nature de la mission</label>
             <select class="form-input" id="nm-nature">
               <option value="apport">Apport en nature</option>
@@ -571,7 +667,7 @@
             <input class="form-input" id="nm-conseil" type="text" autocomplete="off" aria-describedby="nm-e-conseil" />
             <div class="nm-err" id="nm-e-conseil"></div>
           </div>
-          <label class="check nm-ej"><input type="checkbox" id="nm-ej" /><span>Le conseil utilise Express Juridique</span></label>
+          <label class="check nm-ej" id="nm-g-ej"><input type="checkbox" id="nm-ej" /><span>Le conseil utilise Express Juridique</span></label>
         </div>
         <div class="modal-foot">
           <button class="btn btn-tertiary" type="button" data-close>Annuler</button>
@@ -580,7 +676,7 @@
       </form>
     </div>
 
-    <script src="assets/ej-missions-data.js?v=24"></script>
+    <script src="assets/ej-missions-data.js?v=28"></script>
     <script src="assets/ej-lab.js?v=7"></script>
     <script src="assets/ej-cockpit-data.js?v=8"></script>
     <script src="assets/ej-dpj-data.js?v=2"></script>
@@ -704,10 +800,8 @@
           var lab = (X || p).lab;
           if (typeof E.verbePonctuelle === "function") {
             var v = E.verbePonctuelle(p, !!lab && lab.statut === "a_jour");
-            if (v && v.lib) {
-              var anc = v.ancre ? (String(v.ancre).charAt(0) === "#" ? v.ancre : "#" + v.ancre) : "";
-              return { lib: v.lib, href: hrefMission(p) + anc };
-            }
+            /* v.ancre est une adresse complète (fiche de la mission avec section, ou dossier LAB) : utilisée telle quelle */
+            if (v && v.lib) return { lib: v.lib, href: v.ancre || hrefMission(p) };
           }
           return { lib: ACTION_P[p.etape], href: hrefMission(p) };
         }
@@ -760,7 +854,8 @@
         /* ---------- État : vue dans l'URL, filtre propre à chaque vue ---------- */
         var etat = { vue: "mandats", fm: "traiter", fp: "cours", q: "" };
         var vueUrl = new URLSearchParams(location.search).get("vue");
-        if (vueUrl === "ponctuelles") etat.vue = "ponctuelles";
+        var paramsUrl = new URLSearchParams(location.search);
+        if (vueUrl === "ponctuelles" || paramsUrl.get("nouvelle") === "1") etat.vue = "ponctuelles";
 
         function fixerUrl() {
           try {
@@ -878,7 +973,6 @@
           var href = hrefMission(p);
           var act = actionPonctuelle(p);
           var verbe = act.lib;
-          href = act.href;
           return (
             '<tr data-href="' + esc(href) + '">' +
             '<td class="cell-ent" data-label="Entité">' + celluleEntite(p.nom, href, p.forme + " · " + p.siren) + "</td>" +
@@ -886,12 +980,32 @@
             '<td data-label="Étape">' + celluleEtape(p) + "</td>" +
             '<td class="cell-ag cell-ech" data-label="Échéance">' + celluleEcheance(p) + "</td>" +
             '<td class="cell-txt" data-label="Conseil"><div>' + esc(p.conseil.nom) + (p.conseil.ej ? '<br><span class="tag-ej">Sur EJ</span>' : "") + "</div></td>" +
-            '<td class="cell-open" data-label="Action">' + boutonAction(verbe, href, p.nom) + "</td>" +
+            '<td class="cell-open" data-label="Action">' + boutonAction(verbe, act.href, p.nom) + "</td>" +
             "</tr>"
           );
         }
         var THEAD_P =
           "<tr><th>Entité</th><th>Mission</th><th>Étape</th><th>À disposition au plus tard le</th><th>Conseil</th><th>Action</th></tr>";
+
+        /* ---------- Opérations partagées par un conseil, pas encore rattachées à une mission ---------- */
+        /* Une opération est rattachée dès qu'une mission (y compris créée pendant la session) porte sa formalité */
+        function missionDeLOperation(ref) {
+          return P.filter(function (p) { return p.conseil && p.conseil.formalite === ref; })[0] || null;
+        }
+        function invitationsLibres() {
+          return (E.invitations || []).filter(function (i) { return !missionDeLOperation(i.ref); });
+        }
+        function htmlInvitations() {
+          return invitationsLibres().map(function (i) {
+            return '<section class="card inv-card" aria-label="Opération partagée par un conseil : ' + esc(i.societe) + '">' +
+              '<span class="ms" aria-hidden="true">link</span>' +
+              '<div class="inv-txt"><strong>Opération partagée par un conseil</strong>' +
+              "<span>" + esc(i.societe) + " · " + esc(i.libelle) + "</span>" +
+              '<span class="inv-sub">' + esc(i.conseil) + " · partagée le " + esc(i.date) + " · formalité " + esc(i.ref) + "</span></div>" +
+              '<button type="button" class="btn btn-secondary btn-sm" data-inv="' + esc(i.ref) + '" aria-haspopup="dialog" aria-label="Préparer la mission : ' + esc(i.societe) + '">Préparer la mission</button>' +
+              "</section>";
+          }).join("");
+        }
 
         /* ---------- Tableau ---------- */
         function correspond(x, q, qd) {
@@ -914,6 +1028,7 @@
             vide = "Aucune mission ponctuelle ne correspond à ce filtre.";
             unite = " mission";
           }
+          document.getElementById("invites").innerHTML = mand ? "" : htmlInvitations();
           document.getElementById("thead").innerHTML = mand ? THEAD_M : THEAD_P;
           document.getElementById("rows").innerHTML = html;
           var empty = document.getElementById("empty");
@@ -987,6 +1102,34 @@
         var nmDeclencheur = null;
         var nmPre = null; /* société retrouvée par le SIREN : { nom, forme, dirigeant } */
         var nmBloque = false;
+        var nmFixe = null; /* société imposée (portefeuille ou opération) : { nom, forme, siren (chiffres), src } */
+        var nmDoublon = null; /* mission déjà rattachée à l'opération choisie */
+        var nmInvPrec = null; /* opération choisie au dernier rafraîchissement : libère les champs qu'elle verrouillait */
+
+        function byId(id) {
+          return document.getElementById(id);
+        }
+        function modeSoc() {
+          return nmForm.querySelector('input[name="nm-soc"]:checked').value;
+        }
+        function modeRat() {
+          return nmForm.querySelector('input[name="nm-rat"]:checked').value;
+        }
+        function choisirRadio(nom, val) {
+          Array.prototype.forEach.call(nmForm.querySelectorAll('input[name="' + nom + '"]'), function (r) {
+            r.checked = r.value === val;
+          });
+        }
+        function invParRef(ref) {
+          return (E.invitations || []).filter(function (i) { return i.ref === ref; })[0] || null;
+        }
+        function invChoisie() {
+          return modeRat() === "ej" ? invParRef(byId("nm-inv").value) : null;
+        }
+        /* Nature du formulaire pour une opération partagée : l'apport partiel d'actif a son propre délai */
+        function natureInv(i) {
+          return i.nature === "apport" && /partiel/i.test(i.libelle) ? "partiel" : i.nature;
+        }
 
         function chiffres(x) {
           return String(x || "").replace(/\D/g, "");
@@ -1056,25 +1199,38 @@
           document.getElementById("nm-verif").className = "nm-msg full " + cls;
           document.getElementById("nm-verif").innerHTML = '<span class="ms">' + icone + "</span><span>" + html + "</span>";
         }
+        function majBouton() {
+          var ok = byId("nm-ok");
+          var motif = nmBloque ? "Création impossible : incompatibilité" : nmDoublon ? "Création impossible : opération déjà rattachée à une mission" : "";
+          ok.disabled = !!motif;
+          if (motif) ok.setAttribute("title", motif);
+          else ok.removeAttribute("title");
+        }
         function verifierSiren() {
-          var c = chiffres(document.getElementById("nm-siren").value);
-          var nom = document.getElementById("nm-nom"), forme = document.getElementById("nm-forme");
-          var verif = document.getElementById("nm-verif");
-          if (nmPre) { nom.value = ""; remplirFormes(""); }
+          var si = byId("nm-siren"), nom = byId("nm-nom"), forme = byId("nm-forme");
+          var c = chiffres(si.value);
+          var verif = byId("nm-verif");
+          var verrou = !!nmFixe;
+          if (nmPre && !verrou) { nom.value = ""; remplirFormes(""); }
           nmPre = null;
           nmBloque = false;
-          nom.readOnly = false;
-          forme.disabled = false;
+          si.readOnly = verrou;
+          nom.readOnly = verrou;
+          forme.disabled = verrou;
           verif.className = "nm-msg full";
           verif.innerHTML = "";
           if (c.length === 9) {
             var r = chercherSiren(c);
             if (r.pre) {
               nmPre = r.pre;
-              nom.value = r.pre.nom;
-              remplirFormes(r.pre.forme);
-              nom.readOnly = true;
-              forme.disabled = true;
+              if (!verrou) {
+                nom.value = r.pre.nom;
+                remplirFormes(r.pre.forme);
+                nom.readOnly = true;
+                forme.disabled = true;
+              }
+            } else if (verrou) {
+              nmPre = { nom: nmFixe.nom, forme: nmFixe.forme, src: nmFixe.src };
             }
             if (r.client) {
               nmBloque = true;
@@ -1086,16 +1242,143 @@
             } else if (r.dpj) {
               messageVerif("avert", "triangle-alert", "Société suivie par le cabinet dans Express Juridique : vérifiez qu'aucune mission ne crée d'incompatibilité. " +
                 noteTip("nm-note-indep", NOTE_INDEP, "Règles d'indépendance") + ' <span class="source"><span class="ms">landmark</span>DPJ du cabinet</span>');
+            } else if (verrou) {
+              messageVerif("info", "landmark", nmFixe.src === "inv" ? "Société reprise de l'opération partagée par le conseil." : "Société du portefeuille CAC du cabinet.");
             } else if (r.pre) {
               messageVerif("info", "landmark", "Société retrouvée dans le registre national des entreprises (RNE, INPI).");
             } else {
               messageVerif("info", "search", "Aucune société retrouvée pour ce SIREN : saisissez la dénomination et la forme.");
             }
           }
-          document.getElementById("nm-ok").disabled = nmBloque;
-          if (nmBloque) document.getElementById("nm-ok").setAttribute("title", "Création impossible : incompatibilité");
-          else document.getElementById("nm-ok").removeAttribute("title");
+          majBouton();
         }
+
+        /* ---------- Société : portefeuille ou autre ---------- */
+        function remplirPortefeuille() {
+          var liste = E.societesCac().slice().sort(function (a, b) { return a.nom.localeCompare(b.nom, "fr"); });
+          byId("nm-port").innerHTML = '<option value="">Choisir une société</option>' + liste.map(function (x) {
+            return '<option value="' + esc(x.cle) + '">' + esc(x.nom) + " · " + esc(x.forme) + " · " + esc(x.siren) + "</option>";
+          }).join("");
+        }
+        /* Société retenue : choix du portefeuille, sinon société de l'opération partagée choisie (reprise en lecture seule) */
+        function appliquerSociete() {
+          var i = invChoisie(), m = modeSoc(), f = null, s;
+          var port = byId("nm-port");
+          if (m === "port" && !port.value && i) {
+            s = E.findSocieteCac(chiffres(i.siren));
+            if (s) port.value = s.cle;
+            else { choisirRadio("nm-soc", "autre"); m = "autre"; }
+          }
+          if (m === "port") {
+            s = port.value ? E.findSocieteCac(port.value) : null;
+            if (s) f = { nom: s.nom, forme: s.forme, siren: chiffres(s.siren), src: "port" };
+          } else if (i) {
+            f = { nom: i.societe, forme: i.forme, siren: chiffres(i.siren), src: "inv" };
+          }
+          var avant = nmFixe;
+          nmFixe = f;
+          byId("nm-g-port").hidden = m !== "port";
+          if (f) {
+            byId("nm-siren").value = sirenFormate(f.siren);
+            byId("nm-nom").value = f.nom;
+            remplirFormes(f.forme);
+            ["port", "siren", "nom", "forme"].forEach(function (c) { erreur(c, ""); });
+          } else if (avant) {
+            byId("nm-siren").value = "";
+            byId("nm-nom").value = "";
+            remplirFormes("");
+          }
+          var cache = m === "port" && !f;
+          ["nm-g-siren", "nm-g-nom", "nm-g-forme"].forEach(function (id) { byId(id).hidden = cache; });
+          verifierSiren();
+        }
+
+        /* ---------- Opération : partagée par un conseil ou sans opération EJ ---------- */
+        function sirenCourant() {
+          if (nmFixe) return nmFixe.siren;
+          if (modeSoc() === "autre") {
+            var c = chiffres(byId("nm-siren").value);
+            return c.length === 9 ? c : "";
+          }
+          return "";
+        }
+        /* Liste des opérations partagées, filtrée sur la société retenue s'il y en a une */
+        function majInvitations() {
+          var sel = byId("nm-inv"), sc = sirenCourant(), cur = sel.value;
+          var liste = (E.invitations || []).filter(function (i) { return !sc || chiffres(i.siren) === sc; });
+          sel.innerHTML = '<option value="">' + (liste.length ? "Choisir une opération" : "Aucune opération partagée pour cette société") + "</option>" +
+            liste.map(function (i) {
+              var lib = (sc ? "" : i.societe + " · ") + i.ref + " · " + i.libelle + " · " + i.conseil + " (" + i.date + ")";
+              if (missionDeLOperation(i.ref)) lib += " · mission déjà ouverte";
+              return '<option value="' + esc(i.ref) + '">' + esc(lib) + "</option>";
+            }).join("");
+          sel.value = liste.some(function (i) { return i.ref === cur; }) ? cur : "";
+        }
+        function appliquerInvitation() {
+          var rat = modeRat(), i = invChoisie();
+          var nat = byId("nm-nature"), oper = byId("nm-oper"), cons = byId("nm-conseil"), msg = byId("nm-inv-msg");
+          byId("nm-g-inv").hidden = rat !== "ej";
+          byId("nm-g-ej").hidden = rat === "ej";
+          nmDoublon = null;
+          msg.className = "nm-msg";
+          msg.innerHTML = "";
+          if (i) {
+            nat.value = natureInv(i);
+            nat.disabled = true;
+            majModes();
+            oper.value = i.libelle;
+            oper.readOnly = true;
+            cons.value = i.conseil;
+            cons.readOnly = true;
+            ["inv", "oper", "conseil"].forEach(function (c) { erreur(c, ""); });
+            nmDoublon = missionDeLOperation(i.ref);
+            if (nmDoublon) {
+              msg.className = "nm-msg bloque";
+              msg.innerHTML = '<span class="ms">ban</span><span>Cette opération est déjà rattachée à la mission de ' + esc(nmDoublon.nom) +
+                ". Aucune mission supplémentaire ne peut être créée. " +
+                '<a class="nm-lien" href="' + esc(hrefMission(nmDoublon)) + '">Ouvrir la mission existante</a></span>';
+            } else {
+              msg.className = "nm-msg info";
+              msg.innerHTML = '<span class="ms">link</span><span>Formalité Express Juridique ' + esc(i.ref) + " partagée par " + esc(i.conseil) +
+                " le " + esc(i.date) + ". Ce partage ne vaut pas désignation.</span>";
+            }
+          } else {
+            nat.disabled = rat === "ej";
+            oper.readOnly = rat === "ej";
+            cons.readOnly = rat === "ej";
+            if (nmInvPrec) { oper.value = ""; cons.value = ""; }
+          }
+          nmInvPrec = i;
+          majDelai();
+          majBouton();
+        }
+        function rafraichir() {
+          appliquerSociete();
+          majInvitations();
+          appliquerInvitation();
+        }
+        function preselectionner(opts) {
+          var i = opts.op ? invParRef(opts.op) : null;
+          if (i) {
+            choisirRadio("nm-rat", "ej");
+            rafraichir();
+            byId("nm-inv").value = i.ref;
+            rafraichir();
+            return;
+          }
+          var c = chiffres(opts.siren);
+          if (c) {
+            var s = E.findSocieteCac(c);
+            if (s) {
+              byId("nm-port").value = s.cle;
+            } else {
+              choisirRadio("nm-soc", "autre");
+              byId("nm-siren").value = c.length === 9 ? sirenFormate(c) : c;
+            }
+            rafraichir();
+          }
+        }
+
         function majDelai() {
           var el = document.getElementById("nm-delai");
           var ass = isoVersFr(document.getElementById("nm-dass").value);
@@ -1122,10 +1405,16 @@
             if (!erreur(champ, texte) && !premier) premier = champ;
           }
           var c = chiffres(document.getElementById("nm-siren").value);
-          ctl("siren", c.length === 9 ? "" : "Le SIREN comporte 9 chiffres.");
-          ctl("nom", document.getElementById("nm-nom").value.trim() ? "" : "Indiquez la dénomination.");
-          ctl("forme", document.getElementById("nm-forme").value ? "" : "Indiquez la forme juridique.");
-          ctl("oper", document.getElementById("nm-oper").value.trim() ? "" : "Décrivez l'opération.");
+          var ej = modeRat() === "ej";
+          if (modeSoc() === "port") {
+            ctl("port", nmFixe ? "" : "Choisissez une société du portefeuille.");
+          } else {
+            ctl("siren", c.length === 9 ? "" : "Le SIREN comporte 9 chiffres.");
+            ctl("nom", document.getElementById("nm-nom").value.trim() ? "" : "Indiquez la dénomination.");
+            ctl("forme", document.getElementById("nm-forme").value ? "" : "Indiquez la forme juridique.");
+          }
+          if (ej) ctl("inv", !invChoisie() ? "Choisissez une opération partagée par un conseil." : nmDoublon ? "Cette opération est déjà rattachée à une mission." : "");
+          else ctl("oper", document.getElementById("nm-oper").value.trim() ? "" : "Décrivez l'opération.");
           var dd = dateIso("ddes"), da = dateIso("dass");
           ctl("ddes", dd ? "" : "Indiquez la date de désignation.");
           var txtAss = "";
@@ -1136,7 +1425,7 @@
             if (d(limite) < d(isoVersFr(dd))) txtAss = "La date limite de mise à disposition (" + limite + ") précède la désignation : choisissez une assemblée plus tardive.";
           }
           ctl("dass", txtAss);
-          ctl("conseil", document.getElementById("nm-conseil").value.trim() ? "" : "Indiquez le conseil de la société.");
+          if (!ej) ctl("conseil", document.getElementById("nm-conseil").value.trim() ? "" : "Indiquez le conseil de la société.");
           if (premier) document.getElementById("nm-" + premier).focus();
           return !premier;
         }
@@ -1146,6 +1435,8 @@
           return id;
         }
         function creer() {
+          var inv = invChoisie();
+          if (inv && missionDeLOperation(inv.ref)) return;
           var c = chiffres(document.getElementById("nm-siren").value);
           var reg = regime();
           var ass = isoVersFr(dateIso("dass"));
@@ -1161,7 +1452,10 @@
             designation: { mode: document.getElementById("nm-mode").value, date: isoVersFr(dateIso("ddes")) },
             assemblee: ass, depotAvant: reculer(ass, reg),
             etape: "designation", pieces: [0, 6], honoraires: null,
-            conseil: { nom: document.getElementById("nm-conseil").value.trim(), ej: document.getElementById("nm-ej").checked, formalite: null, libelle: oper },
+            /* Opération partagée : formalité EJ du conseil. Sinon, la case « utilise EJ » ne pose ni formalité ni accord */
+            conseil: inv
+              ? { nom: inv.conseil, ej: true, formalite: inv.ref, libelle: inv.libelle }
+              : { nom: document.getElementById("nm-conseil").value.trim(), ej: document.getElementById("nm-ej").checked, formalite: null, libelle: oper },
             lm: { statut: "a_etablir", ref: null }, independance: { statut: "a_faire" },
             lab: { ouverture: null, criblage: null, risque: null, statut: "a_ouvrir", derniereRevue: null, prochaineRevue: null, be: 0, ppe: false, gel: "ok", pieces: [0, 5] },
             documents: docs,
@@ -1193,20 +1487,27 @@
             else el.removeAttribute("aria-hidden");
           });
         }
-        function ouvrirFenetre() {
+        function ouvrirFenetre(opts) {
           nmDeclencheur = document.activeElement;
           nmForm.reset();
           nmPre = null;
+          nmFixe = null;
+          nmDoublon = null;
+          nmInvPrec = null;
+          remplirPortefeuille();
           remplirFormes("");
           majModes();
-          ["siren", "nom", "forme", "oper", "ddes", "dass", "conseil"].forEach(function (c) { erreur(c, ""); });
-          document.getElementById("nm-nom").readOnly = false;
+          ["port", "siren", "nom", "forme", "inv", "oper", "ddes", "dass", "conseil"].forEach(function (c) { erreur(c, ""); });
           document.getElementById("nm-delai").innerHTML = "";
-          verifierSiren();
+          rafraichir();
+          if (opts) preselectionner(opts);
           nm.hidden = false;
           fondMasque(true);
           document.body.style.overflow = "hidden";
-          document.getElementById("nm-siren").focus();
+          var premier = byId("nm-port");
+          if (nmFixe) premier = byId("nm-ddes");
+          else if (modeSoc() === "autre") premier = byId("nm-siren");
+          premier.focus();
         }
         function fermerFenetre() {
           nm.hidden = true;
@@ -1214,7 +1515,11 @@
           document.body.style.overflow = "";
           if (nmDeclencheur && nmDeclencheur.focus) nmDeclencheur.focus();
         }
-        document.getElementById("nouvelle").addEventListener("click", ouvrirFenetre);
+        document.getElementById("nouvelle").addEventListener("click", function () { ouvrirFenetre(null); });
+        document.getElementById("invites").addEventListener("click", function (e) {
+          var b = e.target.closest("[data-inv]");
+          if (b) ouvrirFenetre({ op: b.getAttribute("data-inv") });
+        });
         nm.addEventListener("mousedown", function (e) {
           if (e.target === nm) fermerFenetre();
         });
@@ -1239,7 +1544,31 @@
         document.getElementById("nm-siren").addEventListener("input", function () {
           erreur("siren", "");
           verifierSiren();
+          majInvitations();
+          appliquerInvitation();
         });
+        Array.prototype.forEach.call(nmForm.querySelectorAll('input[name="nm-soc"]'), function (r) {
+          r.addEventListener("change", function () {
+            byId("nm-siren").value = "";
+            byId("nm-nom").value = "";
+            remplirFormes("");
+            nmPre = null;
+            ["port", "siren", "nom", "forme"].forEach(function (c) { erreur(c, ""); });
+            rafraichir();
+          });
+        });
+        Array.prototype.forEach.call(nmForm.querySelectorAll('input[name="nm-rat"]'), function (r) {
+          r.addEventListener("change", function () {
+            byId("nm-inv").value = "";
+            byId("nm-oper").value = "";
+            byId("nm-conseil").value = "";
+            byId("nm-ej").checked = false;
+            ["inv", "oper", "conseil"].forEach(function (c) { erreur(c, ""); });
+            rafraichir();
+          });
+        });
+        byId("nm-port").addEventListener("change", rafraichir);
+        byId("nm-inv").addEventListener("change", rafraichir);
         document.getElementById("nm-nature").addEventListener("change", function () {
           majModes();
           majDelai();
@@ -1253,7 +1582,7 @@
         });
         nmForm.addEventListener("submit", function (e) {
           e.preventDefault();
-          if (nmBloque) return;
+          if (nmBloque || nmDoublon) return;
           if (valider()) creer();
         });
 
@@ -1263,8 +1592,21 @@
         });
 
         dessiner();
+
+        /* cac.html?nouvelle=1&siren=<chiffres> ou &op=<référence> : ouvre la fenêtre pré-remplie, puis nettoie l'adresse
+           pour qu'un rechargement ne la rouvre pas. */
+        document.addEventListener("DOMContentLoaded", function () {
+          if (paramsUrl.get("nouvelle") !== "1") return;
+          ouvrirFenetre({ siren: paramsUrl.get("siren") || "", op: paramsUrl.get("op") || "" });
+          try {
+            var u = new URL(location.href);
+            ["nouvelle", "siren", "op"].forEach(function (k) { u.searchParams.delete(k); });
+            u.searchParams.set("vue", etat.vue);
+            history.replaceState(null, "", u.pathname + u.search + u.hash);
+          } catch (e) {}
+        });
       })();
     </script>
-    <script src="assets/ej-shell.js?v=25"></script>
+    <script src="assets/ej-shell.js?v=27"></script>
   </body>
 </html>

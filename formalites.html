@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=20" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=24" />
     <style>
       .f-card {
         display: grid;
@@ -82,30 +83,45 @@
       .f-author .ms {
         font-size: 15px;
       }
+      /* Écran étroit : l'état passe sous la formalité */
+      @media (max-width: 760px) {
+        .f-card {
+          grid-template-columns: 1fr;
+        }
+        .f-right {
+          grid-column: 1;
+          grid-row: auto;
+          align-items: flex-start;
+        }
+        .pager {
+          flex-wrap: wrap;
+          row-gap: 8px;
+        }
+      }
     </style>
   </head>
-  <body data-active="formalites">
+  <body class="m-resp" data-active="formalites">
     <div id="ej-header"></div>
     <div class="app">
       <div id="ej-sidebar"></div>
       <div class="main">
         <div class="page page-narrow">
           <div class="page-head">
-            <h1 class="page-title">Formalités<span class="count">(164)</span></h1>
+            <h1 class="page-title">Formalités<span class="count" id="f-count">(164)</span></h1>
             <a class="btn btn-primary" href="nouvelle-formalite.html"><span class="ms">add</span>Nouvelle formalité</a>
           </div>
 
           <div class="toolbar">
             <label class="search">
               <span class="ms">search</span>
-              <input type="text" placeholder="Rechercher par société…" />
+              <input type="text" id="f-search" placeholder="Rechercher par société…" />
             </label>
             <button class="btn btn-secondary" type="button"><span class="ms">filter_alt</span>Filtrer</button>
           </div>
 
           <div class="stack" id="cards"></div>
 
-          <div class="pager pager-standalone">
+          <div class="pager pager-standalone" id="f-pager">
             <button class="btn btn-secondary btn-sm" type="button" disabled style="opacity: 0.5"><span class="ms">chevron_left</span>Page précédente</button>
             <span>Page <strong>1</strong> / 4</span>
             <button class="btn btn-secondary btn-sm" type="button">Page suivante<span class="ms">chevron_right</span></button>
@@ -115,6 +131,7 @@
       </div>
     </div>
 
+    <script src="assets/ej-missions-data.js?v=28"></script>
     <script>
       // Contenu réel du staging (page 1, 50 formalités). s : 1 = Documents générés, 0 = Formulaire en cours
       var ICON = { doc: "fact_check", cal: "event_available", biz: "add_business" };
@@ -178,6 +195,7 @@
       function date(s) {
         return esc(s).replace("(non-définie)", '<span class="undef">(non définie)</span>');
       }
+      function renderStatique() {
       document.getElementById("cards").innerHTML = DATA.map(function (c) {
         var badge = c.s
           ? '<span class="badge badge-success"><span class="ms">check</span>Documents générés</span>'
@@ -203,7 +221,67 @@
           "</a>"
         );
       }).join("");
+      }
+
+      // Profil conseil (cabinet SELARL VASSEUR AVOCATS) : la liste affiche les formalités du conseil, issues de EJM.conseil.
+      var CONSEIL_MODE = false;
+      try { CONSEIL_MODE = localStorage.getItem("ej-cabinet") === "vasseur" && !!(window.EJM && window.EJM.conseil); } catch (e) {}
+
+      function escC(s) {
+        return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      }
+      var MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+      function dateLongue(s) {
+        var m = /^(\d{1,2})\/(\d{2})\/(\d{4})$/.exec(String(s || ""));
+        if (!m) return escC(s);
+        return parseInt(m[1], 10) + " " + MOIS[parseInt(m[2], 10) - 1] + " " + m[3];
+      }
+
+      function renderConseil() {
+        var C = window.EJM.conseil;
+        var nomSociete = {};
+        C.societes.forEach(function (x) { nomSociete[x.id] = x.nom; });
+        var champ = document.getElementById("f-search");
+        var cartes = document.getElementById("cards");
+
+        function ligne(f) {
+          var termine = f.statut === "termine";
+          var badge = termine
+            ? '<span class="badge badge-success"><span class="ms">check</span>Terminée</span>'
+            : '<span class="badge badge-progress"><span class="ms">edit_note</span>En cours</span>';
+          return (
+            '<a class="card f-card" href="formalite.html?ref=' + encodeURIComponent(f.ref) + '">' +
+            "<div>" +
+            '<div class="f-name">' + escC(nomSociete[f.societe] || f.societe) + "</div>" +
+            '<div class="f-type"><span class="list-icon cal"><span class="ms">event_available</span></span>' +
+            '<div class="f-type-lines">' + escC(f.libelle) + "<br/>" + '<span class="muted small">' + escC(f.ref) + "</span></div></div>" +
+            "</div>" +
+            '<div class="f-right">' + badge +
+            '<div class="f-dates">Mise à jour le ' + dateLongue(f.maj) + "</div>" +
+            '<span class="f-author"><span class="ms">person</span>Créé par ' + escC(f.par) + "</span></div>" +
+            "</a>"
+          );
+        }
+
+        function afficher() {
+          var q = champ ? champ.value.replace(/^\s+|\s+$/g, "").toLowerCase() : "";
+          var liste = C.formalites.filter(function (f) {
+            return !q || String(nomSociete[f.societe] || "").toLowerCase().indexOf(q) !== -1;
+          });
+          document.getElementById("f-count").textContent = "(" + liste.length + ")";
+          cartes.innerHTML = liste.length
+            ? liste.map(ligne).join("")
+            : '<div class="card" style="padding:24px;text-align:center"><span class="muted">Aucune formalité ne correspond à cette recherche.</span></div>';
+        }
+
+        document.getElementById("f-pager").style.display = "none";
+        if (champ) champ.addEventListener("input", afficher);
+        afficher();
+      }
+
+      if (CONSEIL_MODE) renderConseil();
+      else renderStatique();
     </script>
-    <script src="assets/ej-shell.js?v=25"></script>
+    <script src="assets/ej-shell.js?v=27"></script>
   </body>
 </html>

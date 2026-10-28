@@ -177,7 +177,15 @@
      dirigeantAbsorbee : fusion, dirigeant de la société absorbée (second signataire de la lettre d'affirmation)
      conclusions : { libellé du rapport : texte saisi par le signataire } (aucune conclusion rédigée par l'outil)
      laEnvoi : date d'envoi de la lettre d'affirmation en signature au dirigeant
-     Le rapport est daté du jour de sa signature (la date de finalisation n'est pas la date du rapport). */
+     Le rapport est daté du jour de sa signature (la date de finalisation n'est pas la date du rapport).
+     piecesDetail (facultatif, sinon dérivé par cac-mission.html) : [{ lib, source operation | dpj | registre | depot | null,
+       origine (libellé de la source), dateDoc, version, recuperee, etat disponible | retenue | attendue | recue | controlee |
+       a_remplacer | sans_objet, historique: [{version, etat, note}], motif, optionnelle }]. « recue » = reçue, à contrôler :
+       une pièce reçue ou remplacée n'est jamais contrôlée d'office. pieces[0] compte les pièces reçues (recue, controlee, retenue).
+     versions (état de session) : { libellé du rapport : [{ n, origine modele | joint, fichier, etat brouillon | finalise | signe,
+       creee, finalisee, signee, remise }] } ; remises : [{ doc, n, date, operation, destinataire }] (une remise = une version
+       déterminée). Côté conseil, sessionStorage « ej-conseil-retenues » = { ref formalité : { doc, n, date } } : version
+       retenue pour le dossier de dépôt, jamais remplacée sans choix du conseil. */
   var PONCTUELLES = [
     { id: "orvane", nom: "ORVANE INDUSTRIES", siren: "834 210 576", forme: "SAS", nature: "apport", signataire: "CD", dirigeant: "Bertrand Orvain, Président", delai: { texte: "8 jours au moins avant l'assemblée", ref: "Code de commerce, art. R.225-136" }, accord: null,
       operation: "Augmentation de capital par apport de 100 % des titres de MÉTALIS SAS", valeur: 1850000,
@@ -186,13 +194,25 @@
       conseil: { nom: "CABINET MARCHAL & ASSOCIÉS", ej: true, formalite: "F-2026-0418", libelle: "Augmentation de capital par apport en nature" },
       lm: { statut: "signee", ref: "LM-CAC-2026-014" }, independance: { statut: "a_jour" }, lab: { ouverture: "25/09/2026", criblage: "18/10/2026", risque: "standard", statut: "a_jour", derniereRevue: "02/10/2026", prochaineRevue: "02/10/2028", be: 2, ppe: false, gel: "ok", pieces: [6, 6] },
       documents: [["Lettre de mission", "signe"], ["Rapport du commissaire aux apports", "brouillon"], ["Lettre d'affirmation", "brouillon"]] },
-    { id: "kerlys", nom: "KERLYS", siren: "752 018 334", forme: "SARL", nature: "transformation", signataire: "CD", dirigeant: "Yann Le Gall, gérant", delai: { texte: "8 jours au moins avant l'assemblée", ref: "Code de commerce, art. R.224-3" }, accord: null,
+    { id: "kerlys", nom: "KERLYS", siren: "752 018 334", forme: "SARL", nature: "transformation", signataire: "CD", dirigeant: "Yann Le Gall, gérant", delai: { texte: "8 jours au moins avant l'assemblée", ref: "Code de commerce, art. R.224-3" },
+      accord: { par: "Yann Le Gall, gérant de KERLYS", date: "15/09/2026", perimetre: "Pièces de la formalité F-2026-0409 et du dossier permanent, transmission du rapport signé dans cette formalité" },
       operation: "Transformation de la SARL en SAS", valeur: null,
       designation: { mode: "Décision unanime des associés", date: "15/09/2026" }, assemblee: "08/12/2026", depotAvant: "30/11/2026",
       etape: "rapport", pieces: [6, 6], honoraires: 3800,
-      conseil: { nom: "SELARL VASSEUR AVOCATS", ej: false, formalite: null, libelle: "Transformation de SARL en SAS" },
+      conseil: { nom: "SELARL VASSEUR AVOCATS", ej: true, formalite: "F-2026-0409", libelle: "Transformation de SARL en SAS" },
       lm: { statut: "signee", ref: "LM-CAC-2026-011" }, independance: { statut: "a_jour" }, lab: { ouverture: "10/09/2026", criblage: "18/10/2026", risque: "faible", statut: "a_jour", derniereRevue: "15/09/2026", prochaineRevue: "15/09/2029", be: 1, ppe: false, gel: "ok", pieces: [5, 5] },
-      documents: [["Lettre de mission", "signe"], ["Rapport sur la valeur des biens et la situation nette", "brouillon"], ["Lettre d'affirmation", "brouillon"]] },
+      documents: [["Lettre de mission", "signe"], ["Rapport sur la valeur des biens et la situation nette", "brouillon"], ["Lettre d'affirmation", "brouillon"]],
+      piecesDetail: [
+        { lib: "Décision de désignation", source: "operation", origine: "Formalité EJ F-2026-0409", dateDoc: "15/09/2026", version: "Signée le 15/09/2026", recuperee: "15/09/2026", etat: "controlee" },
+        { lib: "Statuts à jour", source: "dpj", origine: "Dossier permanent juridique", dateDoc: "12/06/2024", version: "Mise à jour du 12/06/2024", recuperee: "24/09/2026", etat: "controlee" },
+        { lib: "Derniers comptes approuvés", source: "dpj", origine: "Dossier permanent juridique", dateDoc: "26/06/2026", version: "Comptes 2025, approuvés le 26/06/2026", recuperee: "24/09/2026", etat: "controlee" },
+        { lib: "Situation intermédiaire", source: "depot", origine: "Lien de dépôt du conseil", dateDoc: "31/08/2026", version: "Version 2 déposée le 16/10/2026", recuperee: "16/10/2026", etat: "recue",
+          historique: [{ version: "Version 1 déposée le 30/09/2026", etat: "remplacee", note: "Contrôlée le 02/10/2026, remplacée par le conseil" }] },
+        { lib: "Projet de statuts de SAS", source: "operation", origine: "Formalité EJ F-2026-0409", dateDoc: "22/09/2026", version: "Projet du 22/09/2026", recuperee: "24/09/2026", etat: "controlee" },
+        { lib: "Extrait Kbis", source: "registre", origine: "Extrait RNE · INPI", dateDoc: "24/09/2026", version: "Récupéré le 24/09/2026", recuperee: "24/09/2026", etat: "controlee" },
+        { lib: "Rapport de gestion 2025", source: "dpj", origine: "Dossier permanent juridique", dateDoc: "26/06/2026", version: "Approuvé le 26/06/2026", recuperee: null, etat: "disponible", optionnelle: true },
+        { lib: "Rapport du commissaire aux comptes sur les derniers comptes", source: null, origine: null, dateDoc: null, version: null, recuperee: null, etat: "sans_objet", motif: "La société n'a pas de commissaire aux comptes", optionnelle: true },
+      ] },
     { id: "brun", nom: "ATELIERS BRUN", siren: "903 556 120", forme: "SAS", nature: "apport", signataire: "CD", dirigeant: "Henri Brun, Président", delai: { texte: "1 mois au moins avant l'assemblée", ref: "Code de commerce, régime des scissions (apport partiel d'actif)" }, accord: null,
       operation: "Apport partiel d'actif de la branche menuiserie", valeur: 640000,
       designation: { mode: "Ordonnance du président du tribunal de commerce", date: "16/10/2026" }, assemblee: "15/01/2027", depotAvant: "15/12/2026",
@@ -235,7 +255,8 @@
      (liste CAC, cockpit, fiche) voient le même avancement. m._origine garde les données d'avant la session :
      la fiche s'en sert pour dériver son journal sans appliquer deux fois l'avancement. */
   var CHAMPS_AVANCEMENT = ["etape", "pieces", "documents", "lm", "independance", "honoraires", "accord", "accordDemande",
-    "transmis", "miseADisposition", "relances", "laEnvoi", "laSignee", "conclusions", "dateRapport"];
+    "transmis", "miseADisposition", "relances", "laEnvoi", "laSignee", "conclusions", "dateRapport",
+    "piecesDetail", "versions", "remises"];
   try {
     var AV = JSON.parse(window.sessionStorage.getItem("ej-cac-ponctuelles") || "{}") || {};
     PONCTUELLES.forEach(function (m) {
@@ -247,6 +268,60 @@
       });
     });
   } catch (e) { /* stockage indisponible : avancement des données de démonstration */ }
+
+  /* Conseil de KERLYS, utilisateur d'Express Juridique (vue « Conseil », cabinet actif SELARL VASSEUR AVOCATS).
+     Compte distinct du cabinet DELMAS : ses sociétés et ses formalités ne sont pas celles du cabinet DELMAS,
+     et il ne voit de la mission du commissaire que ce que l'intervention partage (coordination, documents partagés).
+     formalites[].intervention : intervention d'un commissaire dans l'opération, représentée par EJ.
+       preparee : date à laquelle le conseil a ajouté l'intervention à la formalité (commissaire pressenti)
+       invitation : accès au dossier proposé au commissaire (technique : ne vaut ni désignation ni acceptation)
+       acte : acte de désignation produit par EJ dans la formalité (statut a_produire | a_signer | signe)
+       acceptation : date d'acceptation de la mission par le commissaire (null tant qu'il n'a pas accepté)
+       mission : id de la mission ponctuelle (EJM.ponctuelles) ; l'état du rapport se lit sur la mission. */
+  var CONSEIL = {
+    cabinet: "SELARL VASSEUR AVOCATS",
+    societes: [
+      { id: "kerlys", nom: "KERLYS", siren: "752 018 334", forme: "SARL", activite: "Location et entretien de bateaux de plaisance",
+        siege: "Zone portuaire de Kernével, 56260 Larmor-Plage", greffe: "LORIENT", immatriculation: "03/05/2012", ajout: "02/09/2026" },
+      { id: "scorff", nom: "CHANTIERS DU SCORFF", siren: "530 530 419", forme: "SAS", activite: "Construction navale",
+        siege: "12 quai des Indes, 56100 Lorient", greffe: "LORIENT", immatriculation: "14/03/2011", ajout: "18/01/2025" },
+      { id: "kernevel", nom: "SCI KERNÉVEL", siren: "749 008 934", forme: "SCI", activite: "Location de terrains et d'autres biens immobiliers",
+        siege: "4 rue du Port, 56260 Larmor-Plage", greffe: "LORIENT", immatriculation: "22/09/2012", ajout: "18/01/2025" },
+      { id: "breizhoptic", nom: "BREIZH OPTIQUE", siren: "925 988 156", forme: "SARL", activite: "Commerce de détail d'optique",
+        siege: "27 rue de Liège, 56100 Lorient", greffe: "LORIENT", immatriculation: "06/02/2023", ajout: "09/06/2025" },
+    ],
+    formalites: [
+      { ref: "F-2026-0409", societe: "kerlys", libelle: "Transformation de SARL en SAS", statut: "en_cours",
+        operations: ["Transformation de la société en SAS", "Nomination du commissaire à la transformation"],
+        creee: "02/09/2026", par: "Anne Vasseur", maj: "16/10/2026",
+        intervention: {
+          nature: "transformation", type: "Commissaire à la transformation",
+          commissaire: "Claire Dubois", cabinet: "CABINET DELMAS EXPERTISE",
+          preparee: "02/09/2026",
+          invitation: { date: "09/09/2026", destinataire: "Claire Dubois, CABINET DELMAS EXPERTISE",
+            perimetre: "Coordination de l'opération et documents partagés de la formalité" },
+          acte: { libelle: "Décision unanime des associés nommant le commissaire à la transformation", date: "15/09/2026", statut: "signe" },
+          acceptation: "24/09/2026",
+          mission: "kerlys" } },
+      { ref: "F-2026-0377", societe: "scorff", libelle: "Changement de président", statut: "termine",
+        operations: ["Nomination d'un nouveau président"], creee: "28/07/2026", par: "Anne Vasseur", maj: "21/08/2026" },
+      { ref: "F-2026-0352", societe: "kernevel", libelle: "Transfert de siège social", statut: "termine",
+        operations: ["Transfert du siège social dans le même ressort"], creee: "09/07/2026", par: "Anne Vasseur", maj: "30/07/2026" },
+      { ref: "F-2026-0421", societe: "breizhoptic", libelle: "Approbation des comptes 2025", statut: "en_cours",
+        operations: ["Approbation des comptes annuels"], creee: "05/10/2026", par: "Anne Vasseur", maj: "15/10/2026" },
+    ],
+  };
+
+  /* Opérations partagées avec le cabinet DELMAS par des conseils qui utilisent EJ : un conseil invite le
+     commissaire depuis sa formalité. mission : id de la mission ponctuelle déjà rattachée (null = invitation
+     pas encore rattachée). Une invitation ne crée pas de mission et ne vaut pas désignation. */
+  var INVITATIONS = [
+    { ref: "F-2026-0396", conseil: "CABINET MARCHAL & ASSOCIÉS", societe: "VETIS SANTÉ", siren: "811 470 925", forme: "SAS", nature: "fusion", libelle: "Fusion-absorption", date: "28/08/2026", mission: "vetis" },
+    { ref: "F-2026-0409", conseil: "SELARL VASSEUR AVOCATS", societe: "KERLYS", siren: "752 018 334", forme: "SARL", nature: "transformation", libelle: "Transformation de SARL en SAS", date: "09/09/2026", mission: "kerlys" },
+    { ref: "F-2026-0418", conseil: "CABINET MARCHAL & ASSOCIÉS", societe: "ORVANE INDUSTRIES", siren: "834 210 576", forme: "SAS", nature: "apport", libelle: "Augmentation de capital par apport en nature", date: "24/09/2026", mission: "orvane" },
+    { ref: "F-2026-0431", conseil: "CABINET MARCHAL & ASSOCIÉS", societe: "ATELIERS BRUN", siren: "903 556 120", forme: "SAS", nature: "apport", libelle: "Apport partiel d'actif", date: "14/10/2026", mission: "brun" },
+    { ref: "F-2026-0447", conseil: "CABINET MARCHAL & ASSOCIÉS", societe: "SOLÉA BOIS", siren: "362 275 869", forme: "SAS", nature: "apport", libelle: "Augmentation de capital par apport en nature", date: "16/10/2026", mission: null },
+  ];
 
   /* Bibliothèque de prestations (lettres de mission). Prix indicatifs du cabinet fictif. */
   var PRESTATIONS = [
@@ -287,12 +362,38 @@
     },
     mandats: MANDATS,
     ponctuelles: PONCTUELLES,
+    conseil: CONSEIL,
+    invitations: INVITATIONS,
+    /* Sociétés suivies par le cabinet en tant que commissaire (mandats et missions ponctuelles, y compris celles
+       créées pendant la session), regroupées par SIREN. cle = SIREN en chiffres (societe.html?cac=<cle>). */
+    societesCac: function () {
+      var out = [], vu = {};
+      function ajoute(m, source) {
+        var cle = String(m.siren || "").replace(/\D/g, "");
+        if (!cle) return;
+        if (!vu[cle]) {
+          vu[cle] = { cle: cle, nom: m.nom, siren: m.siren, forme: m.forme, mandats: [], ponctuelles: [] };
+          out.push(vu[cle]);
+        }
+        vu[cle][source].push(m);
+      }
+      MANDATS.forEach(function (m) { ajoute(m, "mandats"); });
+      PONCTUELLES.forEach(function (m) { ajoute(m, "ponctuelles"); });
+      return out;
+    },
+    findSocieteCac: function (cle) {
+      cle = String(cle || "").replace(/\D/g, "");
+      return window.EJM.societesCac().filter(function (s) { return s.cle === cle; })[0] || null;
+    },
+    findFormaliteConseil: function (ref) {
+      return CONSEIL.formalites.filter(function (f) { return f.ref === ref; })[0] || null;
+    },
     findPonctuelle: function (id) {
       return PONCTUELLES.filter(function (m) { return m.id === id; })[0] || null;
     },
     NATURE: { apport: "Commissariat aux apports", transformation: "Commissariat à la transformation", fusion: "Commissariat à la fusion" },
     ETAPE: { designation: "Désignation", acceptation: "Acceptation", pieces: "Pièces", rapport: "Rapport", signature: "Signature", depot: "Transmission", termine: "Terminée" },
-    DOC_STATUT: { a_produire: "À produire", brouillon: "Brouillon", a_signer: "À signer", signe: "Signé", depose: "Déposé" },
+    DOC_STATUT: { a_produire: "À produire", brouillon: "Brouillon", a_signer: "À signer", signe: "Signé", depose: "Remis" },
     /* Verbe canonique d'une mission ponctuelle : l'action principale du bloc « À faire » de cac-mission.html.
        labAJour : état réel du dossier LAB (module LAB). Retour : { lib, ancre } ; ancre = lien à ouvrir. */
     verbePonctuelle: function (m, labAJour) {
@@ -313,11 +414,14 @@
       if (e === "signature") {
         var la = (m.documents || []).filter(function (d) { return d[0] === "Lettre d'affirmation"; })[0];
         if (la && la[1] !== "signe") return v(m.laEnvoi ? "Relancer le dirigeant" : "Envoyer en signature");
+        /* Signature refusée tant qu'une pièce est à contrôler ou à remplacer (même règle que cac-mission.html) */
+        var bloque = (m.piecesDetail || []).some(function (p) { return p.etat === "recue" || p.etat === "a_remplacer"; });
+        if (bloque) return { lib: "Voir les pièces", ancre: "cac-mission.html?id=" + encodeURIComponent(m.id) + "#pieces" };
         return v("Signer le rapport");
       }
       if (e === "depot") {
         if (m.transmis) return v("Enregistrer la mise à disposition");
-        return v(cs.ej && cs.formalite && m.accord ? "Transmettre dans la formalité " + cs.formalite : "Transmettre au conseil");
+        return v(cs.ej && cs.formalite && m.accord ? "Remettre dans la formalité " + cs.formalite : "Remettre au conseil");
       }
       return { lib: "Consulter la mission", ancre: "cac-mission.html?id=" + encodeURIComponent(m.id) };
     },

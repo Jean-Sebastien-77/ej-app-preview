@@ -597,11 +597,15 @@
       var done = STEPS.filter(function (s) { return s.done; }).length;
       (function () {
         var last = null;
-        try { last = localStorage.getItem("ej-home-tab"); } catch (e) {}
-        if (done === STEPS.length && last === "cockpit" && !/[?&]tab=/.test(location.search)) location.replace("cockpit.html");
+        var conseil = false;
+        try { last = localStorage.getItem("ej-home-tab"); conseil = localStorage.getItem("ej-cabinet") === "vasseur"; } catch (e) {}
+        /* Côté conseil (SELARL VASSEUR AVOCATS), pas de cockpit : on reste sur l'accueil */
+        if (done === STEPS.length && last === "cockpit" && !conseil && !/[?&]tab=/.test(location.search)) location.replace("cockpit.html");
       })();
       document.addEventListener("DOMContentLoaded", function () {
-        if (document.body.getAttribute("data-profil") === "cac") document.querySelector(".hello h1").textContent = "Bonjour Claire";
+        var pr = document.body.getAttribute("data-profil");
+        if (pr === "cac") document.querySelector(".hello h1").textContent = "Bonjour Claire";
+        if (pr === "conseil") document.querySelector(".hello h1").textContent = "Bonjour Anne";
       });
       var firstTodo = STEPS.findIndex(function (s) { return !s.done; });
       document.getElementById("progress").style.width = Math.round((done / STEPS.length) * 100) + "%";
@@ -654,6 +658,6 @@
         );
       }).join("");
     </script>
-    <script src="assets/ej-shell.js?v=25"></script>
+    <script src="assets/ej-shell.js?v=27"></script>
   </body>
 </html>

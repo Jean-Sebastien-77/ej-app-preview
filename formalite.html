@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=20" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=24" />
     <style>
       .fd-layout {
         display: grid;
@@ -240,6 +241,285 @@
         border: 1px dashed var(--ej-neutral-300);
         border-radius: var(--ej-radius-lg);
       }
+      .fd-doc:target {
+        background: var(--ej-action-50);
+      }
+      .fd-doc-attendu .fd-doc-name {
+        color: var(--ej-neutral-600);
+      }
+      .fd-doc-attendu .badge {
+        margin-left: auto;
+      }
+      .fd-absent {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 40px 24px;
+        text-align: center;
+      }
+      .fd-absent .ms {
+        font-size: 32px;
+        color: var(--ej-neutral-400);
+      }
+      .fd-absent .btn {
+        margin-top: 12px;
+      }
+      .fd-interv {
+        margin-bottom: 24px;
+        padding: 20px 24px;
+      }
+      .fd-interv h2,
+      .fd-interv h3 {
+        margin: 0;
+      }
+      .fd-interv h2.overline {
+        font-size: 13px;
+        color: var(--ej-primary-900);
+        font-weight: 700;
+      }
+      .fd-interv-who {
+        font-size: 14px;
+        color: var(--ej-neutral-800);
+        margin-top: 6px;
+        line-height: 1.5;
+      }
+      .fd-interv h3.overline {
+        margin-top: 20px;
+        margin-bottom: 8px;
+      }
+      .fd-jalons {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .fd-jalon {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        position: relative;
+        padding-bottom: 14px;
+      }
+      .fd-jalon:last-child {
+        padding-bottom: 0;
+      }
+      .fd-jalon::before {
+        content: "";
+        position: absolute;
+        left: 11px;
+        top: 26px;
+        bottom: 2px;
+        width: 1px;
+        background: var(--ej-neutral-200);
+      }
+      .fd-jalon:last-child::before {
+        display: none;
+      }
+      .fd-jalon > .ms {
+        font-size: 24px;
+        color: var(--ej-neutral-400);
+        flex-shrink: 0;
+        background: var(--ej-white);
+      }
+      .fd-jalon.is-done > .ms {
+        color: var(--ej-success-600);
+      }
+      .fd-jalon-body {
+        min-width: 0;
+        flex: 1;
+        padding-top: 2px;
+      }
+      .fd-jalon-line {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 2px 16px;
+      }
+      .fd-jalon-lib {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--ej-neutral-800);
+        overflow-wrap: anywhere;
+      }
+      .fd-jalon-etat {
+        font-size: 12.5px;
+        color: var(--ej-neutral-600);
+        font-variant-numeric: tabular-nums;
+      }
+      .fd-jalon-sub {
+        font-size: 13px;
+        color: var(--ej-neutral-600);
+        margin-top: 3px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+      }
+      .fd-jalon-aide {
+        font-size: 12.5px;
+        font-style: italic;
+        color: var(--ej-neutral-500);
+        margin-top: 2px;
+      }
+      .fd-jalon-sub a {
+        color: var(--ej-action-700);
+        font-weight: 500;
+        text-decoration: underline;
+      }
+      .fd-ligne {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px 12px;
+        font-size: 14px;
+        color: var(--ej-neutral-800);
+        line-height: 1.5;
+      }
+      .fd-sr {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      .fd-rap-ligne {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px 12px;
+        font-size: 14px;
+        color: var(--ej-neutral-800);
+        line-height: 1.5;
+      }
+      .fd-rap-ligne + .fd-rap-ligne {
+        margin-top: 8px;
+      }
+      .fd-rap-ligne > span:not(.badge):not(.ms) {
+        flex: 1 1 12em;
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+      .fd-rap-ligne > .ms {
+        color: var(--ej-success-600);
+        font-size: 18px;
+      }
+      .fd-rap-actions {
+        margin-top: 12px;
+      }
+      .fd-rap-aide {
+        margin-top: 8px;
+        font-size: 12.5px;
+        font-style: italic;
+        color: var(--ej-neutral-500);
+        line-height: 1.5;
+      }
+      .fd-histo {
+        list-style: none;
+        margin: 14px 0 0;
+        padding: 0;
+        font-size: 12.5px;
+        color: var(--ej-neutral-600);
+      }
+      .fd-histo li {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 0 16px;
+        padding: 5px 0;
+        border-top: 1px solid var(--ej-neutral-200);
+      }
+      .fd-histo-date {
+        font-variant-numeric: tabular-nums;
+      }
+      .fd-partage {
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--ej-neutral-800);
+        overflow-wrap: anywhere;
+      }
+      .fd-pieces-titre {
+        margin-top: 12px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--ej-neutral-800);
+      }
+      .fd-pieces {
+        list-style: none;
+        margin: 6px 0 0;
+        padding: 0;
+      }
+      .fd-pieces li {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 0 12px;
+        padding: 6px 0;
+        border-top: 1px solid var(--ej-neutral-200);
+        font-size: 13.5px;
+        line-height: 1.5;
+      }
+      .fd-pieces-nom {
+        min-width: 0;
+        font-weight: 500;
+        color: var(--ej-neutral-800);
+        overflow-wrap: anywhere;
+      }
+      .fd-pieces-orig {
+        flex: 1 1 auto;
+        min-width: 0;
+        font-size: 12.5px;
+        color: var(--ej-neutral-600);
+        overflow-wrap: anywhere;
+      }
+      .fd-pieces-etat {
+        font-size: 12.5px;
+        color: var(--ej-neutral-600);
+      }
+      .fd-interv-note {
+        margin: 10px 0 0;
+        font-size: 12.5px;
+        font-style: italic;
+        color: var(--ej-neutral-500);
+        line-height: 1.5;
+      }
+      .fd-doc-sub {
+        display: block;
+        margin-top: 2px;
+        font-size: 12.5px;
+        line-height: 1.4;
+        color: var(--ej-neutral-600);
+      }
+      .fd-doc-sub.is-attention {
+        color: var(--ej-info-600);
+      }
+      @media (max-width: 900px) {
+        .fd-layout {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .fd-title {
+          white-space: normal;
+        }
+      }
+      @media (max-width: 480px) {
+        .fd-interv {
+          padding: 16px;
+        }
+        .fd-doc {
+          flex-wrap: wrap;
+        }
+        .fd-doc-name {
+          flex: 1 1 calc(100% - 44px);
+          min-width: 0;
+          overflow-wrap: anywhere;
+        }
+        .fd-doc .fd-fmts,
+        .fd-doc-attendu .badge {
+          margin-left: 32px;
+        }
+      }
       button.tab {
         background: none;
         border-top: none;
@@ -248,34 +528,36 @@
       }
     </style>
   </head>
-  <body data-active="formalites">
+  <body class="m-resp" data-active="formalites">
     <div id="ej-header"></div>
     <div class="app">
       <div id="ej-sidebar"></div>
       <div class="main">
         <div class="page page-wide">
-          <div class="fd-layout">
+          <div class="fd-layout" id="fd-layout">
             <!-- Colonne gauche -->
             <aside class="fd-side">
               <div class="card fd-card">
                 <div class="fd-head">
                   <a class="back-link" href="formalites.html" aria-label="Retour aux formalités" title="Retour aux formalités"><span class="ms">arrow_back</span></a>
-                  <div class="fd-title">FORMALITÉ<span class="fd-ref">#GC-2026-277</span></div>
+                  <div class="fd-title">FORMALITÉ<span class="fd-ref" id="fd-ref">#GC-2026-277</span></div>
                   <button class="icon-btn" type="button" aria-label="Menu"><span class="ms">more_vert</span></button>
                 </div>
-                <div class="fd-updated">Dernière mise à jour le 14 oct. 2026 à 09:51</div>
+                <div class="fd-updated" id="fd-updated">Dernière mise à jour le 14 oct. 2026 à 09:51</div>
               </div>
 
               <div class="card fd-card">
                 <div class="overline">SOCIÉTÉ CONCERNÉE :</div>
                 <div class="fd-societe">
-                  <a href="societe.html">PAPRIKA CANTINE<span class="ms">open_in_new</span></a>
-                  <span class="muted small">(795 294 481)</span>
+                  <a href="societe.html" id="fd-soc-lien"><span id="fd-soc-nom">PAPRIKA CANTINE</span><span class="ms">open_in_new</span></a>
+                  <span class="muted small" id="fd-soc-siren">(795 294 481)</span>
                 </div>
                 <div class="fd-sep"></div>
                 <div class="overline">OPÉRATIONS SÉLECTIONNÉES :</div>
-                <div class="fd-op">Modification de capital</div>
-                <div class="fd-subop"><span class="ms">done</span><span>Constatation définitive d'une opération de capital</span></div>
+                <div id="fd-ops">
+                  <div class="fd-op">Modification de capital</div>
+                  <div class="fd-subop"><span class="ms">done</span><span>Constatation définitive d'une opération de capital</span></div>
+                </div>
               </div>
 
               <div class="card fd-card">
@@ -288,16 +570,17 @@
 
               <div class="card fd-card">
                 <div class="overline">CRÉÉE PAR</div>
-                <div class="fd-who">Sophie Lambert<br />le 14 oct. 2026</div>
+                <div class="fd-who" id="fd-who">Sophie Lambert<br />le 14 oct. 2026</div>
               </div>
 
               <div class="fd-note"><span class="ms">diversity_3</span><span>Cette formalité est accessible par tous les membres de votre équipe.</span></div>
 
-              <div class="fd-version">v32</div>
+              <div class="fd-version" id="fd-version">v32</div>
             </aside>
 
             <!-- Colonne droite -->
-            <section>
+            <section id="fd-main">
+              <div id="fd-interv"></div>
               <div class="tabs" role="tablist">
                 <button class="tab" type="button" role="tab" data-tab="formulaires">Formulaires</button>
                 <button class="tab active" type="button" role="tab" data-tab="documents">Documents</button>
@@ -305,7 +588,7 @@
               </div>
 
               <div class="fd-pane" data-pane="documents">
-                <div class="alert alert-brand">
+                <div class="alert alert-brand" id="fd-chain">
                   <span class="ms">dataset_linked</span>
                   <div>
                     <strong style="font-weight: 700">Donnée chaînée le 14/10/2026 par Sophie Lambert.</strong>
@@ -314,11 +597,12 @@
                 </div>
 
                 <div class="fd-docs-head">
-                  <div class="overline">3 DOCUMENTS GÉNÉRÉS</div>
+                  <div class="overline" id="fd-docs-count">3 DOCUMENTS GÉNÉRÉS</div>
                   <button class="btn btn-secondary btn-sm" type="button"><span class="ms">folder_zip</span>Tout télécharger</button>
                 </div>
                 <div class="fd-docs-sub">Les documents ont été générés à partir des données du formulaire.</div>
 
+                <div id="fd-groups">
                 <div class="fd-group">
                   <div class="overline">NOTICES</div>
                   <div class="list-card">
@@ -351,13 +635,14 @@
                     </div>
                   </div>
                 </div>
+                </div>
               </div>
 
               <div class="fd-pane" data-pane="formulaires" hidden>
-                <div class="fd-placeholder">Contenu non représenté dans cette maquette.</div>
+                <div class="fd-placeholder">Aucun contenu à afficher pour cette formalité.</div>
               </div>
               <div class="fd-pane" data-pane="actions" hidden>
-                <div class="fd-placeholder">Contenu non représenté dans cette maquette.</div>
+                <div class="fd-placeholder">Aucun contenu à afficher pour cette formalité.</div>
               </div>
             </section>
           </div>
@@ -378,6 +663,320 @@
         });
       })();
     </script>
-    <script src="assets/ej-shell.js?v=25"></script>
+    <script src="assets/ej-missions-data.js?v=28"></script>
+    <script>
+      /* Profil conseil (cabinet SELARL VASSEUR AVOCATS) : la page se remplit depuis EJM.conseil.formalites,
+         selon ?ref=. Autres profils, ou sans ?ref : la page statique ci-dessus reste telle quelle. */
+      (function () {
+        var conseil = false;
+        try { conseil = localStorage.getItem("ej-cabinet") === "vasseur"; } catch (e) {}
+        if (!conseil || !window.EJM || !window.EJM.conseil) return;
+
+        function esc(s) {
+          return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+        function $(id) { return document.getElementById(id); }
+        var MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+        function dl(s) {
+          var m = /^(\d{1,2})\/(\d{2})\/(\d{4})$/.exec(String(s || ""));
+          if (!m || +m[2] < 1 || +m[2] > 12) return esc(s);
+          return parseInt(m[1], 10) + " " + MOIS[parseInt(m[2], 10) - 1] + " " + m[3];
+        }
+
+        var C = window.EJM.conseil;
+        var ref = "";
+        try { ref = new URLSearchParams(window.location.search).get("ref") || ""; } catch (e) {}
+        var f = ref ? window.EJM.findFormaliteConseil(ref) : null;
+
+        /* Formalité introuvable ou aucune formalité précisée */
+        if (!f) {
+          document.title = "Formalité introuvable · Express Juridique";
+          $("fd-layout").style.display = "block";
+          $("fd-layout").innerHTML =
+            '<div class="card fd-absent">' +
+            '<span class="ms" aria-hidden="true">search</span>' +
+            '<h1 class="section-title" style="margin:0">Formalité introuvable</h1>' +
+            '<p class="page-desc">' +
+            (ref ? "Aucune formalité ne correspond à la référence « " + esc(ref) + " »." : "Aucune formalité n’est précisée dans l’adresse de la page.") +
+            "</p>" +
+            '<a class="btn btn-secondary" href="formalites.html">Retour aux formalités</a>' +
+            "</div>";
+          return;
+        }
+
+        var soc = C.societes.filter(function (x) { return x.id === f.societe; })[0] || null;
+        var iv = f.intervention || null;
+        var mission = iv && iv.mission ? window.EJM.findPonctuelle(iv.mission) : null;
+
+        /* Colonne gauche */
+        document.title = "Formalité #" + f.ref + " · Express Juridique";
+        $("fd-ref").textContent = "#" + f.ref;
+        $("fd-updated").textContent = "Dernière mise à jour le " + dl(f.maj).replace(/ /g, " ");
+        if (soc) {
+          $("fd-soc-lien").setAttribute("href", "societe.html?id=" + encodeURIComponent(soc.id));
+          $("fd-soc-nom").textContent = soc.nom;
+          $("fd-soc-siren").textContent = "(" + soc.siren + ")";
+        }
+        $("fd-ops").innerHTML =
+          '<div class="fd-op">' + esc(f.libelle) + "</div>" +
+          (f.operations || []).map(function (o) {
+            return '<div class="fd-subop"><span class="ms" aria-hidden="true">done</span><span>' + esc(o) + "</span></div>";
+          }).join("");
+        $("fd-who").innerHTML = esc(f.par) + "<br />le " + dl(f.creee);
+        $("fd-version").style.display = "none";
+
+        /* Documents */
+        var chain = $("fd-chain");
+        if (f.statut === "termine") {
+          chain.querySelector("strong").textContent = "Donnée chaînée le " + f.maj + " par " + f.par + ".";
+        } else {
+          chain.style.display = "none";
+        }
+        Array.prototype.forEach.call(document.querySelectorAll(".fd-placeholder"), function (p) {
+          p.textContent = "Aucun contenu à afficher pour cette formalité.";
+        });
+
+        var nomination = { n: "Décision unanime nommant le commissaire à la transformation", id: "doc-nomination" };
+        var DOCS = {
+          "F-2026-0409": [
+            { t: "NOTICES", d: [{ n: "Notice" }] },
+            { t: "DÉCISIONS UNANIMES DES ASSOCIÉS", d: [nomination, { n: "Décision unanime de transformation en SAS" }] },
+            { t: "STATUTS", d: [{ n: "Projet de statuts de la SAS" }] },
+            { t: "DOSSIER DE DÉPÔT", d: [{ n: "Rapport du commissaire à la transformation", rapport: true }] }
+          ],
+          "F-2026-0377": [
+            { t: "NOTICES", d: [{ n: "Notice" }] },
+            { t: "DÉCISIONS UNANIMES DES ASSOCIÉS", d: [{ n: "Décision unanime nommant le nouveau président" }] },
+            { t: "DOSSIER DE DÉPÔT", d: [{ n: "Décisions relatives à la formalité - Extrait du PV" }] }
+          ],
+          "F-2026-0352": [
+            { t: "NOTICES", d: [{ n: "Notice" }] },
+            { t: "DÉCISIONS UNANIMES DES ASSOCIÉS", d: [{ n: "Décision unanime transférant le siège social" }] },
+            { t: "STATUTS", d: [{ n: "Statuts mis à jour" }] },
+            { t: "DOSSIER DE DÉPÔT", d: [{ n: "Décisions relatives à la formalité - Extrait du PV" }] }
+          ],
+          "F-2026-0421": [
+            { t: "NOTICES", d: [{ n: "Notice" }] },
+            { t: "DÉCISIONS UNANIMES DES ASSOCIÉS", d: [{ n: "Décision unanime approuvant les comptes annuels 2025" }] },
+            { t: "DOSSIER DE DÉPÔT", d: [{ n: "Procès-verbal d’approbation des comptes" }] }
+          ]
+        };
+        var groupes = DOCS[f.ref] || [
+          { t: "NOTICES", d: [{ n: "Notice" }] },
+          { t: "DOSSIER DE DÉPÔT", d: [{ n: "Décisions relatives à la formalité - Extrait du PV" }] }
+        ];
+
+        /* Rapport du commissaire : état dérivé de la mission du commissaire (état hérité : mission remise sans détail des remises) */
+        var rap = { remis: false, signe: false, date: null };
+        if (iv && mission) {
+          rap.remis = !!(mission.transmis || mission.etape === "termine");
+          rap.date = mission.transmis || null;
+          rap.signe = !rap.remis && mission.etape === "depot";
+        }
+
+        /* Rapport reçu dans la formalité : remises de cette opération (une remise = une version déterminée),
+           et version retenue par le conseil pour le dossier de dépôt (sessionStorage « ej-conseil-retenues »).
+           Retenir identifie la pièce reçue ; rien n'est déposé ni publié, et une version retenue n'est jamais
+           remplacée sans choix du conseil. */
+        var RET_KEY = "ej-conseil-retenues";
+        function lireRetenues() {
+          try { return JSON.parse(window.sessionStorage.getItem(RET_KEY) || "{}") || {}; } catch (e) { return {}; }
+        }
+        var retenueMem = lireRetenues()[f.ref] || null;
+        function ecrireRetenue(o) {
+          retenueMem = o;
+          try {
+            var r = lireRetenues();
+            r[f.ref] = o;
+            window.sessionStorage.setItem(RET_KEY, JSON.stringify(r));
+          } catch (e) { /* stockage indisponible : la sélection reste valable pour la page */ }
+        }
+        function cleDate(s) {
+          var m = /^(\d{1,2})\/(\d{2})\/(\d{4})$/.exec(String(s || ""));
+          return m ? +m[3] * 10000 + +m[2] * 100 + +m[1] : 0;
+        }
+        function etatRapport() {
+          var toutes = ((mission && mission.remises) || []).filter(function (r) { return r && r.operation === f.ref && r.n != null; });
+          var doc = toutes.length ? toutes[0].doc : null;
+          var recues = toutes.filter(function (r) { return r.doc === doc; }).sort(function (x, y) { return x.n - y.n; });
+          var E = { doc: doc, recues: recues, der: recues[recues.length - 1] || null, ret: null };
+          if (retenueMem && retenueMem.doc === doc) {
+            recues.forEach(function (r) { if (r.n === retenueMem.n) E.ret = retenueMem; });
+          }
+          E.signee = function (n) {
+            var vs = mission && mission.versions && mission.versions[doc];
+            var v = (vs || []).filter(function (x) { return x && x.n === n; })[0];
+            return v && v.signee ? v.signee : null;
+          };
+          return E;
+        }
+
+        var nbDocs = 0;
+        function ligneRapportDocs(d, E) {
+          var idAttr = d.id ? ' id="' + d.id + '"' : "";
+          if (E.recues.length) {
+            var n = E.der.n;
+            if (!E.ret) {
+              return '<div class="list-row fd-doc fd-doc-attendu"' + idAttr + '><span class="ms" aria-hidden="true">inbox</span>' +
+                '<span class="fd-doc-name">' + esc(d.n) + '</span><span class="badge badge-progress">Version ' + n + " reçue, à retenir</span></div>";
+            }
+            nbDocs++;
+            return '<div class="list-row fd-doc"' + idAttr + '><span class="ms" aria-hidden="true">file_download</span>' +
+              '<span class="fd-doc-name">' + esc(d.n) +
+              '<span class="fd-doc-sub">Version ' + E.ret.n + " retenue le " + dl(E.ret.date) + "</span>" +
+              (E.ret.n < n ? '<span class="fd-doc-sub is-attention">Version ' + n + " reçue, non retenue</span>" : "") +
+              '</span><span class="fd-fmts"><a class="fmt fmt-pdf" href="#" aria-label="Télécharger le PDF de la version ' + E.ret.n + '">PDF</a></span></div>';
+          }
+          if (!rap.remis) {
+            return '<div class="list-row fd-doc fd-doc-attendu"' + idAttr + '><span class="ms" aria-hidden="true">clock</span>' +
+              '<span class="fd-doc-name">' + esc(d.n) + '</span><span class="badge badge-neutral">Attendu du commissaire</span></div>';
+          }
+          nbDocs++;
+          return '<div class="list-row fd-doc"' + idAttr + '><span class="ms" aria-hidden="true">file_download</span>' +
+            '<span class="fd-doc-name">' + esc(d.n) + '</span><span class="fd-fmts"><a class="fmt fmt-pdf" href="#">PDF</a></span></div>';
+        }
+        function renderDocs() {
+          var E = etatRapport();
+          nbDocs = 0;
+          $("fd-groups").innerHTML = groupes.map(function (g) {
+            return '<div class="fd-group"><div class="overline">' + esc(g.t) + (g.t === "DOSSIER DE DÉPÔT" ? '<span class="ms" aria-hidden="true">file_download</span>' : "") + "</div>" +
+              '<div class="list-card">' +
+              g.d.map(function (d) {
+                if (d.rapport) return ligneRapportDocs(d, E);
+                nbDocs++;
+                var idAttr = d.id ? ' id="' + d.id + '"' : "";
+                return '<div class="list-row fd-doc"' + idAttr + '><span class="ms" aria-hidden="true">file_download</span>' +
+                  '<span class="fd-doc-name">' + esc(d.n) + '</span><span class="fd-fmts"><a class="fmt fmt-docx" href="#">DOCX</a><a class="fmt fmt-pdf" href="#">PDF</a></span></div>';
+              }).join("") +
+              "</div></div>";
+          }).join("");
+          $("fd-docs-count").textContent = nbDocs + (nbDocs > 1 ? " DOCUMENTS GÉNÉRÉS" : " DOCUMENT GÉNÉRÉ");
+        }
+        renderDocs();
+
+        /* Bloc « Intervention du commissaire » */
+        if (!iv) return;
+        var inv = iv.invitation || null, acte = iv.acte || null;
+
+        function jalon(o) {
+          return '<li class="fd-jalon' + (o.fait ? " is-done" : "") + '">' +
+            '<span class="ms" aria-hidden="true">' + (o.fait ? "check_circle" : "circle") + "</span>" +
+            '<div class="fd-jalon-body"><div class="fd-jalon-line">' +
+            '<span class="fd-jalon-lib">' + o.lib + '</span><span class="fd-jalon-etat">' + o.etat + "</span></div>" +
+            (o.sub ? '<div class="fd-jalon-sub">' + o.sub + "</div>" : "") +
+            (o.aide ? '<div class="fd-jalon-aide">' + o.aide + "</div>" : "") +
+            "</div></li>";
+        }
+        function etatDate(date) { return date ? "Fait le " + dl(date) : "À venir"; }
+
+        var acteSigne = !!(acte && acte.statut === "signe");
+        var ACTE_ST = { a_produire: "à produire", a_signer: "à signer", signe: "signée" };
+        var jalons = [
+          jalon({ lib: "Intervention préparée dans la formalité", fait: !!iv.preparee, etat: etatDate(iv.preparee) }),
+          jalon({
+            lib: "Accès au dossier proposé au commissaire", fait: !!(inv && inv.date), etat: etatDate(inv && inv.date),
+            sub: inv ? "Destinataire : " + esc(inv.destinataire) + " · Périmètre : " + esc(inv.perimetre) : "",
+            aide: "Cet accès ne vaut ni désignation ni acceptation."
+          }),
+          jalon({
+            lib: "Désignation constatée", fait: acteSigne, etat: acteSigne ? etatDate(acte.date) : "À venir",
+            sub: acte ? esc(acte.libelle) + " · " + (ACTE_ST[acte.statut] || "") + ' · <a href="#doc-nomination" id="fd-lien-nomination">Voir dans les documents</a>' : "Aucun acte de désignation pour l’instant."
+          }),
+          jalon({
+            lib: "Mission acceptée par le commissaire", fait: !!iv.acceptation, etat: etatDate(iv.acceptation),
+            sub: iv.acceptation ? "" : "En attente de l’acceptation du commissaire"
+          })
+        ].join("");
+
+        var rapLib, rapCls;
+        if (rap.remis) { rapLib = rap.date ? "Remis le " + dl(rap.date) : "Remis"; rapCls = "badge-success"; }
+        else if (rap.signe) { rapLib = "Signé par le commissaire, remise à venir"; rapCls = "badge-progress"; }
+        else { rapLib = "En préparation par le commissaire"; rapCls = "badge-progress"; }
+
+        /* Section Rapport : dernière version reçue, version retenue, action du conseil, historique daté */
+        function rapportHtml() {
+          var E = etatRapport();
+          if (!E.recues.length) {
+            return '<div class="fd-ligne"><span class="badge ' + rapCls + '">' + rapLib + "</span></div>";
+          }
+          var n = E.der.n, sg = E.signee(n);
+          var remplace = !!(E.ret && E.ret.n < n);
+          var h = '<div class="fd-rap-ligne" id="fd-rap-etat" tabindex="-1"><span class="badge badge-success">Reçu</span><span>Version ' + n +
+            " reçue le " + dl(E.der.date) + (sg ? " · signée par le commissaire le " + dl(sg) : "") +
+            (remplace ? " · la version " + E.ret.n + " reste retenue pour le dépôt" : "") + "</span></div>";
+          if (E.ret) {
+            h += '<div class="fd-rap-ligne"><span class="ms" aria-hidden="true">bookmark</span><span>Version ' + E.ret.n +
+              " retenue pour le dossier de dépôt le " + dl(E.ret.date) + "</span></div>";
+          }
+          if (!E.ret || remplace) {
+            h += '<div class="fd-rap-actions"><button type="button" class="btn btn-secondary btn-sm" id="fd-retenir" data-n="' + n + '">' +
+              '<span class="ms" aria-hidden="true">bookmark</span>' + (E.ret ? "Retenir la version " + n : "Retenir pour le dossier de dépôt") + "</button></div>" +
+              '<div class="fd-rap-aide">Vous identifiez la pièce reçue pour cette opération. Cela ne porte pas sur le contenu du rapport, qui relève du commissaire. Aucun dépôt n’est déclenché.</div>';
+          }
+          var histo = E.recues.map(function (r) { return { k: cleDate(r.date), o: 0, n: r.n, t: "Version " + r.n + " reçue", d: r.date }; });
+          if (E.ret) histo.push({ k: cleDate(E.ret.date), o: 1, n: E.ret.n, t: "Version " + E.ret.n + " retenue pour le dossier de dépôt", d: E.ret.date });
+          histo.sort(function (x, y) { return x.k - y.k || x.o - y.o || x.n - y.n; });
+          h += '<ul class="fd-histo" aria-label="Historique du rapport">' + histo.map(function (x) {
+            return '<li><span>' + esc(x.t) + '</span><span class="fd-histo-date">' + dl(x.d) + "</span></li>";
+          }).join("") + "</ul>";
+          return h;
+        }
+
+        /* Section Documents partagés avec le commissaire : périmètre accordé et pièces partagées depuis ce compte.
+           L'appréciation du commissaire (états de contrôle, notes, travaux) n'est jamais montrée au conseil. */
+        var accord = mission && mission.accord ? mission.accord : null;
+        function partageHtml() {
+          if (!accord) {
+            return '<div class="fd-ligne"><span>Accord de la société pour le partage des pièces : <strong style="font-weight:500">à recueillir</strong></span></div>';
+          }
+          var partagees = (mission.piecesDetail || []).filter(function (p) {
+            return p && (p.source === "operation" || p.source === "dpj") && (p.etat === "retenue" || p.etat === "recue" || p.etat === "controlee");
+          });
+          return '<div class="fd-partage">' +
+            "<div>Destinataire : " + esc(iv.commissaire) + ", " + esc(iv.cabinet) + "</div>" +
+            "<div>Périmètre : " + esc(accord.perimetre) + "</div>" +
+            "<div>Accord donné par " + esc(accord.par) + " le " + dl(accord.date) + "</div></div>" +
+            '<div class="fd-pieces-titre">Pièces partagées depuis votre compte</div>' +
+            (partagees.length
+              ? '<ul class="fd-pieces">' + partagees.map(function (p) {
+                  return '<li><span class="fd-pieces-nom">' + esc(p.lib) + '</span><span class="fd-pieces-orig">' + esc(p.origine) + '</span><span class="fd-pieces-etat">Partagée</span></li>';
+                }).join("") + "</ul>"
+              : '<div class="fd-interv-note" style="font-style:normal">Aucune pièce partagée pour l’instant.</div>') +
+            '<p class="fd-interv-note">Les notes du commissaire et ses travaux ne sont pas partagés.</p>';
+        }
+
+        $("fd-interv").innerHTML =
+          '<section class="card fd-card fd-interv" aria-labelledby="fd-interv-titre">' +
+          '<h2 class="overline" id="fd-interv-titre">Intervention du commissaire</h2>' +
+          '<div class="fd-interv-who">' + esc(iv.type) + " · " + esc(iv.commissaire) + ", " + esc(iv.cabinet) + "</div>" +
+          '<h3 class="overline">Jalons</h3><ol class="fd-jalons">' + jalons + "</ol>" +
+          '<h3 class="overline">Rapport</h3><div id="fd-rap">' + rapportHtml() + "</div>" +
+          '<div id="fd-live" class="fd-sr" role="status" aria-live="polite"></div>' +
+          '<h3 class="overline">Documents partagés avec le commissaire</h3>' + partageHtml() +
+          "</section>";
+
+        /* Retenir une version reçue : choix explicite du conseil, jamais de remplacement silencieux */
+        $("fd-interv").addEventListener("click", function (e) {
+          var btn = e.target && e.target.closest ? e.target.closest("#fd-retenir") : null;
+          if (!btn) return;
+          var E = etatRapport();
+          if (!E.der) return;
+          ecrireRetenue({ doc: E.doc, n: E.der.n, date: window.EJM.today });
+          $("fd-rap").innerHTML = rapportHtml();
+          renderDocs();
+          $("fd-live").textContent = "Version " + E.der.n + " retenue pour le dossier de dépôt.";
+          var etat = $("fd-rap-etat");
+          if (etat) etat.focus();
+        });
+
+        /* Le lien vers l'acte ouvre d'abord l'onglet Documents, puis atteint la ligne du document */
+        var lien = $("fd-lien-nomination");
+        if (lien) lien.addEventListener("click", function () {
+          var t = document.querySelector('.tabs .tab[data-tab="documents"]');
+          if (t) t.click();
+        });
+      })();
+    </script>
+    <script src="assets/ej-shell.js?v=27"></script>
   </body>
 </html>

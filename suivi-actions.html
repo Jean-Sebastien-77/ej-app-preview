@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=20" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=24" />
     <style>
       .s-head {
         display: flex;
@@ -17,6 +18,21 @@
         gap: 16px;
         border-bottom: 1px solid var(--ej-neutral-200);
         margin-bottom: 20px;
+      }
+      /* Écran étroit : titre au-dessus, onglets défilables */
+      @media (max-width: 760px) {
+        .s-head {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 8px;
+        }
+        .s-head .tabs {
+          overflow-x: auto;
+          max-width: 100%;
+        }
+        .s-head .page-title {
+          white-space: normal;
+        }
       }
       .s-head .page-title {
         padding-bottom: 10px;
@@ -95,6 +111,8 @@
       }
       .c-scroll {
         overflow-x: auto;
+        /* Les libellés .sr-only (position absolue) restent dans la zone défilante */
+        position: relative;
       }
       /* Mobile : chaque collecte devient une carte empilée */
       @media (max-width: 760px) {
@@ -122,6 +140,9 @@
         .c-table .c-pieces {
           max-width: none;
         }
+        .c-table td:empty {
+          display: none;
+        }
         .c-table td.c-act:empty {
           display: none;
         }
@@ -137,6 +158,12 @@
         clip: rect(0 0 0 0);
         white-space: nowrap;
       }
+      .s-note {
+        padding: 12px 16px;
+        font-size: 13px;
+        color: var(--ej-neutral-500);
+        border-bottom: 1px solid var(--ej-neutral-200);
+      }
       .s-empty {
         padding: 56px 20px;
         text-align: center;
@@ -145,7 +172,7 @@
       }
     </style>
   </head>
-  <body data-active="suivi">
+  <body class="m-resp" data-active="suivi">
     <div id="ej-header"></div>
     <div class="app">
       <div id="ej-sidebar"></div>
@@ -430,7 +457,21 @@
 
           <div id="panel-signatures" hidden>
             <div class="data-table-wrap">
-              <div class="s-empty">Les signatures liées aux dépôts INPI se suivent dans l'onglet Dépôts INPI.</div>
+              <div class="s-note" id="sig-note">Les signatures liées aux dépôts INPI se suivent dans l'onglet Dépôts INPI.</div>
+              <div class="c-scroll" id="sig-wrap" hidden><table class="data-table c-table">
+                <thead>
+                  <tr>
+                    <th>Société</th>
+                    <th>Document</th>
+                    <th>Signataire</th>
+                    <th>Envoi</th>
+                    <th>Statut</th>
+                    <th><span class="sr-only">Action</span></th>
+                  </tr>
+                </thead>
+                <tbody id="rows-signatures"></tbody>
+              </table></div>
+              <div class="s-empty" id="sig-vide" hidden>Aucune signature en cours.</div>
             </div>
           </div>
 
@@ -449,6 +490,7 @@
                 </thead>
                 <tbody id="rows-collectes"></tbody>
               </table></div>
+              <div class="s-empty" id="col-vide" hidden>Aucune collecte en cours.</div>
             </div>
           </div>
         </div>
@@ -456,7 +498,7 @@
       </div>
     </div>
 
-    <script src="assets/ej-missions-data.js?v=24"></script>
+    <script src="assets/ej-missions-data.js?v=28"></script>
     <script src="assets/ej-lab.js?v=7"></script>
     <script>
       (function () {
@@ -577,9 +619,138 @@
         } catch (e) {}
         var PERIMETRE = {};
         if (X) X.dossiers(PROFIL).forEach(function (d) { PERIMETRE[d.id] = true; });
+        /* Cabinet actif : le conseil de KERLYS (SELARL VASSEUR AVOCATS) ne voit aucune action du cabinet DELMAS */
+        var CONSEIL = false;
+        try { CONSEIL = localStorage.getItem("ej-cabinet") === "vasseur"; } catch (e) {}
         function dansProfil(c) {
+          if (CONSEIL) return false;
           if (c.origine === "LAB") return !X || !!PERIMETRE[c.societeId];
           return PROFIL !== "cac";
+        }
+
+        /* ---------- Missions ponctuelles CAC (profils cac et mixte) ----------
+           Une ligne par mission et par demande : la collecte des pièces auprès du conseil, chaque document en
+           signature. Mêmes données que la fiche de mission (EJM, avancement de session compris) : aucun compteur
+           ni événement propre à cette page. L'action ouvre la mission, où la relance et la signature se font. */
+        var E = window.EJM || null;
+        var ORDRE = ["designation", "acceptation", "pieces", "rapport", "signature", "depot", "termine"];
+        var VOIT_CAC = !CONSEIL && (PROFIL === "cac" || PROFIL === "mixte") && !!E;
+        function etapeIdx(m) { return ORDRE.indexOf(m.etape); }
+        function ficheSoc(m) { return "societe.html?cac=" + String(m.siren || "").replace(/\D/g, ""); }
+        function ficheMission(m, ancre) { return "cac-mission.html?id=" + encodeURIComponent(m.id) + (ancre || ""); }
+        function origineMission(m) {
+          return '<div class="s-sub">Mission CAC · <a class="link" href="' + ficheMission(m) + '">' + esc(E.NATURE[m.nature] || "Mission ponctuelle") + "</a></div>";
+        }
+        function lienAction(href, lib, quoi) {
+          return '<a class="btn btn-secondary btn-sm" href="' + href + '">' + esc(lib) + '<span class="sr-only"> : ' + esc(quoi) + "</span></a>";
+        }
+        var RECU = { recue: 1, controlee: 1, retenue: 1 };
+        /* Pièces demandées au conseil : déposées par lien de dépôt, attendues ou à remplacer (les pièces reprises
+           d'une source ne sont pas demandées) */
+        function collecteCac(m) {
+          var det = m.piecesDetail;
+          if (det && det.length) {
+            var dem = det.filter(function (p) { return !p.optionnelle && (p.source === "depot" || p.etat === "attendue" || p.etat === "a_remplacer"); });
+            return {
+              noms: dem.map(function (p) { return p.lib; }),
+              recues: dem.filter(function (p) { return RECU[p.etat]; }).length,
+              total: dem.length,
+              aControler: det.filter(function (p) { return p.etat === "recue"; }).length,
+              aRemplacer: dem.filter(function (p) { return p.etat === "a_remplacer"; }).length,
+            };
+          }
+          var pc = m.pieces && m.pieces.length === 2 ? m.pieces : [0, 0];
+          return { noms: [], recues: pc[0], total: pc[1], aControler: 0, aRemplacer: 0 };
+        }
+        function lignesCollecteCac() {
+          if (!VOIT_CAC) return "";
+          return E.ponctuelles.filter(function (m) {
+            var i = etapeIdx(m);
+            return i >= ORDRE.indexOf("pieces") && i < ORDRE.indexOf("termine");
+          }).map(function (m) {
+            var c = collecteCac(m), cs = m.conseil || {};
+            var comp = c.total > 0 && c.recues >= c.total;
+            var vues = c.noms.length ? c.noms.slice(0, 3).map(esc).join(", ") + (c.noms.length > 3 ? " et " + (c.noms.length - 3) + " autre" + (c.noms.length - 3 > 1 ? "s" : "") : "") : "Pièces de l'opération";
+            var rl = m.relances || [];
+            var statut = comp ? '<span class="badge badge-success">Complète</span>'
+              : c.recues > 0 ? '<span class="badge badge-action">Partiellement reçue</span>' : '<span class="badge badge-progress">Envoyée</span>';
+            var suite = c.aRemplacer ? "Prochaine action : attendre la nouvelle version"
+              : !comp ? "Prochaine action : relancer le conseil"
+              : c.aControler ? "Prochaine action : contrôler " + c.aControler + " pièce" + (c.aControler > 1 ? "s" : "")
+              : "Aucune action";
+            return (
+              '<tr data-collecte="cac-' + esc(m.id) + '">' +
+              '<td><div><a class="link s-soc" href="' + ficheSoc(m) + '">' + esc(m.nom) + "</a></div>" + origineMission(m) + "</td>" +
+              '<td><div class="c-pieces" title="' + esc(c.noms.join(", ")) + '">' + vues + "</div>" +
+              '<div class="c-recues">' + c.recues + (c.recues > 1 ? " reçues" : " reçue") + " sur " + c.total +
+              (c.aControler ? " · " + c.aControler + " à contrôler" : "") + "</div></td>" +
+              "<td>" + (esc(cs.nom) || '<span class="s-date">Non précisé</span>') + '<div class="c-recues">Conseil de la société</div></td>' +
+              '<td class="s-date">Lien de dépôt sécurisé' + (rl.length ? '<div class="c-recues">Relancé le ' + esc(rl[rl.length - 1]) + "</div>" : "") + "</td>" +
+              "<td>" + statut + '<div class="c-recues">' + suite + "</div></td>" +
+              '<td class="c-act">' + lienAction(ficheMission(m, "#pieces"), "Ouvrir la mission", m.nom) + "</td>" +
+              "</tr>"
+            );
+          }).join("");
+        }
+        function nomEquipe(code) { return E.equipe[code] ? E.equipe[code].nom : ""; }
+        function lignesSignatureCac() {
+          if (!VOIT_CAC) return "";
+          var out = [];
+          E.ponctuelles.forEach(function (m) {
+            if (etapeIdx(m) >= ORDRE.indexOf("termine")) return;
+            var lm = m.lm || {};
+            function ligne(doc, signataire, envoi, badge, suite, ancre) {
+              out.push(
+                "<tr>" +
+                '<td><div><a class="link s-soc" href="' + ficheSoc(m) + '">' + esc(m.nom) + "</a></div>" + origineMission(m) + "</td>" +
+                '<td><div class="c-pieces">' + esc(doc) + "</div></td>" +
+                "<td>" + esc(signataire) + "</td>" +
+                '<td class="s-date">' + (envoi === true ? "Signature du commissaire" : envoi ? "Envoyée le<br />" + esc(envoi) : "Non envoyée") + "</td>" +
+                "<td>" + badge + '<div class="c-recues">Prochaine action : ' + esc(suite) + "</div></td>" +
+                '<td class="c-act">' + lienAction(ficheMission(m, ancre || "#afaire"), "Ouvrir la mission", m.nom) + "</td>" +
+                "</tr>"
+              );
+            }
+            if (lm.statut === "envoyee") ligne("Lettre de mission" + (lm.ref ? " · réf. " + lm.ref : ""), m.dirigeant || "Dirigeant", null,
+              '<span class="badge badge-progress">En attente de signature</span>', "relancer la société");
+            var docs = m.documents || [];
+            var la = docs.filter(function (d) { return d[0] === "Lettre d'affirmation"; })[0];
+            var signLA = [m.dirigeant, m.dirigeantAbsorbee].filter(Boolean).join(" et ");
+            if (la && la[1] !== "signe" && m.laEnvoi) ligne("Lettre d'affirmation", signLA, m.laEnvoi,
+              '<span class="badge badge-progress">En attente de signature</span>', "relancer le dirigeant");
+            else if (la && la[1] !== "signe" && m.etape === "signature") ligne("Lettre d'affirmation", signLA, null,
+              '<span class="badge badge-action">À envoyer</span>', "envoyer en signature");
+            var bloque = (m.piecesDetail || []).some(function (p) { return p.etat === "recue" || p.etat === "a_remplacer"; });
+            docs.forEach(function (d) {
+              if (!/^Rapport/.test(d[0]) || d[1] !== "a_signer") return;
+              ligne(d[0], nomEquipe(m.signataire) + ", commissaire", true, '<span class="badge badge-action">À signer</span>',
+                bloque ? "contrôler les pièces" : la && la[1] !== "signe" ? "attendre la lettre d'affirmation" : "signer le rapport",
+                bloque ? "#pieces" : "#afaire");
+            });
+          });
+          return out.join("");
+        }
+        /* Côté conseil : pièces que le commissaire attend de lui pour une opération de ses formalités */
+        function lignesCollecteConseil() {
+          if (!CONSEIL || !E || !E.conseil) return "";
+          return E.conseil.formalites.filter(function (f) { return f.intervention; }).map(function (f) {
+            var m = E.findPonctuelle(f.intervention.mission);
+            if (!m || etapeIdx(m) >= ORDRE.indexOf("termine")) return "";
+            var dem = (m.piecesDetail || []).filter(function (p) { return !p.optionnelle && (p.etat === "attendue" || p.etat === "a_remplacer"); });
+            if (!dem.length) return "";
+            var soc = E.conseil.societes.filter(function (x) { return x.id === f.societe; })[0] || { nom: m.nom, id: "" };
+            return (
+              '<tr data-collecte="conseil-' + esc(f.ref) + '">' +
+              '<td><div><a class="link s-soc" href="societe.html?id=' + encodeURIComponent(soc.id) + '">' + esc(soc.nom) + "</a></div>" +
+              '<div class="s-sub">Formalité <a class="link" href="formalite.html?ref=' + encodeURIComponent(f.ref) + '">' + esc(f.ref) + "</a> · intervention du commissaire</div></td>" +
+              '<td><div class="c-pieces">' + dem.map(function (p) { return esc(p.lib) + (p.etat === "a_remplacer" ? " (nouvelle version)" : ""); }).join(", ") + "</div></td>" +
+              "<td>Vous<div class=\"c-recues\">Demande de " + esc(f.intervention.commissaire) + ", " + esc(f.intervention.cabinet) + "</div></td>" +
+              '<td class="s-date">Lien de dépôt sécurisé</td>' +
+              '<td><span class="badge badge-action">À déposer</span><div class="c-recues">Prochaine action : déposer par le lien du commissaire</div></td>' +
+              '<td class="c-act">' + lienAction("formalite.html?ref=" + encodeURIComponent(f.ref), "Ouvrir la formalité", soc.nom) + "</td>" +
+              "</tr>"
+            );
+          }).join("");
         }
         var LISTE = [];
         function rendreCollectes() {
@@ -590,7 +761,23 @@
             vus[c.id] = 1;
             LISTE.push(c);
           });
-          document.getElementById("rows-collectes").innerHTML = LISTE.map(ligneCollecte).join("");
+          var html = lignesCollecteConseil() + lignesCollecteCac() + LISTE.map(ligneCollecte).join("");
+          document.getElementById("rows-collectes").innerHTML = html;
+          document.getElementById("col-vide").hidden = !!html;
+          document.getElementById("rows-collectes").closest(".c-scroll").hidden = !html;
+        }
+        function rendreSignatures() {
+          var html = lignesSignatureCac();
+          document.getElementById("rows-signatures").innerHTML = html;
+          document.getElementById("sig-wrap").hidden = !html;
+          document.getElementById("sig-vide").hidden = !(CONSEIL || (VOIT_CAC && !html));
+          document.getElementById("sig-note").hidden = CONSEIL;
+        }
+        rendreSignatures();
+        /* Côté conseil, les dépôts INPI du cabinet DELMAS ne sont pas les siens */
+        if (CONSEIL) {
+          document.querySelector("#panel-depots .data-table-wrap").innerHTML = '<div class="s-empty">Aucun dépôt en cours.</div>';
+          document.querySelector("#panel-depots .s-filters").style.display = "none";
         }
         /* Relancer : journalisée au dossier (sessionStorage « ej-collectes-relances »), aucune pièce ajoutée */
         document.getElementById("rows-collectes").addEventListener("click", function (e) {
@@ -621,7 +808,7 @@
           });
           if (maj) {
             try {
-              history.replaceState(null, "", nom === "collectes" ? "#collectes" : location.pathname + location.search);
+              history.replaceState(null, "", nom === "collectes" || nom === "signatures" ? "#" + nom : location.pathname + location.search);
             } catch (e) {}
           }
         }
@@ -631,11 +818,13 @@
           });
         });
         if (location.hash === "#collectes") ouvrir("collectes", false);
+        if (location.hash === "#signatures") ouvrir("signatures", false);
         window.addEventListener("hashchange", function () {
           if (location.hash === "#collectes") ouvrir("collectes", false);
+          if (location.hash === "#signatures") ouvrir("signatures", false);
         });
       })();
     </script>
-    <script src="assets/ej-shell.js?v=25"></script>
+    <script src="assets/ej-shell.js?v=27"></script>
   </body>
 </html>

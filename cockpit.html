@@ -2461,7 +2461,7 @@
     </div>
     <div class="cv-toast" id="cv-toast" role="status" aria-live="polite" hidden></div>
 
-    <script src="assets/ej-missions-data.js?v=24"></script>
+    <script src="assets/ej-missions-data.js?v=28"></script>
     <script src="assets/ej-lab.js?v=7"></script>
     <script src="assets/ej-cockpit-data.js?v=8"></script>
     <script src="assets/ej-dpj-data.js?v=2"></script>
@@ -3636,8 +3636,13 @@
         function defMode() {
           return PROFIL === "cac" ? "compose" : "dpj";
         }
+        /* Horodatage narratif : jour de référence de la maquette (C.TODAY, 19/10/2026) avec l'heure courante, sans jamais afficher la date réelle du visiteur */
+        function refNow() {
+          var r = new Date();
+          return new Date(C.TODAY.getFullYear(), C.TODAY.getMonth(), C.TODAY.getDate(), r.getHours(), r.getMinutes(), r.getSeconds()).getTime();
+        }
         function newConv() {
-          return { id: "c" + Date.now().toString(36) + (++mseq).toString(36), p: PROFIL, title: "", at: Date.now(), mode: defMode(), msgs: [] };
+          return { id: "c" + Date.now().toString(36) + (++mseq).toString(36), p: PROFIL, title: "", at: refNow(), mode: defMode(), msgs: [] };
         }
         function setCC(c) {
           CC = c || newConv();
@@ -3705,7 +3710,7 @@
               if (!c || typeof c.id !== "string" || !Array.isArray(c.msgs)) return;
               var msgs = c.msgs.map(cleanMsg).filter(Boolean).slice(-60);
               if (!msgs.length) return;
-              CONVS.push({ id: c.id.slice(0, 40), p: ["ec", "cac", "mixte"].indexOf(c.p) !== -1 ? c.p : "ec", title: String(c.title || "").slice(0, 80), at: typeof c.at === "number" ? c.at : Date.now(), mode: c.mode === "compose" ? "compose" : "dpj", msgs: msgs });
+              CONVS.push({ id: c.id.slice(0, 40), p: ["ec", "cac", "mixte"].indexOf(c.p) !== -1 ? c.p : "ec", title: String(c.title || "").slice(0, 80), at: typeof c.at === "number" && c.at <= refNow() ? c.at : refNow(), mode: c.mode === "compose" ? "compose" : "dpj", msgs: msgs });
             });
           }
           /* conversations propres à chaque profil */
@@ -3728,7 +3733,7 @@
         }
         function convDate(t) {
           var d = new Date(t);
-          var n = new Date();
+          var n = new Date(refNow());
           var p2 = function (x) { return (x < 10 ? "0" : "") + x; };
           if (d.toDateString() === n.toDateString()) return "Aujourd'hui, " + p2(d.getHours()) + ":" + p2(d.getMinutes());
           return p2(d.getDate()) + "/" + p2(d.getMonth() + 1) + "/" + d.getFullYear();
@@ -3824,7 +3829,7 @@
             var head = sc === body ? 0 : $("cv-ai").querySelector(".cv-ai-head").offsetHeight;
             sc.scrollTop += (q || el).getBoundingClientRect().top - sc.getBoundingClientRect().top - head - 12;
           } else sc.scrollTop = sc.scrollHeight;
-          CC.at = Date.now();
+          CC.at = refNow();
           if (!CC.title && m.r === "u") CC.title = m.t.length > 60 ? m.t.slice(0, 58) + "…" : m.t;
           saveConvs();
           renderConvList();
@@ -6801,6 +6806,6 @@
         document.addEventListener("DOMContentLoaded", init);
       })();
     </script>
-    <script src="assets/ej-shell.js?v=25"></script>
+    <script src="assets/ej-shell.js?v=27"></script>
   </body>
 </html>

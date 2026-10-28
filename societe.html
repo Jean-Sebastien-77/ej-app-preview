@@ -227,6 +227,53 @@
         text-align: center;
       }
 
+      /* ---- Missions CAC d'une entité dont le cabinet est commissaire ---- */
+      .cac-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 4px;
+      }
+      .cac-top .section-title {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+      }
+      .cac-sec {
+        margin-top: 28px;
+      }
+      .cac-sec .section-title {
+        margin: 0 0 12px;
+      }
+      .cac-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+      }
+      .cac-info .row-meta {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .cac-info .row-meta .ms {
+        font-size: 14px;
+        color: var(--ej-neutral-400);
+      }
+      .cac-right {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 13px;
+        color: var(--ej-neutral-500);
+        white-space: nowrap;
+      }
+      .cac-right .chev {
+        margin-left: 0;
+      }
+
       /* ---- Mobile : en-tête empilé, onglets défilants dans leur conteneur ---- */
       @media (max-width: 760px) {
         .soc-head {
@@ -266,6 +313,19 @@
         }
         .tl-card {
           padding: 14px 16px;
+        }
+        .cac-top {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .cac-top .btn {
+          width: 100%;
+        }
+        .cac-right {
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 6px;
+          white-space: normal;
         }
       }
     </style>
@@ -341,20 +401,42 @@
       </div>
     </div>
 
-    <script src="assets/ej-shell.js?v=25"></script>
+    <script src="assets/ej-shell.js?v=27"></script>
 
     <script>
       /* Sans paramètre : la page reste celle de PAPRIKA CANTINE, telle quelle (aucune donnée chargée).
-         Avec ?id=<id DPJ> : charge les données de la société et remplace l'en-tête et la chronologie. */
+         Avec ?id=<id DPJ> : charge les données de la société et remplace l'en-tête et la chronologie.
+         Avec ?cac=<SIREN> (profils cac et mixte) : fiche d'une entité dont le cabinet est commissaire aux comptes.
+         Compte du conseil (SELARL VASSEUR AVOCATS) : ?id=<id> lu dans EJM.conseil. */
       (function () {
-        var m = /[?&]id=([^&#]*)/.exec(location.search);
-        if (!m) return;
-        var id;
-        try {
-          id = decodeURIComponent(m[1].replace(/\+/g, " "));
-        } catch (e) {
-          id = m[1];
+        function param(nom) {
+          var m = new RegExp("[?&]" + nom + "=([^&#]*)").exec(location.search);
+          if (!m) return null;
+          try {
+            return decodeURIComponent(m[1].replace(/\+/g, " "));
+          } catch (e) {
+            return m[1];
+          }
         }
+        /* Cabinet actif, lu comme le fait ej-shell.js (chargé plus haut mais sans lecture pour nous) :
+           SELARL VASSEUR AVOCATS => « conseil », sinon le profil du cabinet DELMAS (ec par défaut). */
+        function profilActif() {
+          try {
+            if (localStorage.getItem("ej-cabinet") === "vasseur") return "conseil";
+            var p = localStorage.getItem("ej-profil");
+            if (p === "ec" || p === "cac" || p === "mixte") return p;
+          } catch (e) {}
+          return "ec";
+        }
+        var profil = profilActif();
+        var idP = param("id");
+        var cacP = param("cac");
+        if (cacP === null && idP === null && profil !== "conseil") return;
+        /* cac : entité dont le cabinet est commissaire ; conseil : sociétés du compte SELARL VASSEUR AVOCATS ;
+           dpj : sociétés EC (comportement d'origine) */
+        var mode = cacP !== null ? "cac" : profil === "conseil" ? "conseil" : "dpj";
+        var id = mode === "cac" ? cacP : idP;
+        if (id === null) id = "";
 
         function esc(s) {
           return String(s == null ? "" : s)
@@ -400,7 +482,163 @@
             "</div>";
         }
 
+        function cleDate(d) {
+          var p = String(d || "").split("/");
+          return p.length === 3 ? p[2] + p[1] + p[0] : "";
+        }
+        function enteteSociete(nom, forme, greffe, ids) {
+          $("soc-name").textContent = nom;
+          $("soc-form").textContent = FORMES[forme] || forme;
+          $("soc-greffe").innerHTML = greffe ? "Greffe : <strong>" + esc(greffe) + "</strong>" : "";
+          $("soc-ids").innerHTML = ids;
+        }
+        function retirer(el) {
+          if (el && el.parentNode) el.parentNode.removeChild(el);
+        }
+
+        /* Compte du conseil : sociétés et formalités de EJM.conseil */
+        function afficherConseil() {
+          var C = window.EJM && window.EJM.conseil ? window.EJM.conseil : null;
+          var f = C
+            ? C.societes.filter(function (x) {
+                return x.id === id;
+              })[0]
+            : null;
+          if (!f) return introuvable();
+
+          document.title = f.nom + " · Formalités · Express Juridique";
+          enteteSociete(
+            f.nom,
+            f.forme,
+            f.greffe,
+            '<div class="soc-siren">SIREN : <strong>' + esc(f.siren || "En cours de création") + "</strong></div>" +
+              "<div>Date d'immatriculation : <strong>" + esc(f.immatriculation || "En attente") + "</strong></div>"
+          );
+          $("tab-formalites").href = "societe.html?id=" + encodeURIComponent(f.id);
+          /* Le LAB du cabinet DELMAS n'est pas visible du conseil ; les registres ne sont pas représentés pour ce compte */
+          retirer($("tab-lab"));
+          retirer($("tab-registres"));
+
+          var forms = C.formalites
+            .filter(function (x) {
+              return x.societe === f.id;
+            })
+            .sort(function (a, b) {
+              return cleDate(b.creee) < cleDate(a.creee) ? -1 : cleDate(b.creee) > cleDate(a.creee) ? 1 : 0;
+            });
+          var html = forms
+            .map(function (x) {
+              var n = x.operations && x.operations.length ? x.operations.length : 1;
+              return (
+                '<div class="tl-item"><a class="card tl-card" href="formalite.html?ref=' + encodeURIComponent(x.ref) + '"><div>' +
+                '<div class="tl-date">' + esc(x.creee) + "</div>" +
+                '<div class="tl-text"><strong>' + n + (n > 1 ? " opérations :" : " opération :") + "</strong> " + esc(x.libelle) + "</div>" +
+                '</div><span class="ms chev">chevron_right</span></a></div>'
+              );
+            })
+            .join("");
+          if (f.ajout) {
+            html +=
+              '<div class="tl-item tl-end"><span class="tl-pill"><span class="tl-date">' + esc(f.ajout) +
+              "</span>Ajout de la société sur Express-Juridique</span></div>";
+          } else if (!forms.length) {
+            html = '<div class="tl-vide">Aucune formalité pour cette société.</div>';
+          }
+          var tl = $("soc-timeline");
+          tl.innerHTML = html;
+          if (!forms.length && !f.ajout) tl.className = "timeline tl-solo";
+        }
+
+        /* Entité dont le cabinet est commissaire aux comptes : missions CAC, pas de formalités ni de registres */
+        function afficherCac() {
+          if (profil !== "cac" && profil !== "mixte") return introuvable();
+          var M = window.EJM;
+          var c = M && M.findSocieteCac ? M.findSocieteCac(id) : null;
+          if (!c) return introuvable();
+
+          document.title = c.nom + " · Missions CAC · Express Juridique";
+          enteteSociete(
+            c.nom,
+            c.forme,
+            "",
+            '<div class="soc-siren">SIREN : <strong>' + esc(c.siren) + "</strong></div>"
+          );
+
+          /* Onglets : Missions CAC (actif) et Vigilance LAB. Formalités et Registres masqués (règle d'indépendance). */
+          var premier = c.mandats[0] || c.ponctuelles[0];
+          var tabM = document.createElement("a");
+          tabM.className = "tab active";
+          tabM.id = "tab-missions";
+          tabM.setAttribute("aria-current", "page");
+          tabM.href = "societe.html?cac=" + encodeURIComponent(c.cle);
+          tabM.textContent = "Missions CAC";
+          var tabF = $("tab-formalites");
+          tabF.parentNode.insertBefore(tabM, tabF);
+          retirer(tabF);
+          retirer($("tab-registres"));
+          if (premier) $("tab-lab").href = "lab-dossier.html?id=" + encodeURIComponent(premier.id);
+          else retirer($("tab-lab"));
+
+          /* Pas d'ajout de formalité pour une entité auditée */
+          retirer(document.querySelector("#soc-page .add-formalite"));
+          retirer(document.querySelector("#soc-page > .section-title"));
+
+          var nouvelle = "cac.html?nouvelle=1&siren=" + encodeURIComponent(c.cle);
+          var bouton = '<a class="btn btn-primary" href="' + nouvelle + '"><span class="ms">add</span>Nouvelle mission CAC</a>';
+
+          function badge(etape) {
+            var lib = (M.ETAPE && M.ETAPE[etape]) || etape || "";
+            return '<span class="badge ' + (etape === "termine" ? "badge-success" : "badge-progress") + '">' + esc(lib) + "</span>";
+          }
+          function ligneMandat(m) {
+            var phase = m.ex && m.ex.phase ? m.ex.phase : "";
+            var phaseLib = (M.PHASE && M.PHASE[phase]) || phase;
+            return (
+              '<a class="list-row" href="cac-mandat.html?id=' + encodeURIComponent(m.id) + '">' +
+              '<span class="list-icon"><span class="ms">briefcase</span></span>' +
+              '<div class="cac-info"><span class="row-title">' + esc((M.TYPE_MANDAT && M.TYPE_MANDAT[m.type]) || "Mandat") + "</span>" +
+              '<span class="row-meta">' + (m.ex && m.ex.clos ? "Exercice clos le " + esc(m.ex.clos) : "") + "</span></div>" +
+              '<div class="cac-right">' +
+              (phaseLib ? '<span class="badge ' + (phase === "emis" ? "badge-success" : "badge-progress") + '">' + esc(phaseLib) + "</span>" : "") +
+              '<span class="ms chev">chevron_right</span></div></a>'
+            );
+          }
+          function lignePonctuelle(m) {
+            var cs = m.conseil;
+            var assoc = cs && cs.ej && cs.formalite ? "Formalité " + cs.formalite + " \u00b7 " + cs.nom : "Sans formalité EJ associée";
+            return (
+              '<a class="list-row" href="cac-mission.html?id=' + encodeURIComponent(m.id) + '&amp;from=societe">' +
+              '<span class="list-icon"><span class="ms">file_pen_line</span></span>' +
+              '<div class="cac-info"><span class="row-title">' + esc((M.NATURE && M.NATURE[m.nature]) || "Mission ponctuelle") + "</span>" +
+              '<span class="row-meta">' + esc(m.operation || "") + "</span>" +
+              '<span class="row-meta"><span class="ms">link</span>' + esc(assoc) + "</span></div>" +
+              '<div class="cac-right">' + badge(m.etape) + '<span class="ms chev">chevron_right</span></div></a>'
+            );
+          }
+
+          var html = '<div class="cac-top"><h2 class="section-title">Missions CAC</h2>' + bouton + "</div>";
+          if (!c.mandats.length && !c.ponctuelles.length) {
+            html +=
+              '<div class="card soc-absent"><span class="ms" aria-hidden="true">briefcase</span>' +
+              '<p class="page-desc">Aucune mission pour cette société.</p>' + bouton + "</div>";
+          } else {
+            if (c.mandats.length)
+              html += '<div class="cac-sec"><h3 class="section-title">Mandats</h3><div class="list-card">' + c.mandats.map(ligneMandat).join("") + "</div></div>";
+            if (c.ponctuelles.length)
+              html += '<div class="cac-sec"><h3 class="section-title">Missions ponctuelles</h3><div class="list-card">' + c.ponctuelles.map(lignePonctuelle).join("") + "</div></div>";
+          }
+          var tl = $("soc-timeline");
+          tl.className = "cac-contenu";
+          tl.innerHTML = html;
+        }
+
         function afficher() {
+          if (mode === "cac") return afficherCac();
+          if (mode === "conseil") return afficherConseil();
+          return afficherDpj();
+        }
+
+        function afficherDpj() {
           var D = window.EJDPJ;
           var f = D && D.byId ? D.byId(id) : null;
           if (!f) return introuvable();
@@ -456,7 +694,7 @@
         }
 
         /* Chargement séquentiel des données, dans l'ordre */
-        var SRC = ["assets/ej-missions-data.js?v=24", "assets/ej-cockpit-data.js?v=8", "assets/ej-dpj-data.js?v=2"];
+        var SRC = ["assets/ej-missions-data.js?v=28", "assets/ej-cockpit-data.js?v=8", "assets/ej-dpj-data.js?v=2"];
         function charger(i) {
           if (i >= SRC.length) return afficher();
           var el = document.createElement("script");
