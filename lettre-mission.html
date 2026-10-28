@@ -387,6 +387,8 @@
       }
       .lm-na {
         min-height: 1px;
+        font-size: 13px;
+        color: var(--ej-neutral-500);
       }
 
       /* Récapitulatif */
@@ -1251,8 +1253,8 @@
                 (meta.qty ? infoTip("note-cap-" + p.id, esc(meta.cap)) : "") + "</div>" +
                 (meta.qty
                   ? '<label class="lm-f lm-f-q"><span class="lm-f-cap">' + esc(meta.capQ) + '</span><span class="lm-inp"><input class="form-input" type="number" min="0" step="1" inputmode="decimal" data-k="qty" data-id="' + p.id + '" aria-label="' + esc(p.libelle + ", " + meta.capQ.toLowerCase()) + '" /></span></label>'
-                  : '<span class="lm-f lm-f-q lm-na"></span>') +
-                '<label class="lm-f lm-f-p"><span class="lm-f-cap">' + (meta.qty ? "Prix unitaire HT" : "Prix HT") + '</span><span class="lm-inp has-unit"><input class="form-input" type="number" min="0" step="0.5" inputmode="decimal" data-k="prix" data-id="' + p.id + '" aria-label="' + esc(p.libelle + ", prix hors taxes") + '" /><span class="lm-unit">€</span></span></label>' +
+                  : '<span class="lm-f lm-f-q lm-na">Forfait</span>') +
+                '<label class="lm-f lm-f-p"><span class="lm-f-cap">' + (meta.qty ? "Prix unitaire HT" : "Forfait annuel HT") + '</span><span class="lm-inp has-unit"><input class="form-input" type="number" min="0" step="0.5" inputmode="decimal" data-k="prix" data-id="' + p.id + '" aria-label="' + esc(p.libelle + ", prix hors taxes") + '" /><span class="lm-unit">€</span></span></label>' +
                 '<div class="lm-f lm-f-a"><span class="lm-f-cap">Montant annuel HT</span><span class="lm-amt" data-amt="' + p.id + '"></span></div>' +
                 "</div>";
             });
@@ -1412,7 +1414,8 @@
             chk.disabled = locked;
             if (q) q.disabled = locked || !r.on;
             pr.disabled = locked || !r.on;
-            row.querySelector("[data-amt]").textContent = r.on ? money(amount(p.id)) : "·";
+            /* Ligne non cochée : montant qu'elle aurait, en gris (le total ne le compte pas) */
+            row.querySelector("[data-amt]").textContent = money(r.on ? amount(p.id) : r2(r.prix * r.qty * BASE[p.base].mult));
           });
         }
 
