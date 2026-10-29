@@ -127,7 +127,7 @@
       ex: { clos: "31/12/2026", phase: "interim", avancement: 40, heures: [420, 160] },
       interventions: [["Planification avec le cocommissaire", "14/09/2026", "18/09/2026", "fait"], ["Intérim", "12/10/2026", "23/10/2026", "en_cours"], ["Final et consolidation", "22/02/2027", "12/03/2027", "prevu"]],
       ag: "10/06/2027", lm: { statut: "signee", ref: "LM-CAC-2022-002", date: "05/09/2022" }, independance: { statut: "a_jour", date: "08/01/2026" },
-      lab: { ouverture: "02/05/2022", criblage: "18/10/2026", risque: "eleve", statut: "a_jour", derniereRevue: "08/01/2026", prochaineRevue: "08/01/2027", be: 2, ppe: true, gel: "ok", pieces: [8, 8] } },
+      lab: { ouverture: "02/05/2022", criblage: "18/10/2026", risque: "eleve", statut: "a_jour", derniereRevue: "08/01/2026", prochaineRevue: "08/01/2027", be: 2, ppe: true, gel: "ok", pieces: [9, 9] } },
     { id: "dorval", nom: "ATELIERS DORVAL", siren: "448 120 396", forme: "SAS", activite: "Menuiserie industrielle", cloture: "30/09", signataire: "CD", equipe: ["JD"], cocac: null,
       type: "alpe", premier: 2025, dernier: 2027, nomination: "17/03/2025", honoraires: 7400,
       ex: { clos: "30/09/2026", phase: "final", avancement: 30, heures: [70, 12] },

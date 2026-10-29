@@ -171,10 +171,10 @@
   background: var(--ej-info-600);
 }
 .risk-eleve {
-  color: var(--ej-warning-600);
+  color: var(--ej-error-600);
 }
 .risk-eleve::before {
-  background: var(--ej-warning-600);
+  background: var(--ej-error-600);
 }
 .risk-na {
   color: var(--ej-neutral-500);

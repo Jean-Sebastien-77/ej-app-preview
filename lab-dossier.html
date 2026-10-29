@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=20" />
-    <link rel="stylesheet" href="assets/ej-missions.css?v=24" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=25" />
     <style>
       /* ---- En-tête société (repris de societe.html ; en-tête entité pour une mission CAC) ---- */
       .soc-head {
@@ -718,6 +718,115 @@
       .dropzone select {
         max-width: 100%;
       }
+      /* Schéma de détention et de contrôle (SVG dessiné depuis les données du DPJ) */
+      .sch-wrap svg {
+        width: 100%;
+        max-width: 760px;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+        font-family: inherit;
+      }
+      .sch-lien {
+        stroke: var(--ej-neutral-300);
+        stroke-width: 1.5;
+        fill: none;
+      }
+      .sch-lien-sous {
+        stroke-dasharray: 4 4;
+      }
+      .sch-node {
+        fill: var(--ej-action-100);
+        stroke: var(--ej-action-600);
+        stroke-width: 1.5;
+      }
+      .sch-sous {
+        fill: var(--ej-neutral-50);
+        stroke: var(--ej-neutral-300);
+      }
+      .sch-manque {
+        fill: var(--ej-white);
+        stroke: var(--ej-neutral-400);
+        stroke-dasharray: 4 3;
+      }
+      .sch-ppe {
+        stroke: var(--ej-error-600);
+        stroke-width: 2;
+      }
+      .sch-gel {
+        fill: var(--ej-error-100);
+        stroke: var(--ej-error-600);
+        stroke-width: 2;
+      }
+      .sch-ini {
+        font-size: 13px;
+        font-weight: 600;
+        fill: var(--ej-action-700);
+      }
+      .sch-ini-sous {
+        font-size: 11px;
+        font-weight: 600;
+        fill: var(--ej-neutral-500);
+      }
+      .sch-role {
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        fill: var(--ej-neutral-500);
+      }
+      .sch-nom {
+        font-size: 12px;
+        fill: var(--ej-neutral-800);
+      }
+      .sch-sub {
+        font-size: 10.5px;
+        fill: var(--ej-neutral-500);
+      }
+      .sch-sub-warn {
+        fill: var(--ej-error-600);
+      }
+      .sch-pct-bg {
+        fill: var(--ej-white);
+      }
+      .sch-pct {
+        font-size: 11px;
+        font-weight: 600;
+        fill: var(--ej-neutral-700);
+      }
+      .sch-inter {
+        fill: var(--ej-neutral-50);
+        stroke: var(--ej-neutral-300);
+        stroke-dasharray: 3 3;
+      }
+      .sch-inter-t {
+        font-size: 10.5px;
+        fill: var(--ej-neutral-600);
+      }
+      .sch-soc {
+        fill: var(--ej-primary-900);
+      }
+      .sch-soc-t {
+        font-size: 13px;
+        font-weight: 600;
+        fill: var(--ej-white);
+      }
+      .sch-soc-s {
+        font-size: 10.5px;
+        fill: var(--ej-neutral-300);
+      }
+      .sch-tag-bg {
+        fill: var(--ej-error-600);
+      }
+      .sch-tag {
+        font-size: 9.5px;
+        font-weight: 700;
+        fill: var(--ej-white);
+      }
+      .sch-legende {
+        margin: 10px 0 0;
+        font-size: 12px;
+        color: var(--ej-neutral-500);
+      }
       .dz-file {
         position: relative;
         cursor: pointer;
@@ -884,6 +993,8 @@
         color: var(--ej-neutral-500);
         font-weight: 400;
       }
+      /* ---- Frise des diligences : trait continu, une pastille ronde par entrée, regroupement par revue validée ----
+         Une seule couleur par entrée : rouge pour une alerte, vert pour une revue validée, neutre pour le reste. */
       .journal {
         list-style: none;
         position: relative;
@@ -895,48 +1006,252 @@
         content: "";
         position: absolute;
         left: 15px;
-        top: 8px;
-        bottom: 8px;
+        top: 16px;
+        bottom: 16px;
         width: 2px;
         background: var(--ej-neutral-200);
       }
-      .journal li {
+      .fr-ev {
         position: relative;
         display: flex;
         gap: 14px;
         align-items: flex-start;
       }
-      .j-ico {
+      .fr-p {
         position: relative;
         width: 32px;
         height: 32px;
         border-radius: 50%;
-        background: var(--ej-white);
-        border: 1px solid var(--ej-hairline);
-        color: var(--ej-action-600);
+        flex-shrink: 0;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        flex-shrink: 0;
+        background: var(--ej-neutral-100);
+        color: var(--ej-neutral-600);
+        box-shadow: 0 0 0 3px var(--ej-white);
       }
-      .j-ico .ms {
+      .fr-p .ms {
         font-size: 16px;
       }
-      .j-ico.warn {
-        color: var(--ej-warning-600);
+      .fr-p.fr-ok {
+        background: var(--ej-success-100);
+        color: var(--ej-success-600);
       }
-      .j-date {
+      .fr-p.fr-warn {
+        background: var(--ej-error-100);
+        color: var(--ej-error-600);
+      }
+      .fr-corps {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      .fr-tete {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0 12px;
+        min-height: 32px;
+      }
+      .fr-date {
+        font-size: 13px;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        color: var(--ej-neutral-800);
+      }
+      .fr-qui {
+        margin-left: auto;
         font-size: 12.5px;
-        font-style: italic;
-        color: var(--ej-action-600);
+        text-align: right;
+        color: var(--ej-neutral-500);
       }
-      .j-txt {
+      .fr-txt {
+        margin-top: -4px;
         font-size: 14px;
         color: var(--ej-neutral-900);
       }
-      .j-who {
+      .fr-sep {
+        padding-left: 46px;
+      }
+      /* Écran étroit : la source ou l'auteur passe sous la date, le texte reste aligné */
+      @media (max-width: 520px) {
+        .fr-tete {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0;
+          min-height: 0;
+          padding-top: 6px;
+        }
+        .fr-qui {
+          margin-left: 0;
+          text-align: left;
+        }
+        .fr-txt {
+          margin-top: 2px;
+        }
+      }
+      .fr-sep .overline {
+        display: block;
+      }
+
+      /* ---- Bandeau de synthèse : quatre tuiles qui mènent au bloc concerné ----
+         Un seul élément coloré par tuile (icône d'état, ou pastille de risque), tout le reste en neutre. */
+      .syn {
+        container-type: inline-size;
+        container-name: syn;
+        position: relative;
+        z-index: 1;
+        margin-bottom: 16px;
+      }
+      .syn-rang {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .syn-cell {
+        position: relative;
+        display: flex;
+        min-width: 0;
+      }
+      .syn-tuile {
+        flex: 1 1 auto;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 14px 16px;
+        background: var(--ej-white);
+        border: 1px solid var(--ej-hairline);
+        border-radius: var(--ej-radius-lg);
+        box-shadow: var(--ej-shadow-xs);
+        color: var(--ej-neutral-700);
+        text-decoration: none;
+        transition: border-color var(--ej-transition-fast), background var(--ej-transition-fast);
+      }
+      .syn-tuile:hover {
+        border-color: var(--ej-neutral-400);
+        background: var(--ej-neutral-50);
+      }
+      .syn-tuile:focus-visible {
+        border-radius: var(--ej-radius-lg);
+      }
+      .syn-cell-tip .syn-tuile .overline {
+        padding-right: 26px;
+      }
+      .syn-tip {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+      }
+      .syn .syn-val {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: var(--ej-font-display);
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.3;
+        color: var(--ej-primary-900);
+      }
+      .syn .syn-val.syn-nonev {
+        color: var(--ej-neutral-600);
+      }
+      .syn-sub {
         font-size: 12.5px;
+        line-height: 1.4;
+        color: var(--ej-neutral-600);
+      }
+      .syn-barre {
+        height: 4px;
+        margin-top: 2px;
+        border-radius: 2px;
+        background: var(--ej-neutral-200);
+        overflow: hidden;
+      }
+      .syn-barre > span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: var(--ej-neutral-600);
+      }
+      .syn-etat {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: auto;
+        padding-top: 4px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--ej-neutral-800);
+      }
+      .syn .syn-ico {
+        font-size: 16px;
         color: var(--ej-neutral-500);
+      }
+      .syn .syn-ico.syn-ok {
+        color: var(--ej-success-600);
+      }
+      .syn .syn-ico.syn-warn {
+        color: var(--ej-attention-500);
+      }
+      .syn .syn-ico.syn-ko {
+        color: var(--ej-error-600);
+      }
+      .syn-risque {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px 10px;
+      }
+      .syn-risque .risk {
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .syn-vig {
+        font-family: var(--ej-font-body);
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--ej-neutral-700);
+      }
+      .syn-grille {
+        display: flex;
+        gap: 3px;
+        margin-top: 4px;
+      }
+      .syn-seg {
+        flex: 1 1 0;
+        min-width: 0;
+        height: 6px;
+        border-radius: 3px;
+      }
+      .syn-n0 {
+        background: var(--ej-neutral-200);
+      }
+      .syn-n1 {
+        background: var(--ej-neutral-400);
+      }
+      .syn-n2 {
+        background: var(--ej-neutral-800);
+      }
+      .syn-legende {
+        font-size: 11px;
+        line-height: 1.4;
+        color: var(--ej-neutral-600);
+      }
+      /* Les liens du bandeau arrivent sous l'en-tête fixe */
+      .d-card,
+      .afaire {
+        scroll-margin-top: 72px;
+      }
+      @container syn (max-width: 900px) {
+        .syn-rang {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      @container syn (max-width: 480px) {
+        .syn-rang {
+          grid-template-columns: 1fr;
+        }
       }
 
       @media (max-width: 900px) {
@@ -1148,10 +1463,10 @@
       </div>
     </div>
 
-    <script src="assets/ej-missions-data.js?v=28"></script>
+    <script src="assets/ej-missions-data.js?v=29"></script>
     <script src="assets/ej-cockpit-data.js?v=10"></script>
     <script src="assets/ej-dpj-data.js?v=2"></script>
-    <script src="assets/ej-lab.js?v=7"></script>
+    <script src="assets/ej-lab.js?v=9"></script>
     <script>
       (function () {
         var E = window.EJM,
@@ -1589,6 +1904,10 @@
 
           /* ---------- Grille du cabinet : une proposition, le niveau est retenu par le professionnel ---------- */
           var N = ["Faible", "Standard", "Élevé"], NC = ["risk-faible", "risk-standard", "risk-eleve"];
+          /* Libellé du critère PPE : déclarée par le client, ou confirmée par la vérification du cabinet lors d'une revue */
+          function libPPE() {
+            return "Oui : " + esc(BE.length ? BE[0][0] : dirNom) + (L.ppeConfirmee ? ", confirmée par la vérification du cabinet" : ", déclarée par le client");
+          }
           var LV = {
             secteur: { "cap-esterel": 2, kalipso: 2, marees: 2, paprika: 1, helios: 1, orvea: 1, mercier: 1, "urban-fit": 1, sotrab: 1, vertalis: 1, nordia: 1, "clinique-parc": 1, halios: 1, vetis: 1 }[s.id] || 0,
             flux: { helios: 1, kpl3d: 1, orvea: 1, "groupe-bmr": 1, neolab: 1, kalipso: 2, vertalis: 1, nordia: 1, halios: 1, marees: 1, orvane: 1 }[s.id] || 0,
@@ -1607,7 +1926,7 @@
             { k: "distance", lib: "Relation à distance", poids: "Moyen",
               v: ["Relation en face à face", "Relation à distance, sans rencontre", ""] },
             { k: "ppe", lib: "Personne politiquement exposée", poids: "Fort", fixe: true,
-              v: ["Aucune PPE déclarée", "", "Oui : " + esc(BE.length ? BE[0][0] : dirNom) + ", déclarée par le client"] },
+              v: ["Aucune PPE déclarée", "", libPPE()] },
             { k: "operations", lib: "Nature et montant des opérations", poids: "Moyen",
               v: ["Opérations courantes et récurrentes", "Montants significatifs ou opérations en espèces", "Opérations inhabituelles"] },
           ];
@@ -1625,7 +1944,11 @@
 
           /* Validateur : selon le risque retenu dans la revue en cours, s'il y en a une */
           function valideur(risque) {
-            return X.validateur(s, PROFIL, risque || (ui.rv && ui.rv.risque) || null);
+            return X.validateur(s, PROFIL, risque || (ui.rv && ui.rv.risque) || null, !!(ui.rv && ui.rv.ppeRes === "confirmee"));
+          }
+          /* Pièces exigées par le niveau retenu dans la revue en cours (sinon par le dossier) et non reçues */
+          function exigeesManquantes() {
+            return X.exigeesManquantes(s, ui.rv ? ui.rv.risque : null, ui.rv ? ui.rv.ppeRes === "confirmee" : null);
           }
           function peutValider(risque) {
             return USER_CODE === valideur(risque).code;
@@ -1644,7 +1967,77 @@
             if (L.derniereRevue) return "retenu par " + X.validateurHistorique(s).nom + " le " + L.derniereRevue;
             return L.ouverture ? "proposé par " + resp.nom + " le " + L.ouverture : "";
           }
-          /* Ce qui bloque la validation d'une revue (une pièce complémentaire manquante ne bloque pas) */
+          /* ---------- Schéma de détention et de contrôle, dessiné depuis les données du DPJ ----------
+             Personnes en haut (représentant légal, bénéficiaires effectifs avec leur part, associés sous le seuil en
+             retrait), société en bas, société interposée en cas de détention indirecte. Marques : PPE, gel à vérifier,
+             identité à recevoir. Le tableau des bénéficiaires effectifs reste la référence détaillée. */
+          function initiales(n) {
+            return String(n || "").split(/[\s-]+/).filter(Boolean).slice(0, 2).map(function (x) { return x.charAt(0).toUpperCase(); }).join("");
+          }
+          function schemaHtml() {
+            if (!L.ouverture) return "";
+            var idm = X.identificationManquante(s);
+            var dirManque = idm.indexOf(X.ID_DIR) !== -1, beManque = idm.indexOf(X.ID_BE) !== -1;
+            var homonymie = L.gel === "a_verifier";
+            var homNom = homonymie ? X.homonymie(s).personne : null;
+            var ppeQui = L.ppe ? (BE.length ? BE[0][0] : dirNom) : null;
+            var pers = [];
+            var dirEstBE = BE.some(function (b) { return b[0] === dirNom; });
+            if (dirNom && !dirEstBE) pers.push({ nom: dirNom, role: "RL", pct: "", indirect: false, manque: dirManque, ppe: ppeQui === dirNom, gel: homNom === dirNom });
+            BE.forEach(function (b) {
+              var m = /^(\d+(?:[.,]\d+)?) %/.exec(b[1]);
+              var rl = b[0] === dirNom;
+              pers.push({ nom: b[0], role: rl ? "RL · BE" : "BE", pct: m ? m[1].replace(".", ",") + " %" : association ? "" : "contrôle", indirect: /indirect/.test(b[1]), manque: rl ? dirManque : beManque, ppe: ppeQui === b[0], gel: homNom === b[0] });
+            });
+            SOUS_SEUIL.forEach(function (a) { pers.push({ nom: a[0], role: "", pct: a[1], sous: true }); });
+            if (!pers.length) return "";
+            var W = 760, n = pers.length, gap = Math.min(170, (W - 120) / Math.max(1, n - 1)), x0 = n > 1 ? (W - gap * (n - 1)) / 2 : W / 2;
+            var yP = 64, yI = 158, yS = 262, cx = W / 2, o = [];
+            pers.forEach(function (p, i) {
+              var x = Math.round(x0 + gap * i), r = p.sous ? 17 : 24;
+              var yDep = yP + r, xDep = x, yArr = yS - 26;
+              if (p.indirect) {
+                o.push('<line class="sch-lien" x1="' + x + '" y1="' + yDep + '" x2="' + x + '" y2="' + (yI - 16) + '"/>');
+                o.push('<rect class="sch-inter" x="' + (x - 58) + '" y="' + (yI - 16) + '" width="116" height="32" rx="8"/>');
+                o.push('<text class="sch-inter-t" x="' + x + '" y="' + (yI + 4) + '" text-anchor="middle">Société interposée</text>');
+                yDep = yI + 16;
+              }
+              o.push('<line class="sch-lien' + (p.sous ? " sch-lien-sous" : "") + '" x1="' + xDep + '" y1="' + yDep + '" x2="' + cx + '" y2="' + yArr + '"/>');
+              if (p.pct) {
+                var t = 0.42, mx = Math.round(xDep + (cx - xDep) * t), my = Math.round(yDep + (yArr - yDep) * t);
+                var w = p.pct.length * 6.5 + 12;
+                o.push('<rect class="sch-pct-bg" x="' + (mx - w / 2) + '" y="' + (my - 9) + '" width="' + w + '" height="18" rx="9"/>');
+                o.push('<text class="sch-pct" x="' + mx + '" y="' + (my + 4) + '" text-anchor="middle">' + esc(p.pct) + "</text>");
+              }
+              var cls = "sch-node" + (p.sous ? " sch-sous" : "") + (p.manque ? " sch-manque" : "") + (p.gel ? " sch-gel" : p.ppe ? " sch-ppe" : "");
+              o.push('<circle class="' + cls + '" cx="' + x + '" cy="' + yP + '" r="' + r + '"/>');
+              o.push('<text class="' + (p.sous ? "sch-ini-sous" : "sch-ini") + '" x="' + x + '" y="' + (yP + 5) + '" text-anchor="middle">' + esc(initiales(p.nom)) + "</text>");
+              if (p.role) o.push('<text class="sch-role" x="' + x + '" y="' + (yP - r - 9) + '" text-anchor="middle">' + esc(p.role) + "</text>");
+              o.push('<text class="sch-nom" x="' + x + '" y="' + (yP + r + 16) + '" text-anchor="middle">' + esc(p.nom) + "</text>");
+              var sub = p.sous ? "sous le seuil" : p.manque ? "identité à recevoir" : "";
+              if (sub) o.push('<text class="sch-sub' + (p.manque ? " sch-sub-warn" : "") + '" x="' + x + '" y="' + (yP + r + 30) + '" text-anchor="middle">' + esc(sub) + "</text>");
+              var tag = p.gel ? "GEL ?" : p.ppe ? "PPE" : "";
+              if (tag) {
+                var tw = tag.length * 7 + 10, tx = x + r - 6, ty = yP - r - 2;
+                o.push('<rect class="sch-tag-bg" x="' + tx + '" y="' + ty + '" width="' + tw + '" height="16" rx="8"/>');
+                o.push('<text class="sch-tag" x="' + (tx + tw / 2) + '" y="' + (ty + 11.5) + '" text-anchor="middle">' + tag + "</text>");
+              }
+            });
+            var nomSoc = s.nom.length > 22 ? s.nom.slice(0, 21) + "…" : s.nom;
+            o.push('<rect class="sch-soc" x="' + (cx - 84) + '" y="' + (yS - 26) + '" width="168" height="52" rx="10"/>');
+            o.push('<text class="sch-soc-t" x="' + cx + '" y="' + (yS - 4) + '" text-anchor="middle">' + esc(nomSoc) + "</text>");
+            o.push('<text class="sch-soc-s" x="' + cx + '" y="' + (yS + 14) + '" text-anchor="middle">' + esc(s.forme || "") + (F && F[1] ? " · capital " + esc(F[1]) : "") + "</text>");
+            var leg = ["RL : représentant légal", "BE : bénéficiaire effectif, part du capital sur le lien"];
+            if (pers.some(function (p) { return p.sous; })) leg.push("en pointillé : associé sous le seuil de 25 %");
+            if (pers.some(function (p) { return p.indirect; })) leg.push("détention indirecte via une société interposée");
+            if (pers.some(function (p) { return p.manque; })) leg.push("contour en pointillé : pièce d'identité à recevoir");
+            var alt = pers.map(function (p) { return p.nom + (p.role ? " (" + p.role + ")" : "") + (p.pct ? ", " + p.pct : ""); }).join(" ; ");
+            return '<div class="sch-wrap"><svg viewBox="0 0 ' + W + ' 300" role="img" aria-label="Schéma de détention de ' + esc(s.nom) + " : " + esc(alt) + '">' + o.join("") + "</svg>" +
+              '<p class="sch-legende">' + esc(leg.join(" · ")) + "</p></div>";
+          }
+          /* Ce qui bloque la validation d'une revue : gel, dossier à ouvrir, identification incomplète, et les pièces exigées
+             par le niveau retenu (origine du patrimoine pour une PPE ou un risque élevé, justificatifs de l'activité pour un
+             risque élevé) tant qu'elles ne sont pas reçues. Les autres pièces complémentaires ne bloquent pas. */
           function blocages() {
             var b = [];
             var idm = X.identificationManquante(s);
@@ -1652,6 +2045,8 @@
             if (L.statut === "a_ouvrir") b.push("dossier à ouvrir");
             if (L.statut === "incomplet" || !BE.length || idm.length)
               b.push("identification incomplète" + (idm.length ? " (" + idm.map(function (x) { return x.charAt(0).toLowerCase() + x.slice(1); }).join(", ") + " à recevoir)" : ""));
+            var ex = exigeesManquantes();
+            if (ex.length) b.push(ex.map(function (p) { return p[0].charAt(0).toLowerCase() + p[0].slice(1) + " (" + p[1].replace(/^exigée : /, "") + ")"; }).join(", ") + " à recevoir");
             return b;
           }
           /* Date de réception fictive d'une pièce (rang dans la liste attendue), jamais postérieure à la dernière revue */
@@ -1758,6 +2153,14 @@
               : '<button class="btn btn-primary" type="button" id="rv-demander"' + dis + '><span class="ms">send</span>Demander la validation à ' + esc(V.nom) + "</button>" + tipValideur(V, "rv-rlab")) +
               '<button class="btn btn-tertiary" type="button" id="rv-annuler">Annuler</button>';
           }
+          /* Risque retenu ou PPE confirmée : blocages, pièces exigées et validateur changent. La page est redessinée en
+             gardant le défilement, et le focus revient sur le bouton modifié. */
+          function redessinerRevue(sel) {
+            var y = window.scrollY;
+            rendre();
+            window.scrollTo(0, y);
+            focusApres(sel);
+          }
           function majRevue() {
             $("rv-per").textContent = texteProchaine(ui.rv.risque);
             $("rv-btns").innerHTML = btnsRevue();
@@ -1836,9 +2239,125 @@
             neutraliser();
           }
 
+          /* ---------- Bandeau de synthèse (dossier ouvert) ----------
+             Quatre tuiles <a> vers le bloc concerné. Une seule couleur par tuile : l'icône d'état
+             (ou la pastille de risque pour « Risque et vigilance »), le reste en neutre. */
+          function synEtat(nature, ico, texte) {
+            return '<span class="syn-etat"><span class="ms syn-ico syn-' + nature + '" aria-hidden="true">' + ico + "</span><span>" + esc(texte) + "</span></span>";
+          }
+          function synTuile(href, titre, corps, apres) {
+            return '<div class="syn-cell' + (apres ? " syn-cell-tip" : "") + '"><a class="syn-tuile" href="' + href + '"><span class="overline">' + esc(titre) + "</span>" + corps + "</a>" + (apres || "") + "</div>";
+          }
+          /* Grille en un coup d'œil : un segment par critère, nuances de gris (0 faible, 1 standard, 2 élevé) */
+          function synGrille() {
+            var cnt = [0, 0, 0];
+            var segs = CRITERES.map(function (c) {
+              var n = niveauCrit(c.k);
+              if (n !== 0 && n !== 1 && n !== 2) n = 0;
+              cnt[n]++;
+              var lib = "Critère : " + c.lib + ", " + N[n].toLowerCase();
+              return '<span class="syn-seg syn-n' + n + '" role="img" aria-label="' + esc(lib) + '" title="' + esc(lib) + '"></span>';
+            }).join("");
+            return '<span class="syn-grille">' + segs + "</span>" +
+              '<span class="syn-legende">' + CRITERES.length + " critères : " + cnt[2] + (cnt[2] > 1 ? " élevés" : " élevé") + ", " + cnt[1] + " standard, " + cnt[0] + (cnt[0] > 1 ? " faibles" : " faible") + "</span>";
+          }
+          /* Pièces attendues en comptant celles qu'exige la revue en cours et qui ne sont pas encore dans la liste du dossier */
+          function piecesAvecRevue() {
+            var EP = X.etatPieces(s);
+            var n = exigeesManquantes().filter(function (p) { return !EP.liste.some(function (e) { return e.lib === p[0]; }); }).length;
+            return { attendues: EP.attendues + n, recues: EP.recues, manquantes: EP.manquantes + n, aRenouveler: EP.aRenouveler, liste: EP.liste };
+          }
+          function syntheseHtml(aAction, RS, HV, retardJ) {
+            var EP = piecesAvecRevue();
+            var fin = L.statut === "fin_relation";
+
+            /* 1. Identification : bénéficiaires effectifs identifiés, pièces reçues sur attendues */
+            var nBE = BE.length;
+            var valBE = nBE
+              ? nBE + " bénéficiaire" + (nBE > 1 ? "s" : "") + " effectif" + (nBE > 1 ? "s" : "") + " identifié" + (nBE > 1 ? "s" : "")
+              : "Aucun bénéficiaire effectif identifié";
+            var pct = EP.attendues > 0 ? Math.max(0, Math.min(100, Math.round((EP.recues * 100) / EP.attendues))) : 0;
+            var complete = !X.identificationManquante(s).length && L.statut !== "incomplet";
+            var t1 = synTuile("#beneficiaires", "Identification",
+              '<span class="syn-val">' + esc(valBE) + "</span>" +
+              '<span class="syn-sub">' + EP.recues + " pièce" + (EP.recues > 1 ? "s" : "") + " reçue" + (EP.recues > 1 ? "s" : "") + " sur " + EP.attendues + "</span>" +
+              '<span class="syn-barre" role="progressbar" aria-valuemin="0" aria-valuemax="' + EP.attendues + '" aria-valuenow="' + EP.recues + '" aria-label="Pièces reçues : ' + EP.recues + " sur " + EP.attendues + '"><span style="width:' + pct + '%"></span></span>' +
+              (complete ? synEtat("ok", "circle-check", "Complète") : synEtat("warn", "file-clock", "À compléter" + (EP.manquantes ? " : " + nPieces(EP.manquantes) : ""))));
+
+            /* 2. Gel des avoirs et PPE */
+            var ppeQui = BE.length ? BE[0][0] : dirNom;
+            var gel;
+            if (X.gelConfirme(s)) gel = synEtat("ko", "shield-alert", "Gel à appliquer");
+            else if (L.gel === "a_verifier") gel = synEtat("ko", "triangle-alert", "Homonymie à lever");
+            else if (!L.criblage) gel = synEtat("neutre", "circle-dashed", "Pas encore contrôlé");
+            else gel = synEtat("ok", "circle-check", "Aucune correspondance");
+            var t2 = synTuile("#criblage", "Gel des avoirs et PPE",
+              '<span class="syn-val">' + (L.criblage ? "Dernier contrôle le " + esc(L.criblage) : "Premier contrôle à l'ouverture") + "</span>" +
+              '<span class="syn-sub">' + (L.ppe ? (L.ppeConfirmee ? "PPE confirmée par le cabinet : " : "PPE déclarée : ") + esc(ppeQui) : "Aucune PPE déclarée") + "</span>" +
+              gel);
+
+            /* 3. Risque et vigilance : la pastille de risque est le seul élément coloré */
+            var t3 = synTuile("#evaluation", "Risque et vigilance",
+              L.risque
+                ? '<span class="syn-val syn-risque"><span class="risk risk-' + L.risque + '">' + esc(E.RISQUE[L.risque]) + '</span><span class="syn-vig">' + esc(VIG[L.risque]) + "</span></span>" +
+                  '<span class="syn-sub">' + esc(retenu()) + "</span>" + synGrille()
+                : '<span class="syn-val syn-nonev">Non évalué</span><span class="syn-sub">Vigilance à définir</span>',
+              tip("tracfin", "Toute déclaration à Tracfin se fait hors de cette fiche, de façon confidentielle. Cette fiche n'est jamais visible du client.", "Confidentialité de la fiche", "syn-tip"));
+
+            /* 4. Revue : échue, à jour ou terminée ; dernière revue et validateur */
+            var val4;
+            if (fin) val4 = ["neutre", "circle-off", "Relation terminée"];
+            else if (L.statut === "a_revoir" && L.prochaineRevue)
+              val4 = ["warn", "history", retardJ > 0 ? "Échue depuis " + retardJ + " jour" + (retardJ > 1 ? "s" : "") : "Revue à faire avant le " + L.prochaineRevue];
+            else if (L.statut === "a_jour" && L.prochaineRevue) val4 = ["ok", "circle-check", "À jour jusqu'au " + L.prochaineRevue];
+            else val4 = ["neutre", "circle-dashed", L.prochaineRevue ? "Prochaine revue le " + L.prochaineRevue : "Prochaine revue fixée à la validation"];
+            var parDer = RS ? RS.par : L.derniereRevue ? HV.nom : "";
+            var t4 = synTuile(aAction ? "#afaire" : "#historique", "Revue",
+              '<span class="syn-val"><span class="ms syn-ico syn-' + val4[0] + '" aria-hidden="true">' + val4[1] + "</span><span>" + esc(val4[2]) + "</span></span>" +
+              '<span class="syn-sub">' + (L.derniereRevue ? "Dernière revue le " + esc(L.derniereRevue) + (parDer ? " par " + esc(parDer) : "") : "Jamais validée") + "</span>" +
+              (fin ? "" : '<span class="syn-sub">Validation : ' + esc(X.validateur(s, PROFIL).nom) + "</span>"));
+
+            return '<div class="syn-rang">' + t1 + t2 + t3 + t4 + "</div>";
+          }
+
+          /* ---------- Frise des diligences ----------
+             Les entrées gardent leur ordre (date décroissante). Regroupement par date : une entrée appartient à la revue
+             validée la plus proche à la même date ou après elle (le travail qui a mené à cette revue) ; plus récente que
+             la dernière revue validée, elle est « depuis la dernière revue ». Sans revue validée, aucun séparateur. */
+          function friseHtml(J) {
+            var revues = [];
+            J.forEach(function (j) {
+              if ((j.i === "badge-check" || j.i === "circle-off") && revues.indexOf(j.d) === -1) revues.push(j.d);
+            });
+            revues.sort(function (a, b) { return dt(a) - dt(b); });
+            function groupe(j) {
+              var d = dt(j.d);
+              for (var k = 0; k < revues.length; k++) if (dt(revues[k]) >= d) return revues[k];
+              return "";
+            }
+            var prec = null;
+            return J.map(function (j) {
+              var sep = "";
+              if (revues.length) {
+                var g = groupe(j);
+                if (g !== prec) {
+                  sep = '<li class="fr-sep"><span class="overline">' + (g ? "Revue du " + esc(g) : "Depuis la dernière revue") + "</span></li>";
+                  prec = g;
+                }
+              }
+              var cls = j.warn ? " fr-warn" : j.i === "badge-check" ? " fr-ok" : "";
+              return sep + '<li class="fr-ev"><span class="fr-p' + cls + '" aria-hidden="true"><span class="ms">' + j.i + "</span></span>" +
+                '<div class="fr-corps"><div class="fr-tete"><span class="fr-date">' + j.d + '</span><span class="fr-qui">' + (j.w || "") + "</span></div>" +
+                '<div class="fr-txt">' + esc(j.t) + "</div></div></li>";
+            }).join("");
+          }
+
           function rendre() {
             vus = {};
             L = s.lab;
+            /* Statut PPE du dossier : peut changer pendant la session (PPE confirmée par une revue validée) */
+            LV.ppe = L.ppe ? 2 : 0;
+            CRITERES.filter(function (c) { return c.k === "ppe"; })[0].v[2] = libPPE();
             var RS = X.revueSession(s.id);
             var DV = X.demandeValidation(s.id);
             var V = valideur();
@@ -1864,15 +2383,6 @@
             var collecte = X.derniereCollecte(s.id);
             var att = attestation();
             var rAvant = H.risque !== undefined ? H.risque : L.risque;
-
-            /* ---------- Résumé : risque retenu (par qui, quand), vigilance, responsable ---------- */
-            $("resume").innerHTML =
-              (L.risque
-                ? '<span class="risk risk-' + L.risque + '">' + E.RISQUE[L.risque] + '</span><span class="resume-par">' + esc(retenu()) + "</span>"
-                : '<span class="risk risk-na">Risque non évalué</span>') +
-              "<span>" + (L.risque ? VIG[L.risque] : "Vigilance à définir") + "</span>" +
-              (cac ? "" : '<span class="resp">Responsable : <strong>' + esc(resp.nom) + "</strong></span>") +
-              tip("tracfin", "Toute déclaration à Tracfin se fait hors de cette fiche, de façon confidentielle. Cette fiche n'est jamais visible du client.", "Confidentialité de la fiche", "resume-tip");
 
             $("contexte").innerHTML = horsProfil
               ? '<div class="alert alert-info"><span class="ms">info</span><div><strong>' + (cac
@@ -2006,6 +2516,27 @@
             }
             $("afaire").innerHTML = ah;
 
+            /* ---------- Résumé en tête de l'onglet ----------
+               Dossier ouvert : bandeau de quatre tuiles. Sinon : la ligne de résumé d'origine. */
+            var elResume = $("resume");
+            if (L.ouverture) {
+              elResume.className = "syn";
+              elResume.setAttribute("role", "group");
+              elResume.setAttribute("aria-label", "Synthèse du dossier");
+              elResume.innerHTML = syntheseHtml(items.length > 0, RS, HV, retardJ);
+            } else {
+              elResume.className = "card lab-resume";
+              elResume.removeAttribute("role");
+              elResume.removeAttribute("aria-label");
+              elResume.innerHTML =
+                (L.risque
+                  ? '<span class="risk risk-' + L.risque + '">' + E.RISQUE[L.risque] + '</span><span class="resume-par">' + esc(retenu()) + "</span>"
+                  : '<span class="risk risk-na">Risque non évalué</span>') +
+                "<span>" + (L.risque ? VIG[L.risque] : "Vigilance à définir") + "</span>" +
+                (cac ? "" : '<span class="resp">Responsable : <strong>' + esc(resp.nom) + "</strong></span>") +
+                tip("tracfin", "Toute déclaration à Tracfin se fait hors de cette fiche, de façon confidentielle. Cette fiche n'est jamais visible du client.", "Confidentialité de la fiche", "resume-tip");
+            }
+
             /* ---------- Lettre de mission (société cliente seulement) : statut, blocage, objet de la relation ---------- */
             var elLm = $("lm");
             if (cac || horsProfil) {
@@ -2064,6 +2595,9 @@
                   );
                 }).join("") + "</tbody></table></div>" + notes;
             }
+            /* 1 bis. Schéma de détention et de contrôle : qui détient et qui dirige, d'après le DPJ */
+            var schema = schemaHtml();
+            if (schema) out.push(carte("network", "Détention et contrôle", "", "", schema, "schema", "Dessiné depuis le DPJ : représentant légal, bénéficiaires effectifs (plus de 25 % ou contrôle) et associés sous le seuil. La liste détaillée est dans le bloc suivant."));
             out.push(carte("users", "Bénéficiaires effectifs", descBE, "", corpsBE, "beneficiaires", noteBE));
 
             /* 2. Gel des avoirs (contrôle quotidien) et personnes politiquement exposées (déclaration du client) */
@@ -2077,7 +2611,7 @@
             else if (levee) gelRes = '<span class="oui-non ok"><span class="ms">circle-check</span>Aucune correspondance<span class="val-sub">Homonymie levée le ' + esc(levee.date) + " par " + esc(levee.par) + "</span></span>";
             else gelRes = '<span class="oui-non ok"><span class="ms">circle-check</span>Aucune correspondance</span>';
             var ppeRes;
-            if (L.ppe) ppeRes = '<span class="oui-non ppe"><span class="ms">landmark</span>PPE déclarée : ' + esc(ppeNom || dirNom) + " " + tip("ppe-mesures", NOTE_PPE, "Mesures applicables à une PPE") + "</span>";
+            if (L.ppe) ppeRes = '<span class="oui-non ppe"><span class="ms">landmark</span>' + (L.ppeConfirmee ? "PPE confirmée par le cabinet : " : "PPE déclarée : ") + esc(ppeNom || dirNom) + " " + tip("ppe-mesures", NOTE_PPE, "Mesures applicables à une PPE") + "</span>";
             else if (att && att.date) ppeRes = '<span class="oui-non ok"><span class="ms">circle-check</span>Aucune PPE déclarée</span>';
             else if (att && att.perime) ppeRes = '<span class="oui-non warn"><span class="ms">circle-dashed</span>Attestation à renouveler</span>';
             else ppeRes = '<span class="oui-non muted"><span class="ms">circle-dashed</span>Attestation en attente</span>';
@@ -2123,7 +2657,13 @@
 
             /* 4. Pièces justificatives : reprises d'EJ (cochées), puis pièces demandées au client (assets/ej-lab.js) */
             var REP = X.piecesReprises(s), DEM = X.etatDemandees(s);
+            /* Pièces exigées par le niveau retenu dans la revue en cours et absentes de la liste : à recevoir avant validation */
+            DEM = DEM.concat(exigeesManquantes().filter(function (p) { return !DEM.some(function (e) { return e.lib === p[0]; }); }).map(function (p, k) {
+              return { lib: p[0], det: p[1], recue: false, perime: null, date: null, renouvelee: false, marquee: null, rang: REP.length + DEM.length + k };
+            }));
             var peutRecevoir = !!L.ouverture && !fin;
+            /* Compteur de la carte : les lignes réellement listées (dossier et revue en cours) */
+            var nAtt = REP.length + DEM.length, nRecu = REP.length + DEM.filter(function (e) { return e.recue; }).length;
             var piecesHtml = REP.map(function (p, i) {
               return '<div class="piece"><span class="ms etat recu" aria-hidden="true">circle-check</span>' +
                 '<div class="txt"><div class="lib">' + esc(p[0]) + "</div>" +
@@ -2154,7 +2694,7 @@
                 '<label class="dz-file"><input type="file" id="dz-file" class="dz-input" /><span>Glissez le fichier ici ou <u>parcourez vos fichiers</u></span></label></div>'
               : "";
             out.push(carte("file-check", "Pièces justificatives",
-              nRec + " pièce" + (nRec > 1 ? "s" : "") + " reçue" + (nRec > 1 ? "s" : "") + " sur " + P[1] + " attendues" + (REP.length ? ", dont " + REP.length + " reprise" + (REP.length > 1 ? "s" : "") + " d'EJ" : ""),
+              nRecu + " pièce" + (nRecu > 1 ? "s" : "") + " reçue" + (nRecu > 1 ? "s" : "") + " sur " + nAtt + " attendues" + (REP.length ? ", dont " + REP.length + " reprise" + (REP.length > 1 ? "s" : "") + " d'EJ" : ""),
               "" /* la demande de pièces est dans le bloc « À faire », pas en double ici */,
               '<div class="pieces">' + piecesHtml + "</div>" + depot, "pieces",
               REP.length ? "Ce qu'Express Juridique détient déjà (connecteur INPI, formalités, registres) n'est pas demandé au client." : ""));
@@ -2178,12 +2718,14 @@
                   ajoute(dEval, "scale", "Niveau de risque retenu : " + E.RISQUE[rAvant].toLowerCase() + ", " + VIG[rAvant].toLowerCase() + ".", nomValideur());
                 } else ajoute(L.ouverture, "scale", "Niveau de risque proposé : " + E.RISQUE[rAvant].toLowerCase() + ".", esc(resp.nom));
               }
-              if (L.ppe && H.derniereRevue)
+              if ((RS ? RS.avant.ppe : L.ppe) && H.derniereRevue)
                 ajoute(H.derniereRevue, "landmark", "PPE déclarée : mesures de vigilance complémentaires appliquées, décision d'un membre de la direction consignée.", nomValideur());
+              if (RS && RS.verifPPE && RS.verifPPE.resultat === "confirmee" && !RS.avant.ppe)
+                ajoute(RS.date, "landmark", "PPE confirmée par la vérification du cabinet " + esc(libVerif(RS.verifPPE)).replace(/^PPE confirmée\s*/, "") + " : mesures de vigilance complémentaires et décision d'un membre de la direction à consigner.", esc(RS.par));
               if (H.derniereRevue && L.gel !== "a_verifier") ajoute(H.derniereRevue, "badge-check", "Revue validée.", nomValideur());
               var di = X.demandeInitiale(s);
               if (di) ajoute(di.date, "mail", "Demande de pièces envoyée au client (" + di.n + " manquante" + (di.n > 1 ? "s" : "") + ").", esc(resp.nom));
-              if (att && (att.date || att.ancienne)) ajoute(att.date || att.ancienne, "file-signature", "Attestation PPE et bénéficiaires effectifs " + (att.renouvelee ? "renouvelée pour la revue, " : "") + "signée par " + dirNom + (L.ppe ? " : PPE déclarée (" + (ppeNom || dirNom) + ")." : " : aucune PPE déclarée."), "Signature électronique · jesignexpert.com");
+              if (att && (att.date || att.ancienne)) ajoute(att.date || att.ancienne, "file-signature", "Attestation PPE et bénéficiaires effectifs " + (att.renouvelee ? "renouvelée pour la revue, " : "") + "signée par " + dirNom + (L.ppe && !L.ppeConfirmee ? " : PPE déclarée (" + (ppeNom || dirNom) + ")." : " : aucune PPE déclarée."), "Signature électronique · jesignexpert.com");
               if (criblee) {
                 if (homonymie || confirme || levee) ajoute(L.criblage, "shield-alert", "Gel des avoirs : correspondance possible sur " + homNom + " au contrôle quotidien, à lever.", "Registre national des gels · DG Trésor", true);
                 else if (!BE.length) ajoute(L.criblage, "shield-check", "Gel des avoirs : société et dirigeant contrôlés, aucune correspondance. Bénéficiaires effectifs contrôlés dès leur identification.", "Registre national des gels · DG Trésor", true);
@@ -2230,10 +2772,7 @@
               '<span class="norm">' + (V.responsableLab ? libRLAB() : esc(E.equipe[V.code].role)) + "</span></div></div></div>";
             out.push(carte("history", "Diligences et historique", "", "",
               revueHtml +
-              '<ul class="journal" id="journal">' + J.map(function (j) {
-                return '<li><span class="j-ico' + (j.warn ? " warn" : "") + '"><span class="ms">' + j.i + "</span></span>" +
-                  '<div><div class="j-date">' + j.d + '</div><div class="j-txt">' + esc(j.t) + '</div><div class="j-who">' + j.w + "</div></div></li>";
-              }).join("") + "</ul>", "historique", "Journal daté des actions menées sur ce dossier."));
+              '<ul class="journal" id="journal">' + friseHtml(J) + "</ul>", "historique", "Journal daté des actions menées sur ce dossier."));
 
             $("sections").innerHTML = out.join("");
             rendreRevue();
@@ -2467,7 +3006,7 @@
             }
             if (ui.rv && t.name === "rv-risque") {
               ui.rv.risque = t.value;
-              majRevue();
+              redessinerRevue('input[name="rv-risque"][value="' + t.value + '"]');
               return;
             }
             if (ui.rv && t.id === "rv-ppe-src") {
@@ -2476,8 +3015,7 @@
             }
             if (ui.rv && t.name === "rv-ppe-res") {
               ui.rv.ppeRes = t.value;
-              Array.prototype.forEach.call(document.querySelectorAll('input[name="rv-ppe-res"]'), function (x) { x.removeAttribute("aria-invalid"); });
-              $("rv-live").textContent = "";
+              redessinerRevue('input[name="rv-ppe-res"][value="' + t.value + '"]');
               return;
             }
             if (ui.rv && t.id === "rv-reconduire") {

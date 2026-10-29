@@ -80,11 +80,13 @@
     return E.responsableLab(estCAC(s) ? "cac" : "ec");
   }
   /* profil : gardé pour la compatibilité des appels (le responsable LAB dépend du dossier, pas du profil affiché) */
-  function validateur(s, profil, risqueRetenu) {
+  /* ppeRetenu : true quand la revue en cours confirme une PPE (le dossier n'est mis à jour qu'à la validation) */
+  function validateur(s, profil, risqueRetenu, ppeRetenu) {
     var L = s.lab || {};
     var rlab = responsableLabDe(s);
     var risque = risqueRetenu || L.risque;
-    var raison = L.ppe ? "ppe" : risque === "eleve" ? "eleve" : L.gel === "a_verifier" ? "homonymie" : null;
+    var ppe = !!L.ppe || ppeRetenu === true;
+    var raison = ppe ? "ppe" : risque === "eleve" ? "eleve" : L.gel === "a_verifier" ? "homonymie" : null;
     var code = raison ? rlab : estCAC(s) ? s.signataire : s.associe || rlab;
     return { code: code, nom: E.equipe[code].nom, raison: raison, responsableLab: code === rlab && !!raison };
   }
@@ -227,6 +229,8 @@
   }
   var ID_BE = "Pièces d'identité des bénéficiaires effectifs";
   var ID_DIR = "Pièce d'identité du dirigeant";
+  var PIECE_PATRIMOINE = "Origine du patrimoine";
+  var PIECE_ACTIVITE = "Justificatifs de l'activité";
   function nomDirigeant(s) {
     var F = fiche(s.id);
     return F ? F[2].split(",")[0].trim() : "";
@@ -268,16 +272,33 @@
     var opt = [];
     if (indirect) opt.push(["Organigramme de détention", "exigé : détention indirecte"]);
     else if (holding) opt.push(["Organigramme du groupe", act === "Holding animatrice" ? "filiales animées, pour la holding animatrice" : "périmètre des comptes consolidés"]);
-    if (L.ppe || L.risque === "eleve") opt.push(["Origine du patrimoine", "PPE ou risque élevé"]);
+    if (L.ppe || L.risque === "eleve") opt.push([PIECE_PATRIMOINE, "PPE ou risque élevé"]);
     opt.push(["Origine des fonds", "selon le cas"]);
-    if (L.risque === "eleve") opt.push(["Justificatifs de l'activité", "contrats, factures ou bons de commande"]);
+    if (L.risque === "eleve") opt.push([PIECE_ACTIVITE, "contrats, factures ou bons de commande"]);
     /* Dernier bilan : jamais quand le cabinet tient ou certifie les comptes (client EC, mandat CAC) */
     if (!clientEC && !estMandat(s)) opt.push(["Dernier bilan", "pour le profil d'activité"]);
     dem = dem.concat(opt.slice(0, Math.max(0, total - rep.length - dem.length)));
     while (rep.length + dem.length < total && extras.length) rep.push(extras.shift());
     while (rep.length + dem.length < total) dem.push(["Pièce complémentaire", "à préciser"]);
     rep = rep.slice(0, total);
-    return { reprises: rep, demandees: dem.slice(0, total - rep.length) };
+    var dem2 = dem.slice(0, total - rep.length);
+    /* Jamais écartées par le plafond des données : les pièces exigées par le niveau du dossier (origine du patrimoine,
+       justificatifs de l'activité) et les pièces reçues pendant la session. Elles s'ajoutent à la liste, après les autres. */
+    var libs = dem2.map(function (p) { return p[0]; });
+    piecesExigees(s).forEach(function (p) {
+      if (libs.indexOf(p[0]) === -1) {
+        dem2.push([p[0], p[1]]);
+        libs.push(p[0]);
+      }
+    });
+    var marques = piecesMarquees(s.id);
+    Object.keys(marques).forEach(function (lib) {
+      if (libs.indexOf(lib) === -1 && !rep.some(function (r) { return r[0] === lib; })) {
+        dem2.push([lib, "reçue pendant la session"]);
+        libs.push(lib);
+      }
+    });
+    return { reprises: rep, demandees: dem2 };
   }
   /* Changement de bénéficiaire effectif relevé par EJ depuis la dernière revue (date la plus récente, sinon null) */
   function changementBE(s) {
@@ -320,9 +341,11 @@
     var rep = piecesReprises(s), dem = etatDemandees(s);
     var manq = dem.filter(function (e) { return !e.recue; });
     var liste = rep.map(function (p, i) { return { lib: p[0], det: p[1], recue: true, reprise: true, source: p[2], date: p[3], rang: i }; }).concat(dem);
+    /* attendues : le nombre des données, ou plus si des pièces exigées ou reçues s'y ajoutent */
+    var attendues = Math.max(s.lab.pieces[1], rep.length + dem.length);
     return {
-      attendues: s.lab.pieces[1],
-      recues: s.lab.pieces[1] - manq.length,
+      attendues: attendues,
+      recues: attendues - manq.length,
       manquantes: manq.length,
       aRenouveler: manq.filter(function (e) { return !!e.perime; }).length,
       liste: liste,
@@ -344,6 +367,33 @@
   /* Pièces d'identification manquantes (attestation, identités) : elles bloquent la validation d'une revue */
   function identificationManquante(s) {
     return etatDemandees(s).filter(function (e) { return !e.recue && (e.lib === ATTESTATION || e.lib === ID_BE || e.lib === ID_DIR); }).map(function (e) { return e.lib; });
+  }
+  /* Pièces exigées par le niveau retenu : origine du patrimoine (PPE ou risque élevé), justificatifs de l'activité (risque élevé).
+     risque et ppe : valeurs de la revue en cours ; absents, celles du dossier. */
+  function piecesExigees(s, risque, ppe) {
+    var L = s.lab || {};
+    var r = risque || L.risque;
+    var p = ppe === true || (ppe == null && !!L.ppe);
+    var out = [];
+    if (p || r === "eleve") out.push([PIECE_PATRIMOINE, p ? "exigée : personne politiquement exposée" : "exigée : risque élevé"]);
+    if (r === "eleve") out.push([PIECE_ACTIVITE, "exigée : risque élevé"]);
+    return out;
+  }
+  /* Celles qui manquent, et qui bloquent la validation d'une revue : non reçue si la pièce figure dans la liste demandée ;
+     absente de la liste, une exigence nouvelle (niveau relevé ou PPE confirmée dans la revue en cours) doit être reçue ou
+     marquée reçue avant validation ; une exigence déjà portée par le dossier et absente de la liste est tenue pour
+     satisfaite par les pièces déjà reçues. */
+  function exigeesManquantes(s, risque, ppe) {
+    var L = s.lab || {};
+    if (!L.ouverture) return [];
+    var dem = etatDemandees(s), marques = piecesMarquees(s.id);
+    /* Les exigences du dossier lui-même sont toujours dans la liste ; une exigence absente vient donc de la revue en
+       cours (niveau relevé ou PPE confirmée) et doit être reçue avant validation. */
+    return piecesExigees(s, risque, ppe).filter(function (p) {
+      if (marques[p[0]]) return false;
+      var e = dem.filter(function (x) { return x.lib === p[0]; })[0];
+      return e ? !e.recue : true;
+    });
   }
   function piecesReprises(s) {
     return listesPieces(s).reprises;
@@ -409,7 +459,8 @@
     var L = s.lab || {};
     var rs = revueSession(s.id);
     var risque = rs && rs.avant && rs.avant.risque !== undefined ? rs.avant.risque : L.risque;
-    var raison = L.ppe ? "ppe" : risque === "eleve" ? "eleve" : null;
+    var ppe = rs && rs.avant && rs.avant.ppe !== undefined ? rs.avant.ppe : !!L.ppe;
+    var raison = ppe ? "ppe" : risque === "eleve" ? "eleve" : null;
     var code = raison ? responsableLabDe(s) : estCAC(s) ? s.signataire : s.associe || E.responsableLab("ec");
     var m = E.equipe[code];
     return { code: code, nom: m.nom, role: m.role, raison: raison, responsableLab: !!raison };
@@ -419,6 +470,11 @@
     s.lab.derniereRevue = r.date;
     s.lab.prochaineRevue = r.prochaine;
     if (r.risque) s.lab.risque = r.risque;
+    /* PPE confirmée par la vérification du cabinet : le dossier porte le statut (vigilance renforcée, validateur = responsable LAB) */
+    if (r.verifPPE && r.verifPPE.resultat === "confirmee") {
+      if (!s.lab.ppe) s.lab.ppeConfirmee = true;
+      s.lab.ppe = true;
+    }
   }
   function validerRevue(s, par, o) {
     var L = s.lab;
@@ -439,7 +495,7 @@
       commentaire: o.commentaire || "",
       criteres: o.criteres || {},
       verifPPE: o.verifPPE || null,
-      avant: { statut: L.statut, derniereRevue: L.derniereRevue, prochaineRevue: L.prochaineRevue, risque: L.risque },
+      avant: { statut: L.statut, derniereRevue: L.derniereRevue, prochaineRevue: L.prochaineRevue, risque: L.risque, ppe: !!L.ppe },
     };
     var tout = revuesSession();
     tout[s.id] = r;
@@ -879,6 +935,10 @@
     /* Option Pappers KYC (vérification PPE automatique) : inactive dans ce cabinet */
     kycPappers: false,
     identificationManquante: identificationManquante,
+    piecesExigees: piecesExigees,
+    exigeesManquantes: exigeesManquantes,
+    PIECE_PATRIMOINE: PIECE_PATRIMOINE,
+    PIECE_ACTIVITE: PIECE_ACTIVITE,
     changementBE: changementBE,
     ID_BE: ID_BE,
     ID_DIR: ID_DIR,

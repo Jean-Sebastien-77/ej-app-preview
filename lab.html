@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=20" />
-    <link rel="stylesheet" href="assets/ej-missions.css?v=24" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=25" />
     <style>
       /* ---- Dispositif LAB : file de travail (styles locaux) ---- */
 
@@ -30,6 +30,161 @@
         align-items: center;
         gap: 6px;
         padding-top: 18px;
+      }
+
+      /* Tableau de bord de la file : quatre compteurs cliquables (mêmes filtres que les pastilles) + complétude + répartition du risque.
+         Une seule couleur par tuile : l'icône d'état des compteurs ; tout le reste est neutre. */
+      .lab-dash {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .dash-tile {
+        display: block;
+        min-width: 0;
+        margin: 0;
+        padding: 14px 16px;
+        border: 1px solid var(--ej-hairline);
+        border-radius: var(--ej-radius-md);
+        background: var(--ej-white);
+        color: var(--ej-neutral-700);
+        font: inherit;
+        text-align: left;
+      }
+      button.dash-tile {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+        width: 100%;
+        cursor: pointer;
+        transition: background var(--ej-transition-fast);
+      }
+      button.dash-tile:hover {
+        background: var(--ej-neutral-50);
+      }
+      button.dash-tile[aria-pressed="true"] {
+        border-color: var(--ej-action-600);
+        outline: 1px solid var(--ej-action-600);
+        outline-offset: -1px;
+      }
+      .dash-txt {
+        min-width: 0;
+      }
+      .dash-num,
+      .dash-lbl {
+        display: block;
+      }
+      .dash-num {
+        font-family: var(--ej-font-display);
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1.1;
+        color: var(--ej-primary-900);
+        font-variant-numeric: tabular-nums;
+      }
+      .dash-lbl {
+        margin-top: 4px;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.3;
+        color: var(--ej-neutral-700);
+      }
+      .dash-lbl.dash-tete {
+        margin-top: 0;
+      }
+      .dash-ico {
+        flex-shrink: 0;
+        margin-top: 2px;
+        font-size: 20px;
+        color: var(--ej-neutral-500);
+      }
+      .dash-ico.is-alert {
+        color: var(--ej-error-600);
+      }
+      .dash-ico.is-warn {
+        color: var(--ej-attention-500);
+      }
+      .dash-bar {
+        height: 4px;
+        margin-top: 10px;
+        border-radius: 2px;
+        background: var(--ej-neutral-100);
+        overflow: hidden;
+      }
+      .dash-bar > span {
+        display: block;
+        height: 100%;
+        background: var(--ej-neutral-700);
+      }
+      .dash-sub {
+        margin-top: 8px;
+        font-size: 12.5px;
+        line-height: 1.3;
+        color: var(--ej-neutral-600);
+        font-variant-numeric: tabular-nums;
+      }
+      .dash-risk {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 6px 8px;
+        margin-top: 10px;
+        font-size: 12.5px;
+        color: var(--ej-neutral-700);
+      }
+      .dash-risk .r-bar {
+        height: 8px;
+        border-radius: 2px;
+        background: var(--ej-neutral-100);
+        overflow: hidden;
+      }
+      .dash-risk .r-bar > span {
+        display: block;
+        height: 100%;
+      }
+      .dash-risk .r-faible > span {
+        background: var(--ej-neutral-300);
+      }
+      .dash-risk .r-standard > span {
+        background: var(--ej-neutral-500);
+      }
+      .dash-risk .r-eleve > span {
+        background: var(--ej-neutral-800);
+      }
+      .dash-risk .r-n {
+        min-width: 1.5ch;
+        text-align: right;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+      }
+      @media (max-width: 1279px) {
+        .lab-dash {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+        .lab-dash .dash-wide {
+          grid-column: span 2;
+        }
+      }
+      @media (max-width: 900px) {
+        .lab-dash {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      @media (max-width: 760px) {
+        .lab-dash {
+          gap: 10px;
+          margin-bottom: 14px;
+        }
+        .dash-tile {
+          padding: 12px;
+        }
+      }
+      @media (max-width: 340px) {
+        .lab-dash {
+          grid-template-columns: minmax(0, 1fr);
+        }
       }
 
       /* Filtres-compteurs + recherche sur une ligne */
@@ -136,11 +291,24 @@
       .c-soc .c-sub {
         white-space: nowrap;
       }
+      /* Une seule couleur par ligne : celle de l'action à faire (icône du motif). Le niveau de risque, la date et le
+         responsable restent en neutre ; la pastille colorée du risque est réservée à la fiche. */
       .c-sub .risk {
         font-size: 12.5px;
+        color: var(--ej-neutral-600);
+      }
+      .c-sub .risk::before {
+        background: var(--ej-neutral-400);
+      }
+      .c-sub .risk-eleve {
+        color: var(--ej-neutral-800);
+        font-weight: 600;
+      }
+      .c-sub .risk-eleve::before {
+        background: var(--ej-neutral-800);
       }
       .c-sub.warn {
-        color: var(--ej-warning-600);
+        color: var(--ej-neutral-700);
         font-weight: 500;
       }
       .m-chip {
@@ -170,12 +338,14 @@
         font-size: 16px;
       }
       .motif.k-gel .ms,
-      .motif.k-homonymie .ms,
+      .motif.k-homonymie .ms {
+        color: var(--ej-error-600);
+      }
       .motif.k-revue .ms {
         color: var(--ej-attention-500);
       }
       .motif.k-pieces .ms {
-        color: var(--ej-info-600);
+        color: var(--ej-neutral-500);
       }
       .motif.k-ouvrir .ms {
         color: var(--ej-neutral-400);
@@ -200,7 +370,7 @@
         font-variant-numeric: tabular-nums;
       }
       .c-ech .warn {
-        color: var(--ej-warning-600);
+        color: var(--ej-neutral-800);
         font-weight: 500;
       }
       .verb {
@@ -411,11 +581,13 @@
               <button class="btn btn-secondary btn-sm" type="button" id="exporter" aria-label="Exporter les dossiers du filtre affiché"><span class="ms">download</span><span class="lab-exp-lbl">Exporter les dossiers</span></button>
               <span class="info-tip" data-tip="bas">
                 <button type="button" class="info-tip-btn" aria-describedby="note-export" aria-label="Conservation des exports"><span class="ms">info</span></button>
-                <span class="info-tip-pop" role="tooltip" id="note-export">Export des dossiers et de leur historique, à conserver cinq ans (article L.561-12 du Code monétaire et financier).</span>
+                <span class="info-tip-pop" role="tooltip" id="note-export">Export de la file (synthèse par dossier). L'historique de chaque dossier est dans sa fiche, onglet Vigilance LAB. Conservation cinq ans (article L.561-12 du Code monétaire et financier).</span>
               </span>
             </div>
             <p class="page-desc">Les dossiers qui demandent une action, du plus urgent au moins urgent.</p>
           </div>
+
+          <div class="lab-dash" id="dash"></div>
 
           <div class="lab-bar">
             <div class="lab-pills" id="pills" role="group" aria-label="Filtrer les dossiers"></div>
@@ -462,10 +634,10 @@
       </div>
     </div>
 
-    <script src="assets/ej-missions-data.js?v=28"></script>
+    <script src="assets/ej-missions-data.js?v=29"></script>
     <script src="assets/ej-cockpit-data.js?v=10"></script>
     <script src="assets/ej-dpj-data.js?v=2"></script>
-    <script src="assets/ej-lab.js?v=7"></script>
+    <script src="assets/ej-lab.js?v=9"></script>
     <script>
       /* Le shell (chargé après ce script) pose body[data-profil] et window.EJ_USER : la page se construit au DOMContentLoaded. */
       document.addEventListener("DOMContentLoaded", function () {
@@ -660,10 +832,86 @@
           $("pills").innerHTML = h;
         }
 
+        /* ---------- Tableau de bord de la file (au-dessus des pastilles, recalculé à chaque dessin) ---------- */
+        /* Dossier ouvert : ni « à ouvrir » ni relation terminée */
+        function ouvert(s) {
+          return !!(s && s.lab) && s.lab.statut !== "a_ouvrir" && !finRelation(s);
+        }
+        /* Tuiles-compteurs : même compte (compte) et même filtre (data-f, géré par choisir) que les pastilles */
+        var TUILES = [
+          { f: "traiter", lib: "À traiter", ico: "list-checks" },
+          { f: "homonymie", lib: "Homonymies à lever", ico: "shield-alert", cls: "is-alert" },
+          { f: "revue", lib: "Revues échues", ico: "history", cls: "is-warn" },
+          { f: "pieces", lib: "Pièces manquantes", ico: "file-clock" },
+        ];
+        function tuileCompteur(t) {
+          var n = compte(t.f);
+          var actif = etat.f === t.f;
+          return (
+            '<button type="button" class="dash-tile" data-f="' + t.f + '" aria-pressed="' + actif + '">' +
+            '<span class="dash-txt"><span class="dash-num">' + n + '</span><span class="dash-lbl">' + esc(t.lib) + "</span></span>" +
+            '<span class="ms dash-ico' + (t.cls && n > 0 ? " " + t.cls : "") + '">' + t.ico + "</span>" +
+            "</button>"
+          );
+        }
+        function tuileCompletude(ouv) {
+          var m = ouv.length;
+          var n = ouv.filter(function (s) { return s.lab.statut === "a_jour"; }).length;
+          if (!m)
+            return '<div class="dash-tile dash-wide" role="img" aria-label="Complétude du portefeuille : aucun dossier ouvert"><div class="dash-lbl dash-tete">Complétude du portefeuille</div><div class="dash-sub">Aucun dossier ouvert</div></div>';
+          var pct = Math.round((n * 100) / m);
+          return (
+            '<div class="dash-tile dash-wide" role="img" aria-label="Complétude du portefeuille : ' + pct + " %, " + n + " sur " + m + ' dossiers ouverts à jour">' +
+            '<div class="dash-num">' + pct + "\u00a0%</div>" +
+            '<div class="dash-lbl">Complétude du portefeuille</div>' +
+            '<div class="dash-bar"><span style="width:' + pct + '%"></span></div>' +
+            '<div class="dash-sub">' + n + " sur " + m + " dossiers à jour</div>" +
+            "</div>"
+          );
+        }
+        function tuileRisque(ouv) {
+          var m = ouv.length;
+          var tete = '<div class="dash-lbl dash-tete">Répartition par niveau de risque</div>';
+          if (!m)
+            return '<div class="dash-tile dash-wide" role="img" aria-label="Répartition par niveau de risque : aucun dossier ouvert">' + tete + '<div class="dash-sub">Aucun dossier ouvert</div></div>';
+          var NIV = [["faible", "Faible"], ["standard", "Standard"], ["eleve", "Élevé"]];
+          var nb = { faible: 0, standard: 0, eleve: 0 };
+          var nonEval = 0;
+          ouv.forEach(function (s) {
+            if (nb.hasOwnProperty(s.lab.risque)) nb[s.lab.risque]++;
+            else nonEval++;
+          });
+          var barres = NIV.map(function (v) {
+            var n = nb[v[0]];
+            var w = n ? Math.max(2, Math.round((n * 100) / m)) : 0;
+            return '<span>' + v[1] + '</span><span class="r-bar r-' + v[0] + '"><span style="width:' + w + '%"></span></span><span class="r-n">' + n + "</span>";
+          }).join("");
+          var lab = "Répartition par niveau de risque, " + m + " dossiers ouverts : " +
+            NIV.map(function (v) { return v[1].toLowerCase() + " " + nb[v[0]]; }).join(", ") +
+            (nonEval ? ", " + nonEval + " non évalué" + (nonEval > 1 ? "s" : "") : "");
+          return (
+            '<div class="dash-tile dash-wide" role="img" aria-label="' + esc(lab) + '">' + tete +
+            '<div class="dash-risk">' + barres + "</div>" +
+            (nonEval ? '<div class="dash-sub">' + nonEval + " non évalué" + (nonEval > 1 ? "s" : "") + "</div>" : "") +
+            "</div>"
+          );
+        }
+        function dessinerDash() {
+          var ouv = S.filter(ouvert);
+          var a = document.activeElement;
+          var gardeFocus = a && a.getAttribute && a.parentNode === $("dash") ? a.getAttribute("data-f") : null;
+          $("dash").innerHTML = TUILES.map(tuileCompteur).join("") + tuileCompletude(ouv) + tuileRisque(ouv);
+          /* Le clic réécrit la grille : le focus clavier revient sur la même tuile */
+          if (gardeFocus) {
+            var b = $("dash").querySelector('[data-f="' + gardeFocus + '"]');
+            if (b) b.focus();
+          }
+        }
+
         /* ---------- Cellules ---------- */
         function tag(id) {
           var m = E.equipe[id];
-          return '<span class="tag" title="Valide la revue"><i class="dot" style="background:' + m.couleur + '"></i><span>' + esc(m.nom) + "</span></span>";
+          return '<span class="tag" title="Valide la revue"><span>' + esc(m.nom) + "</span></span>";
         }
         function pastilleRisque(s) {
           return s.lab.risque
@@ -809,6 +1057,7 @@
               vide.innerHTML = "Aucun dossier de ce filtre ne correspond à « " + esc(etat.q.trim()) + " ».<br /><button type=\"button\" data-f=\"tous\">Chercher dans tous les dossiers</button>";
             else vide.innerHTML = "Aucun dossier ne correspond à « " + esc(etat.q.trim()) + " ».";
           }
+          dessinerDash();
           dessinerPills();
           memoriserEtat();
         }
@@ -899,6 +1148,7 @@
           dessiner();
         }
         $("pills").addEventListener("click", choisir);
+        $("dash").addEventListener("click", choisir);
         $("empty").addEventListener("click", choisir);
         $("q").addEventListener("input", function (e) {
           etat.q = e.target.value;
