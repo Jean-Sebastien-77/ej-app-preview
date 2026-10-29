@@ -6722,7 +6722,45 @@
             .catch(function () {})
             .then(function () { console.info("[EJ] Claude : " + (AI ? "disponible" : "absent") + ", outils : " + (AI_TOOLS ? "oui" : "non")); });
         }
-        var AI_OFF = ["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed", "session_expired"];
+        /* Hors Artifact : relais Claude (Cloudflare Worker, clé gardée côté serveur) déclaré par ej-shell.js dans window.EJ_RELAIS
+           (script chargé en fin de page, donc lu après DOMContentLoaded ; AI n'est consulté qu'au clic). Même contrat que
+           l'Artifact (json(consigne) → objet) sans outil de page : EJ vérifie la requête après la réponse. Le relais ne reçoit
+           que la consigne (question masquée, schéma, catalogue), jamais une donnée de société. */
+        document.addEventListener("DOMContentLoaded", function () {
+          if (AI || (window.claude && typeof window.claude.use === "function")) return;
+          var relais = typeof window.EJ_RELAIS === "string" ? window.EJ_RELAIS.trim() : "";
+          if (!/^https?:\/\//.test(relais)) return;
+          AI = {
+            json: function (prompt) {
+              return fetch(relais, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: prompt }) }).then(
+                function (r) {
+                  return r.json().catch(function () { return {}; }).then(function (b) {
+                    if (!r.ok) {
+                      var e = new Error(b && b.message ? b.message : "HTTP " + r.status);
+                      e.code = b && b.erreur ? b.erreur : "http_" + r.status;
+                      throw e;
+                    }
+                    if (!b || typeof b.json !== "object" || b.json === null) {
+                      var e2 = new Error("Réponse du relais inexploitable");
+                      e2.code = "reponse_inexploitable";
+                      throw e2;
+                    }
+                    return b.json;
+                  });
+                },
+                function () {
+                  var e = new Error("Relais injoignable");
+                  e.code = "relais_injoignable";
+                  throw e;
+                }
+              );
+            },
+          };
+          AI_TOOLS = false;
+          console.info("[EJ] Claude : relais " + relais.replace(/^https?:\/\//, "").split("/")[0] + ", outils : non");
+        });
+        /* Codes qui coupent Claude pour la page : capacité retirée (Artifact) ou relais sans clé, origine refusée, plafond du jour */
+        var AI_OFF = ["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed", "session_expired", "cle_absente", "origine_refusee", "plafond_jour", "plafond_ip"];
         /* Exemples du DPJ, noms de personnes remplacés par une étiquette comme dans une vraie question */
         var AI_EX = (function () {
           var s = JSON.stringify(DPJ.examples.map(function (e) { return { question: e.question, requete: e.query }; }));
@@ -7946,6 +7984,6 @@
         document.addEventListener("DOMContentLoaded", init);
       })();
     </script>
-    <script src="assets/ej-shell.js?v=28"></script>
+    <script src="assets/ej-shell.js?v=29"></script>
   </body>
 </html>

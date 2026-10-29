@@ -39,8 +39,23 @@
   var PREVIEW = "https://jean-sebastien-77.github.io/ej-app-preview/";
   var COCKPIT_CLAUDE = "https://claude.ai/artifact/6PwkrcDqaAaE4Kc5BahVGn";
   var IN_CLAUDE = !!(window.claude && typeof window.claude.use === "function");
+  /* Relais Claude hors Artifact (Cloudflare Worker, clé gardée côté serveur) : URL à renseigner après déploiement,
+     voir EJ-plateforme/relais-claude/RELAIS-CLOUDFLARE.md. Vide = pas de relais : l'onglet Cockpit ouvre l'Artifact. */
+  var RELAIS_CLAUDE = "https://relais-claude-ej.js-728.workers.dev";
+  /* En local seulement : ?relais=http://localhost:8787 (gardé dans le navigateur) pour tester un relais local ; ?relais= l'efface. */
+  try {
+    if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
+      var qr = /[?&]relais=([^&]*)/.exec(location.search);
+      if (qr) {
+        if (qr[1]) localStorage.setItem("ej-relais", decodeURIComponent(qr[1]));
+        else localStorage.removeItem("ej-relais");
+      }
+      RELAIS_CLAUDE = localStorage.getItem("ej-relais") || RELAIS_CLAUDE;
+    }
+  } catch (e) {}
   window.EJ_PREVIEW = PREVIEW;
   window.EJ_IN_CLAUDE = IN_CLAUDE;
+  window.EJ_RELAIS = IN_CLAUDE ? "" : RELAIS_CLAUDE;
 
   var active = document.body.getAttribute("data-active") || "";
   /* Accueil et Cockpit sont deux onglets d'une même entrée de menu. */
@@ -195,7 +210,8 @@
         return !(profil === "conseil" && t.id === "cockpit");
       }).map(function (t) {
         var on = t.id === homeTab;
-        var ext = t.id === "cockpit" && COCKPIT_CLAUDE && !IN_CLAUDE && /\.github\.io$/.test(location.hostname);
+        /* Sans relais, le cockpit public ouvre la version Claude.ai ; avec relais, la page publique a Claude elle-même */
+        var ext = t.id === "cockpit" && COCKPIT_CLAUDE && !IN_CLAUDE && !RELAIS_CLAUDE && /\.github\.io$/.test(location.hostname);
         var href = ext ? COCKPIT_CLAUDE + '" target="_blank" rel="noopener' : t.id === "cockpit" && IN_CLAUDE ? "#" : t.href;
         return '<a class="tab' + (on ? " active" : "") + '" href="' + href + '"' + (on ? ' aria-current="page"' : "") + '><span class="ms">' + t.icon + "</span>" + t.label + "</a>";
       }).join("") +
