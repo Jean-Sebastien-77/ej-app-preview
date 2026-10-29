@@ -33,6 +33,15 @@
     { label: "Se déconnecter", icon: "logout", href: "#" },
   ];
 
+  /* Cockpit avec Claude : la même page publiée comme Artifact Claude.ai (window.claude y existe avant les scripts).
+     Sur ej-app-preview, l'onglet Cockpit ouvre cette version dans un nouvel onglet ; dans l'Artifact,
+     les autres pages restent celles d'ej-app-preview (liens absolus, nouvel onglet). */
+  var PREVIEW = "https://jean-sebastien-77.github.io/ej-app-preview/";
+  var COCKPIT_CLAUDE = "https://claude.ai/artifact/6PwkrcDqaAaE4Kc5BahVGn";
+  var IN_CLAUDE = !!(window.claude && typeof window.claude.use === "function");
+  window.EJ_PREVIEW = PREVIEW;
+  window.EJ_IN_CLAUDE = IN_CLAUDE;
+
   var active = document.body.getAttribute("data-active") || "";
   /* Accueil et Cockpit sont deux onglets d'une même entrée de menu. */
   if (active === "cockpit") active = "accueil";
@@ -186,7 +195,9 @@
         return !(profil === "conseil" && t.id === "cockpit");
       }).map(function (t) {
         var on = t.id === homeTab;
-        return '<a class="tab' + (on ? " active" : "") + '" href="' + t.href + '"' + (on ? ' aria-current="page"' : "") + '><span class="ms">' + t.icon + "</span>" + t.label + "</a>";
+        var ext = t.id === "cockpit" && COCKPIT_CLAUDE && !IN_CLAUDE && /\.github\.io$/.test(location.hostname);
+        var href = ext ? COCKPIT_CLAUDE + '" target="_blank" rel="noopener' : t.id === "cockpit" && IN_CLAUDE ? "#" : t.href;
+        return '<a class="tab' + (on ? " active" : "") + '" href="' + href + '"' + (on ? ' aria-current="page"' : "") + '><span class="ms">' + t.icon + "</span>" + t.label + "</a>";
       }).join("") +
       "</nav>";
   }
@@ -311,6 +322,22 @@
   };
   document.head.appendChild(lu);
 
+  /* Dans l'Artifact, seul le cockpit est publié : les liens vers les autres pages ouvrent ej-app-preview */
+  if (IN_CLAUDE)
+    document.addEventListener(
+      "click",
+      function (e) {
+        var a = e.target.closest ? e.target.closest("a[href]") : null;
+        if (!a || a.hasAttribute("data-cabinet") || a.hasAttribute("data-profil")) return;
+        var h = a.getAttribute("href");
+        if (!h || h.charAt(0) === "#" || /^[a-z][a-z0-9+.-]*:/i.test(h)) return;
+        e.preventDefault();
+        e.stopPropagation();
+        window.open(PREVIEW + h.replace(/^(\.\/|\/)+/, ""), "_blank", "noopener");
+      },
+      true
+    );
+
   document.addEventListener("click", function (e) {
     var pick = e.target.closest("[data-profil]");
     if (pick && pick.tagName === "A") {
@@ -323,6 +350,10 @@
     var cab = e.target.closest("[data-cabinet]");
     if (cab && cab.tagName === "A") {
       e.preventDefault();
+      if (IN_CLAUDE) {
+        window.open(PREVIEW + "accueil.html?tab=accueil&cabinet=" + cab.getAttribute("data-cabinet"), "_blank", "noopener");
+        return;
+      }
       try { localStorage.setItem("ej-cabinet", cab.getAttribute("data-cabinet")); } catch (err) {}
       location.href = "accueil.html?tab=accueil";
       return;

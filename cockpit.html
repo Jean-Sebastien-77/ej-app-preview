@@ -219,22 +219,66 @@
       /* ---------- Canevas ---------- */
       .cv-grid {
         display: grid;
-        grid-template-columns: repeat(12, minmax(0, 1fr));
+        grid-template-columns: repeat(24, minmax(0, 1fr));
         gap: 16px;
       }
+      /* Six largeurs sur 24 colonnes : XS 1/8, S 1/4, T 1/3, M 1/2, W 3/4, L pleine largeur */
       .cv-w {
-        grid-column: span 6;
+        grid-column: span 12;
         display: flex;
         flex-direction: column;
         min-width: 0;
         padding: 16px 18px 18px;
         position: relative;
       }
-      .cv-w.cv-S {
+      .cv-w.cv-XS {
         grid-column: span 3;
+        padding: 12px 12px 14px;
+      }
+      .cv-w.cv-S {
+        grid-column: span 6;
+      }
+      .cv-w.cv-T {
+        grid-column: span 8;
+      }
+      .cv-w.cv-W {
+        grid-column: span 18;
       }
       .cv-w.cv-L {
-        grid-column: span 12;
+        grid-column: span 24;
+      }
+      .cv-w.cv-XS .cv-w-title {
+        font-size: 13px;
+      }
+      .cv-w.cv-XS .cv-kpi-val {
+        font-size: 24px;
+      }
+      .cv-w.cv-XS .cv-edit {
+        margin: -4px -4px 8px;
+      }
+      /* Couleur choisie pour le widget : variables posées par le script seulement si la couleur est valide */
+      .cv-w.has-wc {
+        box-shadow: inset 0 3px 0 var(--wc-0), var(--ej-shadow-xs);
+      }
+      .cv-w.has-wc .ejc-t-primary { --c: var(--wc-0); --cs: var(--wc-0); }
+      .cv-w.has-wc .ejc-t-accent { --c: var(--wc-1); --cs: var(--wc-1); }
+      .cv-w.has-wc .ejc-t-soft { --c: var(--wc-2); --cs: var(--wc-2); }
+      .cv-w.has-wc .ejc-t-muted { --c: var(--wc-3); --cs: var(--wc-3); }
+      .cv-w.has-wc .ejc-t-mint { --c: var(--wc-4); --cs: var(--wc-4); }
+      .cv-w.has-wc .ejc-t-info { --c: var(--wc-5); --cs: var(--wc-5); }
+      .cv-w.has-wc .ejc-t-attention { --c: var(--wc-6); --cs: var(--wc-6); }
+      .cv-w.has-wc .ejc-t-warning { --c: var(--wc-7); --cs: var(--wc-7); }
+      .cv-w.has-wc .cv-kpi-val {
+        color: var(--wc-text);
+      }
+      .cv-w.has-wc .meter > span {
+        background: var(--wc-0);
+      }
+      .cv-w.has-wc .ejc-cell:not(.is-na) {
+        color: var(--wc-ink-lo);
+      }
+      .cv-w.has-wc .ejc-cell.is-ink {
+        color: var(--wc-ink);
       }
       .cv-w-head {
         display: flex;
@@ -625,8 +669,127 @@
         margin: 0 4px;
         background: var(--ej-neutral-200);
       }
+      .cv-edit {
+        flex-wrap: wrap;
+        row-gap: 4px;
+      }
+      .cv-tb.cv-szbtn {
+        width: auto;
+        min-width: 28px;
+        padding: 0 2px 0 6px;
+        gap: 0;
+      }
+      .cv-tb.cv-szbtn .ms {
+        font-size: 14px;
+      }
+      .cv-mi.is-off {
+        color: var(--ej-neutral-400);
+        cursor: not-allowed;
+      }
+      .cv-mi.is-off:hover {
+        background: none;
+        color: var(--ej-neutral-400);
+      }
+      .cv-mi .cv-mi-n {
+        font-size: 11.5px;
+        color: var(--ej-neutral-400);
+      }
+      .cv-mi .cv-mi-k {
+        min-width: 34px;
+        font-family: var(--ej-font-display);
+        font-weight: 600;
+      }
+      .cv-cdot {
+        display: block;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--ej-primary-900);
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+      }
+      .cv-cdot.is-orig {
+        background: conic-gradient(var(--ej-primary-900) 0 50%, var(--ej-accent-400) 50% 100%);
+      }
+      .cv-menu.cv-cpanel {
+        min-width: 0;
+        width: 232px;
+        padding: 6px 10px 10px;
+      }
+      .cv-sws {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        padding: 4px 0 6px;
+      }
+      .cv-swb {
+        height: 32px;
+        border-radius: var(--ej-radius-md);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .cv-swb:focus-visible,
+      .cv-cpanel input:focus-visible,
+      .cv-cpanel button:focus-visible {
+        outline: 2px solid var(--ej-primary-400);
+        outline-offset: 2px;
+      }
+      .cv-swb .ms {
+        font-size: 16px;
+        visibility: hidden;
+      }
+      .cv-swb[aria-checked="true"] {
+        box-shadow: 0 0 0 2px var(--ej-white), 0 0 0 4px var(--ej-primary-900);
+      }
+      .cv-swb[aria-checked="true"] .ms {
+        visibility: visible;
+      }
+      .cv-custom {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 2px 0;
+      }
+      .cv-custom input[type="color"] {
+        flex: none;
+        width: 34px;
+        height: 32px;
+        padding: 2px;
+        border: 1px solid var(--ej-neutral-200);
+        border-radius: var(--ej-radius-md);
+        background: var(--ej-white);
+        cursor: pointer;
+      }
+      .cv-custom .form-input {
+        flex: 1;
+        min-width: 0;
+        height: 32px;
+        padding: 0 8px;
+        font-size: 13px;
+        font-variant-numeric: tabular-nums;
+        text-transform: uppercase;
+      }
+      .cv-custom .form-input[aria-invalid="true"] {
+        border-color: var(--ej-error-600);
+      }
+      .cv-custom .btn {
+        flex: none;
+      }
+      .cv-cerr {
+        min-height: 0;
+        margin: 4px 0 0;
+        font-size: 12px;
+        color: var(--ej-error-600);
+      }
+      .cv-cerr:empty {
+        display: none;
+      }
+      .cv-cpanel .cv-mi {
+        padding: 7px 8px;
+      }
       .cv-addtile {
-        grid-column: span 12;
+        grid-column: 1 / -1;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1078,6 +1241,26 @@
         color: var(--ej-white);
         font-size: 13.5px;
         overflow-wrap: anywhere;
+      }
+      .cv-msg-ai {
+        font-size: 13.5px;
+        line-height: 1.5;
+        color: var(--ej-neutral-800);
+      }
+      .cv-msg-ai > p {
+        margin: 0;
+      }
+      .cv-msg-ai > .cv-sent {
+        margin: 0 0 6px;
+      }
+      .cv-ai-ch {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 10px;
+      }
+      .cv-ai-ch .cv-sugg-b {
+        padding: 6px 11px;
       }
       .cv-msg-a {
         padding: 14px;
@@ -1959,6 +2142,10 @@
       .cv-cov li {
         justify-content: space-between;
       }
+      .cv-menu.up.cv-flip {
+        top: calc(100% + 6px);
+        bottom: auto;
+      }
       .cv-menu.up {
         top: auto;
         bottom: calc(100% + 6px);
@@ -2171,9 +2358,17 @@
       body.cv-ai-open .cv-ask {
         display: none;
       }
+      /* Écran moyen : les largeurs étroites passent à la moitié (1/8 au quart), 3/4 passe en pleine largeur */
       @media (max-width: 1100px) {
-        .cv-w.cv-S {
+        .cv-w.cv-XS {
           grid-column: span 6;
+        }
+        .cv-w.cv-S,
+        .cv-w.cv-T {
+          grid-column: span 12;
+        }
+        .cv-w.cv-W {
+          grid-column: span 24;
         }
       }
       @media (max-width: 900px) {
@@ -2220,7 +2415,10 @@
           gap: 12px;
         }
         .cv-w,
+        .cv-w.cv-XS,
         .cv-w.cv-S,
+        .cv-w.cv-T,
+        .cv-w.cv-W,
         .cv-w.cv-L {
           grid-column: span 2;
         }
@@ -2228,6 +2426,7 @@
           grid-column: span 1;
           padding: 14px 14px 12px;
         }
+        .cv-w.cv-W.is-kpi,
         .cv-w.cv-L.is-kpi {
           grid-column: span 2;
         }
@@ -2249,7 +2448,7 @@
           font-size: 12px;
         }
         .cv-addtile {
-          grid-column: span 2;
+          grid-column: 1 / -1;
         }
         .cv-li {
           grid-template-columns: minmax(0, 1fr) auto;
@@ -2314,6 +2513,31 @@
         .cv-edit .cv-tb {
           width: 32px;
           height: 32px;
+        }
+      }
+      /* Tablette : grille de 4 colonnes. Chiffres clés : 1/8 au quart, 1/4 à 1/2 à la moitié, 3/4 et pleine largeur sur toute la ligne.
+         Jauge en 1/8 à la moitié ; les autres widgets sur toute la ligne. */
+      @media (min-width: 601px) and (max-width: 900px) {
+        .cv-grid {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+        .cv-w,
+        .cv-w.cv-S,
+        .cv-w.cv-T,
+        .cv-w.cv-W,
+        .cv-w.cv-L {
+          grid-column: span 4;
+        }
+        .cv-w.cv-XS,
+        .cv-w.is-kpi {
+          grid-column: span 2;
+        }
+        .cv-w.cv-XS.is-kpi {
+          grid-column: span 1;
+        }
+        .cv-w.cv-W.is-kpi,
+        .cv-w.cv-L.is-kpi {
+          grid-column: span 4;
         }
       }
       /* Téléphone : assistant plein écran, un seul défilement, saisie collée en bas du fil (visible au-dessus du clavier) */
@@ -2463,7 +2687,7 @@
 
     <script src="assets/ej-missions-data.js?v=28"></script>
     <script src="assets/ej-lab.js?v=7"></script>
-    <script src="assets/ej-cockpit-data.js?v=8"></script>
+    <script src="assets/ej-cockpit-data.js?v=10"></script>
     <script src="assets/ej-dpj-data.js?v=2"></script>
     <script src="assets/ej-charts.js?v=2"></script>
     <script>
@@ -2520,10 +2744,187 @@
         function vizesOf(I) {
           return I.kind === "kpi" || I.kind === "heading" ? [defViz(I)] : I.vizes || [defViz(I)];
         }
+        /* ---------- Largeurs et couleurs des widgets ---------- */
+        /* Clés de largeur (S, M, L gardent leur sens d'origine : les tableaux déjà enregistrés restent identiques) */
+        var SIZES = ["XS", "S", "T", "M", "W", "L"];
+        var SIZE_L = { XS: "1/8", S: "1/4", T: "1/3", M: "1/2", W: "3/4", L: "Plein" };
+        var SIZE_A = { XS: "un huitième de la ligne", S: "un quart de la ligne", T: "un tiers de la ligne", M: "la moitié de la ligne", W: "trois quarts de la ligne", L: "toute la ligne" };
+        /* Largeur dite par le modèle (« 1/4 », « plein ») vers la clé */
+        var SIZE_AI = { "1/8": "XS", "1/4": "S", "1/3": "T", "1/2": "M", "3/4": "W", plein: "L" };
+        var XS_WHY = "1/8 est réservé aux chiffres clés et aux jauges";
+        function defSize(I) {
+          return I.kind === "kpi" ? "S" : I.kind === "heading" ? "L" : "M";
+        }
+        /* 1/8 (environ 130 px) : seulement un chiffre clé ou une jauge */
+        function xsOk(I, viz) {
+          return !!I && (I.kind === "kpi" || I.kind === "gauge" || viz === "kpi" || viz === "gauge");
+        }
+        /* Largeur valide pour ce widget : clé inconnue = largeur par défaut, 1/8 refusé = 1/4 */
+        function fitSize(I, viz, s) {
+          s = SIZES.indexOf(s) !== -1 ? s : defSize(I);
+          return s === "XS" && !xsOk(I, viz) ? "S" : s;
+        }
+        function sizeLabel(s) {
+          return SIZE_L[s] || SIZE_L.M;
+        }
+        /* Couleurs de la charte proposées pour un widget (tokens --ej-* de ej-app.css) */
+        var SWATCHES = [
+          { hex: "#312782", name: "Indigo" },
+          { hex: "#5d58d7", name: "Violet" },
+          { hex: "#9e9beb", name: "Pervenche" },
+          { hex: "#34d399", name: "Menthe" },
+          { hex: "#097b53", name: "Vert" },
+          { hex: "#d67b75", name: "Corail" },
+          { hex: "#a55904", name: "Ambre" },
+          { hex: "#c22f28", name: "Rouge" },
+        ];
+        var HEX_RE = /^#[0-9a-fA-F]{6}$/;
+        /* Couleur lue (stockage, modèle, saisie) : #rrggbb en minuscules, ou null */
+        function normColor(v) {
+          if (typeof v !== "string") return null;
+          v = v.trim();
+          if (/^[0-9a-fA-F]{6}$/.test(v)) v = "#" + v;
+          return HEX_RE.test(v) ? v.toLowerCase() : null;
+        }
+        function colorName(hex) {
+          var c = normColor(hex);
+          if (!c) return "Couleur d'origine";
+          var s = SWATCHES.filter(function (x) { return x.hex === c; })[0];
+          return s ? s.name + " (" + c.toUpperCase() + ")" : c.toUpperCase();
+        }
+        function hexRgb(h) {
+          return [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+        }
+        function rgbHex(c) {
+          return "#" + c.map(function (v) { var x = Math.max(0, Math.min(255, Math.round(v))).toString(16); return x.length < 2 ? "0" + x : x; }).join("");
+        }
+        function rgbHsl(c) {
+          var r = c[0] / 255, g = c[1] / 255, b = c[2] / 255;
+          var mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, h = 0, s = 0;
+          if (mx !== mn) {
+            var d = mx - mn;
+            s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
+            h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+            h /= 6;
+          }
+          return [h, s, l];
+        }
+        function hslRgb(h, s, l) {
+          if (!s) return [l * 255, l * 255, l * 255];
+          function f(p, q, t) {
+            if (t < 0) t += 1;
+            if (t > 1) t -= 1;
+            return t < 1 / 6 ? p + (q - p) * 6 * t : t < 1 / 2 ? q : t < 2 / 3 ? p + (q - p) * (2 / 3 - t) * 6 : p;
+          }
+          var q = l < 0.5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q;
+          return [f(p, q, h + 1 / 3) * 255, f(p, q, h) * 255, f(p, q, h - 1 / 3) * 255];
+        }
+        /* Luminance relative et contraste WCAG 2 */
+        function lum(c) {
+          var a = c.map(function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+          return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2];
+        }
+        function contrast(a, b) {
+          var x = lum(a), y = lum(b);
+          return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+        }
+        function mix(a, b, t) {
+          return [0, 1, 2].map(function (i) { return a[i] * t + b[i] * (1 - t); });
+        }
+        /* Encre (blanc ou noir de la charte) qui reste la plus lisible sur toutes les teintes de fond données */
+        function inkOn(bgs) {
+          var best = null;
+          ["#ffffff", "#221c55", "#000000"].forEach(function (h) {
+            var c = hexRgb(h);
+            var worst = Math.min.apply(null, bgs.map(function (bg) { return contrast(c, bg); }));
+            if (!best || worst > best.v + 0.01) best = { h: h, v: worst };
+          });
+          return best.h;
+        }
+        /* Couleurs d'un widget, calculées en un seul endroit (fonction pure) : null si la couleur n'est pas un #RRGGBB valide.
+           k = nombre de séries ou catégories à distinguer : la couleur choisie, puis des nuances plus foncées et plus claires en alternance. */
+        function wColors(hex, k) {
+          if (typeof hex !== "string" || !HEX_RE.test(hex)) return null;
+          var base = hexRgb(hex);
+          var hsl = rgbHsl(base);
+          k = Math.max(1, Math.min(8, Math.round(k) || 1));
+          var ramp = [hex.toLowerCase()];
+          /* écart de clarté resserré tant que les k nuances ne tiennent pas entre 14 % et 90 % de clarté */
+          for (var step = Math.min(0.2, 0.72 / (k - 1)); k > 1 && ramp.length < k && step > 0.02; step *= 0.8) {
+            ramp = [hex.toLowerCase()];
+            for (var j = 1; ramp.length < k && j <= 2 * k; j++) {
+              [hsl[2] - j * step, hsl[2] + j * step].forEach(function (l) {
+                if (ramp.length < k && l >= 0.14 && l <= 0.9) ramp.push(rgbHex(hslRgb(hsl[0], hsl[1], l)));
+              });
+            }
+          }
+          /* Chiffre clé posé sur le blanc de la carte : la couleur, assombrie si besoin jusqu'à 4,5:1 */
+          var white = [255, 255, 255];
+          var text = base;
+          for (var l2 = hsl[2]; contrast(text, white) < 4.5 && l2 > 0; l2 -= 0.02) text = hslRgb(hsl[0], hsl[1], Math.max(0, l2));
+          /* Frise : fond = couleur mêlée au fond clair (primary-50) ; deux plages d'intensité, chacune son encre */
+          var sb = hexRgb("#f3f2fb");
+          return {
+            ramp: ramp,
+            text: rgbHex(text),
+            ink: inkOn([mix(base, sb, 0.66), base]),
+            inkLo: inkOn([sb, mix(base, sb, 0.5)]),
+          };
+        }
+        var WC_PROPS = ["--wc-0", "--wc-1", "--wc-2", "--wc-3", "--wc-4", "--wc-5", "--wc-6", "--wc-7", "--wc-text", "--wc-ink", "--wc-ink-lo"];
+        /* Pose les variables sur la carte, ou les retire toutes (jamais de valeur non validée) */
+        function applyWColor(el, hex, k) {
+          if (!el) return;
+          var c = wColors(normColor(hex), k);
+          el.classList.toggle("has-wc", !!c);
+          if (!c) {
+            WC_PROPS.forEach(function (p) { el.style.removeProperty(p); });
+            return;
+          }
+          for (var i = 0; i < 8; i++) el.style.setProperty("--wc-" + i, c.ramp[i % c.ramp.length]);
+          el.style.setProperty("--wc-text", c.text);
+          el.style.setProperty("--wc-ink", c.ink);
+          el.style.setProperty("--wc-ink-lo", c.inkLo);
+        }
+        /* Graphique d'un widget coloré : chaque teinte d'origine (sauf N-1, qui reste grise) prend un emplacement de nuance.
+           Renvoie le nombre de nuances nécessaires. */
+        var WC_SLOTS = ["primary", "accent", "soft", "muted", "mint", "info", "attention", "warning"];
+        var LIB_TONES = ["primary", "accent", "soft", "muted", "n1"];
+        function retone(o) {
+          var seen = [];
+          function map(t) {
+            t = t || "primary";
+            if (t === "n1") return t;
+            var i = seen.indexOf(t);
+            if (i === -1) {
+              if (seen.length >= WC_SLOTS.length) return WC_SLOTS[WC_SLOTS.length - 1];
+              seen.push(t);
+              i = seen.length - 1;
+            }
+            return WC_SLOTS[i];
+          }
+          if (o.series) {
+            o.series = o.series.map(function (s, i) {
+              var x = {};
+              Object.keys(s).forEach(function (k2) { x[k2] = s[k2]; });
+              /* teintes par catégorie d'abord : ce sont elles qui sont dessinées (la couleur choisie va à la première) */
+              if (Array.isArray(s.tones)) x.tones = s.tones.map(function (t) { return t ? map(t) : t; });
+              x.tone = map(s.tone || (o.series.length === 1 ? "primary" : LIB_TONES[i % LIB_TONES.length]));
+              return x;
+            });
+          }
+          if (o.items) o.items = o.items.map(function (it) { return { label: it.label, value: it.value, tone: map(it.tone) }; });
+          return Math.max(1, seen.length);
+        }
         function mkW(d) {
           var I = IND[d.ind];
           var u = typeof d.uid === "string" && /^w\d+$/.test(d.uid) ? d.uid : uid();
-          return { uid: u, ind: d.ind, size: d.size || (I.kind === "kpi" ? "S" : I.kind === "heading" ? "L" : "M"), viz: d.viz || defViz(I), params: d.params ? clone(d.params) : null, title: d.title || null, sub: d.sub || null };
+          var viz = d.viz || defViz(I);
+          return { uid: u, ind: d.ind, size: fitSize(I, viz, d.size), viz: viz, params: d.params ? clone(d.params) : null, title: d.title || null, sub: d.sub || null, color: normColor(d.color) };
+        }
+        /* Copie d'un widget pour l'enregistrement, le journal ou la duplication */
+        function wData(w) {
+          return { uid: w.uid, ind: w.ind, size: w.size, viz: w.viz, params: w.params, title: w.title, sub: w.sub, color: w.color || null };
         }
         /* Un widget d'un autre profil (CAC en profil EC, par exemple) reste enregistré mais n'est pas affiché */
         function visW(w) {
@@ -2595,7 +2996,7 @@
           var id = ALIAS[w.ind] || w.ind;
           var I = IND[id];
           if (!I) return null;
-          return { uid: w.uid, ind: id, size: ["S", "M", "L"].indexOf(w.size) !== -1 ? w.size : null, viz: vizesOf(I).indexOf(w.viz) !== -1 ? w.viz : null, params: cleanParams(w.params), title: typeof w.title === "string" ? w.title.slice(0, 120) : null, sub: typeof w.sub === "string" ? w.sub.slice(0, 120) : null };
+          return { uid: w.uid, ind: id, size: SIZES.indexOf(w.size) !== -1 ? w.size : null, viz: vizesOf(I).indexOf(w.viz) !== -1 ? w.viz : null, params: cleanParams(w.params), title: typeof w.title === "string" ? w.title.slice(0, 120) : null, sub: typeof w.sub === "string" ? w.sub.slice(0, 120) : null, color: normColor(w.color) };
         }
         function load() {
           var saved = null;
@@ -2662,7 +3063,7 @@
           ST.order.forEach(function (id) {
             var b = ST.boards[id];
             if (!b) return;
-            data.boards[id] = { custom: b.custom, group: b.group, title: b.title, filters: b.filters, widgets: b.widgets.map(function (w) { return { uid: w.uid, ind: w.ind, size: w.size, viz: w.viz, params: w.params, title: w.title, sub: w.sub }; }) };
+            data.boards[id] = { custom: b.custom, group: b.group, title: b.title, filters: b.filters, widgets: b.widgets.map(wData) };
           });
           try {
             localStorage.setItem(KEY, JSON.stringify(data));
@@ -2721,6 +3122,11 @@
           if (I.dir && I.kind !== "kpi") {
             var n = ctxOf(b, w).f.periode || 12;
             var t = n + (I.dir === "fwd" ? " prochains mois" : " derniers mois");
+            /* période propre au widget (épinglé depuis une question) : mois de début et de fin affichés */
+            if (w.params && w.params.f && w.params.f.periode) {
+              var a0 = I.dir === "fwd" ? C.CUR : C.CUR - n + 1;
+              t += " (" + C.month(a0).label + " – " + C.month(a0 + n - 1).label + ")";
+            }
             base = base ? base + " · " + t : t;
           }
           return base;
@@ -2907,7 +3313,8 @@
           var sub = wSub(b, w, I, res);
           var na = naFilters(b, I, w);
           var head = I.kind === "heading";
-          var cls = head ? "cv-sec" : "card cv-w cv-" + w.size + (I.kind === "kpi" ? " is-kpi" : "") + (res && res.alert ? " cv-alert" + (res.alert === "alerte" ? " is-late" : "") : "");
+          var sz = fitSize(I, viz, w.size);
+          var cls = head ? "cv-sec" : "card cv-w cv-" + sz + (I.kind === "kpi" ? " is-kpi" : "") + (res && res.alert ? " cv-alert" + (res.alert === "alerte" ? " is-late" : "") : "");
           var h = '<section class="' + cls + '" data-uid="' + w.uid + '" aria-labelledby="t-' + w.uid + '"' + (ST.edit ? ' draggable="true"' : "") + ">";
           if (head) {
             h += '<h2 class="cv-sec-t" id="t-' + w.uid + '">' + esc(title) + "</h2>";
@@ -2920,9 +3327,7 @@
           }
           if (ST.edit) {
             h += '<div class="cv-edit"><span class="cv-grip" title="Glisser pour déplacer">' + ms("drag_indicator") + "</span>";
-            ["S", "M", "L"].forEach(function (s) {
-              h += '<button type="button" class="cv-tb" data-size="' + s + '" data-w="' + w.uid + '" data-k="size-' + w.uid + "-" + s + '" aria-pressed="' + (w.size === s) + '" aria-label="Taille ' + s + '">' + s + "</button>";
-            });
+            h += sizeMenuHtml(w, I, sz, title) + colorPanelHtml(w, title);
             h += '<span class="cv-tsep"></span>' +
               '<button type="button" class="cv-tb" data-move="-1" data-w="' + w.uid + '" data-k="up-' + w.uid + '" aria-label="Monter : ' + esc(title) + '"' + (i === 0 ? " disabled" : "") + ">" + ms("arrow_up") + "</button>" +
               '<button type="button" class="cv-tb" data-move="1" data-w="' + w.uid + '" data-k="down-' + w.uid + '" aria-label="Descendre : ' + esc(title) + '"' + (i === n - 1 ? " disabled" : "") + ">" + ms("arrow_down") + "</button>" +
@@ -2935,10 +3340,44 @@
               '<button type="button" class="cv-mi danger" role="menuitem" data-del="' + w.uid + '">' + ms("trash_2") + "Supprimer</button></div></div></div>";
           }
           h += '<div class="cv-w-head"><div class="cv-w-titles"><h2 class="cv-w-title" id="t-' + w.uid + '">' + esc(title) + "</h2>" + (sub ? '<p class="cv-w-sub">' + esc(sub) + "</p>" : "") + "</div>" +
-            '<button type="button" class="cv-i" data-info="' + w.uid + '" data-k="info-' + w.uid + '" aria-haspopup="dialog" aria-expanded="false" aria-label="Règle et source : ' + esc(title) + '">' + ms("info") + "</button></div>";
+            '<button type="button" class="cv-i" data-info="' + w.uid + '" data-k="info-' + w.uid + '" aria-haspopup="dialog" aria-expanded="false" aria-label="Règle et source : ' + esc(title) + '">' + ms("info") + "</button>" +
+            (ST.edit ? "" : '<div class="cv-dd"><button type="button" class="cv-i" data-dd="wo-' + w.uid + '" data-k="wo-' + w.uid + '" aria-haspopup="menu" aria-expanded="false" aria-label="Options : ' + esc(title) + '">' + ms("more_vert") + "</button>" +
+              '<div class="cv-menu right" role="menu" aria-label="Options du widget" hidden><button type="button" class="cv-mi danger" role="menuitem" data-wrm="' + w.uid + '">' + ms("trash_2") + "Retirer du tableau</button></div></div>") + "</div>";
           if (na.length) h += '<p class="cv-na" title="Ce filtre du tableau ne s\'applique pas à cet indicateur">' + ms("filter") + "Filtre non disponible : " + esc(na.join(", ")) + "</p>";
           h += '<div class="cv-body">' + bodyHtml(w, res, I) + (res && res.note && w.viz !== "strip" && w.viz !== "kpi" ? '<p class="cv-note">' + esc(res.note) + "</p>" : "") + "</div></section>";
           return h;
+        }
+        /* Largeur : bouton qui affiche la largeur actuelle et ouvre les six choix (1/8 réservé aux chiffres clés et aux jauges) */
+        function sizeMenuHtml(w, I, sz, title) {
+          var ok = xsOk(I, w.viz);
+          return '<div class="cv-dd"><button type="button" class="cv-tb cv-szbtn" data-dd="sz-' + w.uid + '" data-k="szm-' + w.uid + '" aria-haspopup="menu" aria-expanded="false" aria-label="Largeur : ' + esc(sizeLabel(sz)) + ", " + esc(title) + '" title="Largeur">' + esc(sizeLabel(sz)) + ms("chevron_down") + "</button>" +
+            '<div class="cv-menu right" role="menu" aria-label="Largeur du widget" hidden><div class="cv-mh">Largeur</div>' +
+            SIZES.map(function (s) {
+              var off = s === "XS" && !ok;
+              return '<button type="button" class="cv-mi' + (off ? " is-off" : "") + '" role="menuitemradio" aria-checked="' + (sz === s) + '" data-size="' + s + '" data-w="' + w.uid + '" data-k="size-' + w.uid + "-" + s + '"' +
+                (off ? ' aria-disabled="true" title="' + esc(XS_WHY) + '"' : "") + ' aria-label="' + esc(sizeLabel(s) + " : " + SIZE_A[s] + (off ? " (" + XS_WHY + ")" : "")) + '">' +
+                '<span class="cv-mi-k">' + esc(sizeLabel(s)) + "</span>" + (off ? '<span class="cv-mi-n">Chiffre clé ou jauge</span>' : "") + '<span class="ms cv-check">check</span></button>';
+            }).join("") + "</div></div>";
+        }
+        /* Couleur : pastilles de la charte, couleur personnalisée (pipette + code hexadécimal), couleur d'origine */
+        function colorPanelHtml(w, title) {
+          var c = normColor(w.color);
+          var cur0 = c || "#312782";
+          return '<div class="cv-dd"><button type="button" class="cv-tb" data-dd="col-' + w.uid + '" data-k="col-' + w.uid + '" aria-haspopup="dialog" aria-expanded="false" aria-label="Couleur : ' + esc(colorName(c)) + ", " + esc(title) + '" title="Couleur">' +
+            '<span class="cv-cdot' + (c ? "" : " is-orig") + '"' + (c ? ' style="background:' + c + '"' : "") + "></span></button>" +
+            '<div class="cv-menu right cv-cpanel" role="dialog" aria-label="Couleur du widget" hidden><div class="cv-mh">Couleur</div>' +
+            '<div class="cv-sws" role="radiogroup" aria-label="Couleurs de la charte">' +
+            SWATCHES.map(function (s) {
+              var on = c === s.hex;
+              var ink = inkOn([hexRgb(s.hex)]);
+              return '<button type="button" class="cv-swb" role="radio" aria-checked="' + on + '" data-color="' + s.hex + '" data-w="' + w.uid + '" aria-label="' + esc(s.name) + '" title="' + esc(s.name) + '" style="background:' + s.hex + ";color:" + ink + '">' + ms("check") + "</button>";
+            }).join("") + "</div>" +
+            '<div class="cv-mh">Personnalisée</div>' +
+            '<div class="cv-custom"><input type="color" data-cpick="' + w.uid + '" value="' + cur0 + '" aria-label="Choisir une couleur personnalisée" title="Pipette" />' +
+            '<input type="text" class="form-input" data-chex="' + w.uid + '" value="' + (c ? c.toUpperCase() : "") + '" placeholder="#RRGGBB" maxlength="7" spellcheck="false" autocomplete="off" aria-label="Code hexadécimal de la couleur" aria-describedby="cerr-' + w.uid + '" />' +
+            '<button type="button" class="btn btn-secondary btn-sm" data-capply="' + w.uid + '" aria-label="Appliquer ce code">OK</button></div>' +
+            '<p class="cv-cerr" id="cerr-' + w.uid + '" aria-live="polite"></p>' +
+            '<div class="cv-msep"></div><button type="button" class="cv-mi" data-color="" data-w="' + w.uid + '" aria-pressed="' + !c + '">' + ms("rotate_ccw") + "Couleur d'origine</button></div></div>";
         }
         function bodyHtml(w, res, I) {
           if (!res) return '<p class="cv-fail">Calcul indisponible.</p>';
@@ -2987,10 +3426,12 @@
           return h + "</tbody></table></div>";
         }
         function heightOf(w) {
-          return w.size === "S" ? 150 : w.size === "L" ? 240 : 210;
+          return { XS: 150, S: 150, T: 180, M: 210, W: 230, L: 240 }[w.size] || 210;
         }
         function mount(w) {
           var res = RES[w.uid];
+          var card0 = document.querySelector('.cv-w[data-uid="' + w.uid + '"]');
+          applyWColor(card0, w.color, 1);
           if (!res || !window.EJCharts) return;
           var I = IND[w.ind];
           var el = document.querySelector('[data-uid="' + w.uid + '"] [data-chart]');
@@ -3000,7 +3441,7 @@
             if (sp && res.spark) charts.push(EJCharts.sparkline(sp, { values: res.spark, tone: "primary", height: 32, ariaLabel: "Tendance : " + title }));
             if (!el) return;
             if (w.viz === "gauge") {
-              charts.push(EJCharts.gauge(el, { value: res.value, max: res.max, label: res.label, tone: "primary", height: w.size === "S" ? 110 : 140, ariaLabel: title + " : " + res.value + " sur " + res.max, format: function (v, m) { return Math.round((v / m) * 100) + " %"; } }));
+              charts.push(EJCharts.gauge(el, { value: res.value, max: res.max, label: res.label, tone: "primary", height: w.size === "S" || w.size === "XS" ? 110 : 140, ariaLabel: title + " : " + res.value + " sur " + res.max, format: function (v, m) { return Math.round((v / m) * 100) + " %"; } }));
               return;
             }
             if (w.viz === "strip") {
@@ -3008,6 +3449,8 @@
               return;
             }
             var o = chartOpts(w, res, I);
+            /* Widget coloré : séries et catégories reprennent des nuances de la couleur choisie */
+            if (normColor(w.color)) applyWColor(card0, w.color, retone(o));
             if (w.viz === "line") charts.push(EJCharts.line(el, o));
             else if (w.viz === "donut") charts.push(EJCharts.donut(el, o));
             else charts.push(EJCharts.bar(el, o));
@@ -3042,7 +3485,7 @@
             else o.items = res.series.map(function (s) { return { label: s.name, value: s.values.reduce(function (a, v) { return a + v; }, 0), tone: s.tone }; });
             var tot = o.items.reduce(function (a, it) { return a + it.value; }, 0);
             o.center = res.center || { value: fmt(tot), label: "au total" };
-            o.height = w.size === "S" ? 140 : 170;
+            o.height = w.size === "S" || w.size === "XS" ? 140 : 170;
             o.onSelect = function (p) {
               if (kind === "cat") openSel(w, null, p.index, p.categorie);
               else openSel(w, p.index, null, p.categorie);
@@ -3179,6 +3622,21 @@
           if (!open && !keep) return;
           menu.hidden = false;
           btn.setAttribute("aria-expanded", "true");
+          /* menu ouvert depuis un widget étroit : décalé pour rester dans l'écran */
+          menu.style.transform = "";
+          var mr = menu.getBoundingClientRect();
+          var vw = document.documentElement.clientWidth;
+          if (mr.left < 8) menu.style.transform = "translateX(" + Math.round(8 - mr.left) + "px)";
+          else if (mr.right > vw - 8) menu.style.transform = "translateX(" + Math.round(vw - 8 - mr.right) + "px)";
+          /* menu ouvert vers le haut dans la conversation : coupé par la zone qui défile, il s'ouvre vers le bas, puis se rend visible */
+          var sc = menu.closest(".cv-ai-body");
+          menu.classList.remove("cv-flip");
+          if (sc && menu.classList.contains("up")) {
+            var ar = sc.getBoundingClientRect();
+            if (menu.getBoundingClientRect().top < ar.top) menu.classList.add("cv-flip");
+            var m2 = menu.getBoundingClientRect();
+            if (m2.top < ar.top || m2.bottom > ar.bottom) menu.scrollIntoView({ block: "nearest" });
+          }
           if (!keep) {
             var first = menu.querySelector('[aria-checked="true"]') || menu.querySelector("button");
             if (first) first.focus();
@@ -3425,7 +3883,7 @@
            Un tableau personnalisé n'est enregistré que dans le navigateur de son auteur : le lien le rouvre là, pas ailleurs. */
         var PROFILS_OK = ["ec", "cac", "mixte"];
         function shareUrl() {
-          return location.href.split(/[?#]/)[0] + "?tableau=" + encodeURIComponent(cur().id) + "&profil=" + PROFIL;
+          return (window.EJ_IN_CLAUDE ? window.EJ_PREVIEW + "cockpit.html" : location.href.split(/[?#]/)[0]) + "?tableau=" + encodeURIComponent(cur().id) + "&profil=" + PROFIL;
         }
         function copyText(txt, ok, ko) {
           var prev = document.activeElement;
@@ -3672,12 +4130,22 @@
           if (!m || typeof m !== "object") return null;
           if (m.r === "u" && typeof m.t === "string") return { r: "u", t: m.t.slice(0, 400) };
           if (m.r === "h" && typeof m.h === "string") return { r: "h", h: cleanHtml(m.h) };
+          if (m.r === "ai" && typeof m.t === "string")
+            return {
+              r: "ai",
+              t: m.t.slice(0, 500),
+              mode: m.mode === "dpj" ? "dpj" : "compose",
+              cat: !!m.cat,
+              undo: typeof m.undo === "number" ? m.undo : 0,
+              ch: (Array.isArray(m.ch) ? m.ch : []).filter(function (c) { return typeof c === "string"; }).slice(0, 4).map(function (c) { return c.slice(0, 60); }),
+              parts: (Array.isArray(m.parts) ? m.parts : []).slice(0, 80).map(function (p) { return p && typeof p.m === "string" ? { m: p.m.slice(0, 40) } : { t: String((p && p.t) || "").slice(0, 400) }; }),
+            };
           if (m.r === "sw") return { r: "sw", id: String(m.id || mid()).slice(0, 40), to: m.to === "compose" ? "compose" : "dpj", raw: String(m.raw || "").slice(0, 400), done: !!m.done };
           if (m.r !== "dpj" || typeof m.raw !== "string") return null;
           var KINDS = ["query", "hors", "be", "cac", "cacper", "noperson", "homonyme", "nosoc"];
           var o = { r: "dpj", id: String(m.id || mid()).slice(0, 40), raw: m.raw.slice(0, 400), kind: KINDS.indexOf(m.kind) !== -1 ? m.kind : "query", all: !!m.all, pinned: { liste: !!(m.pinned && m.pinned.liste), chiffre: !!(m.pinned && m.pinned.chiffre) } };
           o.parts = (Array.isArray(m.parts) ? m.parts : []).slice(0, 80).map(function (p) { return p && typeof p.m === "string" ? { m: p.m.slice(0, 40) } : { t: String((p && p.t) || "").slice(0, 400) }; });
-          ["what", "name", "tag"].forEach(function (k) { if (typeof m[k] === "string") o[k] = m[k].slice(0, 120); });
+          ["what", "name", "tag", "titre"].forEach(function (k) { if (typeof m[k] === "string") o[k] = m[k].slice(0, 120); });
           if (Array.isArray(m.list)) o.list = m.list.filter(function (x) { return typeof x === "string"; }).slice(0, 12);
           o.first = !!m.first;
           if (Array.isArray(m.mandats)) o.mandats = m.mandats.filter(function (x) { return typeof x === "string" && window.EJM.findMandat && window.EJM.findMandat(x); }).slice(0, 4);
@@ -3794,7 +4262,15 @@
           if (m.r === "h") return m.h;
           if (m.r === "sw") return swHtml(m);
           if (m.r === "dpj") return dpjHtml(m);
+          if (m.r === "ai") return aiHtml(m);
           return "";
+        }
+        /* Phrase ou question de précision rédigée par le modèle ; ses réponses possibles se cliquent comme une suggestion */
+        function aiHtml(m) {
+          return '<div class="cv-msg-ai">' + (m.parts && m.parts.length ? partsLine(m.parts) : "") + "<p>" + esc(m.t) + "</p>" +
+            (m.ch && m.ch.length ? '<div class="cv-ai-ch">' + m.ch.map(function (c) { return '<button type="button" class="cv-sugg-b" data-sugg="' + esc(c) + '" data-sugg-mode="' + (m.mode === "dpj" ? "dpj" : "compose") + '">' + esc(c) + "</button>"; }).join("") + "</div>" : "") +
+            (m.cat ? '<div class="cv-msg-actions"><button type="button" class="btn btn-secondary btn-sm" data-act="add">' + ms("library") + "Parcourir le catalogue</button></div>" : "") +
+            (m.undo ? '<div class="cv-msg-actions"><button type="button" class="btn btn-tertiary btn-sm" data-undo="' + (+m.undo) + '">' + ms("undo_2") + "Annuler</button></div>" : "") + "</div>";
         }
         function swHtml(m) {
           return '<p class="cv-sw" data-mid="' + esc(m.id) + '">' + ms(m.to === "dpj" ? "database" : "layout_dashboard") + "<span>" +
@@ -3815,6 +4291,13 @@
         }
         var renderSuggestions = renderThread;
         function addMsg(m) {
+          /* réponse du modèle arrivée après un changement de conversation : rangée dans la conversation d'origine */
+          if (SINK) {
+            SINK.msgs.push(m);
+            saveConvs();
+            renderConvList();
+            return;
+          }
           CONV.push(m);
           var body = $("cv-ai-body");
           var th = body.querySelector(".cv-thinking");
@@ -3897,11 +4380,82 @@
           if (cat) return { mode: "compose" };
           return { mode: sel };
         }
+        /* « Épingle ce résultat », « épingle-le en chiffre » : EJ épingle le dernier résultat de la conversation, sans le modèle */
+        var PIN_W = / epingl\w* /;
+        var PIN_RES = / (ajoute|ajouter|mets|mettre|place|garde) (moi )?(ce|ces|cet|cette|le|la|les) (resultats?|reponses?|listes?|chiffres?) /;
+        /* confirmation dans la conversation, en plus du toast (bouton ou demande écrite) */
+        function pinSaid(txt, jid) {
+          addMsg({ r: "ai", mode: CC.mode, t: txt, undo: jid || 0 });
+          announce(txt);
+        }
+        /* même indicateur et mêmes réglages déjà sur le tableau : pas de doublon (le titre ne compte pas) */
+        /* Retirer un widget hors du mode Modifier : annulable (message, journal) ; un résultat épinglé redevient épinglable */
+        function removeW(u) {
+          closeDds();
+          if (ST.edit) return askEdit();
+          var b = cur();
+          var i = idxW(u);
+          if (i === -1) return;
+          var rw = b.widgets[i];
+          var title = wTitle(rw, RES[rw.uid]);
+          b.widgets.splice(i, 1);
+          ST.journal.forEach(function (e) { if (e.fx && e.fx.k === "add" && e.fx.pin && !e.undone && (e.fx.uids || []).indexOf(u) !== -1) unpinMsg(e.fx.pin); });
+          save();
+          renderAll();
+          var jid = logJ("Widget retiré : « " + title + " »", "Widget rétabli : « " + title + " »", { k: "remove", b: b.id, at: i, w: wData(rw) });
+          toast("Widget retiré : « " + title + " »", function () { undoJ(jid); });
+        }
+        function samePin(d) {
+          var key = JSON.stringify([d.ind, d.params || null]);
+          return cur().widgets.filter(function (w) { return JSON.stringify([w.ind, w.params || null]) === key; })[0] || null;
+        }
+        function lastPinnable() {
+          for (var i = CONV.length - 1; i >= 0; i--) {
+            var m = CONV[i];
+            if (m.r === "dpj" && m.kind === "query") return { m: m };
+            /* la dernière réponse chiffrée fait foi : déjà épinglée, ou d'une session précédente, on le dit */
+            var mm = m.r === "h" && /data-pin="(q\d+)"/.exec(m.h);
+            if (mm) return PLANS[mm[1]] ? (PLANS[mm[1]].pinned ? { done: true } : { q: mm[1] }) : { stale: true };
+          }
+          return null;
+        }
+        function pinAsk(raw) {
+          var t = norm(raw);
+          if (!(PIN_RES.test(t) || (PIN_W.test(t) && !bestInds(norm(crit(raw).clean)).length))) return false;
+          var x = lastPinnable();
+          editing = null;
+          addMsg({ r: "u", t: raw });
+          var say = function (txt) { addMsg({ r: "ai", mode: CC.mode, t: txt }); announce(txt); };
+          if (!x) {
+            say("Il n'y a pas encore de résultat à épingler dans cette conversation. Posez d'abord la question, puis épinglez sa réponse.");
+            return true;
+          }
+          if (x.done) {
+            say("Cette réponse est déjà épinglée sur le tableau.");
+            return true;
+          }
+          if (x.stale) {
+            say("Cette réponse date d'une session précédente : posez à nouveau la question, puis épinglez sa réponse.");
+            return true;
+          }
+          if (x.m) {
+            var kind = / (chiffre|nombre|total|compteur) /.test(t) ? "chiffre" : "liste";
+            if (x.m.pinned && x.m.pinned[kind]) {
+              say("Ce résultat est déjà épinglé au cockpit en " + kind + ".");
+              return true;
+            }
+            dpjPin(x.m, kind);
+            return true;
+          }
+          pin(x.q, document.querySelector('[data-pin="' + x.q + '"]'));
+          return true;
+        }
         function ask(raw, opts) {
           opts = opts || {};
           raw = String(raw || "").trim();
           if (!raw) return;
           if (raw.length > 400) raw = raw.slice(0, 400);
+          if (!opts.mode && pinAsk(raw)) return;
           var d = opts.mode ? { mode: opts.mode } : decide(raw);
           var from = CC.mode;
           setMode(d.mode);
@@ -3916,16 +4470,23 @@
           sc1.scrollTop = sc1.scrollHeight;
           var sb = $("cv-ai-send");
           sb.disabled = true;
-          setTimeout(function () {
+          function local() {
             sb.disabled = false;
             if (d.mode === "dpj") dpjRespond(raw);
             else respond(raw);
             var th = $(tid);
             if (th) th.remove();
-          }, 450);
+          }
+          if (d.mode === "dpj" && AI) aiRespond(raw, tid, local);
+          else if (d.mode === "compose" && AI) aiCompose(raw, tid, local);
+          else setTimeout(local, 450);
         }
 
         /* ---------- Interprétation ---------- */
+        /* FORCE : choix du modèle (indicateur, widget, mois, visualisation, tableau) qui remplace la recherche par mots-clés ;
+           les filtres restent lus par EJ dans la demande. SINK : conversation d'origine quand l'utilisateur en a changé. null hors Claude. */
+        var FORCE = null;
+        var SINK = null;
         function norm(s) {
           return " " + C.fold(s).replace(/[^a-z0-9%]+/g, " ").replace(/\s+/g, " ").trim() + " ";
         }
@@ -3973,10 +4534,15 @@
           var m = / (\d+) (derniers|dernieres|prochains|prochaines) mois /.exec(t);
           if (m && [6, 12, 24].indexOf(+m[1]) === -1) return "période de " + m[1] + " mois (6, 12 ou 24 mois seulement)";
           var r = / (trimestres?|semestres?|semaines?|hier|aujourd hui|ce mois ci|mois dernier|mois prochain|cette annee|annee derniere|an dernier|an passe|annee prochaine|depuis \S+) /.exec(t);
+          /* mois relatif déjà converti en mois précis par le modèle */
+          if (r && FORCE && FORCE.mo != null && /^(ce mois ci|mois dernier|mois prochain)$/.test(r[1])) r = null;
+          /* année exprimée, ramenée par le modèle à une période réglable (12 derniers mois) */
+          if (r && FORCE && FORCE.periode && /^(cette annee|annee derniere|an dernier|an passe)$/.test(r[1])) r = null;
           if (r && !(n1 && /^(an dernier|annee derniere|an passe)$/.test(r[1]))) return "période « " + r[1] + " »";
           return null;
         }
         function monthIn(t) {
+          if (FORCE && FORCE.mo != null) return FORCE.mo;
           var m = new RegExp(" (" + C.MOIS_N.join("|") + ")( (20\\d\\d))? ").exec(t);
           if (!m) return null;
           var mm = C.MOIS_N.indexOf(m[1]);
@@ -3986,6 +4552,7 @@
           return idx;
         }
         function vizIn(t) {
+          if (FORCE && FORCE.viz) return FORCE.viz;
           if (/ en (barres? )?horizontal(es)? | en barres horizontales /.test(t)) return "barh";
           if (/ en barres? empilees? | empile /.test(t)) return "stacked";
           if (/ en (barres?|histogrammes?|colonnes|batons) /.test(t)) return "bar";
@@ -4011,10 +4578,18 @@
           }).filter(function (x) { return x.s > 1; }).sort(function (a, b2) { return b2.s - a.s; });
         }
         function bestInds(t, filterFn) {
+          if (FORCE && FORCE.ind) {
+            var fi = IND[FORCE.ind];
+            return fi && !fi.hidden && indOk(fi) && (!filterFn || filterFn(fi)) ? [{ I: fi, s: 99 }] : [];
+          }
           return rank(catList().filter(function (I) { return !filterFn || filterFn(I); }), t);
         }
         /* Indicateur d'un autre profil qui correspond mieux à la demande : on le dit, sans l'ajouter */
         function reservedFor(t, m) {
+          if (FORCE) {
+            var fr = FORCE.ind && IND[FORCE.ind];
+            return fr && !fr.hidden && !indOk(fr) ? fr : null;
+          }
           var other = rank(Object.keys(IND).map(function (k) { return IND[k]; }).filter(function (I) { return !I.hidden && !indOk(I); }), t);
           if (other.length && (!m.length || other[0].s > m[0].s)) return other[0].I;
           return null;
@@ -4025,6 +4600,7 @@
             "<p>« " + esc(I.title) + " » est réservé au profil " + esc(who) + ". Il n'est pas proposé sur ce cabinet ; je ne le remplace pas par un indicateur approchant.</p>", raw));
         }
         function bestWidget(t) {
+          if (FORCE && FORCE.uid) return visList(cur()).filter(function (w) { return w.uid === FORCE.uid; })[0] || null;
           var best = null;
           visList(cur()).forEach(function (w) {
             var I = IND[w.ind];
@@ -4084,7 +4660,7 @@
           cr.villes.forEach(function (x) { na.push("ville « " + x + " » (pas de filtre par localisation)"); });
           cr.noms.forEach(function (x) { na.push("« " + x + " » (nom non reconnu)"); });
           cr.pats.forEach(function (x) { na.push(x + " (critère non disponible)"); });
-          var per = periodeIn(t);
+          var per = FORCE && FORCE.periode ? FORCE.periode : periodeIn(t);
           if (per) {
             if (dims.indexOf("periode") !== -1) f.periode = per;
             else na.push("période de " + per + " mois (cet indicateur n'a pas de période réglable)");
@@ -4136,6 +4712,10 @@
           push(card("circle_alert", "Indicateur non disponible",
             "<p>Je n'ai pas d'indicateur sur " + esc(what) + "." + (where ? " " + esc(where) : "") + " Je ne fais pas d'estimation.</p>", raw));
         }
+        function replyCannot(raw) {
+          push(card("circle_alert", "Action non disponible",
+            "<p>Je ne sais pas faire cette action sur le cockpit. Je peux répondre à une question chiffrée, ajouter, retirer ou changer la visualisation d'un widget, filtrer le tableau ou créer un tableau.</p>", raw));
+        }
         function replyNone(raw) {
           push(card("circle_alert", "Aucun indicateur correspondant",
             "<p>Je ne trouve pas d'indicateur correspondant à cette demande.</p>" +
@@ -4155,7 +4735,7 @@
           if (bt) bt.focus();
         }
         function indLine(I, viz, size) {
-          return "Indicateur « " + I.title + " » · " + VIZ[viz] + " · taille " + size;
+          return "Indicateur « " + I.title + " » · " + VIZ[viz] + " · largeur " + sizeLabel(fitSize(I, viz, size));
         }
         function planAdd(raw, t) {
           var cr = crit(raw);
@@ -4185,6 +4765,10 @@
             title = "AG à tenir en " + C.month(mo).long;
           }
           var R = resolve(I, cr, tc, { n1: n1 });
+          if (FORCE && FORCE.titre) {
+            title = FORCE.titre;
+            d.title = title;
+          }
           if (Object.keys(R.f).length) {
             d.params = d.params || {};
             d.params.f = R.f;
@@ -4194,7 +4778,7 @@
           }
           var plan = { type: "add", widgets: [d], label: "Widget ajouté : " + title, undoLabel: "Ajout annulé : widget « " + title + " » retiré" };
           steps.unshift({ t: "Ajouter le widget « " + title + " »", m: indLine(I, d.viz, d.size) + (R.f.formes || R.f.createur ? " · filtre propre au widget : " + fLabel(R.f) : ""), icon: "add" });
-          R.na.forEach(function (x) { steps.push({ na: true, t: "Filtre non disponible : " + x, m: "Le widget est ajouté sans ce critère." }); });
+          R.na.concat(R.na.length ? [] : aiNr()).forEach(function (x) { steps.push({ na: true, t: "Filtre non disponible : " + x, m: "Le widget est ajouté sans ce critère." }); });
           var na = naFilters(cur(), I, d);
           if (na.length) steps.push({ na: true, t: "Filtre du tableau non disponible : " + na.join(", "), m: "Le filtre du tableau ne s'applique pas à cet indicateur ; il sera signalé sur le widget." });
           steps.push({ t: "Règle, source et couverture", m: "Détail derrière le bouton « i » du widget.", icon: "info" });
@@ -4227,7 +4811,7 @@
           var steps = [];
           var fs = formesIn(tc, cr.clean);
           var ts = typesIn(tc);
-          var per = periodeIn(tc);
+          var per = FORCE && FORCE.periode ? FORCE.periode : periodeIn(tc);
           if (fs.length) {
             if (u.forme) nf.formes = fs;
             else steps.push({ na: true, t: "Filtre non disponible : forme juridique", m: "Les indicateurs de ce tableau ne se filtrent pas par forme." });
@@ -4283,6 +4867,60 @@
           var title = wTitle(w, RES[w.uid]);
           planCard(raw, { type: "remove", uid: w.uid, label: "Widget retiré : « " + title + " »", undoLabel: "Widget rétabli : « " + title + " »" }, [{ t: "Retirer le widget « " + title + " »", m: "Annulable depuis le journal.", icon: "trash_2" }]);
         }
+        /* Largeur et couleur d'un widget : demandées par le modèle seulement (l'assistant par règles ne les lit pas) */
+        function aiWidget(raw) {
+          var w = FORCE && FORCE.uid ? findW(FORCE.uid) : null;
+          if (!w || !visW(w) || IND[w.ind].kind === "heading") {
+            push(card("circle_alert", "Widget introuvable", "<p>Je ne trouve pas ce widget sur « " + esc(cur().title) + " ». Précisez lequel, par son titre.</p>", raw));
+            return null;
+          }
+          return w;
+        }
+        function planSize(raw) {
+          var w = aiWidget(raw);
+          if (!w) return;
+          var I = IND[w.ind];
+          var title = wTitle(w, RES[w.uid]);
+          var want = FORCE && FORCE.taille ? FORCE.taille.replace(/\s+/g, "").replace("pleinelargeur", "plein") : "";
+          var s = SIZE_AI[want];
+          var from = fitSize(I, w.viz, w.size);
+          if (!s) {
+            push(card("circle_alert", "Largeur non disponible", "<p>Largeurs possibles : 1/8 (chiffre clé ou jauge), 1/4, 1/3, 1/2, 3/4 ou toute la ligne.</p>", raw));
+            return;
+          }
+          if (s === "XS" && !xsOk(I, w.viz)) {
+            push(card("circle_alert", "Largeur 1/8 non disponible",
+              "<p>" + esc(XS_WHY) + ". « " + esc(title) + " » est en " + esc(VIZ[w.viz].toLowerCase()) + " : sa plus petite largeur est 1/4.</p>", raw));
+            return;
+          }
+          if (s === from) {
+            push(card("check", "Aucun changement", "<p>« " + esc(title) + " » est déjà en " + esc(sizeLabel(s).toLowerCase()) + ".</p>", raw));
+            return;
+          }
+          planCard(raw, { type: "size", uid: w.uid, size: s, label: "Largeur changée : « " + title + " » en " + sizeLabel(s).toLowerCase(), undoLabel: "Largeur rétablie : « " + title + " »" }, [
+            { t: "Modifier le widget « " + title + " »", m: "Largeur " + sizeLabel(from).toLowerCase() + " vers " + sizeLabel(s).toLowerCase() + " · mêmes données", icon: "pencil" },
+          ]);
+        }
+        function planColor(raw) {
+          var w = aiWidget(raw);
+          if (!w) return;
+          var title = wTitle(w, RES[w.uid]);
+          var v = FORCE && FORCE.couleur != null ? FORCE.couleur : "";
+          var orig = /^(origine|d'origine|defaut|par defaut)$/i.test(C.fold(v));
+          var c = orig ? null : normColor(v);
+          if (!orig && !c) {
+            push(card("circle_alert", "Couleur non valide", "<p>La couleur doit être un code #RRGGBB (par exemple #C22F28) ou la couleur d'origine.</p>", raw));
+            return;
+          }
+          var from = normColor(w.color);
+          if (c === from) {
+            push(card("check", "Aucun changement", "<p>« " + esc(title) + " » est déjà en " + esc(colorName(c).toLowerCase()) + ".</p>", raw));
+            return;
+          }
+          planCard(raw, { type: "color", uid: w.uid, color: c, label: "Couleur changée : « " + title + " » en " + colorName(c).toLowerCase(), undoLabel: "Couleur rétablie : « " + title + " »" }, [
+            { t: "Modifier le widget « " + title + " »", m: colorName(from) + " vers " + colorName(c).toLowerCase() + " · mêmes données", icon: "pencil" },
+          ]);
+        }
         function planBoard(raw, t) {
           var nm = /tableau\s+(?:«\s*)?([A-Za-zÀ-ÖØ-öø-ÿ' -]{2,40}?)(?:\s*»)?\s+(?:avec|sur|pour|qui|contenant|de suivi)\b/i.exec(raw);
           var name = nm ? cap(nm[1].trim()) : "Nouveau tableau";
@@ -4290,12 +4928,20 @@
           var segs = rest.split(/ et | puis |,/).map(function (s) { return " " + s.trim() + " "; }).filter(function (s) { return s.trim(); });
           var ids = [];
           var reserved = [];
-          segs.forEach(function (s) {
-            var m = bestInds(s);
-            var rs = reservedFor(s, m);
-            if (rs) reserved.push(rs);
-            else if (m.length && ids.indexOf(m[0].I.id) === -1) ids.push(m[0].I.id);
-          });
+          if (FORCE && FORCE.ids) {
+            if (FORCE.nom) name = FORCE.nom;
+            FORCE.ids.forEach(function (id) {
+              var I = IND[id];
+              if (!indOk(I)) reserved.push(I);
+              else if (ids.indexOf(id) === -1) ids.push(id);
+            });
+          } else
+            segs.forEach(function (s) {
+              var m = bestInds(s);
+              var rs = reservedFor(s, m);
+              if (rs) reserved.push(rs);
+              else if (m.length && ids.indexOf(m[0].I.id) === -1) ids.push(m[0].I.id);
+            });
           if (!ids.length) {
             if (reserved.length) return replyReserved(raw, reserved[0]);
             push(card("circle_alert", "Aucun indicateur reconnu", "<p>Précisez le contenu du tableau, par exemple « avec les dossiers LAB et les lettres à signer ». </p>", raw));
@@ -4345,6 +4991,7 @@
           }
           var R = resolve(mo != null && /^ag_/.test(I.id) ? IND.ag_mois_cible : I, cr, tc, {});
           var na = extra.concat(R.na);
+          if (!na.length) na = aiNr();
           if (na.length) {
             var qid = "q" + ++pid;
             PLANS[qid] = { type: "ask", raw: raw, t: tc, I: I.id, mo: mo, f: R.f, na: na };
@@ -4397,6 +5044,7 @@
           } else {
             var ci = -1;
             if (mo != null && res.months) res.months.forEach(function (x, i) { if (x.idx === mo) ci = i; });
+            if (ci === -1 && FORCE && FORCE.cat) ci = res.categories.indexOf(FORCE.cat);
             if (ci === -1) res.categories.forEach(function (c, i) { if (ci === -1 && norm(c).length > 3 && t.indexOf(norm(c)) !== -1) ci = i; });
             var s0 = res.series[0];
             var n = res.months ? res.months.length : 0;
@@ -4420,7 +5068,7 @@
             }
           }
           pin.params = Object.keys(params).length ? params : null;
-          pin.title = text;
+          pin.title = FORCE && FORCE.titre ? FORCE.titre + suffix : text;
           var qid = "q" + ++pid;
           PLANS[qid] = { type: "answer", pin: pin, rows: rowsFn, title: text, I: I.id };
           setSteps("ask");
@@ -4476,6 +5124,11 @@
             if (fx.pin) unpinMsg(fx.pin);
           } else if (fx.k === "viz") {
             b.widgets.forEach(function (w) { if (w.uid === fx.uid && w.viz === fx.to) w.viz = fx.from; });
+          } else if (fx.k === "size") {
+            /* valeurs relues du journal enregistré : revalidées avant d'être appliquées */
+            b.widgets.forEach(function (w) { if (w.uid === fx.uid && w.size === fx.to) w.size = fitSize(IND[w.ind], w.viz, fx.from); });
+          } else if (fx.k === "color") {
+            b.widgets.forEach(function (w) { if (w.uid === fx.uid && normColor(w.color) === normColor(fx.to)) w.color = normColor(fx.from); });
           } else if (fx.k === "remove") {
             if (!b.widgets.some(function (w) { return w.uid === fx.w.uid; }) && IND[fx.w.ind]) b.widgets.splice(Math.min(fx.at, b.widgets.length), 0, mkW(fx.w));
           } else if (fx.k === "filter") {
@@ -4533,11 +5186,23 @@
             fx = { k: "viz", b: b.id, uid: w.uid, from: w.viz, to: plan.viz };
             w.viz = plan.viz;
             hl = [w.uid];
+          } else if (plan.type === "size" || plan.type === "color") {
+            var wz = findW(plan.uid);
+            if (!wz) return;
+            if (plan.type === "size") {
+              if (plan.size === "XS" && !xsOk(IND[wz.ind], wz.viz)) return;
+              fx = { k: "size", b: b.id, uid: wz.uid, from: wz.size, to: plan.size };
+              wz.size = plan.size;
+            } else {
+              fx = { k: "color", b: b.id, uid: wz.uid, from: normColor(wz.color), to: normColor(plan.color) };
+              wz.color = fx.to;
+            }
+            hl = [wz.uid];
           } else if (plan.type === "remove") {
             var i = idxW(plan.uid);
             if (i === -1) return;
             var rw = b.widgets[i];
-            fx = { k: "remove", b: b.id, at: i, w: { uid: rw.uid, ind: rw.ind, size: rw.size, viz: rw.viz, params: rw.params, title: rw.title, sub: rw.sub } };
+            fx = { k: "remove", b: b.id, at: i, w: wData(rw) };
             b.widgets.splice(i, 1);
           } else if (plan.type === "filter") {
             var before = {};
@@ -4580,6 +5245,11 @@
           var q = PLANS[qid];
           if (!q || !q.pin || q.pinned) return;
           if (ST.edit) return askEdit();
+          var dup = samePin(q.pin);
+          if (dup) {
+            highlight([dup.uid]);
+            return pinSaid("Ce résultat est déjà sur le tableau : « " + wTitle(dup, RES[dup.uid]) + " ».");
+          }
           q.pinned = true;
           if (btn) {
             btn.disabled = true;
@@ -4592,8 +5262,9 @@
           renderAll();
           highlight(hl);
           setSteps("build");
-          var jid = logJ("Épinglé : " + q.title, "Épinglage annulé : " + q.title, { k: "add", b: cur().id, uids: hl, pin: { q: qid } });
-          toast("Épinglé : " + q.title, function () { undoJ(jid); });
+          var jid = logJ("Épinglé : " + q.pin.title, "Épinglage annulé : " + q.pin.title, { k: "add", b: cur().id, uids: hl, pin: { q: qid } });
+          toast("Épinglé : " + q.pin.title, function () { undoJ(jid); });
+          pinSaid("Épinglé sur le tableau : « " + q.pin.title + " », en bas du tableau.", jid);
         }
 
         /* ==========================================================
@@ -5040,7 +5711,8 @@
             "basee basees base bases situe situee situees situes implantee implantees domiciliee domiciliees installee installees ayant possedant detenant comptant compte comptent possede possedent detient detiennent " +
             "il elles est il elle t ont qu y a sont nombre total combien quelle actuel actuelle actuels actuelles prochain prochaine prochains prochaines dernier derniere derniers dernieres date dates jour mois ans annee annees " +
             "ainsi aussi egalement seulement uniquement celles ci la svp donc puis alors soit soient etait sera seront doit doivent dois concernant concernees concerne via selon chaque mon ma " +
-            "inscrite inscrites enregistree enregistrees figurant figurent apparait apparaissent fctx ~").split(" ").forEach(function (x) { STOP[x] = 1; });
+            "inscrite inscrites enregistree enregistrees figurant figurent apparait apparaissent " +
+            "ok okay oui bon super parfait top accord daccord bonjour salut hello fctx ~").split(" ").forEach(function (x) { STOP[x] = 1; });
           /* Négations : jamais ignorées. Un critère nié est appliqué exactement, sinon la question est refusée (« critère non reconnu ») */
           var NEGW = {};
           "pas non ne n sauf hors sans aucun aucune aucuns aucunes jamais ni excepte exceptee exceptees exceptes nul nulle".split(" ").forEach(function (x) { NEGW[x] = 1; });
@@ -5944,9 +6616,10 @@
           },
           render: function (w, res) {
             var r = res.dpj;
-            var n = w.size === "L" ? 8 : 5;
+            var wide = w.size === "L" || w.size === "W";
+            var n = wide ? 8 : 5;
             var rows = r.rows.slice(0, n);
-            var cols = r.colonnes.slice(0, w.size === "L" ? 5 : 3);
+            var cols = r.colonnes.slice(0, wide ? 5 : 3);
             var lim = w.params && w.params.q && w.params.q.limit;
             var h = '<p class="cv-dpjw-n">' + (lim && r.total > lim ? "<strong>" + lim + "</strong> premières sur " + esc(C.nf(r.total)) + " " : "<strong>" + esc(C.nf(r.total)) + "</strong> ") + (r.total > 1 ? "sociétés" : "société") + (nonEval(r) ? '<span class="muted"> · ' + nonEval(r) + " non " + C.pl(nonEval(r), "évaluée", "évaluées") + "</span>" : "") + "</p>" +
               '<div class="cv-dpjw-wrap"><table class="cv-rt cv-dpjw"><thead><tr>' + cols.map(function (c) { return '<th scope="col">' + esc(COL_L[c.id] || c.label) + "</th>"; }).join("") + "</tr></thead><tbody>";
@@ -6017,12 +6690,384 @@
           if (p.count) m.count = true;
           if (p.expired) m.expired = true;
           addMsg(m);
+          dpjAnnounce(m);
+        }
+        function dpjAnnounce(m) {
           var gen0 = (m.unk || []).length;
           if (gen0) announce("Requête non exécutée : un critère n'est pas reconnu");
           else {
             var r0 = runQ(m.q);
             announce(r0.ok ? (r0.total ? C.nf(r0.total) + " " + C.pl(r0.total, "société trouvée", "sociétés trouvées") : "Aucune société trouvée") : "Requête non exécutée");
           }
+        }
+
+        /* ---------- Interroger le DPJ avec Claude (cockpit ouvert comme Artifact Claude.ai) ----------
+           Claude reçoit la question masquée, le schéma du DPJ et la requête précédente (noms masqués).
+           Il traduit, vérifie sa requête par l'outil de la page, et EJ l'exécute (runQ). Aucune donnée
+           de société ne lui est envoyée : l'outil renvoie seulement les erreurs et des nombres.
+           Hors Claude, refus ou échec : l'assistant par règles (dpjRespond). */
+        var AI = null;
+        /* Outils de page : seulement là où la vue les permet ; sinon EJ vérifie la requête après la réponse */
+        var AI_TOOLS = false;
+        if (window.claude && typeof window.claude.use === "function") {
+          window.claude
+            .use("sample")
+            .then(function (s) {
+              if (!s) return;
+              AI = s;
+              return s.limits().then(function (l) {
+                AI_TOOLS = !!(l && l.tools);
+              });
+            })
+            .catch(function () {})
+            .then(function () { console.info("[EJ] Claude : " + (AI ? "disponible" : "absent") + ", outils : " + (AI_TOOLS ? "oui" : "non")); });
+        }
+        var AI_OFF = ["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed", "session_expired"];
+        /* Exemples du DPJ, noms de personnes remplacés par une étiquette comme dans une vraie question */
+        var AI_EX = (function () {
+          var s = JSON.stringify(DPJ.examples.map(function (e) { return { question: e.question, requete: e.query }; }));
+          DPJ.persons.forEach(function (n) { s = s.split(n).join("[personne 1]"); });
+          return s;
+        })();
+        function aiOne(v, fn) {
+          return v == null ? v : Array.isArray(v) ? v.map(fn) : fn(v);
+        }
+        /* Requête précédente envoyée au modèle : valeurs réelles remplacées par leurs étiquettes */
+        function aiMaskQ(q, persons) {
+          var q2 = clone(q);
+          q2.where.forEach(function (c) {
+            delete c.label;
+            c.value = aiOne(c.value, function (v) {
+              var x = (persons || []).filter(function (y) { return y.tag && y.name === v; })[0];
+              return x ? x.tag : v;
+            });
+          });
+          return q2;
+        }
+        /* Étiquettes renvoyées par le modèle : remplacées localement par les vraies valeurs */
+        function aiUnmaskQ(q, persons) {
+          var tags = {};
+          (persons || []).forEach(function (x) { if (x.tag) tags[DX.nk(x.tag)] = x.name; });
+          q.where.forEach(function (c) {
+            c.value = aiOne(c.value, function (v) {
+              return typeof v === "string" && tags[DX.nk(v)] != null ? tags[DX.nk(v)] : v;
+            });
+          });
+          return q;
+        }
+        /* Phrase du modèle : les chiffres viennent d'EJ, jamais de lui. Une phrase qui contient un nombre (hors année, fraction de largeur ou période de 6, 12 ou 24 mois) est retirée. */
+        function aiText(v) {
+          if (typeof v !== "string") return "";
+          return v.replace(/\s+/g, " ").trim().split(/(?<=[.!?…])\s+/).filter(function (x) {
+            return x && !/\d/.test(x.replace(/\b20\d\d\b/g, "").replace(/\b\d\/\d\b/g, "").replace(/\b(6|12|24) (derniers|prochains) mois\b/g, ""));
+          }).join(" ").slice(0, 500);
+        }
+        /* titre de widget proposé par le modèle : court, sans chiffre (la période est ajoutée par EJ) */
+        function aiTitle(v) {
+          if (typeof v !== "string") return "";
+          v = v.replace(/\s+/g, " ").trim();
+          return v && !/\d/.test(v) ? v.slice(0, 60) : "";
+        }
+        function aiChoices(v) {
+          return (Array.isArray(v) ? v : []).filter(function (c) { return typeof c === "string" && c.trim(); }).slice(0, 4).map(function (c) { return c.trim().slice(0, 60); });
+        }
+        /* Derniers échanges de la conversation avec le modèle (demandes masquées), pour les suites et les précisions */
+        function aiHist(conv) {
+          return (conv.aiHist || []).slice(-6);
+        }
+        function aiRemember(conv, mode, demande, reponse) {
+          conv.aiHist = aiHist(conv).concat([{ usage: mode, demande: demande, reponse: reponse }]).slice(-6);
+        }
+        function aiAdd(conv0, m) {
+          if (CC !== conv0) {
+            conv0.msgs.push(m);
+            saveConvs();
+            renderConvList();
+            return;
+          }
+          addMsg(m);
+          announce(m.t);
+        }
+        var AI_SAY = [
+          "message : une ou deux phrases naturelles adressées à l'utilisateur, en le vouvoyant, qui disent ce que tu as compris et, si besoin, ce que EJ ne sait pas ou ne garde pas (par exemple : EJ ne connaît pas votre prévisionnel ; il enregistre les formalités créées, et ce qui est à venir, ce sont les échéances légales). Jamais de chiffre ni de résultat dans message : EJ calcule et les affiche juste en dessous.",
+          "S'il te manque un élément indispensable pour répondre, ne devine pas : pose une seule question courte dans question, avec 2 à 4 réponses possibles dans choix (quelques mots chacune).",
+        ].join("\n");
+        function aiPrompt(text, prevQ, tools, hist) {
+          return [
+            "Tu traduis une question en français sur le DPJ (registre des sociétés clientes d'un cabinet) en une requête structurée. Tu ne vois aucune donnée de société : EJ exécute la requête et affiche le résultat.",
+            "Date du jour : " + DX.REF + ". Dates au format JJ/MM/AAAA ; une année seule est acceptée.",
+            "Champs interrogeables (id, libellé, type, opérateurs permis, groupe, valeurs possibles) :",
+            JSON.stringify(DPJ.schema),
+            "Règles :",
+            "- where : liste de critères {field, op, value}, tous vrais à la fois. « entre » prend [min, max]. Une liste de valeurs avec « = » veut dire « l'une de ». « est_vide » et « non_vide » n'ont pas de value.",
+            "- Les critères d'un même groupe de personnes (dirigeant.*, associe.*, personne.*, cac.*) portent sur la même personne. « != » et « aucun » sur un groupe veulent dire : aucune personne du groupe ne correspond.",
+            "- Pour exclure les sociétés qui vérifient un critère (« sauf », « hors », « à l'exception de »), ajoute \"not\": true à ce critère.",
+            "- Les noms de personnes et de sociétés sont masqués par des étiquettes entre crochets, par exemple [personne 1] ou [société 1] : mets l'étiquette telle quelle comme valeur, EJ la remplace.",
+            "- select : 1 à 5 colonnes utiles à la réponse (ids du schéma ; la dénomination est toujours affichée). sort : {field, dir: \"asc\" ou \"desc\"}. limit : seulement si la question demande un nombre précis de sociétés.",
+            "- N'invente aucun critère. Toute partie de la question qu'aucun champ ne permet d'exprimer va dans non_reconnus, avec les mots de la question.",
+            "Exemples : " + AI_EX,
+            prevQ ? "Requête précédente de la conversation. Si la question la prolonge (« et parmi elles », « et à Lyon ? », « trie par… », « combien ? »), pars d'elle et mets suite à true : " + JSON.stringify(prevQ) : "",
+            tools ? "Appelle l'outil executer_requete pour vérifier ta requête ; s'il signale des erreurs, corrige-la et rappelle-le." : "",
+            AI_SAY,
+            "Si tu poses une question, laisse la requête vide (where vide).",
+            "titre : titre court du résultat (soixante caractères au plus) repris des mots de la question, sans chiffre.",
+            'Termine par un seul objet JSON : {"message": "", "question": "", "choix": [], "titre": "", "requete": {"where": [], "select": [], "sort": {"field": "nom", "dir": "asc"}}, "non_reconnus": [], "compter": false, "suite": false}. compter vaut true si la question demande un nombre (« combien »).',
+            hist && hist.length ? "Échanges précédents de la conversation, du plus ancien au plus récent : " + JSON.stringify(hist) : "",
+            "Question : " + text,
+          ].filter(Boolean).join("\n");
+        }
+        function aiRespond(raw, tid, local) {
+          var prev = lastDpj();
+          var p = DX.parse(raw, prev ? prev.q : null);
+          /* Personne inconnue, homonyme, entité contrôlée, donnée hors DPJ : EJ le sait sans le modèle */
+          if (p.kind !== "query") return setTimeout(local, 0);
+          var conv0 = CC;
+          /* Les étiquettes repartent de 1 à chaque question : celles de la requête précédente sont renumérotées
+             quand elles désignent une autre valeur ([personne 1] = Untel avant, [personne 1] = Autre maintenant) */
+          var persons = p.persons.slice();
+          var prevP = [];
+          if (prev)
+            (prev.persons || []).forEach(function (x) {
+              var same = persons.filter(function (y) { return y.name === x.name; })[0];
+              if (same) return prevP.push(same);
+              var t = x.tag;
+              var lab = String(t || "").replace(/^\[|\s*\d*\]$/g, "");
+              for (var n = 1; persons.some(function (y) { return DX.nk(y.tag) === DX.nk(t); }); n++) t = "[" + lab + " " + n + "]";
+              var y = { tag: t, name: x.name, soc: !!x.soc };
+              persons.push(y);
+              prevP.push(y);
+            });
+          var last = null;
+          var tool = {
+            name: "executer_requete",
+            description: "Vérifie et exécute une requête sur le DPJ dans EJ. Renvoie {ok, erreurs, total, non_evaluees} : les critères refusés (champ, opérateur ou valeur), le nombre de sociétés trouvées et le nombre de sociétés non évaluées faute de donnée. Aucune donnée de société n'est renvoyée.",
+            inputSchema: {
+              type: "object",
+              properties: {
+                where: { type: "array", items: { type: "object", properties: { field: { type: "string" }, op: { type: "string" }, value: {}, not: { type: "boolean" } }, required: ["field", "op"] } },
+                select: { type: "array", items: { type: "string" } },
+                sort: { type: "object", properties: { field: { type: "string" }, dir: { type: "string", enum: ["asc", "desc"] } } },
+                limit: { type: "number" },
+              },
+              required: ["where"],
+            },
+            execute: function (input) {
+              var th = $(tid);
+              if (th) th.textContent = "Exécution de la requête dans EJ…";
+              var w = Array.isArray(input.where) ? input.where : [];
+              var chk = DPJ.run({
+                where: w.map(function (c) { return { field: c && c.field, op: c && c.op, value: c && c.value }; }),
+                select: Array.isArray(input.select) ? input.select : [],
+                sort: input.sort && input.sort.field ? input.sort : undefined,
+              });
+              if (!chk.ok) return { ok: false, erreurs: chk.erreurs, total: 0 };
+              var q = cleanQ(input);
+              if (!q || q.where.length !== w.length) return { ok: false, erreurs: ["critère illisible : valeur trop longue ou de type inattendu"], total: 0 };
+              var r = runQ(aiUnmaskQ(clone(q), persons));
+              if (r.ok) last = q;
+              return { ok: r.ok, erreurs: r.erreurs, total: r.total, non_evaluees: nonEval(r) };
+            },
+          };
+          var withTools = AI_TOOLS;
+          AI.json(aiPrompt(p.mk.text, prev ? aiMaskQ(prev.q, prevP) : null, withTools, aiHist(conv0)), withTools ? { tools: [tool] } : {}).then(
+            function (out) {
+              out = out && typeof out === "object" ? out : {};
+              var say = aiText(out.message);
+              var qn = aiText(out.question);
+              /* Question de précision : rien n'est exécuté, l'utilisateur répond (bouton ou texte libre) */
+              if (qn && !(out.requete && Array.isArray(out.requete.where) && out.requete.where.length)) {
+                aiRemember(conv0, "dpj", p.mk.text, { question: qn });
+                aiDone(tid);
+                aiAdd(conv0, { r: "ai", mode: "dpj", t: (say ? say + " " : "") + qn, ch: aiChoices(out.choix), parts: p.mk.parts });
+                return;
+              }
+              /* Sans outil : EJ vérifie la requête finale comme l'outil l'aurait fait ; refusée, l'assistant par règles répond */
+              if (!withTools && out.requete && typeof out.requete === "object" && out.requete.where && out.requete.where.length) {
+                var chk = tool.execute(out.requete);
+                if (!chk.ok) {
+                  if (CC !== conv0) return aiDone(tid);
+                  return local();
+                }
+              }
+              /* un critère final illisible n'est jamais retiré en silence : on garde la dernière requête vérifiée */
+              var q = cleanQ(out.requete);
+              if (q && (!Array.isArray(out.requete.where) || q.where.length !== out.requete.where.length)) q = null;
+              q = q || last;
+              var nr = (Array.isArray(out.non_reconnus) ? out.non_reconnus : []).filter(function (s) { return typeof s === "string" && s.trim(); }).slice(0, 4);
+              if (!q) {
+                q = cleanQ({});
+                if (!nr.length) nr = [p.mk.text];
+              }
+              var m = { r: "dpj", id: mid(), raw: raw, parts: p.mk.parts, kind: "query", all: false, pinned: {}, q: aiUnmaskQ(q, persons), persons: persons };
+              m.unk = nr.map(function (s) { return { text: s.slice(0, 120), generic: !q.where.length }; });
+              if (out.suite === true && prev) m.follow = true;
+              if (out.compter === true) m.count = true;
+              if (aiTitle(out.titre)) m.titre = aiTitle(out.titre);
+              aiRemember(conv0, "dpj", p.mk.text, { message: say, requete: out.requete || null });
+              $("cv-ai-send").disabled = false;
+              if (say) aiAdd(conv0, { r: "ai", mode: "dpj", t: say });
+              if (CC !== conv0) {
+                conv0.msgs.push(m);
+                saveConvs();
+                renderConvList();
+                return;
+              }
+              addMsg(m);
+              var th = $(tid);
+              if (th) th.remove();
+              dpjAnnounce(m);
+            },
+            function (e) {
+              var code = e && e.code;
+              if (AI_OFF.indexOf(code) !== -1) AI = null;
+              if (code === "tools_unavailable") AI_TOOLS = false;
+              console.warn("[EJ] Claude (DPJ) : " + code);
+              if (code === "cancelled" || CC !== conv0) {
+                $("cv-ai-send").disabled = false;
+                var th = $(tid);
+                if (th) th.remove();
+                return;
+              }
+              local();
+            }
+          );
+        }
+        /* Composition du cockpit avec le vrai Claude : il choisit l'action et l'indicateur dans le catalogue,
+           EJ lit les filtres dans la demande, calcule et affiche (mêmes cartes que l'assistant par règles).
+           Le modèle reçoit la demande masquée, le catalogue et les widgets du tableau (ids seulement), aucune donnée. */
+        var AI_ACTIONS = ["question", "ajouter", "visualisation", "filtrer", "retirer", "taille", "couleur", "tableau", "aucun", "impossible", "preciser"];
+        function aiNr() {
+          return FORCE && FORCE.nr ? FORCE.nr.map(function (s) { return "« " + s + " » (critère non reconnu)"; }) : [];
+        }
+        function aiCatalog() {
+          return Object.keys(IND).map(function (k) {
+            var I = IND[k];
+            if (I.hidden || I.kind === "heading") return null;
+            var o = { id: I.id, titre: I.title, type: I.kind, visualisations: vizesOf(I), filtres: I.dims || [], regle: String(I.rule || "").slice(0, 180), mots: (I.kw || []).slice(0, 6) };
+            if (I.sub) o.sous_titre = I.sub;
+            if (!indOk(I)) o.reserve = true;
+            /* libellés des catégories (types d'opération, statuts, niveaux) : jamais un nom de société */
+            if (I.kind === "cat" && indOk(I)) {
+              try {
+                var cats = (I.compute({ f: cur().filters, p: {} }).categories || []).filter(function (c) { return typeof c === "string" && !DPJ.societes.some(function (x) { return DX.nk(x.nom) === DX.nk(c); }); }).slice(0, 12);
+                if (cats.length) o.categories = cats;
+              } catch (e) {}
+            }
+            return o;
+          }).filter(Boolean);
+        }
+        function aiComposePrompt(text, hist) {
+          var b = cur();
+          var cm = C.month(C.CUR);
+          return [
+            "Tu traduis une demande en français sur le cockpit (tableau de bord d'un cabinet) en une action. Tu ne vois aucune donnée : EJ calcule les chiffres et affiche la réponse.",
+            "Date du jour : " + C.TODAY.toLocaleDateString("fr-FR") + " (mois en cours : " + cm.long + ").",
+            "Catalogue des indicateurs (id, titre, type, visualisations permises, filtres réglables, règle de calcul, mots-clés ; reserve = réservé à l'autre profil) :",
+            JSON.stringify(aiCatalog()),
+            "Widgets du tableau affiché (widget, indicateur, visualisation, taille = largeur dans la ligne, couleur = #RRGGBB ou origine) :",
+            JSON.stringify(visList(b).filter(function (w) { return IND[w.ind].kind !== "heading"; }).map(function (w) { var I = IND[w.ind]; return { widget: w.uid, indicateur: w.ind, visualisation: w.viz, taille: sizeLabel(fitSize(I, w.viz, w.size)).toLowerCase(), couleur: normColor(w.color) || "origine" }; })),
+            "Actions :",
+            "- question : la demande attend un chiffre (« combien », « quel est », « j'ai fait combien »). Indique l'indicateur qui y répond. Pour un mois précis, préfère un indicateur par mois (type series ou matrix) et donne mois au format AAAA-MM : un mois passé pour ce qui a été fait, à venir pour ce qui est à faire. Pour un indicateur par catégorie (type cat), categorie = le libellé exact de la catégorie visée, pris dans sa liste categories. periode = 6, 12 ou 24 (mois glissants) quand la demande porte sur une durée passée ou à venir et que l'indicateur a le filtre periode ; « l'an dernier » ou « cette année » se ramènent à 12, et message le dit (EJ compte en mois glissants, pas en année civile).",
+            "- ajouter : ajouter un widget ; indicateur obligatoire.",
+            "- visualisation : changer la visualisation d'un widget du tableau ; widget et visualisation obligatoires, parmi les visualisations permises de son indicateur.",
+            "- filtrer : filtrer tout le tableau (période, forme juridique, créateur, type de mission, signataire).",
+            "- retirer : retirer un widget du tableau ; widget obligatoire.",
+            "- taille : changer la largeur d'un widget du tableau ; widget et taille obligatoires, taille parmi \"1/8\", \"1/4\", \"1/3\", \"1/2\", \"3/4\", \"plein\". 1/8 seulement pour un chiffre clé (type kpi) ou une jauge (type gauge) ; pour un autre widget demandé tout petit, pose la question (preciser) en proposant 1/4. « Plus petit » ou « plus gros » sans largeur précise : preciser, avec en choix les largeurs possibles plus petites ou plus grandes que l'actuelle.",
+            "- couleur : changer la couleur d'un widget du tableau ; widget et couleur obligatoires, couleur au format #RRGGBB, ou \"origine\" pour revenir à la couleur d'origine. Couleurs de la charte, à préférer quand la demande nomme une couleur : " + SWATCHES.map(function (x) { return x.name.toLowerCase() + " " + x.hex; }).join(", ") + ".",
+            "- tableau : créer un nouveau tableau ; nom et indicateurs (liste d'ids).",
+            "- aucun : la demande porte sur un chiffre ou un widget, mais aucun indicateur du catalogue ne répond. N'en choisis jamais un approchant.",
+            "- impossible : la demande n'est aucune de ces actions (police, export, envoi, partage, modification de données…).",
+            "- preciser : il manque un élément indispensable (quel indicateur, quel widget, quel mois, quelle visualisation, quelle largeur) ; question et choix obligatoires.",
+            "titre : pour question et ajouter, titre court du widget (soixante caractères au plus) repris des mots de la demande, par exemple « AG tenues (approbations des comptes) » ; sans chiffre ni période, EJ les ajoute.",
+            "Pour aucun et impossible, message obligatoire : explique simplement pourquoi et propose ce qui s'en approche dans le catalogue, sans le faire.",
+            AI_SAY,
+            "Ce que contient EJ : les sociétés suivies, les formalités créées (constitutions, approbations des comptes, cessions…, avec leur date de création, leur type et leur statut), les échéances légales calculées (AG à tenir, dépôts des comptes), le dispositif LAB, les lettres de mission et les signatures. Une AG tenue apparaît comme une formalité d'approbation des comptes : pour compter les AG faites, utilise l'indicateur des opérations par type, catégorie « Approbation des comptes ». EJ ne connaît pas le prévisionnel du cabinet. N'affirme jamais qu'EJ ne garde pas une information sans l'avoir vérifié dans ce catalogue.",
+            "Une question de précision doit faire avancer : ne repose jamais une question déjà posée dans les échanges précédents. Quand l'utilisateur répond à ta question, choisis l'action. Chaque choix proposé doit correspondre à un indicateur précis du catalogue compatible avec la demande (passé ou à venir) ; sinon ne le propose pas.",
+            "Une « opération » ou un « dossier » est une formalité. Les filtres (période de 6, 12 ou 24 mois, forme juridique, créateur, type de mission, signataire) sont lus par EJ dans la demande : ne les reformule pas. Les noms de personnes et de sociétés sont masqués par des étiquettes entre crochets.",
+            "non_reconnus : seulement les critères de la demande qui ne sont ni un de ces filtres, ni un mois, ni l'indicateur lui-même (par exemple une ville ou un secteur), avec les mots de la demande.",
+            'Réponds par un seul objet JSON : {"action": "question", "message": "", "question": "", "choix": [], "indicateur": "id", "mois": "AAAA-MM", "widget": "", "visualisation": "", "taille": "", "couleur": "", "categorie": "", "periode": 0, "titre": "", "nom": "", "indicateurs": [], "non_reconnus": []}. Laisse vides les champs inutiles.',
+            hist && hist.length ? "Échanges précédents de la conversation, du plus ancien au plus récent. Si la demande les prolonge ou répond à ta question (« et le mois prochain ? », « par mois », « mets-le en barres »), pars d'eux : " + JSON.stringify(hist) : "",
+            "Demande : " + text,
+          ].filter(Boolean).join("\n");
+        }
+        function aiCompose(raw, tid, local) {
+          var t = norm(raw);
+          /* Hors catalogue (chiffre d'affaires, marge, heures…) : EJ le sait sans le modèle */
+          for (var h = 0; h < HORS.length; h++) if (HORS[h][0].test(t)) return setTimeout(local, 0);
+          var conv0 = CC;
+          var b0 = ST.cur;
+          var mk = DX.mask(raw);
+          var mtext = mk.text;
+          AI.json(aiComposePrompt(mtext, aiHist(conv0))).then(
+            function (out) {
+              out = out && typeof out === "object" ? out : {};
+              var a = AI_ACTIONS.indexOf(out.action) !== -1 ? out.action : null;
+              var ok = function (id) { return typeof id === "string" && IND[id] && !IND[id].hidden && IND[id].kind !== "heading"; };
+              var ws = ST.cur === b0 ? visList(cur()) : [];
+              var w = ws.filter(function (x) { return x.uid === out.widget; })[0];
+              var mo = null;
+              var mm = /^(20\d\d)-(\d\d)$/.exec(String(out.mois || ""));
+              if (mm && +mm[2] >= 1 && +mm[2] <= 12) mo = +mm[1] * 12 + +mm[2] - 1;
+              var ids = (Array.isArray(out.indicateurs) ? out.indicateurs : []).filter(ok).slice(0, 8);
+              var say = aiText(out.message);
+              var qn = aiText(out.question);
+              if (a === "preciser" && !qn) a = null;
+              /* Réponse inexploitable : l'assistant par règles prend le relais */
+              if (!a || ((a === "question" || a === "ajouter") && !ok(out.indicateur)) || ((a === "visualisation" || a === "retirer") && !w) ||
+                  (a === "visualisation" && !Object.prototype.hasOwnProperty.call(VIZ, out.visualisation)) || (a === "tableau" && !ids.length)) {
+                if (CC !== conv0) return aiDone(tid);
+                return local();
+              }
+              FORCE = {
+                ind: out.indicateur,
+                uid: w ? w.uid : null,
+                taille: a === "taille" ? String(out.taille == null ? "" : out.taille).trim().toLowerCase().slice(0, 20) : null,
+                couleur: a === "couleur" ? String(out.couleur == null ? "" : out.couleur).trim().slice(0, 20) : null,
+                viz: a === "visualisation" ? out.visualisation : null,
+                mo: mo,
+                ids: a === "tableau" ? ids : null,
+                nom: typeof out.nom === "string" && out.nom.trim() ? cap(out.nom.trim().slice(0, 40)) : "",
+                nr: (Array.isArray(out.non_reconnus) ? out.non_reconnus : []).filter(function (s) { return typeof s === "string" && s.trim(); }).slice(0, 4).map(function (s) { return s.trim().slice(0, 80); }),
+                cat: typeof out.categorie === "string" ? out.categorie.slice(0, 80) : "",
+                periode: [6, 12, 24].indexOf(+out.periode) !== -1 ? +out.periode : 0,
+                titre: a === "question" || a === "ajouter" ? aiTitle(out.titre) : "",
+              };
+              aiRemember(conv0, "composition", mtext, { action: a, indicateur: ok(out.indicateur) ? out.indicateur : "", mois: mo != null ? out.mois : "", widget: w ? w.uid : "", taille: a === "taille" ? FORCE.taille : "", couleur: a === "couleur" ? FORCE.couleur : "", categorie: FORCE.cat, periode: FORCE.periode, message: say, question: qn });
+              aiDone(tid);
+              /* Précision demandée, ou réponse sans indicateur : la phrase du modèle tient lieu de réponse */
+              if (a === "preciser") return aiAdd(conv0, { r: "ai", mode: "compose", t: (say ? say + " " : "") + qn, ch: aiChoices(out.choix), parts: mk.parts });
+              if ((a === "aucun" || a === "impossible") && say) return aiAdd(conv0, { r: "ai", mode: "compose", t: say, parts: mk.parts, cat: a === "aucun" });
+              if (say) aiAdd(conv0, { r: "ai", mode: "compose", t: say });
+              SINK = CC !== conv0 ? conv0 : null;
+              try {
+                if (a === "question") answer(raw, t);
+                else if (a === "ajouter") planAdd(raw, t);
+                else if (a === "visualisation") planViz(raw, t);
+                else if (a === "filtrer") planFilter(raw, t);
+                else if (a === "retirer") planRemove(raw, t);
+                else if (a === "taille") planSize(raw);
+                else if (a === "couleur") planColor(raw);
+                else if (a === "tableau") planBoard(raw, t);
+                else if (a === "impossible") replyCannot(raw);
+                else replyNone(raw);
+              } finally {
+                FORCE = null;
+                SINK = null;
+              }
+            },
+            function (e) {
+              var code = e && e.code;
+              if (AI_OFF.indexOf(code) !== -1) AI = null;
+              console.warn("[EJ] Claude (cockpit) : " + code);
+              if (code === "cancelled" || CC !== conv0) return aiDone(tid);
+              local();
+            }
+          );
+        }
+        function aiDone(tid) {
+          $("cv-ai-send").disabled = false;
+          var th = $(tid);
+          if (th) th.remove();
         }
         /* Zone d'annonce courte pour les lecteurs d'écran (le fil n'est pas lu en entier) */
         function announce(t) {
@@ -6251,6 +7296,17 @@
           if (!x) return;
           var name = "dpj-" + (C.fold(qTitle(m.q)).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 48) || "requete") + ".csv";
           var blob = new Blob([x.text], { type: "text/csv;charset=utf-8" });
+          /* Dans l'Artifact Claude.ai, un lien de téléchargement ne fait rien : la sauvegarde passe par la capacité downloads */
+          if (window.claude && typeof window.claude.use === "function") {
+            window.claude.use("downloads").then(function (dl) {
+              if (!dl) return toast("Export indisponible ici");
+              dl.save({ filename: name, data: blob }).then(
+                function () { toast("Export CSV : " + x.n + " " + C.pl(x.n, "société", "sociétés")); },
+                function (e) { if (!e || e.code !== "declined") toast("Export indisponible ici"); }
+              );
+            });
+            return;
+          }
           var u = URL.createObjectURL(blob);
           var a = document.createElement("a");
           a.href = u;
@@ -6272,10 +7328,16 @@
           var q = cleanQ(m.q);
           /* en chiffre, on compte toute la requête : « les 5 premières » n'a de sens qu'en liste */
           if (kind === "chiffre") delete q.limit;
-          var title = qTitle(q).slice(0, 140);
+          var title = (m.titre || qTitle(q)).slice(0, 140);
           var d = kind === "liste"
             ? { ind: "dpj_liste", size: "L", params: { q: q }, title: title, sub: "DPJ · recalculé à chaque affichage" }
             : { ind: "dpj_chiffre", size: "S", params: { q: q }, title: title };
+          var dup = samePin(d);
+          if (dup) {
+            m.pinned[kind] = false;
+            highlight([dup.uid]);
+            return pinSaid("Ce résultat est déjà sur le tableau : « " + wTitle(dup, RES[dup.uid]).slice(0, 100) + " ».");
+          }
           var hl = addWidgets([d]);
           save();
           updMsg(m);
@@ -6285,6 +7347,7 @@
           highlight(hl);
           var jid = logJ("Épinglé au cockpit (" + kind + ") : " + title, "Épinglage annulé : " + title, { k: "add", b: cur().id, uids: hl, pin: { mid: m.id, kind: kind } });
           toast("Épinglé au cockpit en " + kind, function () { undoJ(jid); });
+          pinSaid("Épinglé au cockpit en " + kind + " : « " + title.slice(0, 100) + " », en bas du tableau.", jid);
         }
         /* Sociétés non évaluées faute de donnée : la liste des identifiants vient d'EJ (exclus[i].ids) */
         function listExcl(m, field) {
@@ -6296,6 +7359,38 @@
             return s ? { title: s.nom, forme: s.forme, meta: cap(x.motif), href: "societe.html?id=" + encodeURIComponent(s.id), action: "Compléter la fiche" } : null;
           }).filter(Boolean);
           openDrawer("Non évaluées · " + qTitle(m.q), x.count + " " + C.pl(x.count, "société", "sociétés") + " " + x.motif, rows, IND.dpj_liste);
+        }
+
+        /* Couleur choisie à la main (mode Modifier) : même schéma que la largeur, enregistrée avec « Terminer » */
+        function setWColor(w, v) {
+          var c = v === "" || v == null ? null : normColor(v);
+          if (v && !c) return;
+          w.color = c;
+          closeDds();
+          renderGrid({ focus: "col-" + w.uid });
+        }
+        /* Code saisi : #RRGGBB (le # peut être omis) ; sinon message court, rien n'est appliqué */
+        function hexCheck(inp) {
+          var v = inp.value.trim();
+          var c = normColor(v);
+          var err = document.getElementById("cerr-" + inp.getAttribute("data-chex"));
+          var bad = !c && v.length > 0;
+          inp.setAttribute("aria-invalid", String(bad));
+          if (err) err.textContent = bad ? "Format attendu : #RRGGBB." : "";
+          return c;
+        }
+        function applyHexField(w, inp) {
+          var c = hexCheck(inp);
+          if (!c) {
+            if (!inp.value.trim()) {
+              var err = document.getElementById("cerr-" + w.uid);
+              if (err) err.textContent = "Saisissez un code, par exemple #C22F28.";
+              inp.setAttribute("aria-invalid", "true");
+            }
+            inp.focus();
+            return;
+          }
+          setWColor(w, c);
         }
 
         /* ---------- Événements ---------- */
@@ -6383,10 +7478,27 @@
           }
           if ((x = t.closest("[data-size]"))) {
             var w = findW(x.getAttribute("data-w"));
-            if (w) {
-              w.size = x.getAttribute("data-size");
-              renderGrid();
+            var sz = x.getAttribute("data-size");
+            if (w && SIZES.indexOf(sz) !== -1) {
+              if (sz === "XS" && !xsOk(IND[w.ind], w.viz)) {
+                toast(XS_WHY + " : choisissez 1/4 ou plus.");
+                return;
+              }
+              w.size = sz;
+              closeDds();
+              renderGrid({ focus: "szm-" + w.uid });
             }
+            return;
+          }
+          if ((x = t.closest("[data-color]"))) {
+            var wcol = findW(x.getAttribute("data-w"));
+            if (wcol) setWColor(wcol, x.getAttribute("data-color"));
+            return;
+          }
+          if ((x = t.closest("[data-capply]"))) {
+            var wca = findW(x.getAttribute("data-capply"));
+            var hexIn = x.parentNode.querySelector("[data-chex]");
+            if (wca && hexIn) applyHexField(wca, hexIn);
             return;
           }
           if ((x = t.closest("[data-move]"))) {
@@ -6406,6 +7518,7 @@
             var wv = findW(x.getAttribute("data-w"));
             if (wv) {
               wv.viz = x.getAttribute("data-viz");
+              wv.size = fitSize(IND[wv.ind], wv.viz, wv.size);
               closeDds();
               renderGrid({ focus: "menu-" + wv.uid });
             }
@@ -6414,13 +7527,14 @@
           if ((x = t.closest("[data-dup]"))) {
             var wd = findW(x.getAttribute("data-dup"));
             if (wd) {
-              var nu = addWidgets([{ ind: wd.ind, size: wd.size, viz: wd.viz, params: wd.params, title: wd.title, sub: wd.sub }], { at: idxW(wd.uid) + 1 });
+              var nu = addWidgets([{ ind: wd.ind, size: wd.size, viz: wd.viz, params: wd.params, title: wd.title, sub: wd.sub, color: wd.color }], { at: idxW(wd.uid) + 1 });
               closeDds();
               renderGrid({ focus: "menu-" + nu[0] });
               highlight(nu);
             }
             return;
           }
+          if ((x = t.closest("[data-wrm]"))) return removeW(x.getAttribute("data-wrm"));
           if ((x = t.closest("[data-del]"))) {
             var di = idxW(x.getAttribute("data-del"));
             if (di !== -1) {
@@ -6667,8 +7781,14 @@
             e.preventDefault();
             return applyEd(e.target.closest("[data-ed]"));
           }
+          if (e.key === "Enter" && e.target.matches && e.target.matches("[data-chex]")) {
+            e.preventDefault();
+            var wk = findW(e.target.getAttribute("data-chex"));
+            if (wk) applyHexField(wk, e.target);
+            return;
+          }
           var menu = e.target.closest && e.target.closest(".cv-menu");
-          if (menu && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+          if (menu && (e.key === "ArrowDown" || e.key === "ArrowUp") && !e.target.matches("input")) {
             e.preventDefault();
             var items = Array.prototype.slice.call(menu.querySelectorAll("button"));
             var i = items.indexOf(e.target);
@@ -6749,6 +7869,26 @@
             }
           });
           $("cv-cat-q").addEventListener("input", renderCatItems);
+          /* Couleur personnalisée : le code et la pipette restent synchronisés ; la pipette s'applique à sa fermeture */
+          $("cv-grid").addEventListener("input", function (e) {
+            var tg = e.target;
+            if (tg.matches("[data-chex]")) {
+              var c = hexCheck(tg);
+              var pk = tg.parentNode.querySelector("[data-cpick]");
+              if (c && pk) pk.value = c;
+            } else if (tg.matches("[data-cpick]")) {
+              var tx = tg.parentNode.querySelector("[data-chex]");
+              if (tx) {
+                tx.value = tg.value.toUpperCase();
+                hexCheck(tx);
+              }
+            }
+          });
+          $("cv-grid").addEventListener("change", function (e) {
+            if (!e.target.matches("[data-cpick]")) return;
+            var wp = findW(e.target.getAttribute("data-cpick"));
+            if (wp && ST.edit) setWColor(wp, e.target.value);
+          });
           window.addEventListener("resize", syncAIMode);
           document.addEventListener("change", function (e) {
             if (e.target.id === "cv-rename") cur().title = e.target.value.trim().slice(0, 60) || "Nouveau tableau";
@@ -6806,6 +7946,6 @@
         document.addEventListener("DOMContentLoaded", init);
       })();
     </script>
-    <script src="assets/ej-shell.js?v=27"></script>
+    <script src="assets/ej-shell.js?v=28"></script>
   </body>
 </html>

@@ -1757,7 +1757,7 @@
     return spans.sort(function (a, b) { return a.s - b.s; });
   }
   var MOIS_N = ["janvier", "fevrier", "mars", "avril", "mai", "juin", "juillet", "aout", "septembre", "octobre", "novembre", "decembre"];
-  var KNOWN_UP = ["ag", "agoa", "age", "sas", "sasu", "sarl", "eurl", "sa", "sci", "scp", "sccv", "selarl", "lab", "cac", "inpi", "dpj", "ej", "tva", "ppe", "ia", "rne", "cir", "siren", "siret", "iban", "ape", "naf", "rcs", "ca", "t1", "t2", "t3", "t4", "lm", "be", "kpi", "n-1", "ec", "alpe", "lcb-ft", "lcb"];
+  var KNOWN_UP = ["ok", "okay", "ag", "agoa", "age", "sas", "sasu", "sarl", "eurl", "sa", "sci", "scp", "sccv", "selarl", "lab", "cac", "inpi", "dpj", "ej", "tva", "ppe", "ia", "rne", "cir", "siren", "siret", "iban", "ape", "naf", "rcs", "ca", "t1", "t2", "t3", "t4", "lm", "be", "kpi", "n-1", "ec", "alpe", "lcb-ft", "lcb"];
   var KNOWN_CAP = MOIS_N.concat(["guichet", "express", "juridique", "cockpit", "campagne", "depot", "depots", "formalite", "formalites", "signature", "signatures", "societe", "societes", "lettre", "lettres", "mission", "missions", "echeance", "echeances", "assemblee", "approbation", "comptes", "dossier", "dossiers", "associe", "collaborateur", "vigilance", "conformite", "tableau", "charge", "portefeuille", "vue", "ensemble", "n", "file", "jour", "mandats", "mandat", "independance", "risque", "activite", "n-1",
     "rapport", "rapports", "ponctuelle", "ponctuelles", "ponctuel", "ponctuels", "etape", "etapes", "audit", "audits", "heures", "phase", "phases", "honoraires", "intervention", "interventions", "suivi", "pilotage", "synthese", "direction", "equipe",
     "controle", "qualite", "retard", "retards", "commissariat", "expertise", "comptable", "operation", "operations", "budget", "points", "point", "nouveau",
@@ -1772,6 +1772,8 @@
       var w = m[0].replace(/[.'’-]+$/, "");
       var e = s + w.length;
       if (spans.some(function (x) { return s < x.e && e > x.s; })) continue;
+      /* code couleur (#5202FF) : jamais pris pour un nom */
+      if (raw.charAt(s - 1) === "#" && /^[0-9A-Fa-f]{3}([0-9A-Fa-f]{3})?$/.test(w)) continue;
       var fw = fold(w);
       var letters = w.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ]/g, "");
       if (!letters) continue;
