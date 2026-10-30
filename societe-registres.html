@@ -89,13 +89,671 @@
         font-size: 18px;
       }
 
-      /* ---- Registres ---- */
-      .reg-word {
-        font-weight: 700;
-        color: var(--ej-action-600);
-      }
+      /* ---- Registres (fonctionnalité Rejistre) ---- */
       .reg-head {
         margin-bottom: 20px;
+      }
+      .reg-h {
+        font-size: 22px;
+        font-weight: 700;
+        line-height: 1.3;
+        color: var(--ej-primary-900);
+        outline: none;
+      }
+      .reg-h:focus-visible {
+        box-shadow: var(--ej-focus-ring);
+        border-radius: var(--ej-radius-sm);
+      }
+      .reg-marque {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+        font-size: 12px;
+        color: var(--ej-neutral-500);
+        white-space: nowrap;
+      }
+      .reg-word {
+        font-family: var(--ej-font-display);
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        color: var(--ej-action-600);
+      }
+      /* Logo Rejistre (fichier de la marque) dans le badge « Une fonctionnalité » */
+      .reg-logo {
+        height: 20px;
+        width: auto;
+        display: inline-block;
+        vertical-align: middle;
+      }
+      /* Bloc à droite de l'en-tête : badge de la fonctionnalité, puis le bouton quand des registres existent */
+      .reg-droite {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 10px;
+        flex-shrink: 0;
+      }
+      /* Picto registre (livre violet à dos menthe) : état vide et lignes de la liste */
+      .reg-vide-ico img {
+        width: 40px;
+        height: 40px;
+        display: block;
+      }
+      .list-icon img.reg-picto {
+        width: 22px;
+        height: 22px;
+        display: block;
+      }
+      .reg-charge {
+        padding: 24px 0;
+        font-size: 14px;
+        color: var(--ej-neutral-500);
+      }
+      .reg-l {
+        display: block;
+      }
+
+      /* État vide (aucun registre, registre sans entrée) */
+      .reg-vide {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 44px 24px 40px;
+        text-align: center;
+      }
+      .reg-vide-ico {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--ej-action-100);
+        color: var(--ej-action-600);
+      }
+      .reg-vide-ico .ms {
+        font-size: 30px;
+      }
+      .reg-vide-t {
+        font-family: var(--ej-font-display);
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--ej-neutral-700);
+      }
+      .reg-vide p {
+        max-width: 440px;
+        font-size: 13.5px;
+        color: var(--ej-neutral-500);
+      }
+      .reg-vide .btn {
+        margin-top: 8px;
+      }
+
+      /* Vue d'un registre */
+      .reg-retour {
+        margin-bottom: 14px;
+      }
+      .reg-titre {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+      .reg-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px 8px;
+        margin-top: 4px;
+        font-size: 13px;
+        color: var(--ej-neutral-500);
+      }
+      .reg-lien {
+        font-size: 13px;
+        color: var(--ej-primary-700);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        border-radius: var(--ej-radius-sm);
+      }
+      .reg-lien:hover {
+        color: var(--ej-action-600);
+      }
+      .reg-export {
+        flex-shrink: 0;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1.5px solid var(--ej-action-600);
+        color: var(--ej-action-600);
+        transition: background var(--ej-transition-fast);
+      }
+      .reg-export:hover {
+        background: var(--ej-action-50);
+      }
+      .reg-export .ms {
+        font-size: 20px;
+      }
+
+      /* Bande des brouillons et bande « Ajouter une entrée » */
+      .reg-brouillon {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 14px;
+        padding: 14px 18px;
+        background: var(--ej-action-50);
+        border: 1px solid var(--ej-action-200);
+        border-radius: var(--ej-radius-lg);
+      }
+      .reg-brouillon-t {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .reg-brouillon-t > .ms {
+        margin-top: 2px;
+        font-size: 22px;
+        color: var(--ej-action-600);
+      }
+      .reg-brouillon strong {
+        display: block;
+        font-family: var(--ej-font-display);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .reg-brouillon-d {
+        display: block;
+        font-size: 13px;
+        color: var(--ej-neutral-600);
+      }
+      .reg-ajout {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        width: 100%;
+        margin-bottom: 16px;
+        padding: 14px 18px;
+        border: 1.5px dashed var(--ej-neutral-300);
+        border-radius: var(--ej-radius-lg);
+        text-align: left;
+        transition: border-color var(--ej-transition-fast), background var(--ej-transition-fast);
+      }
+      .reg-ajout:hover {
+        border-color: var(--ej-action-400);
+        background: var(--ej-action-50);
+      }
+      .reg-ajout > .ms {
+        font-size: 24px;
+        color: var(--ej-action-600);
+      }
+      .reg-ajout-t {
+        display: block;
+        font-family: var(--ej-font-display);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ej-action-600);
+      }
+      .reg-ajout-s {
+        display: block;
+        font-size: 13px;
+        color: var(--ej-neutral-500);
+      }
+
+      /* Entrées numérotées (la plus récente en haut) */
+      .reg-entrees {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .reg-entree {
+        display: flex;
+        gap: 14px;
+        padding: 16px 18px;
+        background: var(--ej-white);
+        border: 1px solid var(--ej-hairline);
+        border-radius: var(--ej-radius-lg);
+        box-shadow: var(--ej-shadow-xs);
+      }
+      .reg-entree.is-brouillon {
+        background: var(--ej-action-50);
+        border-color: var(--ej-action-300);
+      }
+      .reg-entree:focus {
+        outline: none;
+      }
+      .reg-entree:focus-visible {
+        box-shadow: var(--ej-focus-ring);
+        border-radius: var(--ej-radius-lg);
+      }
+      .reg-num {
+        flex-shrink: 0;
+        align-self: flex-start;
+        min-width: 36px;
+        height: 28px;
+        padding: 0 10px;
+        border-radius: var(--ej-radius-full);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--ej-action-100);
+        color: var(--ej-action-700);
+        font-family: var(--ej-font-display);
+        font-size: 13px;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+      }
+      .reg-corps {
+        flex: 1;
+        min-width: 0;
+      }
+      .reg-e-tete {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .reg-e-titre {
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.4;
+        color: var(--ej-primary-900);
+        overflow-wrap: anywhere;
+      }
+      .reg-e-tete .icon-btn {
+        margin: -6px -8px 0 0;
+        flex-shrink: 0;
+      }
+      .reg-e-src,
+      .reg-effet {
+        font-size: 13px;
+        font-style: italic;
+        color: var(--ej-neutral-500);
+      }
+      .reg-e-src {
+        margin-top: 2px;
+      }
+      .reg-effet {
+        margin-top: 10px;
+      }
+      .reg-e-ligne {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px 12px;
+        margin-top: 10px;
+      }
+      .reg-chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 26px;
+        padding: 2px 12px;
+        border-radius: var(--ej-radius-full);
+        background: var(--ej-primary-100);
+        color: var(--ej-primary-900);
+        font-size: 12.5px;
+        font-weight: 500;
+      }
+      .reg-nominal {
+        font-size: 12.5px;
+        font-style: italic;
+        color: var(--ej-neutral-500);
+      }
+      .reg-titulaire {
+        margin-top: 14px;
+        font-size: 13.5px;
+        line-height: 1.5;
+        color: var(--ej-neutral-600);
+        overflow-wrap: anywhere;
+      }
+      .reg-titulaire .overline {
+        display: block;
+        margin-bottom: 2px;
+      }
+      .reg-titulaire strong {
+        display: block;
+        font-weight: 600;
+        color: var(--ej-neutral-900);
+      }
+      .reg-droit {
+        color: var(--ej-neutral-500);
+      }
+      .reg-pv {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px 10px;
+        margin-top: 12px;
+        font-size: 13px;
+        color: var(--ej-neutral-600);
+      }
+      .reg-pv .ms {
+        font-size: 16px;
+        color: var(--ej-neutral-500);
+      }
+      .reg-pv label.btn {
+        position: relative;
+      }
+      .reg-pv label.btn:focus-within {
+        box-shadow: var(--ej-focus-ring);
+      }
+      .reg-e-statut {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px 12px;
+        margin-top: 12px;
+        padding-top: 10px;
+        border-top: 1px solid var(--ej-neutral-100);
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+      }
+      .reg-e-statut > span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .reg-e-statut .ms {
+        font-size: 14px;
+      }
+      .reg-e-statut .btn {
+        margin-left: auto;
+      }
+      .reg-entree.is-annulee .reg-barre,
+      .reg-entree.is-annulee .reg-barre * {
+        text-decoration: line-through;
+        color: var(--ej-neutral-500);
+      }
+      .reg-entree.is-annulee .reg-chip {
+        background: var(--ej-neutral-100);
+        color: var(--ej-neutral-600);
+      }
+
+      /* Fenêtres (jetons uniquement) */
+      .reg-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: color-mix(in srgb, var(--ej-primary-900) 32%, transparent);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity var(--ej-transition-normal), visibility 0s linear 250ms;
+      }
+      .reg-modal.open {
+        opacity: 1;
+        visibility: visible;
+        transition: opacity var(--ej-transition-normal), visibility 0s;
+      }
+      .reg-modal-box {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 560px;
+        max-height: calc(100vh - 48px);
+        overflow: hidden;
+        background: var(--ej-white);
+        border-radius: var(--ej-radius-xl);
+        box-shadow: var(--ej-shadow-xl);
+        transform: translateY(8px);
+        transition: transform var(--ej-transition-normal);
+      }
+      .reg-modal-box.large {
+        max-width: 720px;
+      }
+      .reg-modal.open .reg-modal-box {
+        transform: none;
+      }
+      .reg-modal-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 20px 22px 14px;
+        border-bottom: 1px solid var(--ej-hairline);
+      }
+      .reg-modal-head h2 {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+        outline: none;
+      }
+      .reg-modal-head h2:focus-visible {
+        outline: 2px solid var(--ej-action-600);
+        outline-offset: 3px;
+        border-radius: var(--ej-radius-sm);
+      }
+      .reg-modal-head p {
+        margin-top: 2px;
+        font-size: 13px;
+        color: var(--ej-neutral-500);
+      }
+      .reg-modal-head p:empty {
+        display: none;
+      }
+      .reg-modal-body {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding: 18px 22px;
+        font-size: 14px;
+      }
+      .reg-modal-foot {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 14px 22px 18px;
+        border-top: 1px solid var(--ej-hairline);
+      }
+      .reg-m-tabs {
+        margin-bottom: 0;
+        flex-shrink: 0;
+      }
+      .reg-m-intro {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 13.5px;
+        line-height: 1.55;
+        color: var(--ej-neutral-600);
+      }
+      .reg-ops {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 0;
+        margin-top: 14px;
+        border: 0;
+      }
+      .reg-op {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+      .reg-op-corps {
+        flex: 1;
+        min-width: 0;
+      }
+      .reg-op-t {
+        display: block;
+        font-family: var(--ej-font-display);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+        overflow-wrap: anywhere;
+      }
+      .reg-op-note {
+        margin-top: 2px;
+        font-size: 12.5px;
+        color: var(--ej-neutral-600);
+      }
+      .reg-op > .ms {
+        margin-top: 2px;
+        color: var(--ej-neutral-500);
+      }
+      .reg-op.is-incomplet {
+        border-style: dashed;
+        background: var(--ej-neutral-50);
+        cursor: not-allowed;
+      }
+      .reg-op.is-incomplet:hover {
+        border-color: var(--ej-neutral-300);
+      }
+      .reg-op input:disabled {
+        cursor: not-allowed;
+        border-color: var(--ej-neutral-300);
+      }
+      .reg-op-vide {
+        padding: 28px 16px;
+        border: 1px dashed var(--ej-neutral-300);
+        border-radius: var(--ej-radius-lg);
+        text-align: center;
+        font-size: 13.5px;
+        color: var(--ej-neutral-500);
+      }
+      .reg-drop {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 36px 20px;
+        border: 1.5px dashed var(--ej-neutral-300);
+        border-radius: var(--ej-radius-lg);
+        text-align: center;
+        font-size: 14px;
+        color: var(--ej-neutral-600);
+        cursor: pointer;
+        transition: border-color var(--ej-transition-fast), background var(--ej-transition-fast);
+      }
+      .reg-drop:hover,
+      .reg-drop.is-over {
+        border-color: var(--ej-action-500);
+        background: var(--ej-action-50);
+      }
+      .reg-drop:focus-within {
+        border-color: var(--ej-action-600);
+        background: var(--ej-action-50);
+        box-shadow: var(--ej-focus-ring);
+      }
+      .reg-drop .ms {
+        font-size: 28px;
+        color: var(--ej-action-600);
+      }
+      .reg-parcourir {
+        font-weight: 600;
+        color: var(--ej-action-600);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .reg-m-p {
+        font-size: 14px;
+        color: var(--ej-neutral-600);
+      }
+      .reg-choix {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        min-width: 0;
+        border: 0;
+      }
+      .reg-choix-corps {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+      }
+      .reg-choix-t {
+        font-family: var(--ej-font-display);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .reg-choix-d {
+        font-size: 13px;
+        color: var(--ej-neutral-600);
+      }
+      .reg-note {
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+      }
+      .reg-conf-t {
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .reg-conf-a {
+        font-size: 14px;
+        color: var(--ej-action-700);
+      }
+      .reg-conf-s {
+        font-size: 13px;
+        color: var(--ej-neutral-600);
+      }
+      .reg-attest {
+        padding: 14px 16px;
+        border: 1px solid var(--ej-neutral-300);
+        border-radius: var(--ej-radius-lg);
+        background: var(--ej-neutral-50);
+        font-size: 13.5px;
+        line-height: 1.5;
+      }
+      .reg-attest:has(input:checked) {
+        border-color: var(--ej-action-600);
+        background: var(--ej-action-50);
+      }
+      .reg-toast {
+        position: fixed;
+        left: 50%;
+        bottom: 32px;
+        z-index: 110;
+        transform: translate(-50%, 16px);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: calc(100vw - 32px);
+        padding: 12px 18px;
+        border-radius: var(--ej-radius-lg);
+        background: var(--ej-primary-900);
+        color: var(--ej-white);
+        font-size: 14px;
+        box-shadow: var(--ej-shadow-lg);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity var(--ej-transition-normal), transform var(--ej-transition-normal), visibility 0s linear 250ms;
+      }
+      .reg-toast.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translate(-50%, 0);
+        transition: opacity var(--ej-transition-normal), transform var(--ej-transition-normal), visibility 0s;
+      }
+      .reg-toast .ms {
+        flex-shrink: 0;
+        color: var(--ej-logo-mint);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .reg-modal,
+        .reg-modal-box,
+        .reg-toast {
+          transition: none !important;
+        }
       }
 
       /* ---- Société introuvable (page appelée avec ?id=) ---- */
@@ -152,8 +810,60 @@
           white-space: nowrap;
           margin-bottom: 0;
         }
+        .reg-head {
+          flex-wrap: wrap;
+        }
         .reg-head .btn {
           width: 100%;
+        }
+        .reg-brouillon {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .reg-brouillon .btn {
+          width: 100%;
+          height: auto;
+          min-height: 42px;
+          padding: 8px 20px;
+          white-space: normal;
+          text-align: left;
+        }
+        .reg-entree {
+          gap: 10px;
+          padding: 14px;
+        }
+        .reg-e-statut .btn {
+          margin-left: 0;
+        }
+        .reg-choix {
+          grid-template-columns: 1fr;
+        }
+        .reg-m-intro {
+          flex-direction: column;
+        }
+        .reg-modal {
+          align-items: flex-end;
+          padding: 0;
+        }
+        .reg-modal-box,
+        .reg-modal-box.large {
+          max-width: none;
+          max-height: 92vh;
+          border-radius: var(--ej-radius-xl) var(--ej-radius-xl) 0 0;
+        }
+        .reg-modal-head,
+        .reg-modal-body {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+        .reg-modal-foot {
+          padding: 12px 16px 16px;
+        }
+        .reg-modal-foot .btn {
+          flex: 1 1 0;
+        }
+        .reg-toast {
+          bottom: 20px;
         }
       }
     </style>
@@ -197,42 +907,33 @@
             <a class="tab tab-spacer" href="#"><span class="ms">settings</span>Paramètres</a>
           </div>
 
-          <div class="page-head reg-head">
-            <div>
-              <h2 class="section-title" style="font-size: 22px; font-weight: 700; color: var(--ej-primary-900)">Registres dématérialisés</h2>
-              <p class="page-desc" id="reg-desc">Centralisez les registres légaux de PAPRIKA CANTINE.</p>
-            </div>
-            <button class="btn btn-secondary" type="button"><span class="ms">add</span>Nouveau&nbsp;<span class="reg-word">Registre</span></button>
-          </div>
-
-          <div class="list-card">
-            <a class="list-row" href="#">
-              <span class="list-icon"><span class="ms">menu_book</span></span>
-              <div>
-                <div class="row-title">Registre des Décisions n°1</div>
-                <div class="row-meta" id="reg-meta">Créé le 1 octobre 2026</div>
-              </div>
-              <span class="ms chev">chevron_right</span>
-            </a>
-          </div>
+          <div id="reg-root"><p class="reg-charge">Chargement des registres</p></div>
         </div>
         <div id="ej-footer"></div>
       </div>
     </div>
 
+    <div class="sr-only" id="reg-status" role="status" aria-live="polite"></div>
+
     <script src="assets/ej-shell.js?v=29"></script>
 
     <script>
-      /* Sans paramètre : la page reste celle de PAPRIKA CANTINE, telle quelle (aucune donnée chargée).
-         Avec ?id=<id DPJ> : charge les données de la société et remplace l'en-tête (même logique que societe.html). */
+      /* Registres dématérialisés (fonctionnalité Rejistre).
+         Sans paramètre : la page reste celle de PAPRIKA CANTINE (en-tête statique), les registres sont ceux de la société « paprika ».
+         Avec ?id=<id DPJ> : charge les données de la société et remplace l'en-tête (même logique que societe.html).
+         Données : EJM (lab.changements dont la source est le registre des mouvements de titres), EJC (formalités),
+         EJDPJ (fiche : capital, siège, dernière assemblée). État de session : sessionStorage « ej-registres », par société. */
       (function () {
+        "use strict";
         var m = /[?&]id=([^&#]*)/.exec(location.search);
-        if (!m) return;
-        var id;
-        try {
-          id = decodeURIComponent(m[1].replace(/\+/g, " "));
-        } catch (e) {
-          id = m[1];
+        var sansId = !m;
+        var id = "paprika";
+        if (m) {
+          try {
+            id = decodeURIComponent(m[1].replace(/\+/g, " "));
+          } catch (e) {
+            id = m[1];
+          }
         }
 
         function esc(s) {
@@ -245,6 +946,9 @@
         }
         function $(i) {
           return document.getElementById(i);
+        }
+        function pad(n) {
+          return (n < 10 ? "0" : "") + n;
         }
 
         var FORMES = {
@@ -260,6 +964,30 @@
         var GREFFES = { "Boulogne-Billancourt": "Nanterre", Cergy: "Pontoise", "Saint-Raphaël": "Fréjus" };
         var MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
 
+        /* ---------- Dates (chaînes JJ/MM/AAAA) ---------- */
+        function parseJ(s) {
+          var p = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(s == null ? "" : s));
+          return p ? new Date(+p[3], +p[2] - 1, +p[1]) : null;
+        }
+        function strJ(d) {
+          return pad(d.getDate()) + "/" + pad(d.getMonth() + 1) + "/" + d.getFullYear();
+        }
+        function longJ(s) {
+          var d = parseJ(s);
+          return d ? d.getDate() + " " + MOIS[d.getMonth()] + " " + d.getFullYear() : "";
+        }
+        function cleJ(s) {
+          var d = parseJ(s);
+          return d ? d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate() : 0;
+        }
+        function nf(n) {
+          return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+        function montant(n) {
+          var p = (Math.round(n * 100) / 100).toFixed(2).split(".");
+          return nf(p[0]) + "," + p[1] + " €";
+        }
+
         function introuvable() {
           document.title = "Société introuvable · Express Juridique";
           $("soc-page").innerHTML =
@@ -268,40 +996,1020 @@
             '<span class="ms" aria-hidden="true">search</span>' +
             '<h2 class="section-title" style="margin:0">Société introuvable</h2>' +
             '<p class="page-desc">' +
-              (id ? "Aucune société ne correspond à l’identifiant «\u00a0" + esc(id) + "\u00a0»." : "Aucune société n’est précisée dans l’adresse de la page.") +
+              (id ? "Aucune société ne correspond à l’identifiant « " + esc(id) + " »." : "Aucune société n’est précisée dans l’adresse de la page.") +
               "</p>" +
             '<a class="btn btn-secondary" href="societes.html">Retour à Mes sociétés</a>' +
             "</div>";
         }
 
+        /* ---------- Types de registres : mots du produit ---------- */
+        var TYPES = {
+          decisions: {
+            court: "registre des décisions",
+            titre: "Registre des Décisions",
+            libelle: "Registre des décisions",
+            desc: "Consignez les procès-verbaux et décisions de la société.",
+            vide: "Ajoutez une première décision pour commencer à tenir ce registre.",
+            intro:
+              "Voici l'ensemble des décisions connues d'Express Juridique. Sélectionnez la décision que vous souhaitez ajouter (brouillon) à votre registre. Si des données sont manquantes (par exemple, le fichier du PV signé), vous pourrez les compléter au niveau du brouillon.",
+            attest:
+              "Je confirme que chaque décision à inscrire correspond à une décision effectivement prise, que les informations saisies sont exactes et qu'elle peut être inscrite au registre des décisions.",
+          },
+          mouvements: {
+            court: "registre des mouvements de titres",
+            titre: "Registres des Mouvements de Titres",
+            libelle: "Registre des mouvements de titres",
+            desc: "Consignez les cessions et mouvements affectant les titres.",
+            vide: "Ajoutez un premier mouvement de titres pour commencer à tenir ce registre.",
+            intro:
+              "Voici l'ensemble des mouvements de titres connus d'Express Juridique. Sélectionnez le mouvement que vous souhaitez ajouter (brouillon) à votre registre. Un mouvement incomplet n'est pas inscriptible : complétez d'abord la formalité concernée.",
+            attest:
+              "Je confirme que chaque mouvement de titres à inscrire correspond à une opération effectivement réalisée, que les informations saisies sont exactes et qu'il peut être inscrit au registre des mouvements de titres.",
+          },
+        };
+        var ORDRE_TYPES = ["decisions", "mouvements"];
+        var SRC_REGISTRE = "Registre des mouvements de titres";
+        /* Familles de formalités EJC reprises comme décisions déjà inscrites : assemblées, approbation des comptes,
+           nominations, modifications statutaires (transfert de siège compris) */
+        var FAM_DECISIONS = { agoa: 1, dir: 1, autre: 1, siege: 1 };
+        var RE_TITRES = /capital|titres|actions|parts sociales|cession|entrée|sortie|apport/i;
+        var RE_NOM = /(?:^|\s)(?:à|de|d'|par)\s*([A-ZÀ-ÖØ-Þ][a-zà-öø-ÿ'’]+(?:-[A-ZÀ-ÖØ-Þ][a-zà-öø-ÿ'’]+)*(?:\s+[A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÖØ-öø-ÿ'’\-]+)+)/;
+
+        /* ---------- Contexte de la société (rempli une fois les données chargées) ---------- */
+        var ctx = null;
+        var AUJ = new Date(2026, 9, 19);
+
+        function adresseSiege() {
+          var s = ctx && ctx.f ? ctx.f.siege : null;
+          if (!s) return null;
+          var ville = ((s.cp || "") + " " + (s.ville || "")).replace(/^\s+|\s+$/g, "");
+          var parts = [s.adresse, ville, "France"].filter(function (x) {
+            return !!x;
+          });
+          return parts.length > 1 ? parts.join(", ") : null;
+        }
+        function valeurNominale() {
+          var c = ctx && ctx.f ? ctx.f.capital : null;
+          return typeof c === "number" && c > 0 ? montant(c / 1000) : null;
+        }
+        /* Titulaire : le nom cité dans l'événement, sinon la société (adresse du siège connue) */
+        function titulaireDe(ev) {
+          var r = RE_NOM.exec(String(ev || ""));
+          if (r) return { nom: r[1], adresse: null };
+          return { nom: ctx.nom, adresse: adresseSiege() };
+        }
+        /* 1 000 actions par défaut : nombre = pourcentage cité x 10 */
+        function actionsDe(ev) {
+          var r = /(\d+(?:[.,]\d+)?)\s*%/.exec(String(ev || ""));
+          return r ? Math.round(parseFloat(r[1].replace(",", ".")) * 10) : null;
+        }
+        /* Date d'une formalité : date de décision si elle est renseignée, sinon date de création */
+        function dateFormalite(x) {
+          if (x.dec && parseJ(x.dec)) return x.dec;
+          return x.cree && typeof x.cree.getDate === "function" ? strJ(x.cree) : "";
+        }
+
+        /* ---------- Opérations connues d'Express Juridique ---------- */
+        function opDepuisChangement(c, i) {
+          return {
+            id: "chg:" + i,
+            fam: "titres",
+            titre: c[1],
+            date: c[0],
+            source: c[2],
+            complet: true,
+            actions: actionsDe(c[1]),
+            nominal: valeurNominale(),
+            titulaire: titulaireDe(c[1]),
+            nature: null,
+            ref: null,
+            pv: true,
+          };
+        }
+        function opDepuisFormaliteMvt(x) {
+          var d = dateFormalite(x);
+          return {
+            id: "frm:" + x.ref,
+            fam: x.fam,
+            titre: x.type + " du " + longJ(d),
+            date: d,
+            source: "Formalité " + x.ref,
+            complet: x.st === "generes",
+            actions: null,
+            nominal: valeurNominale(),
+            titulaire: { nom: ctx.nom, adresse: adresseSiege() },
+            nature: x.type,
+            ref: x.ref,
+            pv: true,
+          };
+        }
+        function changementsTitres() {
+          var chg = ctx.m && ctx.m.lab && ctx.m.lab.changements ? ctx.m.lab.changements : [];
+          var out = [];
+          chg.forEach(function (c, i) {
+            if (c && c.length >= 3 && parseJ(c[0]) && RE_TITRES.test(String(c[1]))) out.push(opDepuisChangement(c, i));
+          });
+          return out;
+        }
+        function toutesDecisions() {
+          var out = [];
+          var cles = {};
+          ctx.forms.forEach(function (x) {
+            var d = dateFormalite(x);
+            if (!parseJ(d)) return;
+            if (x.fam === "agoa") cles[cleJ(d)] = 1;
+            out.push({
+              id: "frm:" + x.ref,
+              fam: x.fam,
+              titre: (x.fam === "agoa" ? "Assemblée générale ordinaire" : "Décision des associés") + " du " + longJ(d),
+              date: d,
+              complet: true,
+              nature: x.type,
+              ref: x.ref,
+              pv: x.st === "generes",
+            });
+          });
+          var ag = ctx.f ? ctx.f.derniereAG : null;
+          if (ag && parseJ(ag) && !cles[cleJ(ag)]) {
+            out.push({ id: "ag:" + ag, fam: "agoa", titre: "Assemblée générale ordinaire du " + longJ(ag), date: ag, complet: true, nature: "Assemblée générale ordinaire", ref: null, pv: false });
+          }
+          return out;
+        }
+        function parDateDesc(a, b) {
+          return cleJ(b.date) - cleJ(a.date) || (a.titre < b.titre ? -1 : a.titre > b.titre ? 1 : 0);
+        }
+        function parDateAsc(a, b) {
+          return cleJ(a.date) - cleJ(b.date) || (a.titre < b.titre ? -1 : a.titre > b.titre ? 1 : 0);
+        }
+        /* Une opération déjà inscrite (ou en brouillon) dans un registre du même type n'est plus proposée */
+        function dejaAuRegistre(op, reg) {
+          return etat.registres.some(function (r) {
+            return (
+              r.type === reg.type &&
+              r.entrees.some(function (e) {
+                return e.opId === op.id && e.statut !== "annulee";
+              })
+            );
+          });
+        }
+        /* Opérations proposables dans « Ajouter une entrée » : les inscrites et les brouillons sont exclus */
+        function operations(reg) {
+          var ops =
+            reg.type === "mouvements"
+              ? changementsTitres().concat(
+                  ctx.forms
+                    .filter(function (x) {
+                      return (x.fam === "capital" || x.fam === "cession") && parseJ(dateFormalite(x));
+                    })
+                    .map(opDepuisFormaliteMvt)
+                )
+              : toutesDecisions();
+          return ops
+            .filter(function (op) {
+              return !dejaAuRegistre(op, reg);
+            })
+            .sort(parDateDesc);
+        }
+
+        /* ---------- État de session (sessionStorage « ej-registres », par société) ---------- */
+        var KEY = "ej-registres";
+        var MEM = null;
+        function lireTout() {
+          try {
+            var v = sessionStorage.getItem(KEY);
+            if (v) {
+              var o = JSON.parse(v);
+              if (o && typeof o === "object") return o;
+            }
+          } catch (e) {}
+          return MEM || {};
+        }
+        function ecrireTout(o) {
+          MEM = o;
+          try {
+            sessionStorage.setItem(KEY, JSON.stringify(o));
+          } catch (e) {}
+        }
+        var etat = null;
+        function sauver() {
+          var tout = lireTout();
+          tout[id] = etat;
+          ecrireTout(tout);
+        }
+        function nouvelId() {
+          var n = etat.seq || 1;
+          etat.seq = n + 1;
+          return "n" + n;
+        }
+        function entreeDepuisOp(op, statut, inscriteLe, idE) {
+          var e = { id: idE || nouvelId(), statut: statut, src: "op", opId: op.id, titre: op.titre, date: op.date };
+          ["actions", "nominal", "titulaire", "nature", "ref", "pv"].forEach(function (k) {
+            if (op[k] !== undefined) e[k] = op[k];
+          });
+          if (inscriteLe) e.inscriteLe = inscriteLe;
+          return e;
+        }
+        function plusTard(a, b) {
+          return cleJ(a) >= cleJ(b) ? a : b;
+        }
+        /* Registres existants au premier affichage de la société */
+        function graine() {
+          var regs = [];
+          var aujK = cleJ(strJ(AUJ));
+          var cree = "01/10/2026";
+          if (!sansId && ctx.ec && ctx.ec.ajout && typeof ctx.ec.ajout.getDate === "function") cree = strJ(ctx.ec.ajout);
+          var k = 0;
+
+          var avecAgoa = ctx.forms.some(function (x) {
+            return x.fam === "agoa";
+          });
+          if (sansId || avecAgoa || (ctx.f && ctx.f.derniereAG)) {
+            var decs = toutesDecisions()
+              .filter(function (op) {
+                return FAM_DECISIONS[op.fam] && cleJ(op.date) <= aujK && (op.pv || op.id.indexOf("ag:") === 0);
+              })
+              .sort(parDateAsc)
+              .map(function (op) {
+                k++;
+                op.pv = true;
+                return entreeDepuisOp(op, "inscrite", plusTard(op.date, cree), "s" + k);
+              });
+            regs.push({ id: "dec-1", type: "decisions", n: 1, cree: cree, entrees: decs });
+          }
+
+          var inscrits = changementsTitres()
+            .filter(function (op) {
+              return op.source === SRC_REGISTRE;
+            })
+            .sort(parDateAsc)
+            .map(function (op) {
+              k++;
+              return entreeDepuisOp(op, "inscrite", plusTard(op.date, cree), "s" + k);
+            });
+          if (inscrits.length) regs.push({ id: "mvt-1", type: "mouvements", n: 1, cree: cree, entrees: inscrits });
+          return { seq: 1, registres: regs };
+        }
+        function chargerEtat() {
+          var s = lireTout()[id];
+          if (!s || !Array.isArray(s.registres)) s = graine();
+          s.registres = s.registres.filter(function (r) {
+            return r && TYPES[r.type] && r.id;
+          });
+          s.registres.forEach(function (r) {
+            if (!Array.isArray(r.entrees)) r.entrees = [];
+          });
+          etat = s;
+        }
+        function trouverRegistre(rid) {
+          for (var i = 0; i < etat.registres.length; i++) if (etat.registres[i].id === rid) return etat.registres[i];
+          return null;
+        }
+        function brouillons(reg) {
+          return reg.entrees.filter(function (e) {
+            return e.statut === "brouillon";
+          });
+        }
+        function nbInscrites(reg) {
+          return reg.entrees.length - brouillons(reg).length;
+        }
+        function titreRegistre(reg) {
+          return TYPES[reg.type].titre + " n°" + reg.n;
+        }
+
+        /* ---------- Rendu : liste des registres ---------- */
+        var vue = null; /* id du registre ouvert, null = liste */
+
+        function htmlListe() {
+          var regs = etat.registres;
+          var marque = '<div class="reg-marque">Une fonctionnalité <img class="reg-logo" src="assets/rejistre-logo.svg" alt="Rejistre" /></div>';
+          var action = '<div class="reg-droite">' + marque +
+            (regs.length ? '<button class="btn btn-secondary" type="button" data-act="creer"><span class="ms">add</span>Créer un registre</button>' : "") +
+            "</div>";
+          var h =
+            '<div class="page-head reg-head"><div>' +
+            '<h2 class="section-title reg-h" id="reg-h" tabindex="-1">Registres dématérialisés</h2>' +
+            '<p class="page-desc">Centralisez les registres légaux de ' + esc(ctx.nom) + ".</p></div>" +
+            action +
+            "</div>";
+          if (!regs.length) {
+            return (
+              h +
+              '<div class="card reg-vide">' +
+              '<span class="reg-vide-ico" aria-hidden="true"><img src="assets/rejistre-picto.svg" alt="" /></span>' +
+              '<div class="overline">Aucun registre pour cette société</div>' +
+              "<p>Créez votre premier registre dématérialisé pour commencer à y consigner les décisions et mouvements de cette société.</p>" +
+              '<button class="btn btn-primary btn-sm" type="button" data-act="creer"><span class="ms">add</span>Créer un registre</button>' +
+              "</div>"
+            );
+          }
+          return (
+            h +
+            '<div class="list-card">' +
+            regs
+              .map(function (r) {
+                return (
+                  '<a class="list-row" href="#r-' + esc(r.id) + '" data-act="ouvrir" data-r="' + esc(r.id) + '">' +
+                  '<span class="list-icon"><img class="reg-picto" src="assets/rejistre-picto.svg" alt="" /></span>' +
+                  '<div><div class="row-title">' + esc(titreRegistre(r)) + "</div>" +
+                  '<div class="row-meta">Créé le ' + esc(longJ(r.cree)) + "</div></div>" +
+                  '<span class="ms chev">chevron_right</span></a>'
+                );
+              })
+              .join("") +
+            "</div>"
+          );
+        }
+
+        /* ---------- Rendu : détails d'une entrée (communs à la liste des opérations et au registre) ---------- */
+        function htmlTitulaire(t) {
+          if (!t || !t.nom) return "";
+          return (
+            '<span class="reg-l reg-titulaire"><span class="overline">Titulaire</span><strong>' + esc(t.nom) + "</strong>" +
+            '<span class="reg-l">' + (t.adresse ? esc(t.adresse) : "Adresse non renseignée") + "</span>" +
+            '<span class="reg-l reg-droit">Pleine propriété</span></span>'
+          );
+        }
+        function htmlMvt(o) {
+          var n = o.actions;
+          var chip = typeof n === "number" ? nf(n) + " action" + (n > 1 ? "s" : "") + " ordinaire" + (n > 1 ? "s" : "") : "Nombre d'actions non renseigné";
+          return (
+            (o.date ? '<span class="reg-l reg-effet">Prise d\'effet au ' + esc(longJ(o.date)) + ".</span>" : "") +
+            '<span class="reg-l reg-e-ligne"><span class="reg-chip">' + esc(chip) + "</span>" +
+            '<span class="reg-nominal">Valeur nominale : ' + (o.nominal ? esc(o.nominal) : "non renseignée") + ".</span></span>" +
+            htmlTitulaire(o.titulaire)
+          );
+        }
+        function htmlDec(o, brouillon) {
+          var pv;
+          if (o.pv) {
+            pv = '<span class="reg-l reg-pv"><span class="ms">description</span><span>PV signé joint' + (o.fichier ? " : " + esc(o.fichier) : "") + "</span></span>";
+          } else {
+            pv =
+              '<span class="reg-l reg-pv"><span class="ms">description</span><span>À compléter : aucun PV signé disponible</span>' +
+              (brouillon
+                ? '<label class="btn btn-tertiary btn-sm"><span class="ms">upload</span>Joindre le PV signé' +
+                  '<input class="sr-only" type="file" data-pv="' + esc(o.id) + '" /></label>'
+                : "") +
+              "</span>";
+          }
+          return (
+            (o.date ? '<span class="reg-l reg-effet">Prise d\'effet au ' + esc(longJ(o.date)) + ".</span>" : "") +
+            (o.nature || o.ref
+              ? '<span class="reg-l reg-e-ligne">' +
+                (o.nature ? '<span class="reg-chip">' + esc(o.nature) + "</span>" : "") +
+                (o.ref ? '<span class="reg-nominal">Formalité ' + esc(o.ref) + "</span>" : "") +
+                "</span>"
+              : "") +
+            pv
+          );
+        }
+
+        /* ---------- Rendu : un registre ---------- */
+        function htmlEntree(e, num, reg) {
+          var cls = "reg-entree" + (e.statut === "brouillon" ? " is-brouillon" : e.statut === "annulee" ? " is-annulee" : "");
+          var detail;
+          if (e.src === "import") {
+            detail = '<span class="reg-l reg-e-src">Entrée issue d\'un fichier importé.</span>';
+          } else {
+            detail =
+              '<span class="reg-l reg-e-src">Issue d\'une opération existante</span>' +
+              (reg.type === "mouvements" ? htmlMvt(e) : htmlDec(e, e.statut === "brouillon"));
+          }
+          var act = "";
+          if (e.statut === "brouillon") {
+            act =
+              '<button class="icon-btn" type="button" data-act="retirer" data-e="' + esc(e.id) + '" aria-label="Retirer du brouillon : ' + esc(e.titre) + '" title="Retirer du brouillon">' +
+              '<span class="ms">delete</span></button>';
+          }
+          var statut = "";
+          if (e.statut === "inscrite") {
+            statut =
+              '<div class="reg-e-statut"><span><span class="ms">lock</span>Inscrite le ' + esc(longJ(e.inscriteLe)) + "</span>" +
+              '<button class="btn btn-tertiary btn-sm" type="button" data-act="annuler-e" data-e="' + esc(e.id) + '" aria-label="Marquer comme annulée : ' + esc(e.titre) + '">Marquer comme annulée</button></div>';
+          } else if (e.statut === "annulee") {
+            statut =
+              '<div class="reg-e-statut"><span><span class="ms">lock</span>Inscrite le ' + esc(longJ(e.inscriteLe)) + "</span>" +
+              "<span>Annulée le " + esc(longJ(e.annuleeLe)) + "</span></div>";
+          }
+          return (
+            '<li class="' + cls + '" id="reg-e-' + esc(e.id) + '" tabindex="-1">' +
+            '<span class="reg-num" aria-hidden="true">' + num + "</span>" +
+            '<div class="reg-corps"><div class="reg-e-tete">' +
+            '<h3 class="reg-e-titre reg-barre"><span class="sr-only">Entrée ' + num + (e.statut === "brouillon" ? ", brouillon" : e.statut === "annulee" ? ", annulée" : "") + " : </span>" + esc(e.titre) + "</h3>" +
+            act +
+            '</div><div class="reg-barre">' + detail + "</div>" + statut + "</div></li>"
+          );
+        }
+        function htmlRegistre(reg) {
+          var T = TYPES[reg.type];
+          var nb = nbInscrites(reg);
+          var br = brouillons(reg);
+          var h =
+            '<a class="back-link reg-retour" href="#registres" data-act="retour"><span class="ms">chevron_left</span>Registres</a>' +
+            '<div class="reg-titre"><div>' +
+            '<h2 class="reg-h" id="reg-h" tabindex="-1">' + esc(titreRegistre(reg)) + "</h2>" +
+            '<p class="reg-meta"><span>Créé le ' + esc(longJ(reg.cree)) + "</span><span aria-hidden=\"true\">·</span><span>" +
+            nb + " entrée" + (nb > 1 ? "s inscrites" : " inscrite") + "</span>" +
+            (nb === 0
+              ? '<span aria-hidden="true">·</span><button class="reg-lien" type="button" data-act="supprimer">Supprimer</button>'
+              : "") +
+            "</p></div>" +
+            '<button class="reg-export" type="button" data-act="export" aria-label="Exporter le registre (PDF)" title="Exporter le registre (PDF)"><span class="ms">download</span></button>' +
+            "</div>";
+          if (br.length) {
+            h +=
+              '<div class="reg-brouillon"><div class="reg-brouillon-t"><span class="ms" aria-hidden="true">edit_note</span><div>' +
+              "<strong>" + br.length + (br.length > 1 ? " nouvelles entrées prêtes à être inscrites" : " nouvelle entrée prête à être inscrite") + "</strong>" +
+              '<span class="reg-brouillon-d">Vous pouvez encore ' + (br.length > 1 ? "les modifier ou les supprimer" : "la modifier ou la supprimer") + " avant de valider son inscription définitive.</span></div></div>" +
+              '<button class="btn btn-primary" type="button" data-act="inscrire"><span class="ms">check_circle</span>Inscrire définitivement ' + (br.length > 1 ? "ces entrées" : "cette entrée") + "</button></div>";
+          }
+          h +=
+            '<button class="reg-ajout" type="button" data-act="ajouter"><span class="ms" aria-hidden="true">file-plus</span>' +
+            '<span><span class="reg-ajout-t">Ajouter une entrée</span><span class="reg-ajout-s">La nouvelle entrée sera ajoutée ici.</span></span></button>';
+          if (!reg.entrees.length) {
+            h +=
+              '<div class="card reg-vide"><span class="reg-vide-ico" aria-hidden="true"><img src="assets/rejistre-picto.svg" alt="" /></span>' +
+              '<div class="reg-vide-t">Ce registre ne contient aucune entrée</div><p>' + esc(T.vide) + "</p></div>";
+          } else {
+            h += '<ul class="reg-entrees" aria-label="Entrées du registre">';
+            for (var i = reg.entrees.length - 1; i >= 0; i--) h += htmlEntree(reg.entrees[i], i + 1, reg);
+            h += "</ul>";
+          }
+          return h;
+        }
+
+        function rendre(focusTitre) {
+          var racine = $("reg-root");
+          if (!racine || !etat) return;
+          var reg = vue ? trouverRegistre(vue) : null;
+          if (!reg) vue = null;
+          racine.innerHTML = reg ? htmlRegistre(reg) : htmlListe();
+          if (focusTitre) {
+            var t = $("reg-h");
+            if (t) t.focus();
+          }
+        }
+        function aller(rid, sansHistorique) {
+          vue = rid;
+          if (!sansHistorique) {
+            try {
+              history.pushState({ reg: rid }, "");
+            } catch (e) {}
+          }
+          rendre(true);
+        }
+
+        /* ---------- Message de confirmation et annonce pour les lecteurs d'écran ---------- */
+        var toastEl = null;
+        var toastT = null;
+        function toast(txt) {
+          if (!toastEl) {
+            toastEl = document.createElement("div");
+            toastEl.className = "reg-toast";
+            toastEl.setAttribute("role", "status");
+            toastEl.setAttribute("aria-live", "polite");
+            toastEl.innerHTML = '<span class="ms" aria-hidden="true">check_circle</span><span class="reg-toast-txt"></span>';
+            document.body.appendChild(toastEl);
+            toastEl.addEventListener("mouseenter", function () {
+              clearTimeout(toastT);
+            });
+            toastEl.addEventListener("mouseleave", function () {
+              toastT = setTimeout(cacherToast, 4000);
+            });
+          }
+          toastEl.querySelector(".reg-toast-txt").textContent = txt;
+          toastEl.classList.add("show");
+          clearTimeout(toastT);
+          toastT = setTimeout(cacherToast, 6000);
+        }
+        function cacherToast() {
+          if (toastEl) toastEl.classList.remove("show");
+        }
+        function annoncer(txt) {
+          var st = $("reg-status");
+          if (!st) return;
+          st.textContent = "";
+          setTimeout(function () {
+            st.textContent = txt;
+          }, 50);
+        }
+
+        /* ---------- Fenêtre modale : focus piégé, Échap, reste de la page inerte ---------- */
+        var M = null;
+        var inertes = [];
+        var declencheur = null;
+        function ouverte() {
+          return !!M && M.classList.contains("open");
+        }
+        function focusables() {
+          return Array.prototype.filter.call(M.querySelectorAll("button, input, a[href], [tabindex='0']"), function (x) {
+            return !x.disabled && x.type !== "hidden" && x.offsetParent !== null && !x.closest("[hidden]");
+          });
+        }
+        function construireModal() {
+          M = document.createElement("div");
+          M.className = "reg-modal";
+          M.setAttribute("role", "dialog");
+          M.setAttribute("aria-modal", "true");
+          M.setAttribute("aria-labelledby", "reg-m-titre");
+          M.inert = true;
+          M.innerHTML =
+            '<div class="reg-modal-box" id="reg-m-box">' +
+            '<div class="reg-modal-head"><div><h2 id="reg-m-titre" tabindex="-1"></h2><p id="reg-m-sous"></p></div>' +
+            '<button class="icon-btn" type="button" data-close aria-label="Fermer"><span class="ms">close</span></button></div>' +
+            '<div class="reg-modal-body" id="reg-m-corps"></div>' +
+            '<div class="reg-modal-foot" id="reg-m-pied"></div></div>';
+          document.body.appendChild(M);
+          M.addEventListener("click", function (e) {
+            if (e.target === M || (e.target.closest && e.target.closest("[data-close]"))) fermerModal();
+          });
+          M.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") {
+              e.preventDefault();
+              fermerModal();
+              return;
+            }
+            if (e.key !== "Tab") return;
+            var f = focusables();
+            if (!f.length) return;
+            var premier = f[0];
+            var dernier = f[f.length - 1];
+            var a = document.activeElement;
+            if (e.shiftKey && (a === premier || a === $("reg-m-titre") || !M.contains(a))) {
+              e.preventDefault();
+              dernier.focus();
+            } else if (!e.shiftKey && (a === dernier || !M.contains(a))) {
+              e.preventDefault();
+              premier.focus();
+            }
+          });
+        }
+        function rendreInerte(oui) {
+          if (oui) {
+            inertes = Array.prototype.filter.call(document.body.children, function (x) {
+              return x !== M && x !== toastEl && x.id !== "reg-status" && x.tagName !== "SCRIPT" && x.tagName !== "STYLE" && !x.inert;
+            });
+            inertes.forEach(function (x) {
+              x.inert = true;
+            });
+          } else {
+            inertes.forEach(function (x) {
+              x.inert = false;
+            });
+            inertes = [];
+          }
+        }
+        /* o : titre, sous, corps, pied, large, decrit, declencheur, onOpen */
+        function ouvrirModal(o) {
+          if (!M) construireModal();
+          if (ouverte()) return;
+          declencheur = o.declencheur || document.activeElement;
+          $("reg-m-titre").textContent = o.titre;
+          $("reg-m-sous").textContent = o.sous || "";
+          $("reg-m-corps").innerHTML = o.corps;
+          $("reg-m-pied").innerHTML = o.pied;
+          $("reg-m-box").className = "reg-modal-box" + (o.large ? " large" : "");
+          if (o.decrit) M.setAttribute("aria-describedby", "reg-m-corps");
+          else M.removeAttribute("aria-describedby");
+          rendreInerte(true);
+          M.inert = false;
+          M.classList.add("open");
+          if (o.onOpen) o.onOpen();
+          $("reg-m-titre").focus();
+        }
+        function fermerModal(sansRetour) {
+          if (!M || !ouverte()) return;
+          M.classList.remove("open");
+          M.inert = true;
+          rendreInerte(false);
+          var d = declencheur;
+          declencheur = null;
+          if (!sansRetour) {
+            if (d && document.body.contains(d) && d.focus) d.focus();
+            else if ($("reg-h")) $("reg-h").focus();
+          }
+        }
+        function focusEntree(eid) {
+          var el = $("reg-e-" + eid);
+          if (!el) {
+            if ($("reg-h")) $("reg-h").focus();
+            return;
+          }
+          if (el.scrollIntoView) el.scrollIntoView({ block: "nearest" });
+          el.focus();
+        }
+
+        /* ---------- Créer un registre ---------- */
+        function choixType(t) {
+          var T = TYPES[t];
+          return (
+            '<label class="choice radio"><input type="radio" name="reg-type" value="' + t + '" />' +
+            '<span class="reg-choix-corps"><span class="list-icon"><img class="reg-picto" src="assets/rejistre-picto.svg" alt="" /></span>' +
+            '<span class="reg-choix-t">' + esc(T.libelle) + '</span><span class="reg-choix-d">' + esc(T.desc) + "</span></span></label>"
+          );
+        }
+        function ouvrirCreer(decl) {
+          ouvrirModal({
+            titre: "Créer un registre",
+            declencheur: decl,
+            corps:
+              '<p class="reg-m-p">Choisissez le type de registre à créer pour cette société.</p>' +
+              '<fieldset class="reg-choix"><legend class="sr-only">Type de registre</legend>' + choixType("decisions") + choixType("mouvements") + "</fieldset>" +
+              '<p class="reg-note">D\'autres types de registres pourront être ajoutés par la suite.</p>',
+            pied:
+              '<button class="btn btn-tertiary" type="button" data-close>Annuler</button>' +
+              '<button class="btn btn-primary" type="button" id="reg-m-ok" disabled>Créer le registre</button>',
+            onOpen: function () {
+              var ok = $("reg-m-ok");
+              M.querySelector(".reg-choix").addEventListener("change", function () {
+                ok.disabled = !M.querySelector('input[name="reg-type"]:checked');
+              });
+              ok.addEventListener("click", function () {
+                var c = M.querySelector('input[name="reg-type"]:checked');
+                if (c) creerRegistre(c.value);
+              });
+            },
+          });
+        }
+        function creerRegistre(type) {
+          if (!TYPES[type]) return;
+          var n = 1;
+          etat.registres.forEach(function (r) {
+            if (r.type === type && r.n >= n) n = r.n + 1;
+          });
+          var reg = { id: (type === "decisions" ? "dec" : "mvt") + "-" + n, type: type, n: n, cree: strJ(AUJ), entrees: [] };
+          etat.registres.push(reg);
+          sauver();
+          fermerModal(true);
+          toast("Le registre a été créé.");
+          aller(reg.id);
+        }
+
+        /* ---------- Ajouter une entrée ---------- */
+        function htmlOperation(op, type) {
+          var incomplet = type === "mouvements" && !op.complet;
+          var corps;
+          if (type === "mouvements") {
+            corps = incomplet
+              ? '<span class="reg-l reg-effet">Prise d\'effet au ' + esc(longJ(op.date)) + ".</span>" +
+                '<span class="reg-l reg-op-note" id="reg-on-' + esc(op.id) + '">Mouvement incomplet : complétez d\'abord la formalité</span>' +
+                (op.ref ? '<span class="reg-l reg-op-note">Formalité ' + esc(op.ref) + "</span>" : "")
+              : htmlMvt(op);
+          } else {
+            corps =
+              '<span class="reg-l reg-op-note">' + (op.pv ? "PV signé disponible" : "À compléter : aucun PV signé disponible") + "</span>" +
+              '<span class="reg-l reg-op-note">' + (op.ref ? "Formalité " + esc(op.ref) + " · " : "") + esc(op.nature || "") + "</span>";
+          }
+          return (
+            '<label class="choice radio reg-op' + (incomplet ? " is-incomplet" : "") + '">' +
+            '<input type="radio" name="reg-op" value="' + esc(op.id) + '"' + (incomplet ? ' disabled aria-describedby="reg-on-' + esc(op.id) + '"' : "") + " />" +
+            '<span class="reg-op-corps"><span class="reg-op-t">' + esc(op.titre) + "</span>" + corps + "</span>" +
+            (type === "decisions" ? '<span class="ms" aria-hidden="true">description</span>' : "") +
+            "</label>"
+          );
+        }
+        function htmlOperations(reg, ops) {
+          return (
+            '<div class="reg-m-intro"><p>' + esc(TYPES[reg.type].intro) + "</p>" +
+            '<button class="btn btn-secondary btn-sm" type="button" id="reg-rafraichir"><span class="ms">refresh-cw</span>Rafraîchir</button></div>' +
+            (ops.length
+              ? '<fieldset class="reg-ops"><legend class="sr-only">Opérations connues</legend>' +
+                ops
+                  .map(function (op) {
+                    return htmlOperation(op, reg.type);
+                  })
+                  .join("") +
+                "</fieldset>"
+              : '<div class="reg-op-vide">Aucune opération à ajouter : toutes les opérations connues sont déjà au registre.</div>')
+          );
+        }
+        function ouvrirAjout(reg, decl) {
+          var ops = operations(reg);
+          ouvrirModal({
+            titre: "Ajouter une entrée",
+            sous: "au " + TYPES[reg.type].court + " n°" + reg.n + ".",
+            large: true,
+            declencheur: decl,
+            corps:
+              '<div class="tabs reg-m-tabs" role="tablist" aria-label="Origine de l\'entrée">' +
+              '<button class="tab" type="button" role="tab" id="reg-t-imp" aria-selected="false" aria-controls="reg-p-imp" tabindex="-1">Importer un fichier</button>' +
+              '<button class="tab active" type="button" role="tab" id="reg-t-ops" aria-selected="true" aria-controls="reg-p-ops">Opérations existantes</button></div>' +
+              '<div role="tabpanel" id="reg-p-ops" aria-labelledby="reg-t-ops">' + htmlOperations(reg, ops) + "</div>" +
+              '<div role="tabpanel" id="reg-p-imp" aria-labelledby="reg-t-imp" hidden>' +
+              '<label class="reg-drop" id="reg-drop"><span class="ms" aria-hidden="true">upload</span>' +
+              "<span>Déposez un fichier ici ou <span class=\"reg-parcourir\">parcourez vos fichiers</span></span>" +
+              '<input class="sr-only" type="file" id="reg-fichier" /></label></div>',
+            pied:
+              '<button class="btn btn-tertiary" type="button" data-close>Annuler</button>' +
+              '<button class="btn btn-primary" type="button" id="reg-m-ok" disabled><span class="ms">add</span>Ajouter au brouillon</button>',
+            onOpen: function () {
+              var ok = $("reg-m-ok");
+              var tOps = $("reg-t-ops");
+              var tImp = $("reg-t-imp");
+              function majOk() {
+                ok.disabled = !M.querySelector('input[name="reg-op"]:checked');
+              }
+              function choisir(imp) {
+                tImp.classList.toggle("active", imp);
+                tOps.classList.toggle("active", !imp);
+                tImp.setAttribute("aria-selected", imp ? "true" : "false");
+                tOps.setAttribute("aria-selected", imp ? "false" : "true");
+                tImp.tabIndex = imp ? 0 : -1;
+                tOps.tabIndex = imp ? -1 : 0;
+                $("reg-p-imp").hidden = !imp;
+                $("reg-p-ops").hidden = imp;
+                ok.style.display = imp ? "none" : "";
+                (imp ? tImp : tOps).focus();
+              }
+              tImp.addEventListener("click", function () {
+                choisir(true);
+              });
+              tOps.addEventListener("click", function () {
+                choisir(false);
+              });
+              [tImp, tOps].forEach(function (t, idx) {
+                t.addEventListener("keydown", function (e) {
+                  var suiv = null;
+                  if (e.key === "ArrowLeft" || e.key === "ArrowRight") suiv = 1 - idx;
+                  else if (e.key === "Home") suiv = 0;
+                  else if (e.key === "End") suiv = 1;
+                  if (suiv === null) return;
+                  e.preventDefault();
+                  choisir(suiv === 0);
+                });
+              });
+              function brancherOps() {
+                var f = M.querySelector(".reg-ops");
+                if (f) f.addEventListener("change", majOk);
+                var rf = $("reg-rafraichir");
+                if (rf)
+                  rf.addEventListener("click", function () {
+                    var cour = M.querySelector('input[name="reg-op"]:checked');
+                    var cid = cour ? cour.value : null;
+                    var nouv = operations(reg);
+                    $("reg-p-ops").innerHTML = htmlOperations(reg, nouv);
+                    if (cid) {
+                      var r = M.querySelectorAll('input[name="reg-op"]');
+                      for (var i = 0; i < r.length; i++) if (r[i].value === cid && !r[i].disabled) r[i].checked = true;
+                    }
+                    brancherOps();
+                    majOk();
+                    annoncer("Liste actualisée.");
+                    if ($("reg-rafraichir")) $("reg-rafraichir").focus();
+                  });
+              }
+              brancherOps();
+              ok.addEventListener("click", function () {
+                var c = M.querySelector('input[name="reg-op"]:checked');
+                if (!c) return;
+                var cible = null;
+                operations(reg).forEach(function (op) {
+                  if (op.id === c.value && (reg.type !== "mouvements" || op.complet)) cible = op;
+                });
+                if (cible) ajouterBrouillon(reg, entreeDepuisOp(cible, "brouillon"));
+              });
+              var drop = $("reg-drop");
+              var fic = $("reg-fichier");
+              fic.addEventListener("change", function () {
+                if (fic.files && fic.files[0]) ajouterBrouillon(reg, { id: nouvelId(), statut: "brouillon", src: "import", titre: "Import : " + fic.files[0].name, fichier: fic.files[0].name, date: null });
+              });
+              drop.addEventListener("dragover", function (e) {
+                e.preventDefault();
+                drop.classList.add("is-over");
+              });
+              drop.addEventListener("dragleave", function () {
+                drop.classList.remove("is-over");
+              });
+              drop.addEventListener("drop", function (e) {
+                e.preventDefault();
+                drop.classList.remove("is-over");
+                var fl = e.dataTransfer && e.dataTransfer.files ? e.dataTransfer.files : null;
+                if (fl && fl[0]) ajouterBrouillon(reg, { id: nouvelId(), statut: "brouillon", src: "import", titre: "Import : " + fl[0].name, fichier: fl[0].name, date: null });
+              });
+            },
+          });
+        }
+        function ajouterBrouillon(reg, entree) {
+          reg.entrees.push(entree);
+          sauver();
+          fermerModal(true);
+          rendre(false);
+          toast("L'entrée a été ajoutée aux brouillons.");
+          focusEntree(entree.id);
+        }
+
+        /* ---------- Inscription définitive ---------- */
+        function ouvrirInscription(reg, decl) {
+          var n = brouillons(reg).length;
+          if (!n) return;
+          var pl = n > 1;
+          ouvrirModal({
+            titre: "Confirmation de l'inscription définitive",
+            declencheur: decl,
+            decrit: true,
+            corps:
+              '<p class="reg-conf-t">Vous êtes sur le point d\'inscrire définitivement ' + (pl ? "ces " + n + " entrées" : "cette entrée") + " au registre.</p>" +
+              '<p class="reg-conf-a">Après confirmation, ' + (pl ? "ces entrées seront inscrites" : "cette entrée sera inscrite") + " dans le registre.</p>" +
+              '<p class="reg-conf-s">' + (pl ? "Elles ne pourront plus être modifiées ni supprimées." : "Elle ne pourra plus être modifiée ni supprimée.") +
+              " En cas d'erreur, une entrée pourra être marquée comme annulée mais restera définitivement présente au registre.</p>" +
+              '<label class="check reg-attest"><input type="checkbox" id="reg-attest" /><span>' + esc(TYPES[reg.type].attest) + "</span></label>",
+            pied:
+              '<button class="btn btn-tertiary" type="button" data-close>Annuler</button>' +
+              '<button class="btn btn-primary" type="button" id="reg-m-ok" disabled><span class="ms">cloud-upload</span>Inscrire définitivement</button>',
+            onOpen: function () {
+              var ok = $("reg-m-ok");
+              $("reg-attest").addEventListener("change", function () {
+                ok.disabled = !$("reg-attest").checked;
+              });
+              ok.addEventListener("click", function () {
+                if (!$("reg-attest").checked) return;
+                inscrire(reg);
+              });
+            },
+          });
+        }
+        function inscrire(reg) {
+          var d = strJ(AUJ);
+          var n = 0;
+          brouillons(reg).forEach(function (e) {
+            e.statut = "inscrite";
+            e.inscriteLe = d;
+            n++;
+          });
+          sauver();
+          fermerModal(true);
+          rendre(false);
+          toast(n > 1 ? "Les entrées ont été inscrites au registre." : "L'entrée a été inscrite au registre.");
+          if ($("reg-h")) $("reg-h").focus();
+        }
+
+        /* ---------- Annulation d'une entrée inscrite, suppression d'un registre vide ---------- */
+        function ouvrirAnnulation(reg, e, decl) {
+          ouvrirModal({
+            titre: "Marquer l'entrée comme annulée",
+            declencheur: decl,
+            decrit: true,
+            corps:
+              "<p>Cette entrée restera définitivement présente au registre. Elle sera affichée comme annulée, avec la date du jour.</p>" +
+              '<p class="reg-conf-t">' + esc(e.titre) + "</p>",
+            pied:
+              '<button class="btn btn-tertiary" type="button" data-close>Annuler</button>' +
+              '<button class="btn btn-primary" type="button" id="reg-m-ok">Marquer comme annulée</button>',
+            onOpen: function () {
+              $("reg-m-ok").addEventListener("click", function () {
+                e.statut = "annulee";
+                e.annuleeLe = strJ(AUJ);
+                sauver();
+                fermerModal(true);
+                rendre(false);
+                toast("L'entrée a été marquée comme annulée.");
+                focusEntree(e.id);
+              });
+            },
+          });
+        }
+        function ouvrirSuppression(reg, decl) {
+          var nb = brouillons(reg).length;
+          ouvrirModal({
+            titre: "Supprimer le registre",
+            declencheur: decl,
+            decrit: true,
+            corps:
+              "<p>Voulez-vous supprimer «\u00a0" + esc(titreRegistre(reg)) + "\u00a0» ?</p>" +
+              '<p class="reg-conf-s">Un registre ne peut être supprimé que tant qu\'aucune entrée n\'y est inscrite.' +
+              (nb ? " Les brouillons de ce registre seront supprimés avec lui." : "") + "</p>",
+            pied:
+              '<button class="btn btn-tertiary" type="button" data-close>Annuler</button>' +
+              '<button class="btn btn-danger" type="button" id="reg-m-ok">Supprimer le registre</button>',
+            onOpen: function () {
+              $("reg-m-ok").addEventListener("click", function () {
+                if (nbInscrites(reg) > 0) return;
+                etat.registres = etat.registres.filter(function (r) {
+                  return r !== reg;
+                });
+                sauver();
+                fermerModal(true);
+                toast("Le registre a été supprimé.");
+                aller(null, true);
+                try {
+                  history.replaceState({ reg: null }, "");
+                } catch (er) {}
+              });
+            },
+          });
+        }
+
+        /* ---------- Événements de la page (délégation sur la racine) ---------- */
+        function brancherPage() {
+          var racine = $("reg-root");
+          racine.addEventListener("click", function (e) {
+            var el = e.target.closest ? e.target.closest("[data-act]") : null;
+            if (!el || !racine.contains(el)) return;
+            var act = el.getAttribute("data-act");
+            var reg = vue ? trouverRegistre(vue) : null;
+            if (el.tagName === "A") e.preventDefault();
+            if (act === "creer") ouvrirCreer(el);
+            else if (act === "ouvrir") aller(el.getAttribute("data-r"));
+            else if (act === "retour") aller(null);
+            else if (!reg) return;
+            else if (act === "ajouter") ouvrirAjout(reg, el);
+            else if (act === "inscrire") ouvrirInscription(reg, el);
+            else if (act === "export") toast("Export du registre préparé");
+            else if (act === "supprimer") {
+              if (nbInscrites(reg) === 0) ouvrirSuppression(reg, el);
+            } else if (act === "retirer") {
+              var eid = el.getAttribute("data-e");
+              reg.entrees = reg.entrees.filter(function (x) {
+                return !(x.id === eid && x.statut === "brouillon");
+              });
+              sauver();
+              rendre(false);
+              annoncer("L'entrée a été retirée des brouillons.");
+              var band = racine.querySelector('[data-act="ajouter"]');
+              if (band) band.focus();
+            } else if (act === "annuler-e") {
+              var cible = null;
+              reg.entrees.forEach(function (x) {
+                if (x.id === el.getAttribute("data-e") && x.statut === "inscrite") cible = x;
+              });
+              if (cible) ouvrirAnnulation(reg, cible, el);
+            }
+          });
+          /* PV signé joint depuis le brouillon d'une décision */
+          racine.addEventListener("change", function (e) {
+            var inp = e.target;
+            if (!inp || !inp.getAttribute || inp.getAttribute("data-pv") === null) return;
+            var reg = vue ? trouverRegistre(vue) : null;
+            if (!reg || !inp.files || !inp.files[0]) return;
+            var eid = null;
+            var li = inp.closest ? inp.closest(".reg-entree") : null;
+            if (li) eid = li.id.replace(/^reg-e-/, "");
+            reg.entrees.forEach(function (x) {
+              if (x.id === eid && x.statut === "brouillon") {
+                x.pv = true;
+                x.fichier = inp.files[0].name;
+              }
+            });
+            sauver();
+            rendre(false);
+            annoncer("Le PV signé a été joint.");
+            focusEntree(eid);
+          });
+          window.addEventListener("popstate", function (e) {
+            if (ouverte()) fermerModal(true);
+            vue = e.state && e.state.reg ? e.state.reg : null;
+            rendre(true);
+          });
+        }
+
+        /* ---------- Affichage une fois les données chargées ---------- */
         function afficher() {
           var D = window.EJDPJ;
           var f = D && D.byId ? D.byId(id) : null;
-          if (!f) return introuvable();
+          if (!f && !sansId) return introuvable();
 
-          document.title = f.nom + " · Registres · Express Juridique";
-          $("soc-name").textContent = f.nom;
-          $("soc-form").textContent = FORMES[f.forme] || f.forme;
+          if (!sansId) {
+            document.title = f.nom + " · Registres · Express Juridique";
+            $("soc-name").textContent = f.nom;
+            $("soc-form").textContent = FORMES[f.forme] || f.forme;
 
-          var ville = f.siege && f.siege.ville ? f.siege.ville : "";
-          var greffe = ville ? (GREFFES[ville] || ville).toUpperCase() : "";
-          $("soc-greffe").innerHTML = greffe ? "Greffe : <strong>" + esc(greffe) + "</strong>" : "";
+            var ville = f.siege && f.siege.ville ? f.siege.ville : "";
+            var greffe = ville ? (GREFFES[ville] || ville).toUpperCase() : "";
+            $("soc-greffe").innerHTML = greffe ? "Greffe : <strong>" + esc(greffe) + "</strong>" : "";
 
-          $("soc-ids").innerHTML =
-            '<div class="soc-siren">SIREN : <strong>' + esc(f.siren || "En cours de création") + "</strong></div>" +
-            "<div>Date d'immatriculation : <strong>" + esc(f.immatriculation || "En attente") + "</strong></div>";
+            $("soc-ids").innerHTML =
+              '<div class="soc-siren">SIREN : <strong>' + esc(f.siren || "En cours de création") + "</strong></div>" +
+              "<div>Date d'immatriculation : <strong>" + esc(f.immatriculation || "En attente") + "</strong></div>";
 
-          $("tab-formalites").href = "societe.html?id=" + encodeURIComponent(f.id);
-          $("tab-registres").href = "societe-registres.html?id=" + encodeURIComponent(f.id);
-          $("tab-lab").href = "lab-dossier.html?id=" + encodeURIComponent(f.id);
-
-          $("reg-desc").textContent = "Centralisez les registres légaux de " + f.nom + ".";
-          /* Date de création du premier registre : ajout de la société sur Express-Juridique */
-          var ec = window.EJC && window.EJC.byName ? window.EJC.byName[f.nom] : null;
-          if (ec && ec.ajout) {
-            var d = ec.ajout;
-            $("reg-meta").textContent = "Créé le " + d.getDate() + " " + MOIS[d.getMonth()] + " " + d.getFullYear();
+            $("tab-formalites").href = "societe.html?id=" + encodeURIComponent(f.id);
+            $("tab-registres").href = "societe-registres.html?id=" + encodeURIComponent(f.id);
+            $("tab-lab").href = "lab-dossier.html?id=" + encodeURIComponent(f.id);
           }
+
+          var M0 = window.EJM;
+          var C = window.EJC;
+          var nom = f ? f.nom : "PAPRIKA CANTINE";
+          var ms = null;
+          if (M0 && M0.societes) {
+            for (var i = 0; i < M0.societes.length; i++) if (M0.societes[i].id === id) ms = M0.societes[i];
+          }
+          var d0 = M0 && M0.today ? parseJ(M0.today) : null;
+          if (d0) AUJ = d0;
+          ctx = {
+            nom: nom,
+            f: f,
+            m: ms,
+            ec: C && C.byName ? C.byName[nom] || null : null,
+            forms: ((C && C.formalites) || []).filter(function (x) {
+              return x && x.soc === nom;
+            }),
+          };
+          chargerEtat();
+          brancherPage();
+          try {
+            history.replaceState({ reg: null }, "");
+          } catch (e) {}
+          rendre(false);
         }
 
         /* Chargement séquentiel des données, dans l'ordre */
@@ -313,7 +2021,7 @@
           el.onload = function () {
             charger(i + 1);
           };
-          el.onerror = introuvable;
+          el.onerror = sansId ? afficher : introuvable;
           document.head.appendChild(el);
         }
         charger(0);
