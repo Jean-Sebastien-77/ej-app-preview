@@ -70,6 +70,63 @@
       .u-item.open .u-panel {
         display: block;
       }
+      .u-row {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        padding: 4px 0;
+      }
+      .u-label {
+        flex: 0 0 140px;
+        color: var(--ej-neutral-500);
+      }
+      .u-val {
+        flex: 1;
+        min-width: 0;
+        color: var(--ej-neutral-800);
+      }
+      .u-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .u-checks {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 8px 16px;
+      }
+      .u-check {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+      }
+      .u-check input {
+        accent-color: var(--ej-action-600);
+      }
+      .u-err {
+        margin-top: 6px;
+        color: var(--ej-error-600);
+      }
+      .u-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid var(--ej-neutral-200);
+      }
+      .u-note {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--ej-neutral-500);
+      }
+      .u-note .ms {
+        font-size: 16px;
+        color: var(--ej-success-600);
+      }
     </style>
   </head>
   <body data-active="utilisateurs">
@@ -93,43 +150,191 @@
     </div>
 
     <script>
+      var TODAY = "19/10/2026";
+      var STORE_KEY = "ej-utilisateurs";
+      var ACCES = ["Formalités", "Sociétés", "Signatures", "Missions CAC", "Dispositif LAB", "Administration"];
+      var A_ASSOCIE = ACCES.slice(0, 5);
+      var A_COLLAB = ["Formalités", "Sociétés", "Signatures"];
+      var A_AUDIT = ["Missions CAC", "Dispositif LAB"];
       // s : 1 = en ligne (point vert), 0 = invité(e) (point gris)
+      // r : rôle ; a : accès par défaut ; l : dernière connexion (vide pour une personne invitée) ; f : féminin
       var USERS = [
-        { i: "AF", c: "var(--ej-action-600)", n: "Antoine FAURE", e: "a.faure@cabinet-delmas.fr", s: 1, t: "Inscrit(e) le 16/02/2022 10:22." },
-        { i: "PR", c: "var(--ej-primary-700)", n: "M. Paul Roussel", e: "p.roussel@cabinet-delmas.fr", s: 1, t: "Dernièrement connecté le 18/10/2026 14:59." },
-        { i: "JM", c: "var(--ej-accent-600)", n: "M. Julien Moreau", e: "j.moreau@cabinet-delmas.fr", s: 1, t: "Inscrit le 29/10/2025 13:52." },
-        { i: "EG", c: "var(--ej-warning-600)", n: "Mme Élodie Garcia", e: "e.garcia@cabinet-delmas.fr", s: 1, t: "Dernièrement connectée le 15/09/2026 10:42." },
-        { i: "LP", c: "var(--ej-tag-coral)", n: "Mme Laura Perrin", e: "l.perrin@cabinet-delmas.fr", s: 1, t: "Dernièrement connectée le 16/10/2026 10:40." },
-        { i: "CD", c: "var(--ej-primary-500)", n: "Mme Claire Dubois", e: "c.dubois@cabinet-delmas.fr", s: 1, t: "Dernièrement connectée le 22/05/2026 15:44." },
-        { i: "NB", c: "var(--ej-action-700)", n: "Mme Nadia Benali", e: "n.benali@cabinet-delmas.fr", s: 1, t: "Dernièrement connectée le 13/09/2026 17:02." },
-        { i: "TG", c: "var(--ej-info-600)", n: "M. Thomas Girard", e: "t.girard@cabinet-delmas.fr", s: 1, t: "Inscrit le 19/10/2026 17:30." },
-        { i: "LF", c: "var(--ej-neutral-500)", n: "Léa Fontaine", e: "l.fontaine@cabinet-delmas.fr", s: 0, t: "Invité(e) le 26/04/2022 10:17." },
-        { i: "JD", c: "var(--ej-accent-600)", n: "Jean DUPOND", e: "j.dupond@cabinet-delmas.fr", s: 0, t: "Invité(e) le 01/08/2022 11:12." },
+        { i: "AF", c: "var(--ej-action-600)", n: "Antoine FAURE", e: "a.faure@cabinet-delmas.fr", s: 1, t: "Inscrit(e) le 16/02/2022 10:22.", r: "Administrateur du compte", a: ACCES, l: "19/10/2026 08:47", admin: 1 },
+        { i: "PR", c: "var(--ej-primary-700)", n: "M. Paul Roussel", e: "p.roussel@cabinet-delmas.fr", s: 1, t: "Dernièrement connecté le 18/10/2026 14:59.", r: "Associé, expert-comptable", a: A_ASSOCIE, l: "18/10/2026 14:59" },
+        { i: "JM", c: "var(--ej-accent-600)", n: "M. Julien Moreau", e: "j.moreau@cabinet-delmas.fr", s: 1, t: "Inscrit le 29/10/2025 13:52.", r: "Collaborateur", a: A_COLLAB, l: "17/10/2026 16:12" },
+        { i: "EG", c: "var(--ej-warning-600)", n: "Mme Élodie Garcia", e: "e.garcia@cabinet-delmas.fr", s: 1, t: "Dernièrement connectée le 15/09/2026 10:42.", r: "Collaboratrice", a: A_COLLAB, l: "15/09/2026 10:42" },
+        { i: "LP", c: "var(--ej-tag-coral)", n: "Mme Laura Perrin", e: "l.perrin@cabinet-delmas.fr", s: 1, t: "Dernièrement connectée le 16/10/2026 10:40.", r: "Collaboratrice", a: A_COLLAB, l: "16/10/2026 10:40" },
+        { i: "CD", c: "var(--ej-primary-500)", n: "Mme Claire Dubois", e: "c.dubois@cabinet-delmas.fr", s: 1, t: "Dernièrement connectée le 22/05/2026 15:44.", r: "Associée, commissaire aux comptes", a: A_ASSOCIE, l: "22/05/2026 15:44" },
+        { i: "NB", c: "var(--ej-action-700)", n: "Mme Nadia Benali", e: "n.benali@cabinet-delmas.fr", s: 1, t: "Dernièrement connectée le 13/09/2026 17:02.", r: "Collaboratrice", a: A_COLLAB, l: "13/09/2026 17:02" },
+        { i: "TG", c: "var(--ej-info-600)", n: "M. Thomas Girard", e: "t.girard@cabinet-delmas.fr", s: 1, t: "Inscrit le 19/10/2026 17:30.", r: "Collaborateur, responsable LAB", a: ["Formalités", "Sociétés", "Dispositif LAB"], l: "19/10/2026 17:30" },
+        { i: "LF", c: "var(--ej-neutral-500)", n: "Léa Fontaine", e: "l.fontaine@cabinet-delmas.fr", s: 0, t: "Invité(e) le 26/04/2022 10:17.", r: "Auditrice", a: A_AUDIT, l: "", f: 1 },
+        { i: "JD", c: "var(--ej-accent-600)", n: "Jean DUPOND", e: "j.dupond@cabinet-delmas.fr", s: 0, t: "Invité(e) le 01/08/2022 11:12.", r: "Auditeur", a: A_AUDIT, l: "" },
       ];
+
       function esc(s) {
-        return s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+        return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
       }
+
+      // Modifications de la séance : { courriel: { acces: [...], off: "jj/mm/aaaa", resent: "jj/mm/aaaa" } }
+      var store = {};
+      try {
+        store = JSON.parse(sessionStorage.getItem(STORE_KEY) || "{}") || {};
+      } catch (e) {
+        store = {};
+      }
+      function persist() {
+        try {
+          sessionStorage.setItem(STORE_KEY, JSON.stringify(store));
+        } catch (e) {}
+      }
+      function patch(u, fields) {
+        var cur = store[u.e] || {};
+        Object.keys(fields).forEach(function (k) {
+          if (fields[k] === null) delete cur[k];
+          else cur[k] = fields[k];
+        });
+        store[u.e] = cur;
+        persist();
+      }
+
+      var openSet = {};
+      var editSet = {};
+      var draftSet = {}; // cases cochées mais non enregistrées, conservées quand la liste est redessinée
       var list = document.getElementById("users");
-      list.innerHTML = USERS.map(function (u) {
+
+      function panelHtml(u, idx) {
+        var st = store[u.e] || {};
+        var acces = Array.isArray(st.acces) ? st.acces.filter(function (a) { return ACCES.indexOf(a) >= 0; }) : [];
+        if (!acces.length) acces = u.a;
+        var invited = !u.s;
+        var off = !!st.off;
+        var editing = !!editSet[idx] && !off;
+        var h = '<div class="u-panel" data-i="' + idx + '">';
+        h += '<div class="u-row"><span class="u-label">Rôle</span><span class="u-val">' + esc(u.r) + "</span></div>";
+        if (invited || off) {
+          h += '<div class="u-row"><span class="u-label">État</span><span class="u-val">' +
+            (off ? "Compte désactivé le " + esc(st.off) : "Invitation en attente") + "</span></div>";
+        }
+        h += '<div class="u-row"><span class="u-label">Accès</span><span class="u-val">';
+        if (editing) {
+          var coches = Array.isArray(draftSet[idx]) ? draftSet[idx] : acces;
+          h += '<div class="u-checks">' + ACCES.map(function (a) {
+            return '<label class="u-check"><input type="checkbox" value="' + esc(a) + '"' + (coches.indexOf(a) >= 0 ? " checked" : "") + "> " + esc(a) + "</label>";
+          }).join("") + '</div><div class="u-err" data-err hidden>Sélectionnez au moins un accès.</div>';
+        } else {
+          h += '<span class="u-chips">' + acces.map(function (a) {
+            return '<span class="tag"><span>' + esc(a) + "</span></span>";
+          }).join("") + "</span>";
+        }
+        h += "</span></div>";
+        h += '<div class="u-row"><span class="u-label">Dernière connexion</span><span class="u-val">' +
+          (u.l ? esc(u.l) : u.f ? "Jamais connectée" : "Jamais connecté") + "</span></div>";
+        h += '<div class="u-actions">';
+        if (editing) {
+          h += '<button class="btn btn-primary btn-sm" type="button" data-act="save"><span class="ms">check</span>Enregistrer</button>';
+          h += '<button class="btn btn-secondary btn-sm" type="button" data-act="cancel"><span class="ms">close</span>Annuler</button>';
+        } else {
+          if (!off) h += '<button class="btn btn-secondary btn-sm" type="button" data-act="edit"><span class="ms">edit</span>Modifier les accès</button>';
+          if (invited) {
+            if (st.resent) h += '<span class="u-note"><span class="ms">check</span>Invitation renvoyée le ' + esc(st.resent) + "</span>";
+            else h += '<button class="btn btn-secondary btn-sm" type="button" data-act="resend"><span class="ms">mail</span>Renvoyer l\'invitation</button>';
+          } else if (off) {
+            h += '<button class="btn btn-secondary btn-sm" type="button" data-act="enable"><span class="ms">user_round</span>Réactiver</button>';
+          } else if (!u.admin) {
+            h += '<button class="btn btn-secondary btn-sm" type="button" data-act="disable"><span class="ms">close</span>Désactiver le compte</button>';
+          }
+        }
+        h += "</div></div>";
+        return h;
+      }
+
+      function itemHtml(u, idx) {
+        var st = store[u.e] || {};
+        var off = !!st.off;
+        var on = u.s && !off;
+        var text = off ? "Compte désactivé le " + st.off + "." : u.t;
+        var open = !!openSet[idx];
         return (
-          '<div class="u-item">' +
+          '<div class="u-item' + (open ? " open" : "") + '" data-i="' + idx + '">' +
           '<div class="list-row">' +
           '<span class="avatar avatar-md" style="background:' + u.c + '">' + u.i + "</span>" +
           '<div class="u-main">' +
           '<div class="u-name"><span class="row-title">' + esc(u.n) + '</span><span class="row-meta">&lt;' + esc(u.e) + "&gt;</span></div>" +
-          '<div class="u-state' + (u.s ? "" : " off") + '"><i class="dot"></i><span>' + esc(u.t) + "</span></div>" +
+          '<div class="u-state' + (on ? "" : " off") + '"><i class="dot"></i><span>' + esc(text) + "</span></div>" +
           "</div>" +
-          '<button class="icon-btn u-toggle" type="button" aria-expanded="false" aria-label="Afficher les détails"><span class="ms">keyboard_arrow_down</span></button>' +
+          '<button class="icon-btn u-toggle" type="button" aria-expanded="' + (open ? "true" : "false") + '" aria-label="Afficher les détails"><span class="ms">keyboard_arrow_down</span></button>' +
           "</div>" +
-          '<div class="u-panel">Détails non représentés dans cette maquette.</div>' +
+          panelHtml(u, idx) +
           "</div>"
         );
-      }).join("");
+      }
+
+      function render(focusIdx, focusAct) {
+        // Garde le brouillon des accès en cours de modification avant de redessiner la liste
+        list.querySelectorAll(".u-panel").forEach(function (panel) {
+          var cbs = panel.querySelectorAll('.u-checks input[type="checkbox"]');
+          if (!cbs.length) return;
+          var picked = [];
+          cbs.forEach(function (cb) { if (cb.checked) picked.push(cb.value); });
+          draftSet[Number(panel.getAttribute("data-i"))] = picked;
+        });
+        list.innerHTML = USERS.map(itemHtml).join("");
+        if (focusAct) {
+          var btn = list.querySelector('.u-panel[data-i="' + focusIdx + '"] [data-act="' + focusAct + '"]');
+          if (btn) btn.focus();
+        }
+      }
+      render();
+
       list.addEventListener("click", function (ev) {
+        var panel = ev.target.closest(".u-panel");
+        if (panel) {
+          // Les clics dans le panneau ne le referment pas.
+          ev.stopPropagation();
+          var btn = ev.target.closest("[data-act]");
+          if (!btn) return;
+          var idx = Number(panel.getAttribute("data-i"));
+          var u = USERS[idx];
+          var act = btn.getAttribute("data-act");
+          if (act === "edit") {
+            editSet[idx] = true;
+            render(idx, "save");
+          } else if (act === "cancel") {
+            delete editSet[idx];
+            delete draftSet[idx];
+            render(idx, "edit");
+          } else if (act === "save") {
+            var picked = [];
+            panel.querySelectorAll('.u-checks input[type="checkbox"]').forEach(function (cb) {
+              if (cb.checked) picked.push(cb.value);
+            });
+            if (!picked.length) {
+              panel.querySelector("[data-err]").hidden = false;
+              return;
+            }
+            patch(u, { acces: ACCES.filter(function (a) { return picked.indexOf(a) >= 0; }) });
+            delete editSet[idx];
+            delete draftSet[idx];
+            render(idx, "edit");
+          } else if (act === "resend") {
+            patch(u, { resent: TODAY });
+            render(idx);
+          } else if (act === "disable") {
+            if (!window.confirm("Désactiver le compte de " + u.n + " ? Cette personne ne pourra plus se connecter.")) return;
+            patch(u, { off: TODAY });
+            delete editSet[idx];
+            render(idx, "enable");
+          } else if (act === "enable") {
+            patch(u, { off: null });
+            render(idx, "disable");
+          }
+          return;
+        }
         var row = ev.target.closest(".list-row");
         if (!row) return;
         var item = row.parentNode;
         var open = item.classList.toggle("open");
+        openSet[item.getAttribute("data-i")] = open;
         row.querySelector(".u-toggle").setAttribute("aria-expanded", open ? "true" : "false");
       });
     </script>

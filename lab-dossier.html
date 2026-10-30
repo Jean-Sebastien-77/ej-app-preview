@@ -1466,7 +1466,7 @@
     <script src="assets/ej-missions-data.js?v=29"></script>
     <script src="assets/ej-cockpit-data.js?v=10"></script>
     <script src="assets/ej-dpj-data.js?v=2"></script>
-    <script src="assets/ej-lab.js?v=9"></script>
+    <script src="assets/ej-lab.js?v=10"></script>
     <script>
       (function () {
         var E = window.EJM,
@@ -2628,7 +2628,7 @@
               (BE.length ? "" : ". Bénéficiaires effectifs contrôlés dès leur identification") + ".</div></div>" + gelRes + "</div>" +
               '<div class="oblig-row crib-row"><div class="oblig-txt"><div class="oblig-lib">Personnes politiquement exposées</div>' +
               '<div class="oblig-det">' + detPPE + "</div>" +
-              '<div class="oblig-det">Vérification automatique disponible avec <a class="link" href="connecteurs.html">Pappers KYC</a>.</div></div>' + ppeRes + "</div>";
+              '<div class="oblig-det">' + (X.kycPappers ? 'Vérification automatique par <a class="link" href="connecteurs.html">Pappers KYC</a> à chaque revue, confirmée par le professionnel.' : 'Vérification automatique disponible avec <a class="link" href="connecteurs.html">Pappers KYC</a>.') + "</div></div>" + ppeRes + "</div>";
             out.push(carte("scan-search", "Gel des avoirs et personnes politiquement exposées", "", "", corpsCrib, "criblage"));
 
             /* 3. Évaluation du risque : critères de la grille (proposition), niveau retenu par le professionnel */

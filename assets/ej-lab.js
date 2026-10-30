@@ -932,8 +932,8 @@
     etatDemandees: etatDemandees,
     piecesMarquees: piecesMarquees,
     marquerRecue: marquerRecue,
-    /* Option Pappers KYC (vérification PPE automatique) : inactive dans ce cabinet */
-    kycPappers: false,
+    /* Option Pappers KYC (vérification PPE automatique) : activée depuis Connecteurs pour la session */
+    kycPappers: (function () { try { return JSON.parse(sessionStorage.getItem("ej-kyc-pappers")).actif === true; } catch (e) { return false; } })(),
     identificationManquante: identificationManquante,
     piecesExigees: piecesExigees,
     exigeesManquantes: exigeesManquantes,

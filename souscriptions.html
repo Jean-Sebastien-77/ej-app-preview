@@ -30,6 +30,10 @@
         font-size: 16px;
         color: var(--ej-success-600);
       }
+      .s-end {
+        font-size: 13px;
+        color: var(--ej-neutral-500);
+      }
       .empty {
         padding: 48px 20px;
         text-align: center;
@@ -68,9 +72,8 @@
             <div class="list-card" id="subs"></div>
           </div>
           <div id="tab-terminees" hidden>
-            <div class="list-card">
-              <div class="empty"><span class="ms">inventory_2</span>Contenu non représenté dans cette maquette.</div>
-            </div>
+            <p class="muted small mb-16">6 souscriptions terminées.</p>
+            <div class="list-card" id="subs-end"></div>
           </div>
         </div>
         <div id="ej-footer"></div>
@@ -110,21 +113,40 @@
         ["BOTANICA", "107 106 376", "24/07/2026"],
         ["MARALUNA", "103 280 002", "24/07/2026"],
       ];
+      var ENDED = [
+        ["SCI DES PEUPLIERS", "508 214 637", "04/09/2026", "Résiliée par le cabinet"],
+        ["AGENCE CORVISART", "449 873 102", "17/06/2026", "Cession à un autre cabinet"],
+        ["LA TABLE DE JULIETTE", "521 087 346", "22/02/2026", "Société radiée"],
+        ["TRANSPORTS BERNARD & FILS", "338 760 195", "30/11/2025", "Cession à un autre cabinet"],
+        ["ÉDITIONS DU PONANT", "477 305 821", "14/05/2025", "Résiliée par le cabinet"],
+        ["GARAGE DES LILAS", "389 642 057", "18/03/2024", "Société radiée"],
+      ];
       function esc(s) {
         return s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
       }
-      document.getElementById("subs").innerHTML = SUBS.map(function (s) {
+      // Même gabarit de ligne pour les souscriptions en cours et terminées.
+      function subRow(s, ended) {
         return (
           '<div class="list-row">' +
-          '<span class="list-icon"><span class="ms">contract</span></span>' +
+          '<span class="list-icon"><span class="ms">' + (ended ? "inventory_2" : "contract") + "</span></span>" +
           '<div class="s-main">' +
           '<div><span class="row-title">' + esc(s[0]) + '</span> <span class="muted small">(' + (s[1] || "aucun SIREN") + ")</span></div>" +
-          '<div class="s-plan">Forfait “Gestion Courante“, souscrit le ' + s[2] + ".</div>" +
-          '<div class="s-renew">Renouvellement automatique activé<span class="ms">check</span></div>' +
+          '<div class="s-plan">Forfait «\u00a0Gestion Courante\u00a0», ' + (ended ? "terminé" : "souscrit") + " le " + s[2] + ".</div>" +
+          (ended
+            ? '<div class="s-end">Motif : ' + esc(s[3]) + "</div>"
+            : '<div class="s-renew">Renouvellement automatique activé<span class="ms">check</span></div>') +
           "</div>" +
-          '<button class="icon-btn" type="button" aria-label="Paramètres de la souscription"><span class="ms">settings</span></button>' +
+          (ended
+            ? ""
+            : '<button class="icon-btn" type="button" aria-label="Paramètres de la souscription"><span class="ms">settings</span></button>') +
           "</div>"
         );
+      }
+      document.getElementById("subs").innerHTML = SUBS.map(function (s) {
+        return subRow(s, false);
+      }).join("");
+      document.getElementById("subs-end").innerHTML = ENDED.map(function (s) {
+        return subRow(s, true);
       }).join("");
 
       var tabs = document.querySelectorAll(".tab");

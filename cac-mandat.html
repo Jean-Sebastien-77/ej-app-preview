@@ -608,6 +608,228 @@
         color: var(--ej-neutral-500);
       }
 
+      /* Informer l'entité : état dans l'encadré de fin de mandat, fenêtre d'envoi et aperçu du courrier */
+      .fin-etat {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        flex: 1 1 100%;
+        gap: 8px 14px;
+        font-size: 13.5px;
+        color: var(--ej-neutral-800);
+      }
+      .fin-etat .ms {
+        font-size: 18px;
+        color: var(--ej-success-600);
+      }
+      .fin-etat .txt {
+        flex: 1 1 180px;
+        min-width: 0;
+      }
+      .fin-lien {
+        padding: 0;
+        border: 0;
+        background: none;
+        font: inherit;
+        font-weight: 600;
+        color: var(--ej-action-700);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        cursor: pointer;
+      }
+      .fin-lien:hover {
+        color: var(--ej-primary-900);
+      }
+      body.fm-ouvert {
+        overflow: hidden;
+      }
+      .fm {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: color-mix(in srgb, var(--ej-primary-900) 32%, transparent);
+      }
+      .fm.fm-ap {
+        z-index: 110;
+      }
+      .fm[hidden] {
+        display: none;
+      }
+      .fm-box {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 620px;
+        max-height: calc(100vh - 48px);
+        background: var(--ej-white);
+        border-radius: var(--ej-radius-xl);
+        box-shadow: var(--ej-shadow-xl);
+        overflow: hidden;
+      }
+      .fm-ap .fm-box {
+        max-width: 760px;
+      }
+      .fm-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 18px 22px 14px;
+        border-bottom: 1px solid var(--ej-hairline);
+      }
+      .fm-head h2 {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+        outline: none;
+      }
+      .fm-head h2:focus-visible {
+        outline: 2px solid var(--ej-action-600);
+        outline-offset: 3px;
+        border-radius: var(--ej-radius-sm);
+        box-shadow: none;
+      }
+      .fm-head p {
+        margin-top: 2px;
+        font-size: 13px;
+        color: var(--ej-neutral-500);
+      }
+      .fm-desk {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        padding: 18px 22px 10px;
+      }
+      .fm-ap .fm-desk {
+        padding: 18px;
+        background: var(--ej-neutral-100);
+      }
+      .fm-foot {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 14px 22px 18px;
+        border-top: 1px solid var(--ej-hairline);
+      }
+      .fm-dest {
+        display: grid;
+        grid-template-columns: 110px minmax(0, 1fr);
+        gap: 4px 12px;
+        padding: 12px 14px;
+        border-radius: var(--ej-radius-lg);
+        background: var(--ej-neutral-100);
+        font-size: 13.5px;
+      }
+      .fm-dest dt {
+        color: var(--ej-neutral-500);
+      }
+      .fm-dest dd {
+        min-width: 0;
+        color: var(--ej-neutral-900);
+      }
+      .fm-field {
+        margin: 14px 0 0;
+        padding: 0;
+        border: 0;
+        min-width: 0;
+      }
+      .fm-field label,
+      .fm-field legend {
+        display: block;
+        padding: 0;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ej-neutral-700);
+      }
+      .fm-field input[type="text"],
+      .fm-field textarea {
+        display: block;
+        width: 100%;
+        margin-top: 6px;
+        border: 1px solid var(--ej-neutral-400);
+        border-radius: var(--ej-radius-md);
+        background: var(--ej-white);
+        font: inherit;
+        font-size: 14px;
+        color: var(--ej-neutral-900);
+      }
+      .fm-field input[type="text"] {
+        height: 40px;
+        padding: 0 12px;
+      }
+      .fm-field textarea {
+        min-height: 330px;
+        padding: 10px 12px;
+        line-height: 1.5;
+        resize: vertical;
+      }
+      .fm-field input:focus-visible,
+      .fm-field textarea:focus-visible,
+      .fm-radio input:focus-visible {
+        outline: 2px solid var(--ej-action-600);
+        outline-offset: 1px;
+        box-shadow: none;
+      }
+      .fm-field input[aria-invalid="true"],
+      .fm-field textarea[aria-invalid="true"] {
+        border-color: var(--ej-error-600);
+      }
+      .fm-field input[readonly],
+      .fm-field textarea[readonly] {
+        background: var(--ej-neutral-100);
+      }
+      .fm-err {
+        margin-top: 4px;
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--ej-error-600);
+      }
+      .fm-err:empty {
+        display: none;
+      }
+      .fm-field label.fm-radio {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-top: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--ej-neutral-900);
+        cursor: pointer;
+      }
+      .fm-radio input {
+        flex-shrink: 0;
+        width: 18px;
+        height: 18px;
+        margin-top: 1px;
+        accent-color: var(--ej-action-600);
+      }
+      .fm-etat {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 14px;
+        font-size: 13.5px;
+        font-weight: 500;
+        color: var(--ej-neutral-800);
+      }
+      .fm-etat .ms {
+        font-size: 18px;
+        color: var(--ej-success-600);
+      }
+      .fm-objet {
+        margin-top: 18px;
+      }
+      .fm-texte {
+        margin-top: 12px;
+        white-space: pre-wrap;
+      }
+
       /* Impression de la fiche (Exporter la fiche) : contenu seul, sans l'habillage de l'application */
       @media print {
         .ej-header,
@@ -781,6 +1003,86 @@
         }
       }
       body.m-resp .fin-box .btn { white-space: normal; max-width: 100%; }
+      /* Impression du courrier (aperçu) : la lettre seule */
+      @media print {
+        .fm {
+          display: none !important;
+        }
+        body.fm-ap-ouvert > *:not(#fm-ap) {
+          display: none !important;
+        }
+        body.fm-ap-ouvert #fm-ap {
+          display: block !important;
+          position: static;
+          padding: 0;
+          background: none;
+        }
+        #fm-ap .fm-box {
+          display: block;
+          max-width: none;
+          max-height: none;
+          overflow: visible;
+          box-shadow: none;
+          border-radius: 0;
+        }
+        #fm-ap .fm-head,
+        #fm-ap .fm-foot {
+          display: none !important;
+        }
+        #fm-ap .fm-desk {
+          overflow: visible;
+          padding: 0;
+          background: none;
+        }
+        #fm-ap .lm-sheet {
+          max-width: none;
+          border: none;
+          box-shadow: none;
+          padding: 0;
+        }
+      }
+
+      @media (max-width: 760px) {
+        .fm {
+          align-items: flex-end;
+          padding: 0;
+        }
+        .fm-box {
+          max-width: none;
+          max-height: 94vh;
+          border-radius: var(--ej-radius-xl) var(--ej-radius-xl) 0 0;
+        }
+        .fm-desk {
+          padding: 16px 16px 8px;
+        }
+        .fm-ap .fm-desk {
+          padding: 10px;
+        }
+        .fm-head {
+          padding: 16px 16px 12px;
+        }
+        .fm-foot {
+          padding: 12px 16px 16px;
+        }
+        .fm-foot .btn {
+          flex: 1 1 100%;
+          justify-content: center;
+        }
+        .fm-dest {
+          grid-template-columns: 1fr;
+          gap: 0;
+        }
+        .fm-dest dd {
+          margin-bottom: 6px;
+        }
+        .fm-field textarea {
+          min-height: 240px;
+        }
+        .fin-etat .btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
     </style>
   </head>
   <body class="m-resp" data-active="cac">
@@ -817,8 +1119,35 @@
       </div>
     </div>
 
+    <div class="sr-only" id="fin-live" role="status" aria-live="polite"></div>
+
+    <div class="fm" id="fm" role="dialog" aria-modal="true" aria-labelledby="fm-titre" hidden>
+      <div class="fm-box">
+        <div class="fm-head">
+          <div><h2 id="fm-titre" tabindex="-1">Informer l'entité de la fin du mandat</h2><p id="fm-sous"></p></div>
+          <button class="icon-btn" type="button" data-fm="fermer" aria-label="Fermer la fenêtre"><span class="ms">close</span></button>
+        </div>
+        <div class="fm-desk" id="fm-corps"></div>
+        <div class="fm-foot" id="fm-pied"></div>
+      </div>
+    </div>
+
+    <div class="fm fm-ap" id="fm-ap" role="dialog" aria-modal="true" aria-labelledby="fm-ap-titre" hidden>
+      <div class="fm-box">
+        <div class="fm-head">
+          <div><h2 id="fm-ap-titre" tabindex="-1">Aperçu du courrier</h2><p id="fm-ap-sous"></p></div>
+          <button class="icon-btn" type="button" data-fm="ap-fermer" aria-label="Fermer l'aperçu"><span class="ms">close</span></button>
+        </div>
+        <div class="fm-desk"><div class="lm-sheet" id="fm-feuille"></div></div>
+        <div class="fm-foot">
+          <button class="btn btn-tertiary" type="button" data-fm="ap-fermer">Fermer</button>
+          <button class="btn btn-primary" type="button" data-fm="ap-imprimer"><span class="ms">printer</span>Imprimer ou exporter en PDF</button>
+        </div>
+      </div>
+    </div>
+
     <script src="assets/ej-missions-data.js?v=29"></script>
-    <script src="assets/ej-lab.js?v=9"></script>
+    <script src="assets/ej-lab.js?v=10"></script>
     <script>
       /* Rendu au DOMContentLoaded : ej-shell.js (chargé après) pose data-profil sur le body avant cet événement */
       document.addEventListener("DOMContentLoaded", function () {
@@ -922,6 +1251,46 @@
         }
         function srcRNE() { return '<span class="source"><span class="ms">landmark</span>RNE · INPI</span>'; }
 
+        /* ---------- Fin de mandat : entité informée ----------
+           sessionStorage["ej-cac-fin-mandat"] = { [id du mandat]: { date, canal ("electronique" | "papier"), par (clé du signataire), objet, corps } } */
+        var CLE_FIN = "ej-cac-fin-mandat";
+        var CANAL_FIN = {
+          electronique: { court: "courrier électronique", par: "par courrier électronique" },
+          papier: { court: "courrier", par: "par courrier" },
+        };
+        function lireFin() {
+          try {
+            var o = JSON.parse(window.sessionStorage.getItem(CLE_FIN) || "{}");
+            return o && typeof o === "object" && !Array.isArray(o) ? o : {};
+          } catch (e) {
+            return {};
+          }
+        }
+        function ecrireFin(o) {
+          try {
+            window.sessionStorage.setItem(CLE_FIN, JSON.stringify(o));
+          } catch (e) {}
+        }
+        var envoiFin = finMandat ? lireFin()[m.id] || null : null;
+        if (envoiFin && !(typeof envoiFin === "object" && CANAL_FIN[envoiFin.canal] && typeof envoiFin.date === "string" && /^\d{2}\/\d{2}\/\d{4}$/.test(envoiFin.date) && dt(envoiFin.date) <= TODAY && typeof envoiFin.objet === "string" && typeof envoiFin.corps === "string")) envoiFin = null;
+        function nomPar(k) {
+          return (E.equipe[k] || signataire).nom;
+        }
+        function htmlBoxFin() {
+          return '<div class="fin-box" id="fin-box"><div class="t"><span class="ms">calendar-clock</span>' +
+            (m.ag ? "Le mandat prend fin à l'AG du " + m.ag : "Le mandat prend fin à l'AG qui statuera sur les comptes clos le " + finMandatDate) +
+            " " + tip("renouvellement", "Le renouvellement est proposé par l'organe de l'entité, pas par le cabinet.", "Renouvellement du mandat") + "</div>" +
+            (envoiFin
+              ? '<div class="fin-etat" id="fin-etat"><span class="ms">check</span><span class="txt">Entité informée le ' + esc(envoiFin.date) + " " + CANAL_FIN[envoiFin.canal].par + " (" + esc(nomPar(envoiFin.par)) + ")</span>" +
+                '<button class="fin-lien" type="button" id="fin-voir" aria-haspopup="dialog">Voir le courrier</button>' +
+                '<button class="btn btn-secondary btn-sm" type="button" id="fin-renvoyer" aria-haspopup="dialog"><span class="ms">send</span>Renvoyer</button></div>'
+              : '<button class="btn btn-secondary btn-sm" type="button" id="fin-informer" aria-haspopup="dialog"><span class="ms">send</span>Informer l\'entité</button>') +
+            "</div>";
+        }
+        function texteAlerteFin() {
+          return envoiFin ? " L'entité en a été informée le " + envoiFin.date + "." : "";
+        }
+
         /* ---------- En-tête ---------- */
         var libForme = FORMES[m.forme] ? ", " + FORMES[m.forme] : "";
         document.getElementById("head").innerHTML =
@@ -985,7 +1354,7 @@
         }
         if (finMandat) {
           al.push('<div class="alert alert-info"><span class="ms">calendar-clock</span><div><strong>Fin de mandat.</strong> Le mandat prend fin à l\'issue de l\'assemblée générale ordinaire annuelle (AGOA) qui statuera sur les comptes de l\'exercice clos le ' + finMandatDate +
-            (m.ag ? " (AG prévue le " + m.ag + ")" : "") + ".</div></div>");
+            (m.ag ? " (AG prévue le " + m.ag + ")" : "") + '.<span id="fin-alerte-etat">' + esc(texteAlerteFin()) + "</span></div></div>");
         }
         document.getElementById("alerts").innerHTML = al.join("");
 
@@ -1042,13 +1411,7 @@
           frise += '<li class="' + cls + '"' + (y === anExo ? ' aria-current="true"' : "") + '><span class="an">' + y + '</span><span class="clos">Clos le ' + m.cloture + '</span><span class="etat">' + etat + "</span>" +
             (y === m.dernier && !contr ? '<span class="dern">Dernier du mandat</span>' : "") + "</li>";
         }
-        var boxFin = "";
-        if (finMandat) {
-          boxFin = '<div class="fin-box"><div class="t"><span class="ms">calendar-clock</span>' +
-            (m.ag ? "Le mandat prend fin à l'AG du " + m.ag : "Le mandat prend fin à l'AG qui statuera sur les comptes clos le " + finMandatDate) +
-            " " + tip("renouvellement", "Le renouvellement est proposé par l'organe de l'entité, pas par le cabinet.", "Renouvellement du mandat") + "</div>" +
-            '<button class="btn btn-secondary btn-sm" type="button" title="Écran non maquetté"><span class="ms">send</span>Informer l\'entité</button></div>';
-        }
+        var boxFin = finMandat ? htmlBoxFin() : "";
         out.push(carte("briefcase", contr ? "Mission" : "Mandat", TYPE_LIB[m.type], "",
           '<dl class="kv">' + rows + "</dl>" +
           '<h3 class="sous-titre">' + (contr ? "Exercice couvert" : "Exercices du mandat") + "</h3>" +
@@ -1089,7 +1452,7 @@
 
         /* 4. Lettre de mission CAC
            Une lettre signée ne se réécrit pas : l'aperçu montre la version signée (équipe et honoraires d'alors) ;
-           les valeurs en vigueur viennent des avenants datés. Données de la démonstration, cohérentes avec EJM. */
+           les valeurs en vigueur viennent des avenants datés. Données cohérentes avec EJM. */
         var LM_HISTO = {
           vertalis: { hon: 26500, equipe: ["JD"], av: [{ d: "03/09/2024", h: [26500, 29300] }, { d: "20/01/2025", eq: "Léa Fontaine remplace Jean Dupond" }, { d: "15/09/2025", h: [29300, 31200] }] },
           nordia: { hon: 23800, equipe: ["JD"], av: [{ d: "12/09/2025", h: [23800, 25200] }] },
@@ -1255,12 +1618,18 @@
         rapportsEmis.forEach(function (x) {
           ajoute(x[2], "file-check", "Rapports de l'exercice " + x[4] + " émis.", esc(signataire.nom));
         });
-        J.sort(function (a, b) { return dt(b.d) - dt(a.d) || b.n - a.n; });
-        out.push(carte("history", "Historique", "Journal daté du mandat.", "",
-          '<ul class="journal" id="journal">' + J.map(function (j) {
+        /* Entrées triées de la plus récente à la plus ancienne ; l'envoi aux dirigeants vient de l'état de fin de mandat */
+        function itemsJournal() {
+          var T = J.slice();
+          if (envoiFin) T.push({ d: envoiFin.date, n: J.length, i: "send", t: "Entité informée de la fin du mandat (" + CANAL_FIN[envoiFin.canal].court + ").", w: esc(nomPar(envoiFin.par)), warn: false });
+          T.sort(function (a, b) { return dt(b.d) - dt(a.d) || b.n - a.n; });
+          return T.map(function (j) {
             return '<li><span class="j-ico' + (j.warn ? " warn" : "") + '"><span class="ms">' + j.i + "</span></span>" +
-              '<div><div class="j-date">' + j.d + '</div><div class="j-txt">' + esc(j.t) + '</div><div class="j-who">' + j.w + "</div></div></li>";
-          }).join("") + "</ul>", "historique"));
+              '<div><div class="j-date">' + esc(j.d) + '</div><div class="j-txt">' + esc(j.t) + '</div><div class="j-who">' + j.w + "</div></div></li>";
+          }).join("");
+        }
+        out.push(carte("history", "Historique", "Journal daté du mandat.", "",
+          '<ul class="journal" id="journal">' + itemsJournal() + "</ul>", "historique"));
 
         document.getElementById("sections").innerHTML = out.join("");
 
@@ -1275,6 +1644,206 @@
             bR.disabled = true;
             bR.innerHTML = '<span class="ms">circle-check</span>Relance envoyée';
           });
+
+        /* ---------- Informer l'entité de la fin du mandat ---------- */
+        var fm = document.getElementById("fm"),
+          fmAp = document.getElementById("fm-ap");
+        var fmMode = null, fmOrigine = null, fmApOrigine = null;
+        function el(i) { return document.getElementById(i); }
+        function minus(t) { return t.charAt(0).toLowerCase() + t.slice(1); }
+        /* La forme juridique n'est ajoutée que si la raison sociale ne la porte pas déjà (VERTALIS SA) */
+        function formeFin() {
+          var f = m.forme;
+          return f && (" " + m.nom.toUpperCase() + " ").indexOf(" " + f.toUpperCase() + " ") < 0 ? ", " + esc(f) : "";
+        }
+        var OBJET_FIN = "Fin du mandat de commissaire aux comptes";
+        function corpsFin() {
+          return [
+            "Madame, Monsieur,",
+            "",
+            "Nous avons été nommés commissaires aux comptes " + de(m.nom) + (m.nomination ? " par l'assemblée générale du " + m.nomination : "") + ", pour les exercices " + m.premier + " à " + m.dernier + ".",
+            "",
+            "Notre mandat prend fin à l'issue de l'assemblée générale qui statuera sur les comptes de l'exercice clos le " + finMandatDate + (m.ag ? ", prévue le " + m.ag : "") + ".",
+            "",
+            "Le renouvellement de ce mandat, ou la nomination d'un nouveau commissaire aux comptes, relève de l'organe compétent de votre entité. Nous vous invitons à inscrire ce point à l'ordre du jour de cette assemblée. Le cabinet se tient à votre disposition pour tout élément utile à cette décision.",
+            "",
+            "Cordialement,",
+            signataire.nom,
+            signataire.role,
+            E.cabinet,
+          ].join("\n");
+        }
+        function pied(lecture) {
+          return '<button class="btn btn-secondary" type="button" data-fm="apercu" aria-haspopup="dialog"><span class="ms">eye</span>Aperçu</button>' +
+            (lecture
+              ? '<button class="btn btn-tertiary" type="button" data-fm="fermer">Fermer</button>'
+              : '<button class="btn btn-tertiary" type="button" data-fm="fermer">Annuler</button>' +
+                '<button class="btn btn-primary" type="button" data-fm="envoyer" id="fm-envoyer"></button>');
+        }
+        function libelleEnvoi(canal) {
+          var b = el("fm-envoyer");
+          if (b) b.innerHTML = canal === "papier" ? '<span class="ms">check</span>Marquer comme envoyé' : '<span class="ms">send</span>Envoyer';
+        }
+        function ouvrirFenetre(mode, origine) {
+          fmMode = mode;
+          fmOrigine = origine || document.activeElement;
+          var lecture = mode === "lecture";
+          var src = mode === "nouveau" || !envoiFin ? { objet: OBJET_FIN, corps: corpsFin(), canal: "electronique" } : envoiFin;
+          var ro = lecture ? " readonly" : "";
+          el("fm-sous").textContent = m.nom;
+          el("fm-corps").innerHTML =
+            '<dl class="fm-dest" aria-label="Destinataire">' +
+            "<dt>Destinataire</dt><dd>" + esc(F[2]) + ", " + esc(minus(F[3])) + "</dd>" +
+            "<dt>Société</dt><dd>" + esc(m.nom) + formeFin() + "</dd>" +
+            "<dt>Siège</dt><dd>" + esc(F[0]) + "</dd></dl>" +
+            '<div class="fm-field"><label for="fm-objet">Objet</label>' +
+            '<input type="text" id="fm-objet" value="' + esc(src.objet) + '"' + ro + ' aria-describedby="fm-err-objet" autocomplete="off" />' +
+            '<div class="fm-err" id="fm-err-objet" role="alert"></div></div>' +
+            '<div class="fm-field"><label for="fm-texte">Courrier</label>' +
+            '<textarea id="fm-texte" rows="14"' + ro + ' aria-describedby="fm-err-texte">' + esc(src.corps) + "</textarea>" +
+            '<div class="fm-err" id="fm-err-texte" role="alert"></div></div>' +
+            (lecture
+              ? '<p class="fm-etat"><span class="ms">check</span>Entité informée le ' + esc(src.date) + " " + CANAL_FIN[src.canal].par + " (" + esc(nomPar(src.par)) + ")</p>"
+              : '<fieldset class="fm-field"><legend>Canal d\'envoi</legend>' +
+                '<label class="fm-radio"><input type="radio" name="fm-canal" value="electronique"' + (src.canal === "papier" ? "" : " checked") + " />Courrier électronique depuis Express Juridique</label>" +
+                '<label class="fm-radio"><input type="radio" name="fm-canal" value="papier"' + (src.canal === "papier" ? " checked" : "") + " />Courrier à imprimer</label></fieldset>");
+          el("fm-pied").innerHTML = pied(lecture);
+          if (!lecture) libelleEnvoi(src.canal);
+          fm.hidden = false;
+          document.body.classList.add("fm-ouvert");
+          (lecture ? el("fm-titre") : el("fm-objet")).focus();
+        }
+        function fermerFenetre(sansFocus) {
+          fm.hidden = true;
+          document.body.classList.remove("fm-ouvert");
+          if (sansFocus) return;
+          var cible = fmOrigine && document.body.contains(fmOrigine) ? fmOrigine : el("fin-voir") || el("fin-informer");
+          if (cible) cible.focus();
+        }
+        function contenuCourrier() {
+          if (fmMode === "lecture" && envoiFin) return { objet: envoiFin.objet, corps: envoiFin.corps, date: envoiFin.date };
+          return { objet: el("fm-objet").value, corps: el("fm-texte").value.replace(/\r/g, ""), date: E.today };
+        }
+        function ouvrirApercuFin(origine) {
+          var c = contenuCourrier();
+          fmApOrigine = origine || document.activeElement;
+          el("fm-ap-sous").textContent = m.nom;
+          el("fm-feuille").innerHTML =
+            '<div class="lm-sh-top"><div><div class="lm-sh-cab">' + esc(E.cabinet) + '</div><div class="lm-sh-mut">Cabinet de commissariat aux comptes</div></div>' +
+            '<div class="lm-sh-meta">Le ' + esc(c.date) + "</div></div>" +
+            '<div class="lm-sh-dest"><strong>' + esc(m.nom) + "</strong>" + (formeFin() ? " · " + esc(m.forme) : "") + "<br>" + esc(F[0]) +
+            "<br>À l'attention " + esc(de(F[2])) + ", " + esc(minus(F[3])) + "</div>" +
+            '<p class="fm-objet"><strong>Objet :</strong> ' + esc(c.objet) + "</p>" +
+            '<div class="fm-texte">' + esc(c.corps) + "</div>";
+          fm.inert = true;
+          fmAp.hidden = false;
+          document.body.classList.add("fm-ouvert", "fm-ap-ouvert");
+          el("fm-ap-titre").focus();
+        }
+        function fermerApercuFin() {
+          fmAp.hidden = true;
+          document.body.classList.remove("fm-ap-ouvert");
+          fm.inert = false;
+          if (fmApOrigine && document.body.contains(fmApOrigine)) fmApOrigine.focus();
+        }
+        function majFin() {
+          var b = el("fin-box");
+          if (b) b.outerHTML = htmlBoxFin();
+          var jn = el("journal");
+          if (jn) jn.innerHTML = itemsJournal();
+          var a = el("fin-alerte-etat");
+          if (a) a.textContent = texteAlerteFin();
+        }
+        function envoyerFin() {
+          var cObjet = el("fm-objet"), cTexte = el("fm-texte");
+          var objet = cObjet.value.trim(),
+            corps = cTexte.value.replace(/\r/g, "").trim();
+          var premier = null;
+          [[cObjet, objet, "fm-err-objet", "Saisissez l'objet du courrier."], [cTexte, corps, "fm-err-texte", "Saisissez le texte du courrier."]].forEach(function (c) {
+            if (c[1]) {
+              c[0].removeAttribute("aria-invalid");
+              el(c[2]).textContent = "";
+            } else {
+              c[0].setAttribute("aria-invalid", "true");
+              el(c[2]).textContent = c[3];
+              if (!premier) premier = c[0];
+            }
+          });
+          if (premier) return premier.focus();
+          var radio = fm.querySelector('input[name="fm-canal"]:checked');
+          envoiFin = { date: E.today, canal: radio && radio.value === "papier" ? "papier" : "electronique", par: m.signataire, objet: objet, corps: corps };
+          var tout = lireFin();
+          tout[m.id] = envoiFin;
+          ecrireFin(tout);
+          fermerFenetre(true);
+          majFin();
+          el("fin-live").textContent = "Entité informée le " + envoiFin.date + " " + CANAL_FIN[envoiFin.canal].par + ".";
+          var v = el("fin-voir");
+          if (v) v.focus();
+        }
+        var boxFinEl = el("fin-box");
+        if (boxFinEl) {
+          el("sections").addEventListener("click", function (ev) {
+            var b = ev.target.closest("#fin-informer, #fin-voir, #fin-renvoyer");
+            if (!b) return;
+            ouvrirFenetre(b.id === "fin-informer" ? "nouveau" : b.id === "fin-voir" ? "lecture" : "renvoi", b);
+          });
+        }
+        fm.addEventListener("click", function (ev) {
+          if (ev.target === fm) return fermerFenetre();
+          var b = ev.target.closest("[data-fm]");
+          if (!b) return;
+          var a = b.getAttribute("data-fm");
+          if (a === "fermer") fermerFenetre();
+          else if (a === "apercu") ouvrirApercuFin(b);
+          else if (a === "envoyer") envoyerFin();
+        });
+        fm.addEventListener("change", function (ev) {
+          if (ev.target.name === "fm-canal") libelleEnvoi(ev.target.value);
+        });
+        fm.addEventListener("input", function (ev) {
+          if (ev.target.id === "fm-objet" || ev.target.id === "fm-texte") {
+            ev.target.removeAttribute("aria-invalid");
+            var e = el(ev.target.id === "fm-objet" ? "fm-err-objet" : "fm-err-texte");
+            if (e) e.textContent = "";
+          }
+        });
+        fmAp.addEventListener("click", function (ev) {
+          if (ev.target === fmAp) return fermerApercuFin();
+          var b = ev.target.closest("[data-fm]");
+          if (!b) return;
+          var a = b.getAttribute("data-fm");
+          if (a === "ap-fermer") fermerApercuFin();
+          else if (a === "ap-imprimer") window.print();
+        });
+        function piegeFocus(ev, racine) {
+          var f = Array.prototype.filter.call(racine.querySelectorAll("button, a[href], textarea, input, select, [tabindex]:not([tabindex='-1'])"), function (x) {
+            return !x.disabled && x.offsetParent !== null;
+          });
+          if (!f.length) return;
+          var first = f[0], last = f[f.length - 1];
+          var titre = racine.querySelector("h2");
+          if (ev.shiftKey && (document.activeElement === first || document.activeElement === titre)) {
+            ev.preventDefault();
+            last.focus();
+          } else if (!ev.shiftKey && document.activeElement === last) {
+            ev.preventDefault();
+            first.focus();
+          }
+        }
+        fm.addEventListener("keydown", function (ev) {
+          if (ev.key === "Escape") {
+            ev.preventDefault();
+            fermerFenetre();
+          } else if (ev.key === "Tab") piegeFocus(ev, fm);
+        });
+        fmAp.addEventListener("keydown", function (ev) {
+          if (ev.key === "Escape") {
+            ev.preventDefault();
+            ev.stopPropagation();
+            fermerApercuFin();
+          } else if (ev.key === "Tab") piegeFocus(ev, fmAp);
+        });
       });
     </script>
     <script src="assets/ej-shell.js?v=29"></script>

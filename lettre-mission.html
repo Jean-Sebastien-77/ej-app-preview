@@ -974,6 +974,65 @@
         var PAR_LIBELLE = {};
         E.prestations.forEach(function (p) { PAR_LIBELLE[p.libelle] = p; });
 
+        /* Catalogue du cabinet (modeles-prestations.html) : surcharges de session.
+           Sans « ej-catalogue » en session, rien n'est modifié. Placé après LIB, PAR_LIBELLE et MODELE_PREST
+           pour tout corriger en place : prestations, modèles, et anciens libellés que les lettres existantes portent encore. */
+        (function () {
+          var cat = null;
+          try { cat = JSON.parse(sessionStorage.getItem("ej-catalogue") || "null"); } catch (e) { cat = null; }
+          if (!cat || typeof cat !== "object" || Array.isArray(cat)) return;
+          function obj(o) { return o && typeof o === "object" && !Array.isArray(o) ? o : {}; }
+          function liste(a) { return Array.isArray(a) ? a : []; }
+          var po = obj(cat.prestations), mo = obj(cat.modeles);
+          var anciens = {};
+          /* Une lettre existante (consultation, renouvellement, avenant) garde ses prix, ses bases et ses prestations :
+             seuls les ajouts et les libellés renommés s'appliquent. Le catalogue complet ne vaut que pour une nouvelle lettre. */
+          var lettreExistante = !!new URLSearchParams(location.search).get("id");
+
+          /* Prestations : ajouts, champs modifiés en place, retraits */
+          liste(cat.nouvellesPrestations).forEach(function (n) {
+            if (!n || typeof n.id !== "string" || !n.id || LIB[n.id] || !BASE[n.base]) return;
+            if (typeof n.libelle !== "string" || !n.libelle || typeof n.famille !== "string" || !n.famille) return;
+            E.prestations.push({ id: n.id, famille: n.famille, libelle: n.libelle, base: n.base, prix: Math.max(0, Number(n.prix) || 0) });
+          });
+          E.prestations.slice().forEach(function (p) {
+            var o = po[p.id];
+            if (!o || typeof o !== "object") return;
+            if (typeof o.libelle === "string" && o.libelle && o.libelle !== p.libelle) { anciens[p.libelle] = p.id; p.libelle = o.libelle; }
+            if (typeof o.famille === "string" && o.famille) p.famille = o.famille;
+            if (lettreExistante) return;
+            if (typeof o.base === "string" && BASE[o.base]) p.base = o.base;
+            if (typeof o.prix === "number" && isFinite(o.prix) && o.prix >= 0) p.prix = o.prix;
+            if (o.retire) E.prestations.splice(E.prestations.indexOf(p), 1);
+          });
+          Object.keys(LIB).forEach(function (k) { delete LIB[k]; });
+          Object.keys(PAR_LIBELLE).forEach(function (k) { delete PAR_LIBELLE[k]; });
+          E.prestations.forEach(function (p) { LIB[p.id] = p; PAR_LIBELLE[p.libelle] = p; });
+          /* Une lettre existante garde l'ancien libellé d'une prestation renommée */
+          Object.keys(anciens).forEach(function (l) { if (LIB[anciens[l]] && !PAR_LIBELLE[l]) PAR_LIBELLE[l] = LIB[anciens[l]]; });
+
+          /* Modèles : ajouts, champs modifiés en place, prestations pré-cochées, retraits */
+          liste(cat.nouveauxModeles).forEach(function (n) {
+            if (!n || typeof n.id !== "string" || !n.id || typeof n.libelle !== "string" || !n.libelle || E.modeles.some(function (m) { return m.id === n.id; })) return;
+            E.modeles.push({ id: n.id, libelle: n.libelle, desc: typeof n.desc === "string" ? n.desc : "", usage: n.usage | 0 });
+            MODELE_PREST[n.id] = liste(n.prestations).slice();
+          });
+          E.modeles.slice().forEach(function (m) {
+            var o = mo[m.id];
+            if (!o || typeof o !== "object") return;
+            if (typeof o.libelle === "string" && o.libelle) m.libelle = o.libelle;
+            if (typeof o.desc === "string") m.desc = o.desc;
+            if (Array.isArray(o.prestations)) MODELE_PREST[m.id] = o.prestations.slice();
+            if (o.retire) {
+              E.modeles.splice(E.modeles.indexOf(m), 1);
+              delete MODELE_PREST[m.id];
+            }
+          });
+          Object.keys(MODELE_PREST).forEach(function (id) {
+            MODELE_PREST[id] = MODELE_PREST[id].filter(function (pid) { return LIB[pid]; });
+          });
+        })();
+
         /* Élision : « de Camille » mais « d'Étienne » */
         function de(nom) {
           var n = String(nom || "").trim();

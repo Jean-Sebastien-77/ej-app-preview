@@ -2686,7 +2686,7 @@
     <div class="cv-toast" id="cv-toast" role="status" aria-live="polite" hidden></div>
 
     <script src="assets/ej-missions-data.js?v=29"></script>
-    <script src="assets/ej-lab.js?v=9"></script>
+    <script src="assets/ej-lab.js?v=10"></script>
     <script src="assets/ej-cockpit-data.js?v=10"></script>
     <script src="assets/ej-dpj-data.js?v=2"></script>
     <script src="assets/ej-charts.js?v=2"></script>
@@ -3125,7 +3125,7 @@
             /* période propre au widget (épinglé depuis une question) : mois de début et de fin affichés */
             if (w.params && w.params.f && w.params.f.periode) {
               var a0 = I.dir === "fwd" ? C.CUR : C.CUR - n + 1;
-              t += " (" + C.month(a0).label + " – " + C.month(a0 + n - 1).label + ")";
+              t += " (" + C.month(a0).label + " à " + C.month(a0 + n - 1).label + ")";
             }
             base = base ? base + " · " + t : t;
           }

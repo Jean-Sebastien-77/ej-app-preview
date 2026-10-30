@@ -1,0 +1,1250 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Modèles et prestations · Express Juridique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=20" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=25" />
+    <style>
+      /* ---------- Onglets ---------- */
+      .mp-tabs {
+        margin-bottom: 20px;
+      }
+      .mp-tabs .tab {
+        background: none;
+        border-top: 0;
+        border-left: 0;
+        border-right: 0;
+        cursor: pointer;
+      }
+      .mp-tabs .mp-n {
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+        color: var(--ej-neutral-500);
+      }
+      .mp-tabs .tab.active .mp-n {
+        color: var(--ej-action-600);
+      }
+
+      /* ---------- Barre d'un onglet ---------- */
+      .mp-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px 16px;
+        margin-bottom: 16px;
+      }
+      .mp-count {
+        font-size: 14px;
+        color: var(--ej-neutral-500);
+      }
+
+      /* ---------- Cartes de modèles ---------- */
+      .mp-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 16px;
+        align-items: stretch;
+      }
+      .mp-card {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 20px;
+        min-width: 0;
+      }
+      .mp-card-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .mp-card-title {
+        font-size: 17px;
+        line-height: 1.35;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+      .mp-card-top .badge {
+        flex-shrink: 0;
+      }
+      .mp-meta {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--ej-neutral-600);
+        font-variant-numeric: tabular-nums;
+      }
+      .mp-meta .ms {
+        font-size: 16px;
+        color: var(--ej-action-600);
+      }
+      .mp-desc {
+        font-size: 14px;
+        color: var(--ej-neutral-600);
+        margin-top: -4px;
+      }
+      .mp-sec .overline {
+        margin-bottom: 8px;
+      }
+      .mp-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .mp-chips li {
+        padding: 3px 10px;
+        border-radius: var(--ej-radius-full);
+        background: var(--ej-neutral-100);
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--ej-neutral-700);
+      }
+      .mp-chips li.none {
+        background: none;
+        padding: 0;
+        font-weight: 400;
+        font-style: italic;
+        color: var(--ej-neutral-400);
+      }
+      .mp-total {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 2px 10px;
+        padding-top: 14px;
+        border-top: 1px solid var(--ej-neutral-100);
+        font-size: 13px;
+        color: var(--ej-neutral-600);
+      }
+      .mp-total strong {
+        font-family: var(--ej-font-display);
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .mp-total .info-tip {
+        align-self: center;
+      }
+      .mp-total-sub {
+        flex-basis: 100%;
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+      }
+      .mp-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: auto;
+        padding-top: 4px;
+      }
+      .mp-card.is-retired {
+        background: var(--ej-neutral-50);
+        border-style: dashed;
+        box-shadow: none;
+      }
+      .mp-card.is-retired .mp-card-title,
+      .mp-card.is-retired .mp-total strong {
+        color: var(--ej-neutral-500);
+      }
+      .mp-card.is-retired .mp-meta .ms {
+        color: var(--ej-neutral-400);
+      }
+      .mp-card.is-retired .mp-chips li {
+        background: var(--ej-neutral-200);
+        color: var(--ej-neutral-600);
+      }
+
+      /* ---------- Tableau des prestations ---------- */
+      .mp-wrap {
+        overflow: visible;
+      }
+      .mp-table th,
+      .mp-table td {
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+      .mp-table th:first-child,
+      .mp-table td:first-child {
+        padding-left: 20px;
+      }
+      .mp-table th:last-child,
+      .mp-table td:last-child {
+        padding-right: 20px;
+      }
+      .mp-table thead th:first-child {
+        border-top-left-radius: var(--ej-radius-lg);
+      }
+      .mp-table thead th:last-child {
+        border-top-right-radius: var(--ej-radius-lg);
+      }
+      .mp-table tr.mp-fam th {
+        padding-top: 14px;
+        padding-bottom: 8px;
+        background: var(--ej-white);
+        border-bottom: 1px solid var(--ej-neutral-100);
+        color: var(--ej-action-600);
+        letter-spacing: 0.12em;
+      }
+      .mp-table tr.mp-fam .mp-fam-n {
+        margin-left: 6px;
+        font-weight: 500;
+        color: var(--ej-neutral-400);
+      }
+      .mp-table td {
+        vertical-align: middle;
+        font-size: 14px;
+      }
+      .mp-table th.r,
+      .mp-table td.c-prix {
+        text-align: right;
+      }
+      .mp-table th.w-act {
+        text-align: right;
+      }
+      .mp-lib {
+        font-weight: 500;
+        color: var(--ej-primary-900);
+      }
+      .mp-lib .badge {
+        margin-left: 8px;
+        vertical-align: 1px;
+      }
+      .mp-ej {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-top: 6px;
+      }
+      .mp-ej .badge {
+        margin-left: 0;
+      }
+      .c-prix {
+        font-family: var(--ej-font-display);
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        color: var(--ej-primary-900);
+      }
+      .mp-base {
+        color: var(--ej-neutral-700);
+      }
+      .mp-dans {
+        color: var(--ej-neutral-700);
+        white-space: nowrap;
+      }
+      .mp-sub {
+        display: block;
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+      }
+      .mp-btns {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 6px;
+      }
+      .mp-table tr.is-retired td {
+        background: var(--ej-neutral-50);
+      }
+      .mp-table tr.is-retired .mp-lib,
+      .mp-table tr.is-retired .c-prix,
+      .mp-table tr.is-retired .mp-base,
+      .mp-table tr.is-retired .mp-dans {
+        color: var(--ej-neutral-400);
+      }
+      .btn[disabled] {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      /* ---------- Changement visible après une action ---------- */
+      @keyframes mp-flash {
+        from {
+          background-color: var(--ej-action-100);
+        }
+        to {
+          background-color: var(--ej-white);
+        }
+      }
+      .mp-card.mp-flash,
+      tr.mp-flash td {
+        animation: mp-flash 2s ease-out;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .mp-card.mp-flash,
+        tr.mp-flash td {
+          animation: none;
+          background-color: var(--ej-action-100);
+        }
+      }
+
+      /* ---------- Message de confirmation ---------- */
+      .lm-toast {
+        position: fixed;
+        left: 50%;
+        bottom: 28px;
+        z-index: 120;
+        transform: translate(-50%, 16px);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: calc(100vw - 32px);
+        padding: 12px 18px;
+        border-radius: var(--ej-radius-lg);
+        background: var(--ej-primary-900);
+        color: var(--ej-white);
+        font-size: 14px;
+        box-shadow: var(--ej-shadow-lg);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--ej-transition-normal), transform var(--ej-transition-normal);
+      }
+      .lm-toast.show {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+      .lm-toast .ms {
+        color: var(--ej-logo-mint);
+      }
+
+      /* ---------- Fenêtres ---------- */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: color-mix(in srgb, var(--ej-primary-900) 32%, transparent);
+        backdrop-filter: blur(2px);
+      }
+      .modal-overlay[hidden] {
+        display: none;
+      }
+      .modal {
+        width: 100%;
+        max-width: 640px;
+        max-height: calc(100vh - 48px);
+        display: flex;
+        flex-direction: column;
+        background: var(--ej-white);
+        border-radius: var(--ej-radius-xl);
+        box-shadow: var(--ej-shadow-xl);
+      }
+      .modal.modal-sm {
+        max-width: 520px;
+      }
+      .modal-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 24px 16px;
+        border-bottom: 1px solid var(--ej-hairline);
+      }
+      .modal-head h2 {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .modal-body {
+        padding: 20px 24px;
+        overflow-y: auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px 20px;
+      }
+      .modal-body .full {
+        grid-column: 1 / -1;
+      }
+      .modal-foot {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 14px 24px 18px;
+        border-top: 1px solid var(--ej-hairline);
+      }
+      .nm-err {
+        font-size: 12.5px;
+        color: var(--ej-error-600);
+      }
+      .nm-err:empty {
+        display: none;
+      }
+      .form-input[aria-invalid="true"] {
+        border-color: var(--ej-error-600);
+      }
+      .mp-set {
+        border: 0;
+        margin: 0;
+        padding: 0;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .mp-set legend {
+        padding: 0;
+        margin-bottom: 4px;
+      }
+      .mp-fam-box .overline {
+        margin-bottom: 8px;
+      }
+      .mp-checks {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px 16px;
+      }
+      .mp-checks .check span span {
+        display: block;
+        font-size: 12.5px;
+        color: var(--ej-neutral-500);
+      }
+      textarea.form-input {
+        min-height: 72px;
+      }
+
+      /* ---------- Petits écrans ---------- */
+      @media (max-width: 980px) {
+        .mp-table,
+        .mp-table tbody,
+        .mp-table tr,
+        .mp-table td,
+        .mp-table th {
+          display: block;
+          width: 100%;
+        }
+        .mp-table thead {
+          display: none;
+        }
+        .mp-wrap {
+          overflow: hidden;
+        }
+        .mp-table tr.mp-fam th {
+          padding: 14px 16px 8px;
+          background: var(--ej-neutral-50);
+          border-bottom: 1px solid var(--ej-hairline);
+        }
+        .mp-table tr.mp-row {
+          padding: 14px 16px;
+          border-bottom: 1px solid var(--ej-neutral-100);
+        }
+        .mp-table tbody tr.mp-row:last-child {
+          border-bottom: none;
+        }
+        .mp-table td,
+        .mp-table td:first-child,
+        .mp-table td:last-child {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 5px 0;
+          border: none;
+          text-align: right;
+          background: none !important;
+        }
+        .mp-table td::before {
+          content: attr(data-label);
+          flex-shrink: 0;
+          padding-top: 2px;
+          font-family: var(--ej-font-display);
+          font-size: 10.5px;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: var(--ej-neutral-500);
+          text-align: left;
+        }
+        .mp-table td.c-lib {
+          display: block;
+          text-align: left;
+          padding-bottom: 8px;
+        }
+        .mp-table td.c-lib::before,
+        .mp-table td.c-act::before {
+          display: none;
+        }
+        .mp-table td.c-act {
+          justify-content: flex-start;
+          padding-top: 10px;
+        }
+        .mp-btns {
+          justify-content: flex-start;
+        }
+        .mp-table td.mp-dans {
+          flex-wrap: wrap;
+        }
+        .mp-sub {
+          flex-basis: 100%;
+          text-align: right;
+        }
+      }
+      @media (max-width: 600px) {
+        .mp-grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .mp-bar .btn-primary {
+          width: 100%;
+        }
+        .modal-overlay {
+          padding: 12px;
+          align-items: flex-end;
+        }
+        .modal-body,
+        .mp-checks {
+          grid-template-columns: 1fr;
+        }
+        .modal-foot .btn {
+          flex: 1 1 auto;
+        }
+        .lm-toast {
+          bottom: 16px;
+        }
+      }
+      /* Le tableau tient dans sa carte : actions repliables, colonne Utilisation non figée (info-bulles non rognées) */
+      .mp-table {
+        table-layout: auto;
+      }
+      .mp-table .mp-dans {
+        white-space: normal;
+      }
+    </style>
+  </head>
+  <body class="m-resp" data-active="lettres">
+    <div id="ej-header"></div>
+    <div class="app">
+      <div id="ej-sidebar"></div>
+      <div class="main">
+        <div class="page page-wide">
+          <a class="back-link" href="lettres-mission.html"><span class="ms">arrow_back</span>Retour aux lettres de mission</a>
+          <div class="page-head m-wrap">
+            <div>
+              <div class="m-eyebrow">Missions &amp; conformité</div>
+              <h1 class="page-title">Modèles et prestations</h1>
+              <p class="page-desc">Les modèles pré-remplissent les lettres de mission. La bibliothèque fixe les prestations et les honoraires du cabinet.</p>
+            </div>
+          </div>
+
+          <div class="tabs mp-tabs" role="tablist" aria-label="Modèles et prestations">
+            <button class="tab active" type="button" role="tab" id="tab-modeles" aria-controls="pan-modeles" aria-selected="true" data-onglet="modeles">Modèles <span class="mp-n" id="n-modeles"></span></button>
+            <button class="tab" type="button" role="tab" id="tab-prestations" aria-controls="pan-prestations" aria-selected="false" tabindex="-1" data-onglet="prestations">Prestations <span class="mp-n" id="n-prestations"></span></button>
+          </div>
+
+          <section id="pan-modeles" role="tabpanel" aria-labelledby="tab-modeles">
+            <div class="mp-bar">
+              <span class="mp-count" id="mp-count-modeles"></span>
+              <button class="btn btn-primary" type="button" id="btn-nouveau-modele" data-act="nouveau-modele"><span class="ms">plus</span>Nouveau modèle</button>
+            </div>
+            <div class="mp-grid" id="mp-grid"></div>
+          </section>
+
+          <section id="pan-prestations" role="tabpanel" aria-labelledby="tab-prestations" hidden>
+            <div class="mp-bar">
+              <span class="mp-count" id="mp-count-prestations"></span>
+              <button class="btn btn-primary" type="button" id="btn-ajouter-prestation" data-act="ajouter-prestation"><span class="ms">plus</span>Ajouter une prestation</button>
+            </div>
+            <div class="data-table-wrap mp-wrap">
+              <table class="data-table mp-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Prestation</th>
+                    <th scope="col">Base</th>
+                    <th scope="col" class="r">Prix HT</th>
+                    <th scope="col">Utilisation</th>
+                    <th scope="col" class="w-act"><span class="sr-only">Actions</span></th>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+          </section>
+        </div>
+        <div id="ej-footer"></div>
+      </div>
+    </div>
+
+    <div class="lm-toast" id="lm-toast" role="status" aria-live="polite"><span class="ms">check_circle</span><span id="lm-toast-txt"></span></div>
+
+    <!-- Fenêtre : modèle -->
+    <div class="modal-overlay" id="md-modele" role="dialog" aria-modal="true" aria-labelledby="md-modele-titre" hidden>
+      <form class="modal" id="fm-modele" novalidate>
+        <div class="modal-head">
+          <h2 id="md-modele-titre">Nouveau modèle</h2>
+          <button class="icon-btn" type="button" data-close aria-label="Fermer"><span class="ms">close</span></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group full">
+            <label class="form-label" for="mo-lib">Libellé du modèle</label>
+            <input class="form-input" id="mo-lib" type="text" autocomplete="off" aria-describedby="mo-e-lib" />
+            <div class="nm-err" id="mo-e-lib"></div>
+          </div>
+          <div class="form-group full">
+            <label class="form-label" for="mo-desc">Description</label>
+            <textarea class="form-input" id="mo-desc" rows="2" aria-describedby="mo-e-desc"></textarea>
+            <div class="nm-err" id="mo-e-desc"></div>
+          </div>
+          <fieldset class="mp-set full" aria-describedby="mo-e-prest">
+            <legend class="form-label">Prestations incluses</legend>
+            <div id="mo-prest"></div>
+            <div class="nm-err" id="mo-e-prest"></div>
+          </fieldset>
+        </div>
+        <div class="modal-foot">
+          <button class="btn btn-tertiary" type="button" data-close>Annuler</button>
+          <button class="btn btn-primary" type="submit" id="mo-ok">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Fenêtre : prestation -->
+    <div class="modal-overlay" id="md-prest" role="dialog" aria-modal="true" aria-labelledby="md-prest-titre" hidden>
+      <form class="modal modal-sm" id="fm-prest" novalidate>
+        <div class="modal-head">
+          <h2 id="md-prest-titre">Ajouter une prestation</h2>
+          <button class="icon-btn" type="button" data-close aria-label="Fermer"><span class="ms">close</span></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group full">
+            <label class="form-label" for="pr-lib">Libellé</label>
+            <input class="form-input" id="pr-lib" type="text" autocomplete="off" aria-describedby="pr-e-lib" />
+            <div class="nm-err" id="pr-e-lib"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="pr-fam">Famille</label>
+            <select class="form-input" id="pr-fam"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="pr-base">Base</label>
+            <select class="form-input" id="pr-base"></select>
+          </div>
+          <div class="form-group full">
+            <label class="form-label" for="pr-prix">Prix HT en euros</label>
+            <input class="form-input" id="pr-prix" type="number" min="0" step="0.5" inputmode="decimal" aria-describedby="pr-e-prix" />
+            <div class="nm-err" id="pr-e-prix"></div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn btn-tertiary" type="button" data-close>Annuler</button>
+          <button class="btn btn-primary" type="submit" id="pr-ok">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+
+    <script src="assets/ej-missions-data.js?v=29"></script>
+    <script>
+      (function () {
+        var E = window.EJM;
+        var KEY = "ej-catalogue";
+        var FAMILLES = ["Comptable", "Fiscal", "Social", "Juridique", "Conseil"];
+        var BASES = ["Forfait annuel", "Par bulletin", "Par opération", "Au temps passé"];
+        var NOTE_EJ = "Prestation réalisée dans Express Juridique : juridique annuel, registres légaux, modifications statutaires.";
+        /* Prestations pré-cochées par modèle, identiques à celles de lettre-mission.html */
+        var MODELE_PREST = {
+          pme: ["presentation", "liasse", "juridique"],
+          sci: ["sci", "d2072", "juridique"],
+          liberal: ["presentation", "bnc"],
+          social: ["paie"],
+        };
+
+        function $(id) { return document.getElementById(id); }
+        function esc(s) {
+          return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+        function norm(s) {
+          return String(s).trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+        }
+
+        /* ---------- Catalogue de session ---------- */
+        var cat = { prestations: {}, nouvellesPrestations: [], modeles: {}, nouveauxModeles: [] };
+        function isObj(o) { return o && typeof o === "object" && !Array.isArray(o); }
+        function charger() {
+          try {
+            var raw = sessionStorage.getItem(KEY);
+            if (!raw) return;
+            var o = JSON.parse(raw);
+            if (!isObj(o)) return;
+            if (isObj(o.prestations)) cat.prestations = o.prestations;
+            if (Array.isArray(o.nouvellesPrestations)) cat.nouvellesPrestations = o.nouvellesPrestations;
+            if (isObj(o.modeles)) cat.modeles = o.modeles;
+            if (Array.isArray(o.nouveauxModeles)) cat.nouveauxModeles = o.nouveauxModeles;
+          } catch (e) {}
+        }
+        function sauver() {
+          try {
+            sessionStorage.setItem(KEY, JSON.stringify(cat));
+            return true;
+          } catch (e) {
+            return false;
+          }
+        }
+        charger();
+
+        /* ---------- Données effectives ---------- */
+        function prestationsEff() {
+          var base = E.prestations.map(function (p) {
+            return { id: p.id, famille: p.famille, libelle: p.libelle, base: p.base, prix: p.prix, ej: !!p.ej, neuve: false };
+          });
+          cat.nouvellesPrestations.forEach(function (n) {
+            if (n && n.id) base.push({ id: n.id, famille: n.famille, libelle: n.libelle, base: n.base, prix: Number(n.prix) || 0, ej: false, neuve: true });
+          });
+          return base.map(function (p) {
+            var o = cat.prestations[p.id];
+            p.retire = false;
+            if (isObj(o)) {
+              if (typeof o.libelle === "string" && o.libelle) p.libelle = o.libelle;
+              if (FAMILLES.indexOf(o.famille) !== -1) p.famille = o.famille;
+              if (BASES.indexOf(o.base) !== -1) p.base = o.base;
+              if (typeof o.prix === "number" && isFinite(o.prix) && o.prix >= 0) p.prix = o.prix;
+              p.retire = !!o.retire;
+            }
+            return p;
+          });
+        }
+        function modelesEff() {
+          var base = E.modeles.map(function (m) {
+            return { id: m.id, libelle: m.libelle, desc: m.desc, usage: m.usage, prestations: (MODELE_PREST[m.id] || []).slice(), neuf: false };
+          });
+          cat.nouveauxModeles.forEach(function (n) {
+            if (n && n.id) base.push({ id: n.id, libelle: n.libelle, desc: n.desc || "", usage: n.usage | 0, prestations: Array.isArray(n.prestations) ? n.prestations.slice() : [], neuf: true });
+          });
+          return base.map(function (m) {
+            var o = cat.modeles[m.id];
+            m.retire = false;
+            if (isObj(o)) {
+              if (typeof o.libelle === "string" && o.libelle) m.libelle = o.libelle;
+              if (typeof o.desc === "string") m.desc = o.desc;
+              if (Array.isArray(o.prestations)) m.prestations = o.prestations.slice();
+              m.retire = !!o.retire;
+            }
+            return m;
+          });
+        }
+        function parId(liste) {
+          var r = {};
+          liste.forEach(function (x) { r[x.id] = x; });
+          return r;
+        }
+
+        /* Nombre de lettres existantes qui portent chaque prestation (libellés d'origine de la bibliothèque) */
+        var lettresParPrestation = {};
+        E.prestations.forEach(function (p) { lettresParPrestation[p.id] = 0; });
+        E.societes.forEach(function (s) {
+          var vu = {};
+          ((s.lm && s.lm.missions) || []).forEach(function (m) {
+            E.prestations.forEach(function (p) {
+              if (vu[p.id]) return;
+              if (p.id === "paie" ? /^Paie\b/.test(m) : m === p.libelle) {
+                vu[p.id] = true;
+                lettresParPrestation[p.id]++;
+              }
+            });
+          });
+        });
+
+        /* ---------- Écritures (chaque action est enregistrée en session) ---------- */
+        function ecrirePrestation(p) {
+          cat.prestations[p.id] = { libelle: p.libelle, famille: p.famille, base: p.base, prix: p.prix, retire: !!p.retire };
+          if (p.neuve) {
+            cat.nouvellesPrestations.forEach(function (n) {
+              if (n.id === p.id) { n.libelle = p.libelle; n.famille = p.famille; n.base = p.base; n.prix = p.prix; }
+            });
+          }
+          sauver();
+        }
+        function ecrireModele(m) {
+          cat.modeles[m.id] = { libelle: m.libelle, desc: m.desc, prestations: m.prestations.slice(), retire: !!m.retire };
+          if (m.neuf) {
+            cat.nouveauxModeles.forEach(function (n) {
+              if (n.id === m.id) { n.libelle = m.libelle; n.desc = m.desc; n.prestations = m.prestations.slice(); }
+            });
+          }
+          sauver();
+        }
+        function idUnique(prefixe, existants) {
+          var t = Date.now();
+          var id = prefixe + t;
+          while (existants[id]) { t++; id = prefixe + t; }
+          return id;
+        }
+
+        /* ---------- Message de confirmation ---------- */
+        var toastTimer;
+        function toast(msg) {
+          var t = $("lm-toast");
+          $("lm-toast-txt").textContent = msg;
+          t.classList.add("show");
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(function () { t.classList.remove("show"); }, 3600);
+        }
+        function infoTip(id, texte) {
+          return (
+            '<span class="info-tip">' +
+            '<button type="button" class="info-tip-btn" aria-describedby="' + id + '" aria-label="Information"><span class="ms">info</span></button>' +
+            '<span class="info-tip-pop" role="tooltip" id="' + id + '">' + texte + "</span></span>"
+          );
+        }
+        function pluriel(n, un, plus) { return n + " " + (n > 1 ? plus : un); }
+        function lettresTxt(n) {
+          return n === 0 ? "Aucune lettre" : n === 1 ? "1 lettre" : n + " lettres";
+        }
+
+        /* ---------- Onglet Modèles ---------- */
+        function renderModeles() {
+          var ms = modelesEff();
+          var ps = parId(prestationsEff());
+          var actifs = ms.filter(function (m) { return !m.retire; });
+          var retires = ms.filter(function (m) { return m.retire; });
+          $("n-modeles").textContent = actifs.length;
+          $("mp-count-modeles").textContent =
+            pluriel(actifs.length, "modèle proposé", "modèles proposés") +
+            (retires.length ? " · " + pluriel(retires.length, "retiré des choix", "retirés des choix") : "");
+          $("mp-grid").innerHTML = actifs.concat(retires).map(function (m) {
+            var incl = m.prestations.map(function (id) { return ps[id]; }).filter(Boolean);
+            var forfaits = incl.filter(function (p) { return p.base === "Forfait annuel"; });
+            var autres = incl.filter(function (p) { return p.base !== "Forfait annuel"; });
+            var total = forfaits.reduce(function (t, p) { return t + p.prix; }, 0);
+            var sub = forfaits.length
+              ? autres.length ? "Hors prestations facturées à la quantité : " + autres.map(function (p) { return esc(p.libelle); }).join(", ") + "." : "Forfaits annuels de la bibliothèque."
+              : "Aucun forfait annuel dans ce modèle.";
+            var btnRetrait = m.retire
+              ? '<button class="btn btn-secondary btn-sm" type="button" data-act="remettre-modele" data-id="' + esc(m.id) + '" aria-label="Remettre dans les choix : ' + esc(m.libelle) + '"><span class="ms">archive_restore</span>Remettre dans les choix</button>'
+              : '<button class="btn btn-tertiary btn-sm" type="button" data-act="retirer-modele" data-id="' + esc(m.id) + '" aria-label="Retirer des choix : ' + esc(m.libelle) + '"><span class="ms">archive</span>Retirer des choix</button>';
+            return (
+              '<article class="card mp-card' + (m.retire ? " is-retired" : "") + '" data-id="' + esc(m.id) + '" aria-labelledby="mc-' + esc(m.id) + '">' +
+              '<div class="mp-card-top"><h3 class="mp-card-title" id="mc-' + esc(m.id) + '">' + esc(m.libelle) + "</h3>" +
+              (m.retire ? '<span class="badge badge-neutral">Retiré des choix</span>' : "") + "</div>" +
+              '<div><span class="mp-meta"><span class="ms">file_pen_line</span>' + lettresTxt(m.usage) + "</span></div>" +
+              (m.desc ? '<p class="mp-desc">' + esc(m.desc) + "</p>" : "") +
+              '<div class="mp-sec"><div class="overline">Prestations incluses</div>' +
+              '<ul class="mp-chips">' +
+              (incl.length ? incl.map(function (p) { return "<li>" + esc(p.libelle) + "</li>"; }).join("") : '<li class="none">Aucune prestation</li>') +
+              "</ul></div>" +
+              '<div class="mp-total"><span>Total annuel HT indicatif</span><strong>' + (forfaits.length ? E.euros(total) : "·") + "</strong>" +
+              infoTip("note-total-" + m.id, "Somme des prix HT des prestations au forfait annuel incluses, aux prix de la bibliothèque. Le montant d'une lettre peut s'en écarter.") +
+              '<span class="mp-total-sub">' + sub + "</span></div>" +
+              '<div class="mp-actions">' +
+              '<button class="btn btn-secondary btn-sm" type="button" data-act="modifier-modele" data-id="' + esc(m.id) + '" aria-label="Modifier le modèle : ' + esc(m.libelle) + '"><span class="ms">edit</span>Modifier</button>' +
+              '<button class="btn btn-tertiary btn-sm" type="button" data-act="dupliquer-modele" data-id="' + esc(m.id) + '" aria-label="Dupliquer le modèle : ' + esc(m.libelle) + '"><span class="ms">copy</span>Dupliquer</button>' +
+              btnRetrait +
+              "</div></article>"
+            );
+          }).join("");
+        }
+
+        /* ---------- Onglet Prestations ---------- */
+        function renderPrestations() {
+          var ps = prestationsEff();
+          var ms = modelesEff();
+          var actives = ps.filter(function (p) { return !p.retire; });
+          var retirees = ps.length - actives.length;
+          $("n-prestations").textContent = actives.length;
+          $("mp-count-prestations").textContent =
+            pluriel(actives.length, "prestation dans la bibliothèque", "prestations dans la bibliothèque") +
+            (retirees ? " · " + pluriel(retirees, "retirée", "retirées") : "");
+          var h = "";
+          FAMILLES.forEach(function (f) {
+            var liste = ps.filter(function (p) { return p.famille === f; });
+            if (!liste.length) return;
+            h += '<tbody><tr class="mp-fam"><th scope="colgroup" colspan="5">' + esc(f) + '<span class="mp-fam-n">' + liste.length + "</span></th></tr>";
+            liste.forEach(function (p) {
+              var dansModeles = ms.filter(function (m) { return m.prestations.indexOf(p.id) !== -1; });
+              var nbLettres = lettresParPrestation[p.id] || 0;
+              var bloque = "";
+              if (dansModeles.length) bloque = "Incluse dans un modèle";
+              else if (nbLettres) bloque = "Présente dans " + pluriel(nbLettres, "lettre", "lettres");
+              var btnRetrait;
+              if (p.retire) {
+                btnRetrait = '<button class="btn btn-secondary btn-sm" type="button" data-act="remettre-prestation" data-id="' + esc(p.id) + '" aria-label="Remettre dans la bibliothèque : ' + esc(p.libelle) + '"><span class="ms">archive_restore</span>Remettre</button>';
+              } else if (bloque) {
+                btnRetrait = '<button class="btn btn-tertiary btn-sm" type="button" disabled title="' + esc(bloque) + '" data-act="retirer-prestation" data-id="' + esc(p.id) + '" aria-label="Retirer de la bibliothèque : ' + esc(p.libelle) + '"><span class="ms">archive</span>Retirer</button>';
+              } else {
+                btnRetrait = '<button class="btn btn-tertiary btn-sm" type="button" data-act="retirer-prestation" data-id="' + esc(p.id) + '" aria-label="Retirer de la bibliothèque : ' + esc(p.libelle) + '"><span class="ms">archive</span>Retirer</button>';
+              }
+              h +=
+                '<tr class="mp-row' + (p.retire ? " is-retired" : "") + '" data-id="' + esc(p.id) + '">' +
+                '<td class="c-lib" data-label="Prestation"><div class="mp-lib">' + esc(p.libelle) + (p.retire ? '<span class="badge badge-neutral">Retirée</span>' : "") + "</div>" +
+                (p.ej
+                  ? '<div class="mp-ej"><span class="badge badge-neutral">Produite dans Express Juridique</span>' + infoTip("note-ej-" + p.id, NOTE_EJ) + "</div>"
+                  : "") +
+                "</td>" +
+                '<td class="mp-base" data-label="Base">' + esc(p.base) + "</td>" +
+                '<td class="c-prix" data-label="Prix HT">' + E.euros(p.prix) + "</td>" +
+                '<td class="mp-dans" data-label="Utilisation"' + (dansModeles.length ? ' title="' + esc(dansModeles.map(function (m) { return m.libelle; }).join(", ")) + '"' : "") + ">" +
+                (dansModeles.length ? "Dans " + pluriel(dansModeles.length, "modèle", "modèles") : '<span class="muted">Dans aucun modèle</span>') +
+                (nbLettres ? '<span class="mp-sub">Présente dans ' + pluriel(nbLettres, "lettre", "lettres") + "</span>" : "") + "</td>" +
+                '<td class="c-act" data-label="Actions"><div class="mp-btns">' +
+                '<button class="btn btn-secondary btn-sm" type="button" data-act="modifier-prestation" data-id="' + esc(p.id) + '" aria-label="Modifier : ' + esc(p.libelle) + '"><span class="ms">edit</span>Modifier</button>' +
+                btnRetrait +
+                "</div></td></tr>";
+            });
+            h += "</tbody>";
+          });
+          /* Remplace tous les <tbody> générés précédemment */
+          var tbl = document.querySelector(".mp-table");
+          Array.prototype.forEach.call(tbl.querySelectorAll("tbody.mp-gen"), function (t) { t.parentNode.removeChild(t); });
+          var tmp = document.createElement("table");
+          tmp.innerHTML = h;
+          Array.prototype.slice.call(tmp.querySelectorAll("tbody")).forEach(function (t) {
+            t.className = "mp-gen";
+            tbl.appendChild(t);
+          });
+        }
+
+        function renderTout() {
+          renderModeles();
+          renderPrestations();
+        }
+
+        /* ---------- Onglets ---------- */
+        var ONGLETS = ["modeles", "prestations"];
+        function ongletUrl() {
+          var o = null;
+          try { o = new URLSearchParams(location.search).get("onglet"); } catch (e) {}
+          return ONGLETS.indexOf(o) !== -1 ? o : "modeles";
+        }
+        function setOnglet(id, majUrl, focus) {
+          ONGLETS.forEach(function (o) {
+            var actif = o === id;
+            var b = $("tab-" + o);
+            b.classList.toggle("active", actif);
+            b.setAttribute("aria-selected", actif ? "true" : "false");
+            b.tabIndex = actif ? 0 : -1;
+            $("pan-" + o).hidden = !actif;
+          });
+          if (majUrl) {
+            try { history.replaceState(null, "", "?onglet=" + id); } catch (e) {}
+          }
+          if (focus) $("tab-" + id).focus();
+        }
+        document.querySelector(".mp-tabs").addEventListener("click", function (e) {
+          var b = e.target.closest("[data-onglet]");
+          if (b) setOnglet(b.getAttribute("data-onglet"), true, false);
+        });
+        document.querySelector(".mp-tabs").addEventListener("keydown", function (e) {
+          var i = ONGLETS.indexOf(ongletUrlCourant());
+          var n = null;
+          if (e.key === "ArrowRight") n = ONGLETS[(i + 1) % ONGLETS.length];
+          else if (e.key === "ArrowLeft") n = ONGLETS[(i + ONGLETS.length - 1) % ONGLETS.length];
+          else if (e.key === "Home") n = ONGLETS[0];
+          else if (e.key === "End") n = ONGLETS[ONGLETS.length - 1];
+          if (n) {
+            e.preventDefault();
+            setOnglet(n, true, true);
+          }
+        });
+        function ongletUrlCourant() {
+          return $("tab-prestations").classList.contains("active") ? "prestations" : "modeles";
+        }
+
+        /* ---------- Fenêtres ---------- */
+        var ouverte = null;
+        var ouvreurSel = "";
+        var ouvreurFallback = null;
+        function selDe(el) {
+          if (!el) return "";
+          var a = el.getAttribute("data-act");
+          var id = el.getAttribute("data-id");
+          if (a) return '[data-act="' + a + '"]' + (id ? '[data-id="' + id + '"]' : "");
+          return el.id ? "#" + el.id : "";
+        }
+        function focusables(root) {
+          return Array.prototype.filter.call(
+            root.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])'),
+            function (el) { return el.offsetParent !== null; }
+          );
+        }
+        function ouvrir(overlay, premier, opener, fallback) {
+          ouverte = overlay;
+          ouvreurSel = selDe(opener);
+          ouvreurFallback = fallback || opener;
+          overlay.hidden = false;
+          document.body.style.overflow = "hidden";
+          premier.focus();
+        }
+        function fermer() {
+          if (!ouverte) return;
+          ouverte.hidden = true;
+          ouverte = null;
+          document.body.style.overflow = "";
+          var cible = ouvreurSel ? document.querySelector(ouvreurSel) : null;
+          if (!cible) cible = ouvreurFallback && document.body.contains(ouvreurFallback) ? ouvreurFallback : $("tab-" + ongletUrlCourant());
+          if (cible) cible.focus();
+        }
+        [$("md-modele"), $("md-prest")].forEach(function (ov) {
+          var debut = null;
+          ov.addEventListener("mousedown", function (e) { debut = e.target; });
+          ov.addEventListener("click", function (e) {
+            if (e.target === ov && debut === ov) fermer();
+          });
+          ov.addEventListener("click", function (e) {
+            if (e.target.closest("[data-close]")) fermer();
+          });
+        });
+        document.addEventListener("keydown", function (e) {
+          if (!ouverte) return;
+          if (e.key === "Escape") {
+            e.preventDefault();
+            fermer();
+            return;
+          }
+          if (e.key === "Tab") {
+            var f = focusables(ouverte);
+            if (!f.length) return;
+            var premier = f[0];
+            var dernier = f[f.length - 1];
+            if (e.shiftKey && document.activeElement === premier) {
+              e.preventDefault();
+              dernier.focus();
+            } else if (!e.shiftKey && document.activeElement === dernier) {
+              e.preventDefault();
+              premier.focus();
+            }
+          }
+        });
+        function erreur(champ, err, msg) {
+          if (msg) {
+            err.textContent = msg;
+            if (champ) champ.setAttribute("aria-invalid", "true");
+          } else {
+            err.textContent = "";
+            if (champ) champ.removeAttribute("aria-invalid");
+          }
+          return !msg;
+        }
+
+        /* ---------- Fenêtre : modèle ---------- */
+        var editionModele = null; /* null = création, sinon id */
+        function listeCases(cochees) {
+          var ps = prestationsEff().filter(function (p) { return !p.retire || cochees.indexOf(p.id) !== -1; });
+          var h = "";
+          FAMILLES.forEach(function (f) {
+            var l = ps.filter(function (p) { return p.famille === f; });
+            if (!l.length) return;
+            h += '<div class="mp-fam-box"><div class="overline">' + esc(f) + '</div><div class="mp-checks">';
+            l.forEach(function (p) {
+              h +=
+                '<label class="check"><input type="checkbox" name="mo-p" value="' + esc(p.id) + '"' + (cochees.indexOf(p.id) !== -1 ? " checked" : "") + " />" +
+                "<span>" + esc(p.libelle) + "<span>" + E.euros(p.prix) + " · " + esc(p.base) + "</span></span></label>";
+            });
+            h += "</div></div>";
+          });
+          return h;
+        }
+        function ouvrirModele(id, opener) {
+          editionModele = id;
+          var m = id ? modelesEff().filter(function (x) { return x.id === id; })[0] : null;
+          $("md-modele-titre").textContent = m ? "Modifier le modèle" : "Nouveau modèle";
+          $("mo-ok").textContent = m ? "Enregistrer" : "Créer le modèle";
+          $("mo-lib").value = m ? m.libelle : "";
+          $("mo-desc").value = m ? m.desc : "";
+          $("mo-prest").innerHTML = listeCases(m ? m.prestations : []);
+          erreur($("mo-lib"), $("mo-e-lib"), "");
+          erreur(null, $("mo-e-prest"), "");
+          ouvrir($("md-modele"), $("mo-lib"), opener);
+        }
+        $("fm-modele").addEventListener("submit", function (e) {
+          e.preventDefault();
+          var lib = $("mo-lib").value.trim().replace(/\s+/g, " ");
+          var desc = $("mo-desc").value.trim();
+          var ids = Array.prototype.map.call($("fm-modele").querySelectorAll('input[name="mo-p"]:checked'), function (i) { return i.value; });
+          var ok1 = erreur($("mo-lib"), $("mo-e-lib"), lib ? "" : "Indiquez le libellé du modèle.");
+          var ok2 = erreur(null, $("mo-e-prest"), ids.length ? "" : "Cochez au moins une prestation.");
+          if (!ok1) { $("mo-lib").focus(); return; }
+          if (!ok2) { $("fm-modele").querySelector('input[name="mo-p"]').focus(); return; }
+          var cibleId;
+          if (editionModele) {
+            var m = modelesEff().filter(function (x) { return x.id === editionModele; })[0];
+            m.libelle = lib;
+            m.desc = desc;
+            m.prestations = ids;
+            ecrireModele(m);
+            cibleId = m.id;
+            toast("Modèle « " + lib + " » enregistré. Il pré-remplit les nouvelles lettres de mission.");
+          } else {
+            var id = idUnique("m-", parId(modelesEff()));
+            cat.nouveauxModeles.push({ id: id, libelle: lib, desc: desc, usage: 0, prestations: ids });
+            cat.modeles[id] = { libelle: lib, desc: desc, prestations: ids.slice(), retire: false };
+            sauver();
+            cibleId = id;
+            toast("Modèle « " + lib + " » créé. Il est proposé dans les lettres de mission.");
+          }
+          fermerSansFocus();
+          renderTout();
+          flash("mp-grid", cibleId);
+          refocus('[data-act="modifier-modele"][data-id="' + cibleId + '"]');
+        });
+        /* Ferme la fenêtre en laissant le soin de replacer le focus après le nouveau rendu */
+        function fermerSansFocus() {
+          if (!ouverte) return;
+          ouverte.hidden = true;
+          ouverte = null;
+          document.body.style.overflow = "";
+        }
+        function refocus(sel) {
+          var el = document.querySelector(sel);
+          if (el) el.focus();
+        }
+        function flash(conteneur, id) {
+          var cible = null;
+          Array.prototype.forEach.call($(conteneur).querySelectorAll("[data-id]"), function (el) {
+            if (el.getAttribute("data-id") === id && (el.tagName === "ARTICLE" || el.tagName === "TR")) cible = el;
+          });
+          if (!cible) return;
+          cible.classList.add("mp-flash");
+          cible.scrollIntoView({ block: "nearest" });
+          setTimeout(function () { cible.classList.remove("mp-flash"); }, 2100);
+        }
+
+        /* ---------- Fenêtre : prestation ---------- */
+        var editionPrest = null;
+        $("pr-fam").innerHTML = FAMILLES.map(function (f) { return '<option value="' + esc(f) + '">' + esc(f) + "</option>"; }).join("");
+        $("pr-base").innerHTML = BASES.map(function (b) { return '<option value="' + esc(b) + '">' + esc(b) + "</option>"; }).join("");
+        function ouvrirPrestation(id, opener) {
+          editionPrest = id;
+          var p = id ? prestationsEff().filter(function (x) { return x.id === id; })[0] : null;
+          $("md-prest-titre").textContent = p ? "Modifier la prestation" : "Ajouter une prestation";
+          $("pr-ok").textContent = p ? "Enregistrer" : "Ajouter à la bibliothèque";
+          $("pr-lib").value = p ? p.libelle : "";
+          $("pr-fam").value = p ? p.famille : FAMILLES[0];
+          $("pr-base").value = p ? p.base : BASES[0];
+          $("pr-prix").value = p ? p.prix : "";
+          erreur($("pr-lib"), $("pr-e-lib"), "");
+          erreur($("pr-prix"), $("pr-e-prix"), "");
+          ouvrir($("md-prest"), $("pr-lib"), opener);
+        }
+        $("fm-prest").addEventListener("submit", function (e) {
+          e.preventDefault();
+          var lib = $("pr-lib").value.trim().replace(/\s+/g, " ");
+          var fam = $("pr-fam").value;
+          var base = $("pr-base").value;
+          var brut = $("pr-prix").value;
+          var prix = brut === "" ? NaN : Math.round(Number(brut) * 100) / 100;
+          var ps = prestationsEff();
+          var doublon = ps.some(function (p) { return p.id !== editionPrest && norm(p.libelle) === norm(lib); });
+          var msgLib = !lib ? "Indiquez le libellé de la prestation." : doublon ? "Une prestation porte déjà ce libellé." : "";
+          var msgPrix = isNaN(prix) ? "Indiquez un prix HT." : prix < 0 ? "Le prix ne peut pas être négatif." : "";
+          var ok1 = erreur($("pr-lib"), $("pr-e-lib"), msgLib);
+          var ok2 = erreur($("pr-prix"), $("pr-e-prix"), msgPrix);
+          if (!ok1) { $("pr-lib").focus(); return; }
+          if (!ok2) { $("pr-prix").focus(); return; }
+          var cibleId;
+          if (editionPrest) {
+            var p = ps.filter(function (x) { return x.id === editionPrest; })[0];
+            var prixAvant = p.prix;
+            p.libelle = lib;
+            p.famille = fam;
+            p.base = base;
+            p.prix = prix;
+            ecrirePrestation(p);
+            cibleId = p.id;
+            toast(prixAvant !== prix
+              ? "Prix de « " + lib + " » mis à jour : " + E.euros(prix) + " HT. Les nouvelles lettres de mission l'utilisent."
+              : "Prestation « " + lib + " » enregistrée. Elle s'applique aux nouvelles lettres de mission.");
+          } else {
+            var id = idUnique("p-", parId(ps));
+            cat.nouvellesPrestations.push({ id: id, famille: fam, libelle: lib, base: base, prix: prix });
+            cat.prestations[id] = { libelle: lib, famille: fam, base: base, prix: prix, retire: false };
+            sauver();
+            cibleId = id;
+            toast("Prestation « " + lib + " » ajoutée à la bibliothèque.");
+          }
+          fermerSansFocus();
+          renderTout();
+          flash("pan-prestations", cibleId);
+          refocus('[data-act="modifier-prestation"][data-id="' + cibleId + '"]');
+        });
+
+        /* ---------- Actions de la page ---------- */
+        $("pan-modeles").addEventListener("click", function (e) {
+          var b = e.target.closest("[data-act]");
+          if (!b || b.disabled) return;
+          var act = b.getAttribute("data-act");
+          var id = b.getAttribute("data-id");
+          var liste = modelesEff();
+          var m = id ? liste.filter(function (x) { return x.id === id; })[0] : null;
+          if (act === "nouveau-modele") {
+            ouvrirModele(null, b);
+          } else if (act === "modifier-modele" && m) {
+            ouvrirModele(id, b);
+          } else if (act === "dupliquer-modele" && m) {
+            var libelles = liste.map(function (x) { return norm(x.libelle); });
+            var base = "Copie de " + m.libelle;
+            var lib = base;
+            var n = 2;
+            while (libelles.indexOf(norm(lib)) !== -1) { lib = base + " (" + n + ")"; n++; }
+            var nid = idUnique("m-", parId(liste));
+            cat.nouveauxModeles.push({ id: nid, libelle: lib, desc: m.desc, usage: 0, prestations: m.prestations.slice() });
+            cat.modeles[nid] = { libelle: lib, desc: m.desc, prestations: m.prestations.slice(), retire: false };
+            sauver();
+            renderTout();
+            flash("mp-grid", nid);
+            refocus('[data-act="modifier-modele"][data-id="' + nid + '"]');
+            toast("Modèle « " + lib + " » créé. Aucune lettre ne l'utilise pour l'instant.");
+          } else if (act === "retirer-modele" && m) {
+            m.retire = true;
+            ecrireModele(m);
+            renderTout();
+            flash("mp-grid", id);
+            refocus('[data-act="remettre-modele"][data-id="' + id + '"]');
+            toast("Modèle « " + m.libelle + " » retiré des choix. Il n'est plus proposé dans les lettres de mission.");
+          } else if (act === "remettre-modele" && m) {
+            m.retire = false;
+            ecrireModele(m);
+            renderTout();
+            flash("mp-grid", id);
+            refocus('[data-act="retirer-modele"][data-id="' + id + '"]');
+            toast("Modèle « " + m.libelle + " » remis dans les choix des lettres de mission.");
+          }
+        });
+        $("pan-prestations").addEventListener("click", function (e) {
+          var b = e.target.closest("[data-act]");
+          if (!b || b.disabled) return;
+          var act = b.getAttribute("data-act");
+          var id = b.getAttribute("data-id");
+          var p = id ? prestationsEff().filter(function (x) { return x.id === id; })[0] : null;
+          if (act === "ajouter-prestation") {
+            ouvrirPrestation(null, b);
+          } else if (act === "modifier-prestation" && p) {
+            ouvrirPrestation(id, b);
+          } else if (act === "retirer-prestation" && p) {
+            p.retire = true;
+            ecrirePrestation(p);
+            renderTout();
+            flash("pan-prestations", id);
+            refocus('[data-act="remettre-prestation"][data-id="' + id + '"]');
+            toast("« " + p.libelle + " » retirée de la bibliothèque. Elle n'est plus proposée dans les lettres de mission.");
+          } else if (act === "remettre-prestation" && p) {
+            p.retire = false;
+            ecrirePrestation(p);
+            renderTout();
+            flash("pan-prestations", id);
+            refocus('[data-act="retirer-prestation"][data-id="' + id + '"]');
+            toast("« " + p.libelle + " » remise dans la bibliothèque.");
+          }
+        });
+
+        renderTout();
+        setOnglet(ongletUrl(), false, false);
+      })();
+    </script>
+    <script src="assets/ej-shell.js?v=29"></script>
+  </body>
+</html>

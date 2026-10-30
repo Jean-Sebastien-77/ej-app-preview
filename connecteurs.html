@@ -138,6 +138,126 @@
         gap: 4px;
         flex-shrink: 0;
       }
+      .c-option-etat {
+        margin-top: 8px;
+      }
+      .c-option-etat[hidden] {
+        display: none;
+      }
+
+      /* Fenêtres « Activer Pappers KYC » et « Désactiver Pappers KYC » */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: color-mix(in srgb, var(--ej-primary-900) 32%, transparent);
+        backdrop-filter: blur(2px);
+      }
+      .modal-overlay[hidden] {
+        display: none;
+      }
+      .modal {
+        width: 100%;
+        max-width: 520px;
+        max-height: calc(100vh - 48px);
+        display: flex;
+        flex-direction: column;
+        background: var(--ej-white);
+        border-radius: var(--ej-radius-xl);
+        box-shadow: var(--ej-shadow-xl);
+      }
+      .modal.modal-sm {
+        max-width: 440px;
+      }
+      .modal-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 20px 24px 16px;
+        border-bottom: 1px solid var(--ej-hairline);
+      }
+      .modal-head h2 {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--ej-primary-900);
+      }
+      .modal-body {
+        padding: 20px 24px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .modal-body p {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.55;
+        color: var(--ej-neutral-700);
+      }
+      .modal-foot {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 14px 24px 18px;
+        border-top: 1px solid var(--ej-hairline);
+      }
+      .kyc-set {
+        border: 0;
+        margin: 0;
+        padding: 0;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .kyc-set .form-label {
+        padding: 0;
+        margin-bottom: 2px;
+      }
+      .kyc-fixe {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .kyc-fixe p {
+        margin: 0;
+      }
+      .check.kyc-verrou {
+        cursor: default;
+        color: var(--ej-neutral-600);
+      }
+      .check.kyc-verrou input {
+        cursor: default;
+        opacity: 0.6;
+      }
+      .kyc-attest {
+        padding-top: 16px;
+        border-top: 1px solid var(--ej-hairline);
+      }
+      .btn[disabled] {
+        cursor: not-allowed;
+      }
+      @media (max-width: 600px) {
+        .modal-overlay {
+          padding: 12px;
+          align-items: flex-end;
+        }
+        .modal-head,
+        .modal-body,
+        .modal-foot {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+        .modal-foot .btn {
+          flex: 1 1 auto;
+        }
+      }
     </style>
   </head>
   <body data-active="connecteurs">
@@ -213,11 +333,12 @@
               </div>
               <div class="c-option">
                 <div>
-                  <div class="c-option-titre">Pappers KYC <span class="badge badge-neutral">Non activée</span></div>
+                  <div class="c-option-titre">Pappers KYC <span class="badge badge-neutral" id="kyc-badge">Non activée</span></div>
                   <p class="c-desc">Vérification des personnes politiquement exposées, sanctions internationales et presse négative, avec surveillance.</p>
+                  <span class="c-state-line c-option-etat" id="kyc-ligne" hidden><span class="c-state-note" id="kyc-ligne-txt"></span></span>
                 </div>
                 <div class="c-option-act">
-                  <button class="btn btn-secondary btn-sm" type="button" title="Écran non maquetté">Activer</button>
+                  <button class="btn btn-secondary btn-sm" type="button" id="kyc-btn" aria-haspopup="dialog">Activer</button>
                   <span class="info-tip" data-tip="bas" data-tip-align="fin">
                     <button type="button" class="info-tip-btn" aria-describedby="note-pappers-kyc" aria-label="À propos de Pappers KYC"><span class="ms">info</span></button>
                     <span class="info-tip-pop" role="tooltip" id="note-pappers-kyc">Option payante de Pappers, à souscrire par le cabinet. Sans elle, le statut PPE repose sur l'attestation signée par le client.</span>
@@ -252,6 +373,222 @@
       </div>
     </div>
 
+    <div class="modal-overlay" id="kyc-act" role="dialog" aria-modal="true" aria-labelledby="kyc-act-titre" hidden>
+      <form class="modal" id="kyc-form" novalidate>
+        <div class="modal-head">
+          <h2 id="kyc-act-titre">Activer Pappers KYC</h2>
+          <button class="icon-btn" type="button" data-close aria-label="Fermer"><span class="ms">close</span></button>
+        </div>
+        <div class="modal-body">
+          <p>Option de votre compte Pappers. Elle vérifie les personnes politiquement exposées, les sanctions internationales et la presse négative, puis surveille les changements.</p>
+          <fieldset class="kyc-set">
+            <legend class="form-label">Périmètre de la vérification</legend>
+            <label class="check"><input type="checkbox" name="kyc-per" value="dirigeants" id="kyc-p-dir" checked /><span>Dirigeants</span></label>
+            <label class="check"><input type="checkbox" name="kyc-per" value="be" checked /><span>Bénéficiaires effectifs</span></label>
+            <label class="check"><input type="checkbox" name="kyc-per" value="associes" checked /><span>Associés connus d'Express Juridique</span></label>
+          </fieldset>
+          <div class="kyc-fixe">
+            <div class="form-label">Rythme</div>
+            <p>Surveillance quotidienne, au même rythme que le Registre national des gels.</p>
+          </div>
+          <div class="kyc-fixe">
+            <div class="form-label">Compte</div>
+            <label class="check kyc-verrou"><input type="checkbox" checked disabled /><span>Utiliser le compte Pappers déjà connecté</span></label>
+          </div>
+          <div class="kyc-attest">
+            <label class="check"><input type="checkbox" id="kyc-attest" aria-describedby="kyc-aide" /><span>Le cabinet a souscrit l'option KYC auprès de Pappers.</span></label>
+            <span class="sr-only" id="kyc-aide">Cette attestation est obligatoire pour activer l'option.</span>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn btn-tertiary" type="button" data-close>Annuler</button>
+          <button class="btn btn-primary" type="submit" id="kyc-ok" disabled>Activer</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-overlay" id="kyc-des" role="dialog" aria-modal="true" aria-labelledby="kyc-des-titre" hidden>
+      <div class="modal modal-sm">
+        <div class="modal-head">
+          <h2 id="kyc-des-titre">Désactiver Pappers KYC ?</h2>
+          <button class="icon-btn" type="button" data-close aria-label="Fermer"><span class="ms">close</span></button>
+        </div>
+        <div class="modal-body">
+          <p>Les vérifications PPE reposeront à nouveau sur l'attestation signée par le client.</p>
+        </div>
+        <div class="modal-foot">
+          <button class="btn btn-tertiary" type="button" data-close id="kyc-des-annuler">Annuler</button>
+          <button class="btn btn-primary" type="button" id="kyc-des-ok">Désactiver</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sr-only" role="status" aria-live="polite" id="kyc-annonce"></div>
+
     <script src="assets/ej-shell.js?v=29"></script>
+    <script>
+      /* Option Pappers KYC : activation pour la session de navigation (sessionStorage "ej-kyc-pappers") */
+      (function () {
+        var CLE = "ej-kyc-pappers";
+        var DATE_REF = "19/10/2026";
+        var LIB = { dirigeants: "dirigeants", be: "bénéficiaires effectifs", associes: "associés" };
+        var ORDRE = ["dirigeants", "be", "associes"];
+        var TIP_OFF = "Option payante de Pappers, à souscrire par le cabinet. Sans elle, le statut PPE repose sur l'attestation signée par le client.";
+        var TIP_ON = "Option payante de Pappers souscrite par le cabinet. Les résultats pré-remplissent la vérification PPE de chaque revue LAB ; le professionnel les confirme.";
+
+        var btn = document.getElementById("kyc-btn");
+        var badge = document.getElementById("kyc-badge");
+        var ligne = document.getElementById("kyc-ligne");
+        var ligneTxt = document.getElementById("kyc-ligne-txt");
+        var tip = document.getElementById("note-pappers-kyc");
+        var annonce = document.getElementById("kyc-annonce");
+        var act = document.getElementById("kyc-act");
+        var form = document.getElementById("kyc-form");
+        var ok = document.getElementById("kyc-ok");
+        var attest = document.getElementById("kyc-attest");
+        var des = document.getElementById("kyc-des");
+        var desOk = document.getElementById("kyc-des-ok");
+        var ouverte = null;
+        var declencheur = null;
+
+        function lire() {
+          try {
+            var r = sessionStorage.getItem(CLE);
+            if (!r) return null;
+            var o = JSON.parse(r);
+            return o && o.actif === true ? o : null;
+          } catch (e) {
+            return null;
+          }
+        }
+        function ecrire(o) {
+          try {
+            if (o) sessionStorage.setItem(CLE, JSON.stringify(o));
+            else sessionStorage.removeItem(CLE);
+          } catch (e) {}
+        }
+        function perimetreDe(o) {
+          var p = o && Array.isArray(o.perimetre) ? ORDRE.filter(function (k) { return o.perimetre.indexOf(k) !== -1; }) : [];
+          return p.length ? p : ORDRE.slice();
+        }
+
+        /* Affichage de l'état (badge, bouton, ligne d'état, note « i ») */
+        function afficher() {
+          var o = lire();
+          if (o) {
+            badge.className = "badge badge-success";
+            badge.innerHTML = '<span class="ms">check</span>Activée';
+            btn.textContent = "Désactiver";
+            var qui = o.par ? " par " + o.par : "";
+            ligneTxt.textContent = "Surveillance quotidienne · " + perimetreDe(o).map(function (k) { return LIB[k]; }).join(", ") + " · activée le " + (o.date || DATE_REF) + qui;
+            ligne.hidden = false;
+            tip.textContent = TIP_ON;
+          } else {
+            badge.className = "badge badge-neutral";
+            badge.textContent = "Non activée";
+            btn.textContent = "Activer";
+            ligneTxt.textContent = "";
+            ligne.hidden = true;
+            tip.textContent = TIP_OFF;
+          }
+        }
+
+        /* Bouton « Activer » de la fenêtre : attestation cochée et au moins un périmètre */
+        function majBouton() {
+          var n = form.querySelectorAll('input[name="kyc-per"]:checked').length;
+          ok.disabled = !(attest.checked && n > 0);
+        }
+
+        function focusables(fen) {
+          return Array.prototype.filter.call(
+            fen.querySelectorAll('button, input, [href], select, textarea, [tabindex]:not([tabindex="-1"])'),
+            function (el) { return !el.disabled && el.offsetParent !== null; }
+          );
+        }
+        function ouvrir(fen, premier) {
+          declencheur = btn;
+          ouverte = fen;
+          fen.hidden = false;
+          document.body.style.overflow = "hidden";
+          premier.focus();
+        }
+        function fermer() {
+          if (!ouverte) return;
+          ouverte.hidden = true;
+          ouverte = null;
+          document.body.style.overflow = "";
+          if (declencheur && declencheur.focus) declencheur.focus();
+        }
+
+        function ouvrirActivation() {
+          form.reset();
+          majBouton();
+          ouvrir(act, document.getElementById("kyc-p-dir"));
+        }
+        function ouvrirDesactivation() {
+          ouvrir(des, document.getElementById("kyc-des-annuler"));
+        }
+
+        function activer() {
+          majBouton();
+          if (ok.disabled) return;
+          var perimetre = Array.prototype.map.call(form.querySelectorAll('input[name="kyc-per"]:checked'), function (c) { return c.value; });
+          var par = "";
+          try {
+            if (window.EJ_USER && window.EJ_USER.nom) par = String(window.EJ_USER.nom);
+          } catch (e) {}
+          ecrire({ actif: true, date: DATE_REF, perimetre: perimetre, par: par });
+          fermer();
+          afficher();
+          annonce.textContent = "Pappers KYC activée.";
+        }
+        function desactiver() {
+          ecrire(null);
+          fermer();
+          afficher();
+          annonce.textContent = "Pappers KYC désactivée.";
+        }
+
+        btn.addEventListener("click", function () {
+          if (lire()) ouvrirDesactivation();
+          else ouvrirActivation();
+        });
+        form.addEventListener("change", majBouton);
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          activer();
+        });
+        desOk.addEventListener("click", desactiver);
+
+        [act, des].forEach(function (fen) {
+          fen.addEventListener("mousedown", function (e) {
+            if (e.target === fen) fermer();
+          });
+          fen.addEventListener("click", function (e) {
+            if (e.target.closest("[data-close]")) fermer();
+          });
+          fen.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") {
+              e.preventDefault();
+              fermer();
+              return;
+            }
+            if (e.key !== "Tab") return;
+            var f = focusables(fen);
+            if (!f.length) return;
+            var i = f.indexOf(document.activeElement);
+            if (e.shiftKey && i <= 0) {
+              e.preventDefault();
+              f[f.length - 1].focus();
+            } else if (!e.shiftKey && (i === -1 || i === f.length - 1)) {
+              e.preventDefault();
+              f[0].focus();
+            }
+          });
+        });
+
+        afficher();
+      })();
+    </script>
   </body>
 </html>
