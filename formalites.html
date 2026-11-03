@@ -148,7 +148,7 @@
         { n: "SCP MÉDICALE DES TILLEULS DÉMO", s: 1, i: "biz", t: ["Constitution d'une SCP de médecins"], d: ["Décision du 22 oct. 2026", "Signature prévue le 22 oct. 2026"], a: "Sophie LAMBERT" },
         { n: "SCCV LES ATELIERS DÉMO", s: 0, i: "biz", t: ["Constitution d'une SCIC"], d: ["Décision du 21 oct. 2026", "Signature prévue le 21 oct. 2026"], a: "Sophie LAMBERT" },
         { n: "SCI LES TERRASSES DÉMO", s: 1, i: "biz", t: ["Constitution d'une SCI"], d: ["Décision du 20 oct. 2026", "Signature prévue le 20 oct. 2026"], a: "Sophie LAMBERT" },
-        { n: "NOVA STUDIO DÉMO", s: 0, i: "biz", t: ["Constitution d'une SAS"], d: ["Décision du 20 oct. 2026", "Signature prévue le 20 oct. 2026"], a: "Sophie LAMBERT" },
+        { n: "NOVA STUDIO DÉMO", u: "?id=nova", s: 1, i: "biz", t: ["Constitution d'une SAS"], d: ["Décision du 20 oct. 2026", "Signature prévue le 20 oct. 2026"], a: "Sophie LAMBERT" },
         { n: "MERCIER & ASSOCIES", s: 1, i: "cal", t: ["Modification de capital"], d: ["Décision du 3 sept. 2026"], a: "Sophie LAMBERT" },
         { n: "MERCIER & ASSOCIES", s: 1, i: "cal", t: ["Modification de capital"], d: ["Décision du 3 sept. 2026"], a: "Sophie LAMBERT" },
         { n: "JULIEN MARCHAL FORMATIONS", s: 1, i: "cal", t: ["Modification de la personne morale"], d: ["Décision du 14 oct. 2026"], a: "Sophie LAMBERT" },
@@ -208,7 +208,7 @@
             "</div>"
           : "";
         return (
-          '<a class="card f-card" href="formalite.html">' +
+          '<a class="card f-card" href="formalite.html' + (c.u || "") + '">' +
           "<div>" +
           '<div class="f-name">' + esc(c.n) + "</div>" +
           '<div class="f-type"><span class="list-icon ' + c.i + '"><span class="ms">' + ICON[c.i] + "</span></span>" +

@@ -520,6 +520,218 @@
           margin-left: 32px;
         }
       }
+      /* Mode ?id=nova : onglets Formulaires et Actions */
+      .fd-fhead {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px 16px;
+        padding: 16px 20px;
+      }
+      .fd-fhead-txt {
+        flex: 1 1 260px;
+        min-width: 0;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px 12px;
+        font-size: 14px;
+        color: var(--ej-neutral-800);
+        line-height: 1.5;
+      }
+      .fd-fr {
+        gap: 12px;
+        padding: 12px 20px;
+      }
+      .fd-fr-check {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--ej-success-100);
+        color: var(--ej-success-600);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .fd-fr-check .ms {
+        font-size: 14px;
+      }
+      .fd-fr-name {
+        min-width: 0;
+        font-size: 14px;
+        color: var(--ej-neutral-800);
+        overflow-wrap: anywhere;
+      }
+      .fd-fr-pct {
+        margin-left: auto;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--ej-success-600);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .fd-fr .chev {
+        margin-left: 0;
+      }
+      .fd-act-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+      .fd-act {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 20px;
+      }
+      .fd-act-txt {
+        min-width: 0;
+        flex: 1;
+      }
+      .fd-act-txt .row-title {
+        font-size: 15px;
+      }
+      .fd-act-txt p {
+        margin: 4px 0 0;
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--ej-neutral-600);
+      }
+      .fd-act .chev {
+        align-self: center;
+        color: var(--ej-neutral-400);
+        transition: transform var(--ej-transition-fast), color var(--ej-transition-fast);
+      }
+      a.fd-act:hover .chev {
+        color: var(--ej-action-600);
+        transform: translateX(2px);
+      }
+      .fd-suivi {
+        margin-top: 24px;
+        padding: 20px 24px;
+      }
+      .fd-suivi h2 {
+        margin: 0;
+      }
+      .fd-suivi h2.overline {
+        font-size: 13px;
+        color: var(--ej-primary-900);
+        font-weight: 700;
+      }
+      .fd-suivi-ref {
+        margin-top: 6px;
+        font-size: 14px;
+        color: var(--ej-neutral-800);
+      }
+      .fd-inpi-ref {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        vertical-align: bottom;
+        font-variant-numeric: tabular-nums;
+      }
+      .fd-inpi-ref .ms {
+        font-size: 14px;
+      }
+      .fd-frise {
+        list-style: none;
+        margin: 22px 0 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .fd-etape {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 0 4px;
+      }
+      .fd-etape:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 13px;
+        left: calc(50% + 22px);
+        right: calc(-50% + 22px);
+        height: 2px;
+        border-radius: 1px;
+        background: var(--ej-neutral-200);
+      }
+      .fd-etape.is-done:not(:last-child)::after {
+        background: var(--ej-success-600);
+      }
+      .fd-etape-ico {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--ej-info-100);
+        color: var(--ej-info-600);
+      }
+      .fd-etape.is-done .fd-etape-ico {
+        background: var(--ej-success-100);
+        color: var(--ej-success-600);
+      }
+      .fd-etape-ico .ms {
+        font-size: 16px;
+      }
+      .fd-etape-lib {
+        margin-top: 8px;
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--ej-neutral-800);
+      }
+      .fd-etape-sub {
+        margin-top: 2px;
+        font-size: 12.5px;
+        line-height: 1.4;
+        color: var(--ej-neutral-600);
+        font-variant-numeric: tabular-nums;
+      }
+      .fd-etape.is-now .fd-etape-lib {
+        color: var(--ej-primary-900);
+      }
+      .fd-etape.is-now .fd-etape-sub {
+        color: var(--ej-info-600);
+      }
+      .fd-signes {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px 10px;
+        margin-top: 20px;
+        padding-top: 14px;
+        border-top: 1px solid var(--ej-neutral-100);
+        font-size: 14px;
+        color: var(--ej-neutral-800);
+      }
+      @media (max-width: 700px) {
+        .fd-act-grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+      @media (max-width: 480px) {
+        .fd-fhead {
+          padding: 16px;
+        }
+        .fd-fhead > .btn {
+          width: 100%;
+        }
+        .fd-fr {
+          padding: 12px 16px;
+        }
+        .fd-act,
+        .fd-suivi {
+          padding: 16px;
+        }
+        .fd-etape {
+          padding: 0 2px;
+        }
+      }
       button.tab {
         background: none;
         border-top: none;
@@ -638,10 +850,10 @@
                 </div>
               </div>
 
-              <div class="fd-pane" data-pane="formulaires" hidden>
+              <div class="fd-pane" data-pane="formulaires" id="fd-pane-formulaires" hidden>
                 <div class="fd-placeholder">Aucun contenu à afficher pour cette formalité.</div>
               </div>
-              <div class="fd-pane" data-pane="actions" hidden>
+              <div class="fd-pane" data-pane="actions" id="fd-pane-actions" hidden>
                 <div class="fd-placeholder">Aucun contenu à afficher pour cette formalité.</div>
               </div>
             </section>
@@ -975,6 +1187,106 @@
           var t = document.querySelector('.tabs .tab[data-tab="documents"]');
           if (t) t.click();
         });
+      })();
+    </script>
+    <script>
+      /* Formalité de constitution (?id=nova) : NOVA STUDIO DÉMO, trois onglets remplis.
+         Sans ?id=nova, la page statique (PAPRIKA CANTINE) et le mode ?ref= restent tels quels. */
+      (function () {
+        var id = "";
+        try { id = new URLSearchParams(window.location.search).get("id") || ""; } catch (e) {}
+        if (id !== "nova") return;
+        function $(i) { return document.getElementById(i); }
+        if (!$("fd-ref") || !$("fd-groups")) return;
+
+        document.title = "Formalité #GC-2026-281 · Express Juridique";
+        $("fd-ref").textContent = "#GC-2026-281";
+        $("fd-updated").textContent = "Dernière mise à jour le 20 oct. 2026";
+        $("fd-soc-nom").textContent = "NOVA STUDIO DÉMO";
+        $("fd-soc-siren").textContent = "(Société en formation)";
+        $("fd-ops").innerHTML =
+          '<div class="fd-op">Constitution de sociétés</div>' +
+          '<div class="fd-subop"><span class="ms">done</span><span>Constitution d’une SAS</span></div>';
+        $("fd-who").innerHTML = "Sophie Lambert<br />le 20 oct. 2026";
+        $("fd-version").style.display = "none";
+
+        /* Documents */
+        $("fd-chain").querySelector("div").innerHTML =
+          '<strong style="font-weight: 700">Donnée chaînée le 20/10/2026 par Sophie Lambert.</strong> ' +
+          "La constitution de NOVA STUDIO DÉMO a été transmise dans le DPJ (Dossier Permanent Juridique) de cette société. Elle sera automatiquement réutilisée lors de la prochaine formalité.";
+        var DOCS = [
+          { t: "STATUTS", d: ["Statuts constitutifs"] },
+          { t: "ACTES DE CONSTITUTION", d: ["Liste des souscripteurs", "Nomination du premier président", "Déclaration de non-condamnation et de filiation du président"] },
+          { t: "DOSSIER DE DÉPÔT", d: ["Déclaration des bénéficiaires effectifs", "Pouvoir pour les formalités", "Annonce légale de constitution (à copier/coller)"] }
+        ];
+        var nbDocs = 0;
+        $("fd-groups").innerHTML = DOCS.map(function (g) {
+          return '<div class="fd-group"><div class="overline">' + g.t + (g.t === "DOSSIER DE DÉPÔT" ? '<span class="ms">file_download</span>' : "") + "</div>" +
+            '<div class="list-card">' +
+            g.d.map(function (n) {
+              nbDocs++;
+              return '<div class="list-row fd-doc"><span class="ms">file_download</span><span class="fd-doc-name">' + n +
+                '</span><span class="fd-fmts"><a class="fmt fmt-docx" href="#">DOCX</a><a class="fmt fmt-pdf" href="#">PDF</a></span></div>';
+            }).join("") + "</div></div>";
+        }).join("");
+        $("fd-docs-count").textContent = nbDocs + " DOCUMENTS GÉNÉRÉS";
+
+        /* Formulaires */
+        var FORMS = [
+          { t: "DOSSIER PERMANENT JURIDIQUE", d: ["Informations sur la société", "Siège social", "Exercice social"] },
+          { t: "CAPITAL ET ASSOCIÉS", d: ["Associés fondateurs", "Apports et répartition du capital", "Dépôt des fonds"] },
+          { t: "DIRIGEANTS", d: ["Président", "Bénéficiaires effectifs"] },
+          { t: "MODALITÉS DE SIGNATURE", d: ["Signataires et mode de signature"] }
+        ];
+        var nbF = FORMS.reduce(function (a, g) { return a + g.d.length; }, 0);
+        $("fd-pane-formulaires").innerHTML =
+          '<div class="card fd-fhead">' +
+          '<div class="fd-fhead-txt"><span class="badge badge-success">' + nbF + " / " + nbF + "</span>" +
+          "<span>Les formulaires sont complets. Vous pouvez générer vos documents.</span></div>" +
+          '<button class="btn btn-primary" type="button">Générer les documents<span class="ms">arrow_forward</span></button>' +
+          "</div>" +
+          FORMS.map(function (g) {
+            return '<div class="fd-group"><div class="overline">' + g.t + "</div>" +
+              '<div class="list-card">' +
+              g.d.map(function (n) {
+                return '<div class="list-row clickable fd-fr"><span class="fd-fr-check"><span class="ms">check</span></span>' +
+                  '<span class="fd-fr-name">' + n + '</span><span class="fd-fr-pct">100 %</span>' +
+                  '<span class="ms chev">chevron_right</span></div>';
+              }).join("") + "</div></div>";
+          }).join("");
+
+        /* Actions */
+        $("fd-pane-actions").innerHTML =
+          '<div class="fd-act-grid">' +
+          '<a class="card fd-act" href="suivi-actions.html"><span class="list-icon"><span class="ms">domain</span></span>' +
+          '<div class="fd-act-txt"><div class="row-title">Dépôt INPI (Guichet Unique)</div>' +
+          "<p>Gérez l’intégralité de votre dépôt : documents à déposer, signature électronique des documents, transmission à l’INPI et suivi du traitement.</p></div>" +
+          '<span class="ms chev">arrow_forward</span></a>' +
+          '<a class="card fd-act" href="suivi-actions.html#signatures"><span class="list-icon"><span class="ms">file-signature</span></span>' +
+          '<div class="fd-act-txt"><div class="row-title">Signature électronique</div>' +
+          "<p>Faites signer vos documents : sélection des pièces, signataires, niveau de signature et envoi en un clic.</p></div>" +
+          '<span class="ms chev">arrow_forward</span></a>' +
+          "</div>" +
+          '<section class="card fd-suivi" aria-labelledby="fd-suivi-titre">' +
+          '<h2 class="overline" id="fd-suivi-titre">Suivi du dépôt</h2>' +
+          '<div class="fd-suivi-ref">Réf. INPI : <a class="link fd-inpi-ref" href="suivi-actions.html">J00281574412<span class="ms">open_in_new</span></a></div>' +
+          '<ol class="fd-frise">' +
+          '<li class="fd-etape is-done"><span class="fd-etape-ico"><span class="ms">check</span></span><span class="fd-etape-lib">Transmis</span><span class="fd-etape-sub">20/10/2026 à 17:42</span></li>' +
+          '<li class="fd-etape is-done"><span class="fd-etape-ico"><span class="ms">check</span></span><span class="fd-etape-lib">En instruction</span><span class="fd-etape-sub">21/10/2026 à 09:15</span></li>' +
+          '<li class="fd-etape is-now"><span class="fd-etape-ico"><span class="ms">hourglass</span></span><span class="fd-etape-lib">Validé</span><span class="fd-etape-sub">En attente</span></li>' +
+          "</ol>" +
+          '<div class="fd-signes"><span>Documents signés :</span><span class="badge badge-success">7 / 7</span></div>' +
+          "</section>";
+      })();
+    </script>
+    <script>
+      /* Ouverture directe d'un onglet : ?tab=formulaires|documents|actions */
+      (function () {
+        var t = "";
+        try { t = new URLSearchParams(window.location.search).get("tab") || ""; } catch (e) {}
+        if (!/^(formulaires|documents|actions)$/.test(t)) return;
+        var b = document.querySelector('.tabs .tab[data-tab="' + t + '"]');
+        if (b) b.click();
       })();
     </script>
     <script src="assets/ej-shell.js?v=29"></script>
