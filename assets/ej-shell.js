@@ -7,6 +7,7 @@
     { id: "accueil", label: "Accueil", icon: "home", href: "accueil.html" },
     { id: "formalites", label: "Formalités", icon: "topic", href: "formalites.html" },
     { id: "societes", label: "Sociétés", icon: "storefront", href: "societes.html" },
+    { id: "annonces", label: "Annonces légales", icon: "megaphone", href: "annonces-legales.html" },
     { id: "suivi", label: "Suivi des actions", icon: "table_chart", href: "suivi-actions.html" },
     { id: "ifu", label: "Export IFU 2025", sub: "Assistance à la décla.", icon: "price_change", href: "export-ifu.html", profils: ["ec", "cac", "mixte"] },
     { section: "Missions & conformité", profils: ["ec", "cac", "mixte"] },

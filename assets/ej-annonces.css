@@ -1,0 +1,618 @@
+/* ==========================================================
+   Express Juridique · Annonces légales (LejAL dans EJ)
+   Styles propres à annonces-legales.html et au bloc « Annonce légale »
+   de formalite.html. Préfixe ann-. S'appuie sur les tokens de ej-app.css ;
+   aucune règle existante n'est modifiée.
+   ========================================================== */
+
+/* ---------- Compteurs cliquables ---------- */
+.ann-stats {
+  margin-bottom: 24px;
+}
+.ann-stat {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.ann-stat:hover {
+  border-color: var(--ej-action-400);
+}
+.ann-stat:focus-visible {
+  outline: none;
+  box-shadow: var(--ej-focus-ring);
+}
+.ann-stat[aria-pressed="true"] {
+  border-color: var(--ej-primary-900);
+  box-shadow: 0 0 0 1px var(--ej-primary-900);
+}
+.ann-stat .stat-top .ann-check {
+  display: none;
+  font-size: 16px;
+  color: var(--ej-primary-900);
+}
+.ann-stat[aria-pressed="true"] .stat-top .ann-check {
+  display: inline-flex;
+}
+.ann-stats3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 20px;
+}
+@media (max-width: 760px) {
+  body.m-resp .ann-stats3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Onglets ---------- */
+.ann-tabs {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ann-tabs::-webkit-scrollbar {
+  display: none;
+}
+.ann-tabs .tab {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.ann-tabs .tab:focus-visible,
+.ann-open:focus-visible {
+  outline: none;
+  box-shadow: var(--ej-focus-ring);
+  border-radius: var(--ej-radius-sm);
+}
+
+/* ---------- Filtres ---------- */
+.ann-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.ann-filters .search {
+  flex: 1 1 260px;
+  max-width: 380px;
+}
+.ann-filters select.form-input {
+  width: auto;
+  min-width: 190px;
+  max-width: 100%;
+}
+.ann-count {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--ej-neutral-500);
+}
+@media (max-width: 760px) {
+  .ann-filters .search {
+    max-width: none;
+  }
+  .ann-filters select.form-input {
+    flex: 1 1 100%;
+  }
+  .ann-count {
+    margin-left: 0;
+  }
+}
+
+/* ---------- Tableaux ---------- */
+.ann-table {
+  min-width: 900px;
+}
+.ann-table-sm {
+  min-width: 640px;
+}
+.ann-table td {
+  vertical-align: middle;
+}
+.ann-table:not(.ann-table-sm) th,
+.ann-table:not(.ann-table-sm) td {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+.ann-table .num,
+.ann-table th.num {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.ann-table .nw {
+  white-space: nowrap;
+}
+.ann-open {
+  font: inherit;
+  font-weight: 600;
+  color: var(--ej-primary-900);
+  text-align: left;
+  padding: 0;
+  cursor: pointer;
+}
+.ann-open:hover {
+  color: var(--ej-action-600);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.ann-sup {
+  font-size: 12.5px;
+  color: var(--ej-neutral-500);
+  white-space: nowrap;
+}
+.ann-sub {
+  white-space: nowrap;
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--ej-neutral-500);
+  margin-top: 2px;
+}
+.ann-table tbody tr[data-id] {
+  cursor: pointer;
+}
+.ann-table tr.ann-new td {
+  background: var(--ej-action-50);
+}
+.ann-table .badge {
+  height: auto;
+  min-height: 26px;
+  padding: 3px 12px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.ann-badge-warn {
+  background: var(--ej-warning-100);
+  color: var(--ej-warning-600);
+  border-color: transparent;
+}
+.ann-act .btn {
+  white-space: nowrap;
+}
+.ann-empty {
+  padding: 36px 20px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--ej-neutral-500);
+}
+.ann-note-table {
+  padding: 12px 20px;
+  border-top: 1px solid var(--ej-neutral-100);
+  font-size: 12.5px;
+  color: var(--ej-neutral-500);
+}
+.ann-banner {
+  margin-top: 24px;
+}
+
+/* ---------- Apport d'affaires ---------- */
+.ann-two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.ann-two .card {
+  padding: 18px 20px;
+}
+.ann-big {
+  font-family: var(--ej-font-display);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ej-primary-900);
+  letter-spacing: -0.01em;
+  margin: 4px 0 2px;
+  font-variant-numeric: tabular-nums;
+}
+.ann-card-h {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.ann-edit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.ann-edit select.form-input {
+  width: auto;
+  min-width: 150px;
+}
+.ann-h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ej-primary-900);
+  margin: 24px 0 12px;
+}
+@media (max-width: 760px) {
+  .ann-two {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Fenêtres (détail et publication) ---------- */
+.ann-ov {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: color-mix(in srgb, var(--ej-primary-900) 32%, transparent);
+}
+.ann-ov[hidden] {
+  display: none;
+}
+.ann-modal {
+  width: 100%;
+  max-width: 760px;
+  max-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+  background: var(--ej-white);
+  border-radius: var(--ej-radius-xl);
+  box-shadow: var(--ej-shadow-xl);
+}
+.ann-modal-sm {
+  max-width: 640px;
+}
+.ann-m-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--ej-hairline);
+}
+.ann-m-head h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ej-primary-900);
+}
+.ann-m-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+}
+.ann-m-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 24px 18px;
+  border-top: 1px solid var(--ej-hairline);
+}
+.ann-m-foot .ann-spacer {
+  margin-right: auto;
+}
+@media (max-width: 600px) {
+  .ann-ov {
+    padding: 12px;
+    align-items: flex-end;
+  }
+  .ann-m-head,
+  .ann-m-body,
+  .ann-m-foot {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .ann-m-foot .btn {
+    flex: 1 1 auto;
+  }
+}
+
+/* Détail d'une annonce */
+.ann-d-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.ann-d-soc {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ej-primary-900);
+}
+.ann-sec {
+  margin-bottom: 20px;
+}
+.ann-sec > .overline {
+  margin-bottom: 8px;
+}
+.ann-frise {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 22px;
+  padding: 0;
+}
+.ann-et {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+.ann-et-ico {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ej-neutral-300);
+  background: var(--ej-white);
+  color: var(--ej-neutral-400);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ann-et-ico .ms {
+  font-size: 14px;
+}
+.ann-et.is-done .ann-et-ico {
+  background: var(--ej-success-600);
+  border-color: var(--ej-success-600);
+  color: var(--ej-white);
+}
+.ann-et.is-now .ann-et-ico {
+  border-color: var(--ej-action-600);
+  color: var(--ej-action-600);
+}
+.ann-et.is-err .ann-et-ico {
+  background: var(--ej-error-100);
+  border-color: var(--ej-error-600);
+  color: var(--ej-error-600);
+}
+.ann-et-lib {
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--ej-neutral-800);
+}
+.ann-et.is-todo .ann-et-lib {
+  color: var(--ej-neutral-500);
+}
+.ann-et-sub {
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--ej-neutral-500);
+}
+.ann-et.is-err .ann-et-sub {
+  color: var(--ej-error-600);
+}
+@media (max-width: 640px) {
+  .ann-frise {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .ann-et {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+  }
+}
+.ann-text {
+  padding: 14px 16px;
+  border: 1px solid var(--ej-hairline);
+  border-radius: var(--ej-radius-md);
+  background: var(--ej-neutral-50);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ej-neutral-800);
+}
+.ann-grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.ann-grid2 .ann-box {
+  margin: 0;
+}
+.ann-box {
+  padding: 14px 16px;
+  border: 1px solid var(--ej-hairline);
+  border-radius: var(--ej-radius-lg);
+  background: var(--ej-white);
+}
+.ann-box > .overline {
+  margin-bottom: 10px;
+}
+@media (max-width: 640px) {
+  .ann-grid2 {
+    grid-template-columns: 1fr;
+  }
+}
+.ann-kv {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 12px;
+  font-size: 14px;
+  margin: 0;
+}
+.ann-kv dt {
+  color: var(--ej-neutral-600);
+}
+.ann-kv dd {
+  color: var(--ej-neutral-900);
+  font-weight: 500;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.ann-kv .tot {
+  font-weight: 600;
+  color: var(--ej-primary-900);
+}
+.ann-kv-left {
+  grid-template-columns: 110px minmax(0, 1fr);
+}
+.ann-kv-left dd {
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.ann-note {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--ej-neutral-500);
+}
+.ann-link-url {
+  display: block;
+  padding: 8px 10px;
+  margin: 6px 0 10px;
+  border-radius: var(--ej-radius-md);
+  background: var(--ej-neutral-50);
+  font-size: 12.5px;
+  color: var(--ej-neutral-700);
+  overflow-wrap: anywhere;
+}
+.ann-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.ann-corr textarea.form-input {
+  min-height: 150px;
+}
+
+/* ---------- Publier une annonce ---------- */
+.ann-steps {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 0 0 18px;
+  padding: 0;
+  font-size: 13px;
+  color: var(--ej-neutral-500);
+}
+.ann-steps li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.ann-steps .n {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ej-neutral-300);
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.ann-steps li.is-now {
+  color: var(--ej-primary-900);
+  font-weight: 600;
+}
+.ann-steps li.is-now .n {
+  background: var(--ej-primary-900);
+  border-color: var(--ej-primary-900);
+  color: var(--ej-white);
+}
+.ann-steps li.is-done .n {
+  background: var(--ej-success-600);
+  border-color: var(--ej-success-600);
+  color: var(--ej-white);
+}
+.ann-wz-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 20px;
+}
+.ann-wz-grid .full {
+  grid-column: 1 / -1;
+}
+@media (max-width: 600px) {
+  .ann-wz-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.ann-err {
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ej-error-600);
+}
+.ann-err:empty {
+  display: none;
+}
+#ann-wz-texte {
+  min-height: 190px;
+}
+
+/* ---------- Message de confirmation ---------- */
+.ann-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 120;
+  max-width: calc(100vw - 32px);
+  padding: 11px 18px;
+  border-radius: var(--ej-radius-lg);
+  background: var(--ej-primary-900);
+  color: var(--ej-white);
+  font-size: 14px;
+  box-shadow: var(--ej-shadow-lg);
+  transform: translateX(-50%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--ej-transition-normal), visibility var(--ej-transition-normal);
+}
+.ann-toast.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ---------- Bloc « Annonce légale » de la fiche formalité ---------- */
+.ann-fm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ann-fm-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ann-fm-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--ej-neutral-700);
+}
+.ann-fm-list .d {
+  color: var(--ej-neutral-500);
+}
+.ann-fm .link {
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+}
+
+/* L'attribut hidden doit l'emporter sur les display des composants (.btn, .alert, .stats) */
+.ann-hide[hidden],
+.btn[hidden],
+.ann-edit[hidden],
+.ann-empty[hidden],
+.stats[hidden],
+.ann-panel[hidden] {
+  display: none;
+}

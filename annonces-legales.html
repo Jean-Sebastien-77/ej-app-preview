@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Annonces légales · Express Juridique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/ej-app.css?v=20" />
+    <link rel="stylesheet" href="assets/ej-missions.css?v=25" />
+    <link rel="stylesheet" href="assets/ej-annonces.css?v=1" />
+  </head>
+  <body class="m-resp" data-active="annonces">
+    <div id="ej-header"></div>
+    <div class="app">
+      <div id="ej-sidebar"></div>
+      <div class="main">
+        <div class="page page-wide">
+          <div class="page-head m-wrap">
+            <div>
+              <h1 class="page-title">Annonces légales</h1>
+              <p class="page-desc">Publication et suivi avec LejAL</p>
+            </div>
+            <div class="m-actions">
+              <button type="button" class="btn btn-primary" id="ann-publier" aria-haspopup="dialog"><span class="ms">plus</span>Publier une annonce</button>
+            </div>
+          </div>
+
+          <div class="stats ann-stats" id="ann-stats" role="group" aria-label="Filtrer le suivi par situation"></div>
+
+          <div class="tabs ann-tabs" id="ann-tablist" role="tablist" aria-label="Annonces légales">
+            <button type="button" class="tab active" id="ann-tab-suivi" role="tab" aria-selected="true" aria-controls="ann-p-suivi">Suivi</button>
+            <button type="button" class="tab" id="ann-tab-attestations" role="tab" aria-selected="false" aria-controls="ann-p-attestations" tabindex="-1">Attestations</button>
+            <button type="button" class="tab" id="ann-tab-apport" role="tab" aria-selected="false" aria-controls="ann-p-apport" tabindex="-1">Apport d’affaires</button>
+          </div>
+
+          <!-- A. Suivi -->
+          <div id="ann-p-suivi" class="ann-panel" role="tabpanel" aria-labelledby="ann-tab-suivi">
+            <div class="ann-filters">
+              <label class="search">
+                <span class="ms">search</span>
+                <input type="text" id="ann-f-q" placeholder="Rechercher une société ou une référence" autocomplete="off" aria-label="Rechercher une société ou une référence" />
+              </label>
+              <label>
+                <span class="sr-only">Filtrer par état</span>
+                <select class="form-input" id="ann-f-etat"></select>
+              </label>
+              <label>
+                <span class="sr-only">Filtrer par période de parution</span>
+                <select class="form-input" id="ann-f-periode">
+                  <option value="">Toutes les périodes</option>
+                  <option value="mois">Novembre 2026</option>
+                  <option value="prec">Octobre 2026</option>
+                  <option value="t3">Septembre à novembre 2026</option>
+                  <option value="venir">Parutions à venir</option>
+                </select>
+              </label>
+              <button type="button" class="btn btn-tertiary btn-sm" id="ann-reset" hidden>Effacer les filtres</button>
+              <span class="ann-count" id="ann-count" aria-live="polite"></span>
+            </div>
+            <div class="data-table-wrap">
+              <div class="table-scroll">
+                <table class="data-table ann-table">
+                  <caption class="sr-only">Annonces légales du cabinet</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Société</th>
+                      <th scope="col">Opération</th>
+                      <th scope="col">Journal</th>
+                      <th scope="col">Parution</th>
+                      <th scope="col" class="num">Montant TTC</th>
+                      <th scope="col">État</th>
+                      <th scope="col"><span class="sr-only">Action</span></th>
+                    </tr>
+                  </thead>
+                  <tbody id="ann-rows"></tbody>
+                </table>
+              </div>
+              <div class="ann-empty" id="ann-empty" hidden>Aucune annonce ne correspond à ces filtres.</div>
+            </div>
+          </div>
+
+          <!-- B. Attestations -->
+          <div id="ann-p-attestations" class="ann-panel" role="tabpanel" aria-labelledby="ann-tab-attestations" hidden>
+            <div class="ann-filters">
+              <label class="search">
+                <span class="ms">search</span>
+                <input type="text" id="ann-att-q" placeholder="Rechercher une société ou une opération" autocomplete="off" aria-label="Rechercher une société ou une opération" />
+              </label>
+              <label>
+                <span class="sr-only">Filtrer par année</span>
+                <select class="form-input" id="ann-att-an">
+                  <option value="">Toutes les années</option>
+                  <option value="2026">2026</option>
+                  <option value="2025">2025</option>
+                </select>
+              </label>
+              <span class="ann-count" id="ann-att-count" aria-live="polite"></span>
+            </div>
+            <div class="data-table-wrap">
+              <div class="table-scroll">
+                <table class="data-table ann-table ann-table-sm">
+                  <caption class="sr-only">Attestations de parution</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Société</th>
+                      <th scope="col">Opération</th>
+                      <th scope="col">Journal</th>
+                      <th scope="col">Date de parution</th>
+                      <th scope="col"><span class="sr-only">Télécharger</span></th>
+                    </tr>
+                  </thead>
+                  <tbody id="ann-att-rows"></tbody>
+                </table>
+              </div>
+              <div class="ann-empty" id="ann-att-empty" hidden>Aucune attestation ne correspond à cette recherche.</div>
+            </div>
+          </div>
+
+          <!-- C. Apport d'affaires -->
+          <div id="ann-p-apport" class="ann-panel" role="tabpanel" aria-labelledby="ann-tab-apport" hidden>
+            <div class="stats ann-stats3" id="ann-ap-stats"></div>
+
+            <div class="ann-two">
+              <div class="card" id="ann-prochain"></div>
+              <div class="card" id="ann-versement">
+                <div class="ann-card-h">
+                  <span class="overline">Versement</span>
+                  <button type="button" class="btn btn-secondary btn-sm" id="ann-vers-modif"><span class="ms">edit</span>Modifier</button>
+                </div>
+                <dl class="ann-kv ann-kv-left">
+                  <dt>IBAN</dt><dd>FR76 •••• •••• 4521</dd>
+                  <dt>Fréquence</dt><dd id="ann-freq">Chaque trimestre</dd>
+                </dl>
+                <div class="ann-edit" id="ann-vers-edit" hidden>
+                  <label class="sr-only" for="ann-vers-sel">Fréquence de versement</label>
+                  <select class="form-input" id="ann-vers-sel">
+                    <option value="trimestre">Chaque trimestre</option>
+                    <option value="semestre">Chaque semestre</option>
+                    <option value="annee">Chaque année</option>
+                  </select>
+                  <button type="button" class="btn btn-primary btn-sm" id="ann-vers-save">Enregistrer</button>
+                  <button type="button" class="btn btn-tertiary btn-sm" id="ann-vers-cancel">Annuler</button>
+                </div>
+                <p class="ann-note">L’apport d’affaires est un pourcentage du prix HT de chaque annonce, acquis à la parution et viré périodiquement. Le changement d’IBAN n’est pas simulé.</p>
+              </div>
+            </div>
+
+            <h2 class="ann-h3">Lignes d’apport d’affaires</h2>
+            <div class="data-table-wrap">
+              <div class="table-scroll">
+                <table class="data-table ann-table ann-table-sm">
+                  <caption class="sr-only">Lignes d’apport d’affaires</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Date</th>
+                      <th scope="col">Société</th>
+                      <th scope="col">Annonce</th>
+                      <th scope="col" class="num">Prix HT</th>
+                      <th scope="col" class="num">Taux</th>
+                      <th scope="col" class="num">Montant</th>
+                      <th scope="col">État</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ann-ap-rows"></tbody>
+                </table>
+              </div>
+              <div class="ann-note-table">Lignes depuis le 1er septembre 2026. Une ligne payée reste « en attente de parution » jusqu’à la vérification de la parution par LejAL. Les virements précédents figurent ci-dessous.</div>
+            </div>
+
+            <h2 class="ann-h3">Virements reçus</h2>
+            <div class="data-table-wrap">
+              <div class="table-scroll">
+                <table class="data-table ann-table ann-table-sm">
+                  <caption class="sr-only">Virements reçus</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Date</th>
+                      <th scope="col" class="num">Montant brut</th>
+                      <th scope="col" class="num">Frais de virement</th>
+                      <th scope="col" class="num">Net</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ann-vir-rows"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-info ann-banner"><span class="ms">info</span><span>Maquette : données fictives, rien n’est envoyé.</span></div>
+        </div>
+        <div id="ej-footer"></div>
+      </div>
+    </div>
+
+    <!-- Détail d'une annonce -->
+    <div class="ann-ov" id="ann-detail" role="dialog" aria-modal="true" aria-labelledby="ann-d-title" hidden>
+      <div class="ann-modal">
+        <div class="ann-m-head">
+          <h2 id="ann-d-title">Détail de l’annonce</h2>
+          <button class="icon-btn" type="button" id="ann-d-close" data-close aria-label="Fermer"><span class="ms">close</span></button>
+        </div>
+        <div class="ann-m-body" id="ann-d-body"></div>
+        <div class="ann-m-foot">
+          <button class="btn btn-secondary" type="button" data-close>Fermer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Publier une annonce -->
+    <div class="ann-ov" id="ann-wz" role="dialog" aria-modal="true" aria-labelledby="ann-wz-title" hidden>
+      <form class="ann-modal ann-modal-sm" id="ann-wz-form" novalidate>
+        <div class="ann-m-head">
+          <h2 id="ann-wz-title">Publier une annonce</h2>
+          <button class="icon-btn" type="button" data-close aria-label="Fermer"><span class="ms">close</span></button>
+        </div>
+        <div class="ann-m-body">
+          <ol class="ann-steps" id="ann-steps" aria-label="Étapes">
+            <li class="is-now"><span class="n">1</span>Société et opération</li>
+            <li><span class="n">2</span>Texte de l’annonce</li>
+            <li><span class="n">3</span>Récapitulatif</li>
+          </ol>
+
+          <div id="ann-wz-p1">
+            <div class="ann-wz-grid">
+              <div class="form-group full">
+                <label class="form-label" for="ann-wz-soc">Société</label>
+                <select class="form-input" id="ann-wz-soc"></select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="ann-wz-op">Type d’opération</label>
+                <select class="form-input" id="ann-wz-op"></select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="ann-wz-dep">Département</label>
+                <select class="form-input" id="ann-wz-dep"></select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="ann-wz-date">Date de parution souhaitée</label>
+                <input class="form-input" type="date" id="ann-wz-date" value="2026-12-03" />
+              </div>
+            </div>
+          </div>
+
+          <div id="ann-wz-p2" hidden>
+            <div class="form-group">
+              <label class="form-label" for="ann-wz-texte">Texte de l’annonce</label>
+              <textarea class="form-input" id="ann-wz-texte" rows="9"></textarea>
+              <span class="form-helper">Texte prérempli à partir de la société et de l’opération. Vous pouvez le modifier.</span>
+            </div>
+          </div>
+
+          <div id="ann-wz-p3" hidden>
+            <div id="ann-wz-recap"></div>
+            <div class="form-group" style="margin-top:16px">
+              <label class="form-label" for="ann-wz-mail">E-mail du client, destinataire du lien de paiement</label>
+              <input class="form-input" type="email" id="ann-wz-mail" placeholder="client@societe.fr" autocomplete="off" />
+              <span class="form-helper">Le client règle l’annonce par ce lien. Le cabinet ne paie rien.</span>
+            </div>
+          </div>
+
+          <p class="ann-err" id="ann-wz-err" role="alert"></p>
+        </div>
+        <div class="ann-m-foot">
+          <button class="btn btn-tertiary ann-spacer" type="button" data-close>Annuler</button>
+          <button class="btn btn-secondary" type="button" id="ann-wz-prec" hidden>Précédent</button>
+          <button class="btn btn-primary" type="button" id="ann-wz-suiv">Continuer</button>
+          <button class="btn btn-primary" type="button" id="ann-wz-ok" hidden><span class="ms">send</span>Publier avec LejAL</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="ann-toast" id="ann-toast" role="status" aria-live="polite"></div>
+
+    <script src="assets/ej-annonces.js?v=1"></script>
+    <script src="assets/ej-shell.js?v=30"></script>
+  </body>
+</html>

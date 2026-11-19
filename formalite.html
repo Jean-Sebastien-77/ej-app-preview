@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/ej-app.css?v=20" />
     <link rel="stylesheet" href="assets/ej-missions.css?v=25" />
+    <link rel="stylesheet" href="assets/ej-annonces.css?v=1" />
     <style>
       .fd-layout {
         display: grid;
@@ -785,6 +786,28 @@
                 <div class="fd-who" id="fd-who">Sophie Lambert<br />le 14 oct. 2026</div>
               </div>
 
+              <!-- Annonce légale (LejAL) : affichée par le script en fin de page, hors vue conseil -->
+              <div class="card fd-card" id="fd-annonce" hidden>
+                <div class="ann-fm">
+                  <div class="ann-fm-top">
+                    <div class="overline">ANNONCE LÉGALE</div>
+                    <span class="badge badge-progress" id="fd-ann-etat">Parution prévue</span>
+                  </div>
+                  <ul class="ann-fm-list">
+                    <li id="fd-ann-journal">Le Courrier Démo de Paris, en ligne</li>
+                    <li id="fd-ann-date">Parution prévue le 21/11/2026</li>
+                  </ul>
+                  <div class="overline">JOURNAL DE L’ANNONCE</div>
+                  <ul class="ann-fm-list" id="fd-ann-histo">
+                    <li><span class="d">05/11/2026</span> Demande</li>
+                    <li><span class="d">06/11/2026</span> Paiement du client</li>
+                    <li><span class="d">06/11/2026</span> Envoi au journal</li>
+                    <li><span class="d">10/11/2026</span> Acceptée par le journal</li>
+                  </ul>
+                  <a class="link" id="fd-ann-lien" href="annonces-legales.html?annonce=AL-2026-0165">Voir dans Annonces légales<span class="ms">arrow_forward</span></a>
+                </div>
+              </div>
+
               <div class="fd-note"><span class="ms">diversity_3</span><span>Cette formalité est accessible par tous les membres de votre équipe.</span></div>
 
               <div class="fd-version" id="fd-version">v32</div>
@@ -1280,6 +1303,36 @@
       })();
     </script>
     <script>
+      /* Bloc « Annonce légale » (LejAL) : formalité par défaut (PAPRIKA CANTINE, #GC-2026-277)
+         et constitution ?id=nova. Absent de la vue conseil (?ref=). Données fictives de annonces-legales.html. */
+      (function () {
+        var bloc = document.getElementById("fd-annonce");
+        if (!bloc) return;
+        var conseil = false, id = "", ref = "";
+        try { conseil = localStorage.getItem("ej-cabinet") === "vasseur"; } catch (e) {}
+        try {
+          var q = new URLSearchParams(window.location.search);
+          id = q.get("id") || "";
+          ref = q.get("ref") || "";
+        } catch (e) {}
+        if (conseil || ref) return;
+        if (id === "nova") {
+          document.getElementById("fd-ann-etat").textContent = "Acceptée par le journal";
+          document.getElementById("fd-ann-journal").textContent = "La Gazette Démo du Rhône, en ligne";
+          document.getElementById("fd-ann-date").textContent = "Parution prévue le 26/11/2026";
+          document.getElementById("fd-ann-histo").innerHTML =
+            '<li><span class="d">16/11/2026</span> Demande</li>' +
+            '<li><span class="d">16/11/2026</span> Paiement du client</li>' +
+            '<li><span class="d">17/11/2026</span> Envoi au journal</li>' +
+            '<li><span class="d">18/11/2026</span> Acceptée par le journal</li>';
+          document.getElementById("fd-ann-lien").setAttribute("href", "annonces-legales.html?annonce=AL-2026-0168");
+        } else if (id) {
+          return;
+        }
+        bloc.hidden = false;
+      })();
+    </script>
+    <script>
       /* Ouverture directe d'un onglet : ?tab=formulaires|documents|actions */
       (function () {
         var t = "";
@@ -1289,6 +1342,6 @@
         if (b) b.click();
       })();
     </script>
-    <script src="assets/ej-shell.js?v=29"></script>
+    <script src="assets/ej-shell.js?v=30"></script>
   </body>
 </html>
