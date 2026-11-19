@@ -95,6 +95,29 @@
       .note {
         margin-top: 40px;
       }
+      /* Cartes Parcours : une lecture, pas un écran. Fond teinté + pastille pleine,
+         même traitement pour les trois (LejAL, LAB, CAC) pour créer le réflexe. */
+      .tile.tile-parcours {
+        background: linear-gradient(135deg, var(--ej-action-50), var(--ej-white) 70%);
+        border-color: var(--ej-action-200);
+      }
+      .tile.tile-parcours .list-icon {
+        background: var(--ej-action-600);
+        color: var(--ej-white);
+      }
+      .tile.tile-parcours .row-title::after {
+        content: "Parcours";
+        display: inline-block;
+        margin-left: 8px;
+        padding: 1px 8px;
+        border-radius: 999px;
+        background: var(--ej-action-100);
+        color: var(--ej-action-700);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        vertical-align: 2px;
+      }
     </style>
   </head>
   <body>
@@ -125,7 +148,7 @@
         },
         {
           title: "LejAL · Annonces légales",
-          items: [["parcours-lejal.html", "timeline", "Parcours d'une annonce légale", "EJ, cabinet, journal, entreprise, LejAL : les sept étapes"]],
+          items: [["parcours-lejal.html", "timeline", "Une annonce légale, par acteur", "EJ, cabinet, journal, entreprise, LejAL : les sept étapes"]],
         },
         {
           title: "Propositions 2027 · Cockpit, Missions & conformité",
@@ -133,14 +156,14 @@
             ["cockpit.html", "layout_dashboard", "Cockpit", "Onglet de l'Accueil : tableaux, assistant DPJ"],
             ["lab.html", "shield_check", "Dispositif LAB", "Dossiers LAB à traiter"],
             ["lab-dossier.html?id=helios", "user_round_search", "Fiche LAB", "Onglet Vigilance LAB de la fiche société"],
-            ["parcours-lab.html", "timeline", "Parcours d'un dossier LAB", "Collaborateur, associé, responsable LAB, client, EJ : les sept étapes"],
+            ["parcours-lab.html", "timeline", "Un dossier LAB, par acteur", "Collaborateur, associé, responsable LAB, client, EJ : les sept étapes"],
             ["lettres-mission.html", "file_pen_line", "Lettres de mission", "Signatures et renouvellements"],
             ["lettre-mission.html?id=odalis", "signature", "Lettre de mission", "Depuis un modèle et la bibliothèque"],
             ["modeles-prestations.html", "library", "Modèles et prestations", "Bibliothèque et modèles des lettres de mission"],
             ["cac.html", "briefcase", "Missions CAC", "Mandats et missions ponctuelles"],
             ["cac-mandat.html?id=vertalis", "calendar_clock", "Fiche mandat CAC", "Mandat, rapports, indépendance"],
             ["cac-mission.html?id=orvane", "file_check", "Mission ponctuelle CAC", "Apport, transformation, fusion"],
-            ["parcours-cac.html", "timeline", "Parcours d'une mission CAC", "Commissaire, entité, conseil, EJ : de la désignation à la mise à disposition"],
+            ["parcours-cac.html", "timeline", "Une mission CAC, par acteur", "Commissaire, entité, conseil, EJ : de la désignation à la mise à disposition"],
           ],
         },
         {
@@ -200,7 +223,7 @@
             '<section class="group"><div class="overline">' + g.title + '</div><div class="grid">' +
             g.items.map(function (it) {
               return (
-                '<a class="card tile" href="' + it[0] + '"><span class="list-icon"><span class="ms">' + it[1] + "</span></span>" +
+                '<a class="card tile' + (it[0].indexOf("parcours-") === 0 ? " tile-parcours" : "") + '" href="' + it[0] + '"><span class="list-icon"><span class="ms">' + it[1] + "</span></span>" +
                 '<span><span class="row-title" style="display:block">' + it[2] + '</span><span class="row-meta">' + it[3] + "</span></span>" +
                 '<span class="ms chev">arrow_forward</span></a>'
               );
