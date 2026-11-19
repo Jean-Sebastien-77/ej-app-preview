@@ -655,7 +655,7 @@
         } catch (e) {}
         var PERIMETRE = {};
         if (X) X.dossiers(PROFIL).forEach(function (d) { PERIMETRE[d.id] = true; });
-        /* Cabinet actif : le conseil de KERLYS (SELARL VASSEUR AVOCATS) ne voit aucune action du cabinet DELMAS */
+        /* Cabinet actif : le conseil de KERLYS (CABINET VASSEUR EXPERTISE) ne voit aucune action du cabinet DELMAS */
         var CONSEIL = false;
         try { CONSEIL = localStorage.getItem("ej-cabinet") === "vasseur"; } catch (e) {}
         function dansProfil(c) {

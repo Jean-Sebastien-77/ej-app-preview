@@ -599,7 +599,7 @@
         var last = null;
         var conseil = false;
         try { last = localStorage.getItem("ej-home-tab"); conseil = localStorage.getItem("ej-cabinet") === "vasseur"; } catch (e) {}
-        /* Côté conseil (SELARL VASSEUR AVOCATS), pas de cockpit : on reste sur l'accueil */
+        /* Côté conseil (CABINET VASSEUR EXPERTISE), pas de cockpit : on reste sur l'accueil */
         if (done === STEPS.length && last === "cockpit" && !conseil && !/[?&]tab=/.test(location.search)) location.replace("cockpit.html");
       })();
       document.addEventListener("DOMContentLoaded", function () {

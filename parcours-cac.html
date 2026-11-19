@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parcours d'une mission ponctuelle de CAC</title>
+<meta name="robots" content="noindex">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Mise en page : en-tête court, couloirs par acteur sur 7 étapes (défilement horizontal du seul tableau). Charte LejAL (encre, violet, menthe). */
+:root{
+  --bg:#F7F6FC; --surface:#FFFFFF; --ink:#221C55; --muted:#6B678C; --line:#E6E4F3; --soft:#E9E7F8;
+  --primary:#312782; --accent:#5D58D7; --mint:#0F7A56; --mint-bg:#DDFBEF;
+  --crit:#991B1B; --crit-bg:#FEE2E2; --warn:#92400E; --warn-bg:#FEF3C7; --info:#1E40AF; --info-bg:#DBEAFE;
+  --lane-ej:#E8E6F6; --lane-ec:#EEEDFB; --lane-jr:#DDFBEF; --lane-cl:#FEF3C7; --lane-ad:#F1F0F6;
+  --display:"Sora",ui-sans-serif,system-ui,sans-serif; --body:"Inter",ui-sans-serif,system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14112E; --surface:#1D1940; --ink:#ECEBFA; --muted:#A9A6CC; --line:#2E2960; --soft:#26214F;
+  --primary:#B9B4F5; --accent:#8F8BF0; --mint:#54EFAF; --mint-bg:#123D30;
+  --crit:#FCA5A5; --crit-bg:#3B1518; --warn:#FCD34D; --warn-bg:#3A2A0C; --info:#93C5FD; --info-bg:#132548;
+  --lane-ej:#221D4C; --lane-ec:#251F55; --lane-jr:#13332B; --lane-cl:#33290F; --lane-ad:#1F1C3A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14112E; --surface:#1D1940; --ink:#ECEBFA; --muted:#A9A6CC; --line:#2E2960; --soft:#26214F;
+  --primary:#B9B4F5; --accent:#8F8BF0; --mint:#54EFAF; --mint-bg:#123D30;
+  --crit:#FCA5A5; --crit-bg:#3B1518; --warn:#FCD34D; --warn-bg:#3A2A0C; --info:#93C5FD; --info-bg:#132548;
+  --lane-ej:#221D4C; --lane-ec:#251F55; --lane-jr:#13332B; --lane-cl:#33290F; --lane-ad:#1F1C3A; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14.5px;line-height:1.5;margin:0}
+.wrap{max-width:1240px;margin:0 auto;padding-block:32px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:40px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+h1{font-size:clamp(26px,4vw,36px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:22px;font-weight:600}
+.lead{color:var(--muted);max-width:68ch;margin:8px 0 0}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 10px;font-size:12.5px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%}
+section{display:flex;flex-direction:column;gap:14px}
+.legend{display:flex;flex-wrap:wrap;gap:8px}
+.scroller{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table.lanes{border-collapse:separate;border-spacing:0;min-width:1180px;width:100%}
+.lanes th,.lanes td{vertical-align:top;text-align:left;padding:10px 10px;border-bottom:1px solid var(--line)}
+.lanes thead th{font-family:var(--display);font-weight:600;font-size:13px;position:sticky;top:0;background:var(--surface);border-bottom:2px solid var(--line)}
+.lanes thead th span{display:block;font-family:var(--body);font-weight:500;color:var(--muted);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase}
+.lanes tbody th{width:150px;font-family:var(--display);font-size:13.5px;font-weight:600;position:sticky;left:0;z-index:1}
+.lanes tbody th small{display:block;font-family:var(--body);font-weight:400;color:var(--muted);font-size:12px;margin-top:2px}
+tr.ej th,tr.ej td{background:var(--lane-ej)} tr.ec th,tr.ec td{background:var(--lane-ec)}
+tr.jr th,tr.jr td{background:var(--lane-jr)} tr.cl th,tr.cl td{background:var(--lane-cl)} tr.ad th,tr.ad td{background:var(--lane-ad)}
+.step{font-size:12.8px;line-height:1.42;margin:0 0 6px}
+.step:last-child{margin-bottom:0}
+.step b{font-weight:600}
+.empty{color:var(--muted);font-size:12.5px}
+.tag{display:inline-block;font-size:11px;font-weight:600;border-radius:5px;padding:0 5px;margin-right:3px;vertical-align:1px}
+.t-crit{background:var(--crit-bg);color:var(--crit)} .t-warn{background:var(--warn-bg);color:var(--warn)} .t-new{background:var(--mint-bg);color:var(--mint)}
+.t-info{background:var(--info-bg);color:var(--info)}
+code{font-size:12px;background:var(--soft);border-radius:4px;padding:0 4px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;min-width:0}
+.card h3{font-size:15px;margin-bottom:6px}
+.card p{margin:0;font-size:13.5px;color:var(--ink)}
+.card p+p{margin-top:6px}
+.gaps{display:flex;flex-direction:column;gap:10px}
+.gap{display:grid;grid-template-columns:120px 1fr;gap:12px;background:var(--surface);border:1px solid var(--line);border-left-width:4px;border-radius:10px;padding:12px 14px}
+.gap.crit{border-left-color:var(--crit)} .gap.warn{border-left-color:#D97706} .gap.conf{border-left-color:var(--accent)}
+.gap .who{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.gap .who strong{font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+.gap.crit .who strong{color:var(--crit)} .gap.warn .who strong{color:var(--warn)} .gap.conf .who strong{color:var(--accent)}
+.gap h3{font-size:14.5px;font-family:var(--body);font-weight:600;margin-bottom:3px}
+.gap p{margin:0;font-size:13.3px;color:var(--ink)}
+.gap .ref{color:var(--muted);font-size:12px;margin-top:4px}
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.filters button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 12px;cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--primary);border-color:var(--primary);color:var(--bg)}
+.filters button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.count{font-variant-numeric:tabular-nums}
+footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px}
+@media (max-width:640px){.gap{grid-template-columns:1fr}.gap .who{flex-direction:row;flex-wrap:wrap;gap:8px}}
+</style>
+<style>footer a{color:var(--accent)}</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Parcours d'une mission ponctuelle de commissaire aux comptes</h1>
+    <p class="lead">Commissariat aux apports, à la transformation ou à la fusion, de la désignation à la mise à disposition du rapport, tel que la maquette « Propositions 2027 » l'illustre (données fictives, parcours KERLYS, dates du 19 octobre 2026). Aucune de ces fonctionnalités n'existe en production : les écrans sont à valider par EJ, et signer, remettre ou envoyer n'expédient rien.</p>
+    <div class="meta">
+      <span class="chip"><span class="dot" style="background:var(--primary)"></span>Commissaire signataire : associée CAC du cabinet</span>
+      <span class="chip"><span class="dot" style="background:#D97706"></span>Entité contrôlée : la société de l'opération</span>
+      <span class="chip"><span class="dot" style="background:var(--muted)"></span>Conseil de l'entité : cabinet qui mène la formalité dans EJ</span>
+      <span class="chip"><span class="dot" style="background:var(--accent)"></span>EJ : le logiciel (DPJ, reprise des pièces, documents)</span>
+    </div>
+  </header>
+
+  <section aria-labelledby="t-lanes">
+    <h2 id="t-lanes">Les sept étapes, acteur par acteur</h2>
+    <div class="legend">
+      <span class="chip"><span class="tag t-warn">simulé</span>la maquette n'envoie rien et ne se connecte à rien</span>
+      <span class="chip"><span class="tag t-info">à valider</span>contenu réglementaire ou modèle à faire valider</span>
+    </div>
+    <div class="scroller" role="region" aria-label="Tableau des parcours, défilable horizontalement" tabindex="0">
+      <table class="lanes">
+        <thead>
+          <tr>
+            <th scope="col"><span>Acteur</span></th>
+            <th scope="col"><span>1</span>Désignation</th>
+            <th scope="col"><span>2</span>Acceptation</th>
+            <th scope="col"><span>3</span>Pièces</th>
+            <th scope="col"><span>4</span>Rapport</th>
+            <th scope="col"><span>5</span>Signature</th>
+            <th scope="col"><span>6</span>Transmission</th>
+            <th scope="col"><span>7</span>Mise à disposition</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="ec">
+            <th scope="row">Commissaire signataire<small>associée CAC, Claire Dubois</small></th>
+            <td><p class="step">Crée la mission : « Nouvelle mission ponctuelle » ou « Préparer la mission » sur une opération partagée par un conseil. Nature (apport, apport partiel d'actif, transformation, fusion), mode et date de désignation, date de l'assemblée.</p><p class="step">Le bloc « À faire » propose « Accepter la mission ».</p></td>
+            <td><p class="step">Signe la déclaration d'indépendance. Fait valider le dossier LAB (elle en est la responsable). Établit la lettre de mission depuis le modèle du cabinet, saisit les honoraires HT, l'envoie pour signature, puis accepte.</p></td>
+            <td><p class="step"><b>Contrôle</b> chaque pièce reçue, la retient, ou <b>demande une nouvelle version</b>. Relance le conseil, ou marque une pièce comme reçue (une relance n'est pas une réception).</p></td>
+            <td><p class="step">Deux voies : « Joindre un rapport » ou « Préparer depuis un modèle ». <b>Saisit elle-même la conclusion</b> (obligatoire) puis finalise une version.</p><p class="step">Un rapport pour l'apport et la transformation, deux pour la fusion (valeur des apports, rémunération des apports).</p></td>
+            <td><p class="step">Envoie la lettre d'affirmation en signature, relance si besoin.</p><p class="step">Signe ensuite le rapport (signature électronique), daté du jour de la signature. <span class="tag t-warn">simulé</span></p></td>
+            <td><p class="step">« Remettre le rapport signé » : dans la formalité EJ du conseil si la société a donné son accord, sinon au conseil par lien de téléchargement. Une remise vise une version déterminée.</p><p class="step">Peut remettre une nouvelle version.</p></td>
+            <td><p class="step">« Enregistrer la mise à disposition » une fois confirmée par le conseil : la mission passe à « Terminée ».</p></td>
+          </tr>
+          <tr class="cl">
+            <th scope="row">Entité contrôlée<small>société de l'opération</small></th>
+            <td><p class="step">Désigne le commissaire : décision unanime des associés (KERLYS, 15/09/2026) ou ordonnance du président du tribunal de commerce (ATELIERS BRUN, VETIS SANTÉ).</p></td>
+            <td><p class="step">Son dirigeant signe la lettre de mission (« Marquer comme signée par la société »). Le cabinet ne la signe jamais pour elle.</p><p class="step">Donne son <b>accord</b> au partage des pièces et à la transmission du rapport dans la formalité du conseil (KERLYS : gérant, 15/09/2026). <span class="tag t-warn">simulé</span></p></td>
+            <td><p class="step">Peut recevoir le « Récap client » : étape, pièces reçues, pièces à transmettre, interlocuteur. Lecture seule, export PDF. <span class="tag t-warn">simulé</span></p></td>
+            <td><p class="empty">Rien.</p></td>
+            <td><p class="step">Son dirigeant signe la lettre d'affirmation : informations complètes et sincères, aucun événement affectant la valeur, engagements hors bilan et litiges communiqués. Fusion : les dirigeants des deux sociétés.</p></td>
+            <td><p class="empty">Rien.</p></td>
+            <td><p class="step">Met le rapport à disposition des associés au siège avant l'assemblée : 8 jours au moins (apport, transformation) ou 1 mois (fusion, apport partiel d'actif). <span class="tag t-info">à valider</span></p></td>
+          </tr>
+          <tr class="ad">
+            <th scope="row">Conseil de l'entité<small>KERLYS : CABINET VASSEUR EXPERTISE</small></th>
+            <td><p class="step">Depuis sa formalité EJ (F-2026-0409), propose au commissaire l'accès au dossier : « ni désignation ni acceptation ». L'acte de désignation est un document de la formalité.</p></td>
+            <td><p class="step">Voit la mission acceptée par le commissaire (jalon « Mission acceptée »), ou « En attente de l'acceptation ».</p></td>
+            <td><p class="step">Dépose les pièces attendues par un lien de dépôt sécurisé, sans compte (version 2 de la situation intermédiaire de KERLYS, 16/10/2026). Remplace une pièce sur demande.</p><p class="step">Les notes et travaux du commissaire ne lui sont pas montrés.</p></td>
+            <td><p class="step">Voit « En préparation par le commissaire ». Le contenu du rapport ne relève pas de lui.</p></td>
+            <td><p class="step">Voit « Signé par le commissaire, remise à venir ».</p></td>
+            <td><p class="step">Reçoit le rapport dans sa formalité (version, date, signature). <b>Retient</b> la version pour le dossier de dépôt. Aucun dépôt n'est déclenché par la maquette. <span class="tag t-warn">simulé</span></p></td>
+            <td><p class="step">Confirme au commissaire que la mise à disposition au siège est faite.</p></td>
+          </tr>
+          <tr class="ej">
+            <th scope="row">EJ<small>le logiciel</small></th>
+            <td><p class="step">Contrôle d'incompatibilité : société dont le cabinet présente les comptes, création impossible ; société suivie dans EJ, avertissement ; opération déjà rattachée, refus.</p><p class="step">Journal daté de la mission.</p></td>
+            <td><p class="step">Pré-remplit le dossier LAB depuis le DPJ. Génère la lettre de mission (réf. LM-CAC) depuis le modèle du cabinet.</p><p class="step">À l'acceptation : brouillons du rapport et de la lettre d'affirmation, lien de dépôt pour le conseil. <span class="tag t-warn">simulé</span></p></td>
+            <td><p class="step"><b>Reprend sans ressaisie</b> : extrait Kbis (RNE, INPI), statuts et décision de désignation depuis la formalité EJ (avec accord), comptes et rapport de gestion depuis le DPJ.</p><p class="step">Chaque ligne : source, date, version, un état (disponible, attendue, reçue à contrôler, contrôlée, à remplacer, sans objet).</p></td>
+            <td><p class="step">Aperçu du rapport : société, opération, diligences, conclusion saisie. Modèle du cabinet : <span class="tag t-info">exemple à remplacer</span> Versions numérotées (brouillon, finalisée, signée).</p></td>
+            <td><p class="step"><b>Bloque la signature</b> du rapport tant qu'une pièce est à contrôler ou à remplacer, ou qu'une version reste en brouillon.</p></td>
+            <td><p class="step">Transmet dans la formalité du conseil, ou par lien de téléchargement. Historique daté des versions remises. <span class="tag t-warn">simulé</span></p></td>
+            <td><p class="step">Date limite d'après le délai de l'opération et sa référence, compte à rebours, badge « Échéance dépassée ». <span class="tag t-info">à valider</span></p></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-mandat">
+    <h2 id="t-mandat">Et le mandat au long cours</h2>
+    <div class="grid2">
+      <div class="card"><h3>Exercices</h3><p>Mandat légal sur six exercices, audit légal des petites entreprises (ALPE) sur trois, audit contractuel sur un seul (sans fin de mandat). La fiche du mandat montre l'exercice en cours, clos à une date donnée.</p></div>
+      <div class="card"><h3>Rapports à l'AG moins 15 jours</h3><p>Rapports sur les comptes annuels, rapport spécial sur les conventions et comptes consolidés selon l'entité. Mise à disposition 15 jours au moins avant l'assemblée (art. R.225-89 pour les SA), date limite calculée dans la liste. <span class="tag t-info">à valider</span></p></div>
+      <div class="card"><h3>Fin de mandat et « Informer l'entité »</h3><p>Le dernier exercice est l'exercice en cours : le mandat prend fin à l'AG qui statue sur ces comptes. « Informer l'entité » ouvre un courrier pré-rédigé et modifiable (courrier électronique ou à imprimer), puis garde la date d'envoi.</p><p>Le renouvellement relève de l'organe de l'entité, pas du cabinet. <span class="tag t-warn">simulé</span></p></div>
+      <div class="card"><h3>Indépendance et acceptation</h3><p>Check-list avant d'accepter : dossier LAB ouvert et revue validée, déclaration d'indépendance de l'équipe, lettre de mission. Déclaration annuelle et services autres que la certification, rapprochés par SIREN des missions du cabinet. L'équipe d'audit figure au mandat ; la fiche d'une mission ponctuelle, elle, est au nom du seul signataire.</p></div>
+      <div class="card"><h3>LAB de l'entité</h3><p>Un dossier de vigilance par entité (statut, niveau de risque), responsable : Claire Dubois. Les contrôles de gel des avoirs et de personnes politiquement exposées sont des dates saisies, sans appel à un registre. « Envisager la démission » existe sur un mandat. <span class="tag t-warn">simulé</span></p></div>
+      <div class="card"><h3>Ce que la maquette ne contient pas</h3><p>Suivi d'heures, planning d'interventions et honoraires agrégés ont été retirés : c'est le rôle du logiciel d'audit, dont EJ n'a pas les données.</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-paths">
+    <h2 id="t-paths">Les chemins de traverse</h2>
+    <div class="grid2">
+      <div class="card"><h3>Le conseil n'utilise pas EJ</h3><p>Pas de formalité à rejoindre : les statuts et la décision de désignation ne sont pas repris, les pièces arrivent seulement par le lien de dépôt, le rapport est remis par lien de téléchargement (cas POMONE PRIMEURS).</p></div>
+      <div class="card"><h3>La société n'a pas donné son accord</h3><p>Le bouton « Demander l'accord » envoie une signature électronique au dirigeant. Tant qu'elle manque, les pièces de la formalité ne sont pas reprises et le rapport ne rejoint pas la formalité du conseil.</p></div>
+      <div class="card"><h3>Une pièce est à remplacer</h3><p>Une pièce reçue ou remplacée n'est jamais contrôlée d'office. Le commissaire demande une nouvelle version au conseil ; la signature reste refusée tant qu'elle n'est pas contrôlée.</p></div>
+      <div class="card"><h3>Une nouvelle version du rapport après remise</h3><p>« Remettre une nouvelle version » sans retour en arrière d'étape. Côté conseil, la version déjà retenue le reste tant qu'il n'en choisit pas une autre.</p></div>
+      <div class="card"><h3>Dossier LAB pas à jour</h3><p>La frise affiche « Bloquée · dossier LAB » et l'acceptation attend la validation. Le dossier prévoit le refus ou l'interruption de la mission si la vigilance ne peut pas être mise en œuvre.</p></div>
+      <div class="card"><h3>Société déjà cliente du cabinet</h3><p>Si le cabinet présente ses comptes, la mission est incompatible et sa création est refusée. Une société seulement suivie dans EJ donne un avertissement à vérifier par le commissaire.</p></div>
+    </div>
+  </section>
+
+  <footer>Source : maquette lifting-2026 (écrans « Propositions 2027 » cac, cac-mission, cac-mandat, formalité), données fictives du 19 octobre 2026. Écrans à valider par EJ ; modèle de rapport en exemple, délais et contenus à faire valider par un commissaire aux comptes ; joindre, signer et remettre n'envoient rien. <a href="index.html">Retour à l’aperçu Express Juridique</a></footer>
+</div>
+</body>
+</html>

@@ -199,7 +199,7 @@
       operation: "Transformation de la SARL en SAS", valeur: null,
       designation: { mode: "Décision unanime des associés", date: "15/09/2026" }, assemblee: "08/12/2026", depotAvant: "30/11/2026",
       etape: "rapport", pieces: [6, 6], honoraires: 3800,
-      conseil: { nom: "SELARL VASSEUR AVOCATS", ej: true, formalite: "F-2026-0409", libelle: "Transformation de SARL en SAS" },
+      conseil: { nom: "CABINET VASSEUR EXPERTISE", ej: true, formalite: "F-2026-0409", libelle: "Transformation de SARL en SAS" },
       lm: { statut: "signee", ref: "LM-CAC-2026-011" }, independance: { statut: "a_jour" }, lab: { ouverture: "10/09/2026", criblage: "18/10/2026", risque: "faible", statut: "a_jour", derniereRevue: "15/09/2026", prochaineRevue: "15/09/2029", be: 1, ppe: false, gel: "ok", pieces: [5, 5] },
       documents: [["Lettre de mission", "signe"], ["Rapport sur la valeur des biens et la situation nette", "brouillon"], ["Lettre d'affirmation", "brouillon"]],
       piecesDetail: [
@@ -236,7 +236,7 @@
       operation: "Transformation de la SARL en SAS", valeur: null,
       designation: { mode: "Décision unanime des associés", date: "08/07/2026" }, assemblee: "30/09/2026", depotAvant: "22/09/2026",
       etape: "termine", pieces: [6, 6], honoraires: 3200, transmis: "18/09/2026", miseADisposition: "21/09/2026",
-      conseil: { nom: "SELARL VASSEUR AVOCATS", ej: false, formalite: null, libelle: "Transformation de SARL en SAS" },
+      conseil: { nom: "CABINET VASSEUR EXPERTISE", ej: false, formalite: null, libelle: "Transformation de SARL en SAS" },
       lm: { statut: "signee", ref: "LM-CAC-2026-006" }, independance: { statut: "a_jour" }, lab: { ouverture: "01/07/2026", criblage: "18/10/2026", risque: "faible", statut: "a_jour", derniereRevue: "08/07/2026", prochaineRevue: "08/07/2029", be: 1, ppe: false, gel: "ok", pieces: [5, 5] },
       documents: [["Lettre de mission", "signe"], ["Rapport sur la valeur des biens et la situation nette", "depose"], ["Lettre d'affirmation", "signe"]] },
   ];
@@ -269,7 +269,7 @@
     });
   } catch (e) { /* stockage indisponible : avancement des données de démonstration */ }
 
-  /* Conseil de KERLYS, utilisateur d'Express Juridique (vue « Conseil », cabinet actif SELARL VASSEUR AVOCATS).
+  /* Conseil de KERLYS, utilisateur d'Express Juridique (vue « Conseil », cabinet actif CABINET VASSEUR EXPERTISE).
      Compte distinct du cabinet DELMAS : ses sociétés et ses formalités ne sont pas celles du cabinet DELMAS,
      et il ne voit de la mission du commissaire que ce que l'intervention partage (coordination, documents partagés).
      formalites[].intervention : intervention d'un commissaire dans l'opération, représentée par EJ.
@@ -279,7 +279,7 @@
        acceptation : date d'acceptation de la mission par le commissaire (null tant qu'il n'a pas accepté)
        mission : id de la mission ponctuelle (EJM.ponctuelles) ; l'état du rapport se lit sur la mission. */
   var CONSEIL = {
-    cabinet: "SELARL VASSEUR AVOCATS",
+    cabinet: "CABINET VASSEUR EXPERTISE",
     societes: [
       { id: "kerlys", nom: "KERLYS", siren: "752 018 334", forme: "SARL", activite: "Location et entretien de bateaux de plaisance",
         siege: "Zone portuaire de Kernével, 56260 Larmor-Plage", greffe: "LORIENT", immatriculation: "03/05/2012", ajout: "02/09/2026" },
@@ -317,7 +317,7 @@
      pas encore rattachée). Une invitation ne crée pas de mission et ne vaut pas désignation. */
   var INVITATIONS = [
     { ref: "F-2026-0396", conseil: "CABINET MARCHAL & ASSOCIÉS", societe: "VETIS SANTÉ", siren: "811 470 925", forme: "SAS", nature: "fusion", libelle: "Fusion-absorption", date: "28/08/2026", mission: "vetis" },
-    { ref: "F-2026-0409", conseil: "SELARL VASSEUR AVOCATS", societe: "KERLYS", siren: "752 018 334", forme: "SARL", nature: "transformation", libelle: "Transformation de SARL en SAS", date: "09/09/2026", mission: "kerlys" },
+    { ref: "F-2026-0409", conseil: "CABINET VASSEUR EXPERTISE", societe: "KERLYS", siren: "752 018 334", forme: "SARL", nature: "transformation", libelle: "Transformation de SARL en SAS", date: "09/09/2026", mission: "kerlys" },
     { ref: "F-2026-0418", conseil: "CABINET MARCHAL & ASSOCIÉS", societe: "ORVANE INDUSTRIES", siren: "834 210 576", forme: "SAS", nature: "apport", libelle: "Augmentation de capital par apport en nature", date: "24/09/2026", mission: "orvane" },
     { ref: "F-2026-0431", conseil: "CABINET MARCHAL & ASSOCIÉS", societe: "ATELIERS BRUN", siren: "903 556 120", forme: "SAS", nature: "apport", libelle: "Apport partiel d'actif", date: "14/10/2026", mission: "brun" },
     { ref: "F-2026-0447", conseil: "CABINET MARCHAL & ASSOCIÉS", societe: "SOLÉA BOIS", siren: "362 275 869", forme: "SAS", nature: "apport", libelle: "Augmentation de capital par apport en nature", date: "16/10/2026", mission: null },

@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parcours LAB par acteur (maquette)</title>
+<meta name="robots" content="noindex">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Mise en page : en-tête court, couloirs par acteur sur 7 étapes (défilement horizontal du seul tableau). Charte LejAL (encre, violet, menthe), reprise de parcours-lejal.html. */
+:root{
+  --bg:#F7F6FC; --surface:#FFFFFF; --ink:#221C55; --muted:#6B678C; --line:#E6E4F3; --soft:#E9E7F8;
+  --primary:#312782; --accent:#5D58D7; --mint:#0F7A56; --mint-bg:#DDFBEF;
+  --crit:#991B1B; --crit-bg:#FEE2E2; --warn:#92400E; --warn-bg:#FEF3C7; --info:#1E40AF; --info-bg:#DBEAFE;
+  --lane-ej:#E8E6F6; --lane-ec:#EEEDFB; --lane-jr:#DDFBEF; --lane-cl:#FEF3C7; --lane-ad:#F1F0F6;
+  --display:"Sora",ui-sans-serif,system-ui,sans-serif; --body:"Inter",ui-sans-serif,system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14112E; --surface:#1D1940; --ink:#ECEBFA; --muted:#A9A6CC; --line:#2E2960; --soft:#26214F;
+  --primary:#B9B4F5; --accent:#8F8BF0; --mint:#54EFAF; --mint-bg:#123D30;
+  --crit:#FCA5A5; --crit-bg:#3B1518; --warn:#FCD34D; --warn-bg:#3A2A0C; --info:#93C5FD; --info-bg:#132548;
+  --lane-ej:#221D4C; --lane-ec:#251F55; --lane-jr:#13332B; --lane-cl:#33290F; --lane-ad:#1F1C3A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14112E; --surface:#1D1940; --ink:#ECEBFA; --muted:#A9A6CC; --line:#2E2960; --soft:#26214F;
+  --primary:#B9B4F5; --accent:#8F8BF0; --mint:#54EFAF; --mint-bg:#123D30;
+  --crit:#FCA5A5; --crit-bg:#3B1518; --warn:#FCD34D; --warn-bg:#3A2A0C; --info:#93C5FD; --info-bg:#132548;
+  --lane-ej:#221D4C; --lane-ec:#251F55; --lane-jr:#13332B; --lane-cl:#33290F; --lane-ad:#1F1C3A; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14.5px;line-height:1.5;margin:0}
+.wrap{max-width:1240px;margin:0 auto;padding-block:32px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:40px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+h1{font-size:clamp(26px,4vw,36px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:22px;font-weight:600}
+.lead{color:var(--muted);max-width:68ch;margin:8px 0 0}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 10px;font-size:12.5px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%}
+section{display:flex;flex-direction:column;gap:14px}
+.legend{display:flex;flex-wrap:wrap;gap:8px}
+.scroller{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table.lanes{border-collapse:separate;border-spacing:0;min-width:1180px;width:100%}
+.lanes th,.lanes td{vertical-align:top;text-align:left;padding:10px 10px;border-bottom:1px solid var(--line)}
+.lanes thead th{font-family:var(--display);font-weight:600;font-size:13px;position:sticky;top:0;background:var(--surface);border-bottom:2px solid var(--line)}
+.lanes thead th span{display:block;font-family:var(--body);font-weight:500;color:var(--muted);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase}
+.lanes tbody th{width:150px;font-family:var(--display);font-size:13.5px;font-weight:600;position:sticky;left:0;z-index:1}
+.lanes tbody th small{display:block;font-family:var(--body);font-weight:400;color:var(--muted);font-size:12px;margin-top:2px}
+tr.ej th,tr.ej td{background:var(--lane-ej)} tr.ec th,tr.ec td{background:var(--lane-ec)}
+tr.jr th,tr.jr td{background:var(--lane-jr)} tr.cl th,tr.cl td{background:var(--lane-cl)} tr.ad th,tr.ad td{background:var(--lane-ad)}
+.step{font-size:12.8px;line-height:1.42;margin:0 0 6px}
+.step:last-child{margin-bottom:0}
+.step b{font-weight:600}
+.empty{color:var(--muted);font-size:12.5px}
+.tag{display:inline-block;font-size:11px;font-weight:600;border-radius:5px;padding:0 5px;margin-right:3px;vertical-align:1px}
+.t-crit{background:var(--crit-bg);color:var(--crit)} .t-warn{background:var(--warn-bg);color:var(--warn)} .t-new{background:var(--mint-bg);color:var(--mint)}
+.t-info{background:var(--info-bg);color:var(--info)}
+code{font-size:12px;background:var(--soft);border-radius:4px;padding:0 4px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;min-width:0}
+.card h3{font-size:15px;margin-bottom:6px}
+.card p{margin:0;font-size:13.5px;color:var(--ink)}
+.card p+p{margin-top:6px}
+.gaps{display:flex;flex-direction:column;gap:10px}
+.gap{display:grid;grid-template-columns:120px 1fr;gap:12px;background:var(--surface);border:1px solid var(--line);border-left-width:4px;border-radius:10px;padding:12px 14px}
+.gap.crit{border-left-color:var(--crit)} .gap.warn{border-left-color:#D97706} .gap.conf{border-left-color:var(--accent)}
+.gap .who{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.gap .who strong{font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+.gap.crit .who strong{color:var(--crit)} .gap.warn .who strong{color:var(--warn)} .gap.conf .who strong{color:var(--accent)}
+.gap h3{font-size:14.5px;font-family:var(--body);font-weight:600;margin-bottom:3px}
+.gap p{margin:0;font-size:13.3px;color:var(--ink)}
+.gap .ref{color:var(--muted);font-size:12px;margin-top:4px}
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.filters button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 12px;cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--primary);border-color:var(--primary);color:var(--bg)}
+.filters button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.count{font-variant-numeric:tabular-nums}
+footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px}
+@media (max-width:640px){.gap{grid-template-columns:1fr}.gap .who{flex-direction:row;flex-wrap:wrap;gap:8px}}
+</style>
+<style>footer a{color:var(--accent)}</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Parcours d'un dossier de vigilance LAB dans la maquette</h1>
+    <p class="lead">Ce que vit chaque acteur, de l'ouverture du dossier à la revue périodique, tel que les écrans « Propositions 2027 » de la maquette lifting-2026 l'illustrent. Maquette à données fictives (dates calculées à partir du 19 octobre 2026) : aucune de ces fonctionnalités n'existe en production, et les contenus réglementaires restent à faire valider par un professionnel.</p>
+    <div class="meta">
+      <span class="chip"><span class="dot" style="background:var(--accent)"></span>Collaborateur du cabinet : responsable du dossier</span>
+      <span class="chip"><span class="dot" style="background:var(--mint)"></span>Associé signataire : validateur de la revue</span>
+      <span class="chip"><span class="dot" style="background:var(--muted)"></span>Responsable LAB du cabinet</span>
+      <span class="chip"><span class="dot" style="background:#D97706"></span>Société cliente (ou entité contrôlée)</span>
+      <span class="chip"><span class="dot" style="background:var(--primary)"></span>EJ : logiciel (DPJ, pré-remplissage, alertes)</span>
+    </div>
+  </header>
+
+  <section aria-labelledby="t-lanes">
+    <h2 id="t-lanes">Les sept étapes, acteur par acteur</h2>
+    <div class="legend">
+      <span class="chip"><span class="tag t-warn">simulé</span>donnée saisie dans la maquette ou action sans effet réel</span>
+      <span class="chip"><span class="tag t-info">à valider</span>contenu réglementaire à faire valider par un professionnel</span>
+    </div>
+    <div class="scroller" role="region" aria-label="Tableau des parcours, défilable horizontalement" tabindex="0">
+      <table class="lanes">
+        <thead>
+          <tr>
+            <th scope="col"><span>Acteur</span></th>
+            <th scope="col"><span>1</span>Ouverture du dossier</th>
+            <th scope="col"><span>2</span>Identification et bénéficiaires effectifs</th>
+            <th scope="col"><span>3</span>Gel des avoirs et PPE</th>
+            <th scope="col"><span>4</span>Collecte des pièces</th>
+            <th scope="col"><span>5</span>Évaluation du risque</th>
+            <th scope="col"><span>6</span>Validation de la revue</th>
+            <th scope="col"><span>7</span>Revue périodique</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="ec">
+            <th scope="row">Collaborateur<small>responsable du dossier</small></th>
+            <td><p class="step">Depuis la file (« Dossier à ouvrir ») ou la fiche d'une société sans dossier : <b>Ouvrir le dossier</b>. Le pré-remplissage proposé est « à vérifier avant validation ».</p></td>
+            <td><p class="step">Contrôle les bénéficiaires effectifs repris et les associés sous le seuil.</p><p class="step">Aucun bénéficiaire identifié : bouton « Identifier depuis le DPJ et le RBE ».</p></td>
+            <td><p class="empty">Rien à faire tant qu'aucune correspondance n'est relevée : le résultat s'affiche dans la fiche.</p></td>
+            <td><p class="step"><b>Demander les pièces</b>, puis <b>Relancer le client</b> : il choisit les pièces cochées dans la fenêtre de collecte.</p><p class="step">Pièce reçue autrement : « Marquer comme reçue » ou dépôt du fichier dans la fiche.</p></td>
+            <td><p class="step">Renseigne les six critères de la grille. Le niveau est « proposé par » lui à l'ouverture, puis retenu à la revue.</p></td>
+            <td><p class="step">Prépare la revue et clique <b>Demander la validation à</b> l'associé (ou au responsable LAB). Peut retirer la demande.</p></td>
+            <td><p class="step">Revue échue : <b>Faire la revue</b>. Il consigne la vérification PPE du cabinet (source consultée).</p></td>
+          </tr>
+          <tr class="jr">
+            <th scope="row">Associé signataire<small>validateur par défaut</small></th>
+            <td><p class="empty">Rien.</p></td>
+            <td><p class="empty">Rien.</p></td>
+            <td><p class="empty">Rien.</p></td>
+            <td><p class="empty">Rien.</p></td>
+            <td><p class="empty">Rien : le niveau de risque est « retenu par » la personne qui valide.</p></td>
+            <td><p class="step"><b>Valider la revue</b> ou « Renvoyer avec un commentaire ». Conclusion : poursuivre, renforcer ou mettre fin à la relation (client EC).</p></td>
+            <td><p class="step">Valide chaque revue suivante sur le même principe.</p></td>
+          </tr>
+          <tr class="ad">
+            <th scope="row">Responsable LAB<small>un seul par profil</small></th>
+            <td><p class="empty">Rien.</p></td>
+            <td><p class="empty">Rien.</p></td>
+            <td><p class="step"><b>Lever l'homonymie</b> : compare date et lieu de naissance, nationalité, avec la pièce consultée. Conclusion « levée » ou « confirmée ».</p><p class="step">Confirmée : « Gel à appliquer », déclaration à la DG Trésor par lui.</p></td>
+            <td><p class="empty">Rien.</p></td>
+            <td><p class="step">Devient le validateur si le niveau retenu est élevé ou si une PPE est confirmée.</p></td>
+            <td><p class="step">Valide seulement les revues avec PPE, risque élevé ou homonymie.</p></td>
+            <td><p class="step">Idem : les autres revues restent à l'associé signataire.</p></td>
+          </tr>
+          <tr class="cl">
+            <th scope="row">Société cliente<small>ou entité contrôlée</small></th>
+            <td><p class="empty">Rien : le cabinet ouvre le dossier.</p></td>
+            <td><p class="step">Le dirigeant signe l'attestation « PPE et bénéficiaires effectifs » (signature en ligne décrite dans l'info-bulle de la collecte).</p></td>
+            <td><p class="step">Déclare une éventuelle PPE par cette attestation. Le statut PPE ne repose pas sur elle seule.</p></td>
+            <td><p class="step">Dépose ses pièces depuis un lien sécurisé (pièce d'identité du dirigeant et des bénéficiaires, statuts si EJ ne les a pas). <span class="tag t-warn">simulé</span>La maquette ne montre pas l'écran du client.</p></td>
+            <td><p class="empty">Rien.</p></td>
+            <td><p class="empty">Rien.</p></td>
+            <td><p class="step">Signe de nouveau l'attestation à chaque revue, ou après un changement de bénéficiaire effectif.</p></td>
+          </tr>
+          <tr class="ej">
+            <th scope="row">EJ<small>le logiciel</small></th>
+            <td><p class="step">Pré-remplit depuis le <b>DPJ</b> (entité contrôlée : registre national des entreprises) : dirigeant, siège, capital, bénéficiaires probables. Le dossier passe « incomplet ».</p><p class="step">Reprend les pièces qu'il détient déjà (extrait RNE, statuts).</p></td>
+            <td><p class="step">Bénéficiaires : plus de 25&nbsp;% du capital ou des droits de vote, ou contrôle ; à défaut le représentant légal. Dessine le schéma « Détention et contrôle ».</p><p class="step">L'envoi de la lettre de mission est bloqué tant que l'identification est incomplète.</p></td>
+            <td><p class="step">Affiche un contrôle quotidien sur le Registre national des gels. <span class="tag t-warn">simulé</span>Dates saisies dans les données, aucun appel réel.</p><p class="step">PPE : option Pappers KYC. <span class="tag t-warn">simulé</span>Activée pour la session seulement.</p></td>
+            <td><p class="step">Compte les pièces attendues, reçues, manquantes. Ne demande pas ce qu'il détient.</p><p class="step"><span class="tag t-warn">simulé</span>Une collecte ou une relance s'inscrit au journal et au Suivi des actions, sans rien envoyer.</p></td>
+            <td><p class="step">Présente les critères en proposition. Périodicité suivant le risque : 36, 24 ou 12&nbsp;mois. <span class="tag t-info">à valider</span></p></td>
+            <td><p class="step">Bloque la validation tant que reste une homonymie, une identification incomplète ou une pièce exigée (origine du patrimoine, justificatifs de l'activité).</p></td>
+            <td><p class="step">Signale la revue échue (« Revues échues », notification au responsable du dossier) et relève les changements depuis la dernière revue.</p></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-paths">
+    <h2 id="t-paths">Les chemins de traverse</h2>
+    <div class="grid2">
+      <div class="card"><h3>Homonymie sur le gel des avoirs</h3><p>Le dossier apparaît « Homonymie à lever » en tête de la file. Si la personne n'est pas la même, l'homonymie est levée et consignée. Si la correspondance est confirmée, le dossier passe « Gel à appliquer ». Dans les deux cas, la validation d'une revue reste bloquée tant que l'homonymie n'est pas traitée. Contrôle simulé, sans appel au registre.</p></div>
+      <div class="card"><h3>Personne politiquement exposée</h3><p>La PPE vient de la déclaration du client, puis de la vérification du cabinet à chaque revue (HATVP, Journal officiel, presse, entretien, Pappers KYC si activé). Confirmée, elle fait du responsable LAB le validateur et rend exigible l'origine du patrimoine. Le niveau de risque reste retenu par le professionnel.</p></div>
+      <div class="card"><h3>Risque élevé</h3><p>Le responsable LAB valide, et deux pièces deviennent exigées avant validation : origine du patrimoine et justificatifs de l'activité. La périodicité de revue proposée par la grille est de 12&nbsp;mois.</p></div>
+      <div class="card"><h3>Un bénéficiaire effectif change</h3><p>EJ relève le changement depuis la dernière revue (formalités, registre des mouvements de titres). L'attestation et les pièces d'identité des bénéficiaires comptent alors comme à renouveler, et la revue ne peut pas être validée avant leur réception.</p></div>
+      <div class="card"><h3>La revue est préparée par un autre</h3><p>Le collaborateur demande la validation ; le validateur la valide ou la renvoie avec un commentaire, que le collaborateur voit dans le bloc « À faire ». Demande, renvoi et validation figurent dans « Diligences et historique ».</p></div>
+      <div class="card"><h3>Conclusion selon le profil</h3><p>Client en expertise comptable : poursuivre, renforcer ou mettre fin à la relation (plus de revue prévue). Entité contrôlée : poursuivre, renforcer ou envisager la démission. Mission ponctuelle : poursuivre la mission, renforcer ou la refuser ou l'interrompre. Le responsable LAB est unique par profil.</p></div>
+    </div>
+  </section>
+
+  <footer>Source : écrans de la maquette lifting-2026 (lab.html, lab-dossier.html, assets/ej-lab.js) et relais du projet. Maquette à données fictives, écrans « Propositions 2027 » à valider par EJ : aucune fonctionnalité décrite n'existe en production, collectes et relances n'envoient rien, contenus réglementaires à faire valider par un professionnel. <a href="index.html">Retour à l’aperçu Express Juridique</a></footer>
+</div>
+</body>
+</html>

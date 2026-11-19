@@ -152,7 +152,7 @@
         }
         return null;
       }
-      /* Cabinet actif, lu comme le fait ej-shell.js (chargé en fin de page) : SELARL VASSEUR AVOCATS => « conseil »,
+      /* Cabinet actif, lu comme le fait ej-shell.js (chargé en fin de page) : CABINET VASSEUR EXPERTISE => « conseil »,
          sinon le profil du cabinet DELMAS (ec, cac, mixte ; ec par défaut). */
       function profilActif() {
         try {
@@ -205,7 +205,7 @@
           return ligne("societe.html?cac=" + encodeURIComponent(c.cle), c.nom, "SIREN : " + esc(c.siren), droite);
         });
       }
-      /* Sociétés du conseil (SELARL VASSEUR AVOCATS) : dernière mise à jour = formalité la plus récemment modifiée */
+      /* Sociétés du conseil (CABINET VASSEUR EXPERTISE) : dernière mise à jour = formalité la plus récemment modifiée */
       function lignesConseil() {
         var C = window.EJM && window.EJM.conseil ? window.EJM.conseil : { societes: [], formalites: [] };
         return C.societes

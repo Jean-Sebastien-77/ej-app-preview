@@ -407,7 +407,7 @@
       /* Sans paramètre : la page reste celle de PAPRIKA CANTINE, telle quelle (aucune donnée chargée).
          Avec ?id=<id DPJ> : charge les données de la société et remplace l'en-tête et la chronologie.
          Avec ?cac=<SIREN> (profils cac et mixte) : fiche d'une entité dont le cabinet est commissaire aux comptes.
-         Compte du conseil (SELARL VASSEUR AVOCATS) : ?id=<id> lu dans EJM.conseil. */
+         Compte du conseil (CABINET VASSEUR EXPERTISE) : ?id=<id> lu dans EJM.conseil. */
       (function () {
         function param(nom) {
           var m = new RegExp("[?&]" + nom + "=([^&#]*)").exec(location.search);
@@ -419,7 +419,7 @@
           }
         }
         /* Cabinet actif, lu comme le fait ej-shell.js (chargé plus haut mais sans lecture pour nous) :
-           SELARL VASSEUR AVOCATS => « conseil », sinon le profil du cabinet DELMAS (ec par défaut). */
+           CABINET VASSEUR EXPERTISE => « conseil », sinon le profil du cabinet DELMAS (ec par défaut). */
         function profilActif() {
           try {
             if (localStorage.getItem("ej-cabinet") === "vasseur") return "conseil";
@@ -432,7 +432,7 @@
         var idP = param("id");
         var cacP = param("cac");
         if (cacP === null && idP === null && profil !== "conseil") return;
-        /* cac : entité dont le cabinet est commissaire ; conseil : sociétés du compte SELARL VASSEUR AVOCATS ;
+        /* cac : entité dont le cabinet est commissaire ; conseil : sociétés du compte CABINET VASSEUR EXPERTISE ;
            dpj : sociétés EC (comportement d'origine) */
         var mode = cacP !== null ? "cac" : profil === "conseil" ? "conseil" : "dpj";
         var id = mode === "cac" ? cacP : idP;

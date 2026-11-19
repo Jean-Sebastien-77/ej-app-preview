@@ -80,12 +80,12 @@
     var saved = localStorage.getItem("ej-profil");
     if (PROFILS.some(function (p) { return p.id === saved; })) profil = saved;
   } catch (e) {}
-  /* Cabinet actif simulé : le cabinet DELMAS (EC et CAC) ou le conseil de KERLYS, SELARL VASSEUR AVOCATS.
+  /* Cabinet actif simulé : le cabinet DELMAS (EC et CAC) ou le conseil de KERLYS, CABINET VASSEUR EXPERTISE.
      Deux comptes distincts : le conseil ne voit ni les missions ni le LAB du cabinet DELMAS.
      Côté conseil, body[data-profil] vaut "conseil" et le sélecteur de vue par activité disparaît. */
   var CABINETS = [
     { id: "delmas", nom: "CABINET DELMAS EXPERTISE" },
-    { id: "vasseur", nom: "SELARL VASSEUR AVOCATS" },
+    { id: "vasseur", nom: "CABINET VASSEUR EXPERTISE" },
   ];
   var cabinet = "delmas";
   try {
@@ -98,7 +98,7 @@
   var profilLabel = profil === "conseil" ? "" : PROFILS.filter(function (p) { return p.id === profil; })[0].label;
   window.EJ_PROFIL = profil;
   window.EJ_CABINET = { id: cabinet, nom: cabinetNom };
-  /* Utilisateur connecté simulé : l'associée CAC en profil cac, l'avocate au conseil, sinon l'associé EC. */
+  /* Utilisateur connecté simulé : l'associée CAC en profil cac, l'associée du cabinet conseil, sinon l'associé EC. */
   var user = profil === "conseil" ? { initiales: "AV", nom: "Anne Vasseur" }
     : profil === "cac" ? { initiales: "CD", nom: "Claire Dubois" } : { initiales: "TG", nom: "Thomas Girard" };
   window.EJ_USER = user;
