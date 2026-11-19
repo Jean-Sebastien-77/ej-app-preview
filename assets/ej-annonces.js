@@ -1,6 +1,11 @@
 /* Express Juridique · Annonces légales (LejAL dans EJ)
    Maquette : données fictives, tout est en mémoire, rien n'est envoyé.
-   Dates : « aujourd'hui » vaut le 19/11/2026. */
+   Dates : « aujourd'hui » vaut le 19/11/2026.
+   Délais de parution (à garder réalistes si l'on ajoute une ligne) :
+   - journal en ligne : parution le jour du paiement ou le lendemain ouvré ;
+   - journal papier : prochain numéro après le bouclage (Loire-Atlantique : mardi, Écho de Lyon : jeudi) ;
+   - attestation : le jour ouvré qui suit la parution, une fois la preuve vérifiée ;
+   - avant paiement : pas de date ferme, « au plus tôt après paiement », sauf date souhaitée par le cabinet (souhait: true). */
 (function () {
   "use strict";
 
@@ -108,24 +113,24 @@
   /* ht : prix HT final de l'annonce. ref : formalité d'origine (absente = hors formalité).
      dem, pay, env, acc : dates des étapes. par : parution prévue ou parue. att : attestation. */
   var ANNONCES = [
-    ligne({ id: "AL-2026-0172", soc: "SOURIRE DENTAIRE", op: "Changement de dirigeant", etat: "confirmer", ht: 109, dem: "2026-11-19", par: "2026-12-08", mail: "direction@sourire-dentaire.example" }),
-    ligne({ id: "AL-2026-0171", soc: "URBAN FIT CLUB", op: "Transfert de siège", etat: "confirmer", ht: 109, dem: "2026-11-19", par: "2026-12-04", mail: "gerance@urbanfitclub.example" }),
-    ligne({ id: "AL-2026-0170", soc: "LUMEN", op: "Changement de dirigeant", ref: "GC-2026-286", etat: "attente", ht: 109, dem: "2026-11-18", par: "2026-12-03", mail: "contact@lumen-bordeaux.example", lien: "p/Lm4T9c" }),
-    ligne({ id: "AL-2026-0169", soc: "SCI LES TERRASSES DÉMO", op: "Constitution SCI", ref: "GC-2026-279", etat: "envoi", ht: 191, dem: "2026-11-17", pay: "2026-11-18", env: "2026-11-18", par: "2026-11-27", j: LOIRE, sup: "papier", mail: "gerant@terrasses-demo.example", lien: "p/Sc7Qa2" }),
-    ligne({ id: "AL-2026-0168", soc: "NOVA STUDIO DÉMO", op: "Constitution SAS", ref: "GC-2026-281", etat: "acceptee", ht: 199, dem: "2026-11-16", pay: "2026-11-16", env: "2026-11-17", acc: "2026-11-18", par: "2026-11-26", j: GAZ_RHONE, sup: "en ligne", mail: "president@novastudio-demo.example", lien: "p/Nv5Zx8" }),
-    ligne({ id: "AL-2026-0167", soc: "HELIOS SAS", op: "Augmentation de capital", ref: "GC-2026-285", etat: "attente", ht: 136, dem: "2026-11-12", par: "2026-11-28", mail: "finance@helios-sas.example", lien: "p/He3Rb6" }),
-    ligne({ id: "AL-2026-0166", soc: "AXIOME", op: "Dissolution", ref: "GC-2026-284", etat: "refusee", ht: 153, dem: "2026-11-10", pay: "2026-11-10", env: "2026-11-11", refus: "2026-11-14", par: "2026-11-25", j: PROVENCE, sup: "en ligne", mail: "associes@axiome-conseil.example", lien: "p/Ax9Kd1",
+    ligne({ id: "AL-2026-0172", soc: "SOURIRE DENTAIRE", op: "Changement de dirigeant", etat: "confirmer", ht: 109, dem: "2026-11-19", par: "2026-11-20", mail: "direction@sourire-dentaire.example" }),
+    ligne({ id: "AL-2026-0171", soc: "URBAN FIT CLUB", op: "Transfert de siège", etat: "confirmer", ht: 109, dem: "2026-11-19", par: "2026-12-01", souhait: true, mail: "gerance@urbanfitclub.example" }),
+    ligne({ id: "AL-2026-0170", soc: "LUMEN", op: "Changement de dirigeant", ref: "GC-2026-286", etat: "attente", ht: 109, dem: "2026-11-18", par: "2026-11-20", mail: "contact@lumen-bordeaux.example", lien: "p/Lm4T9c" }),
+    ligne({ id: "AL-2026-0169", soc: "SCI LES TERRASSES DÉMO", op: "Constitution SCI", ref: "GC-2026-279", etat: "envoi", ht: 191, dem: "2026-11-18", pay: "2026-11-19", env: "2026-11-19", par: "2026-11-24", j: LOIRE, sup: "papier", mail: "gerant@terrasses-demo.example", lien: "p/Sc7Qa2" }),
+    ligne({ id: "AL-2026-0168", soc: "NOVA STUDIO DÉMO", op: "Constitution SAS", ref: "GC-2026-281", etat: "acceptee", ht: 199, dem: "2026-11-18", pay: "2026-11-19", env: "2026-11-19", acc: "2026-11-19", par: "2026-11-20", j: GAZ_RHONE, sup: "en ligne", mail: "president@novastudio-demo.example", lien: "p/Nv5Zx8" }),
+    ligne({ id: "AL-2026-0167", soc: "HELIOS SAS", op: "Augmentation de capital", ref: "GC-2026-285", etat: "attente", ht: 136, dem: "2026-11-16", par: "2026-11-20", mail: "finance@helios-sas.example", lien: "p/He3Rb6" }),
+    ligne({ id: "AL-2026-0166", soc: "AXIOME", op: "Dissolution", ref: "GC-2026-284", etat: "refusee", ht: 153, dem: "2026-11-16", pay: "2026-11-16", env: "2026-11-16", refus: "2026-11-17", par: "2026-11-20", j: PROVENCE, sup: "en ligne", mail: "associes@axiome-conseil.example", lien: "p/Ax9Kd1",
       motif: "Le nom du liquidateur et la date de la décision de dissolution ne figurent pas dans le texte. Le montant du capital doit aussi correspondre à celui du dernier acte déposé." }),
-    ligne({ id: "AL-2026-0165", soc: "PAPRIKA CANTINE", op: "Augmentation de capital", ref: "GC-2026-277", etat: "prevue", ht: 136, dem: "2026-11-05", pay: "2026-11-06", env: "2026-11-06", acc: "2026-11-10", par: "2026-11-21", j: COURRIER, sup: "en ligne", mail: "compta@paprika-cantine.example", lien: "p/Pa2Wn7" }),
-    ligne({ id: "AL-2026-0164", soc: "ODALIS", op: "Changement de dirigeant", etat: "verif", ht: 109, dem: "2026-10-28", pay: "2026-10-28", env: "2026-10-29", acc: "2026-10-30", par: "2026-11-12", j: ECHO_LYON, sup: "papier", mail: "secretariat@odalis.example", lien: "p/Od6Jf4" }),
-    ligne({ id: "AL-2026-0163", soc: "CAP ESTEREL", op: "Transfert de siège", ref: "GC-2026-272", etat: "publiee", ht: 109, dem: "2026-10-27", pay: "2026-10-27", env: "2026-10-28", acc: "2026-10-30", par: "2026-11-10", att: "2026-11-11", j: LOIRE, sup: "papier", mail: "direction@capesterel.example", lien: "p/Ce1Ym3" }),
-    ligne({ id: "AL-2026-0162", soc: "SOUFFLE ET HARMONIE", op: "Augmentation de capital", etat: "publiee", ht: 136, dem: "2026-10-22", pay: "2026-10-22", env: "2026-10-23", acc: "2026-10-26", par: "2026-11-06", att: "2026-11-07", j: GAZ_RHONE, sup: "en ligne", mail: "gerance@souffle-harmonie.example", lien: "p/So8Vh5" }),
-    ligne({ id: "AL-2026-0161", soc: "NEOLAB.", op: "Dissolution", etat: "annulee", ht: 153, dem: "2026-10-21", pay: "2026-10-21", annul: "2026-10-22", par: "2026-11-05", j: GIRONDE, sup: "en ligne", mail: "associes@neolab.example", lien: "p/Ne4Tc9" }),
-    ligne({ id: "AL-2026-0160", soc: "TB ELECTRICITE", op: "Changement de dirigeant", etat: "publiee", ht: 109, dem: "2026-10-20", pay: "2026-10-20", env: "2026-10-21", acc: "2026-10-23", par: "2026-11-04", att: "2026-11-05", j: GIRONDE, sup: "en ligne", mail: "gerant@tb-electricite.example", lien: "p/Tb5Lp2" }),
-    ligne({ id: "AL-2026-0159", soc: "JULIEN MARCHAL FORMATIONS", op: "Transfert de siège", etat: "publiee", ht: 109, dem: "2026-10-13", pay: "2026-10-14", env: "2026-10-14", acc: "2026-10-16", par: "2026-10-29", att: "2026-10-30", j: ECHO_LYON, sup: "papier", mail: "julien@marchal-formations.example", lien: "p/Ju7Gs6" }),
-    ligne({ id: "AL-2026-0158", soc: "MERCIER & ASSOCIES", op: "Augmentation de capital", ref: "GC-2026-232", etat: "publiee", ht: 136, dem: "2026-10-08", pay: "2026-10-09", env: "2026-10-09", acc: "2026-10-13", par: "2026-10-22", att: "2026-10-23", j: COURRIER, sup: "en ligne", mail: "associes@mercier-associes.example", lien: "p/Me2Bq8" }),
-    ligne({ id: "AL-2026-0157", soc: "KPL3D", op: "Transfert de siège", etat: "publiee", ht: 109, dem: "2026-09-02", pay: "2026-09-02", env: "2026-09-03", acc: "2026-09-07", par: "2026-09-17", att: "2026-09-18", j: PROVENCE, sup: "en ligne", mail: "direction@kpl3d.example", lien: "p/Kp3Hn1", vire: "2026-10-15" }),
-    ligne({ id: "AL-2026-0156", soc: "ORVEA", op: "Changement de dirigeant", etat: "publiee", ht: 109, dem: "2026-08-20", pay: "2026-08-21", env: "2026-08-21", acc: "2026-08-26", par: "2026-09-03", att: "2026-09-04", j: GIRONDE, sup: "en ligne", mail: "gerance@orvea.example", lien: "p/Or9Dk4", vire: "2026-10-15" })
+    ligne({ id: "AL-2026-0165", soc: "PAPRIKA CANTINE", op: "Augmentation de capital", ref: "GC-2026-277", etat: "prevue", ht: 136, dem: "2026-11-16", pay: "2026-11-18", env: "2026-11-18", acc: "2026-11-18", par: "2026-11-19", j: COURRIER, sup: "en ligne", mail: "compta@paprika-cantine.example", lien: "p/Pa2Wn7" }),
+    ligne({ id: "AL-2026-0164", soc: "ODALIS", op: "Changement de dirigeant", etat: "verif", ht: 109, dem: "2026-11-13", pay: "2026-11-13", env: "2026-11-13", acc: "2026-11-16", par: "2026-11-19", j: ECHO_LYON, sup: "papier", mail: "secretariat@odalis.example", lien: "p/Od6Jf4" }),
+    ligne({ id: "AL-2026-0163", soc: "CAP ESTEREL", op: "Transfert de siège", ref: "GC-2026-272", etat: "publiee", ht: 109, dem: "2026-11-12", pay: "2026-11-12", env: "2026-11-12", acc: "2026-11-13", par: "2026-11-17", att: "2026-11-18", j: LOIRE, sup: "papier", mail: "direction@capesterel.example", lien: "p/Ce1Ym3" }),
+    ligne({ id: "AL-2026-0162", soc: "SOUFFLE ET HARMONIE", op: "Augmentation de capital", etat: "publiee", ht: 136, dem: "2026-11-09", pay: "2026-11-09", env: "2026-11-09", acc: "2026-11-09", par: "2026-11-10", att: "2026-11-12", j: GAZ_RHONE, sup: "en ligne", mail: "gerance@souffle-harmonie.example", lien: "p/So8Vh5" }),
+    ligne({ id: "AL-2026-0161", soc: "NEOLAB.", op: "Dissolution", etat: "annulee", ht: 153, dem: "2026-11-05", pay: "2026-11-05", annul: "2026-11-06", par: "2026-11-06", j: GIRONDE, sup: "en ligne", mail: "associes@neolab.example", lien: "p/Ne4Tc9" }),
+    ligne({ id: "AL-2026-0160", soc: "TB ELECTRICITE", op: "Changement de dirigeant", etat: "publiee", ht: 109, dem: "2026-11-03", pay: "2026-11-03", env: "2026-11-03", acc: "2026-11-03", par: "2026-11-04", att: "2026-11-05", j: GIRONDE, sup: "en ligne", mail: "gerant@tb-electricite.example", lien: "p/Tb5Lp2" }),
+    ligne({ id: "AL-2026-0159", soc: "JULIEN MARCHAL FORMATIONS", op: "Transfert de siège", etat: "publiee", ht: 109, dem: "2026-10-23", pay: "2026-10-26", env: "2026-10-26", acc: "2026-10-27", par: "2026-10-29", att: "2026-10-30", j: ECHO_LYON, sup: "papier", mail: "julien@marchal-formations.example", lien: "p/Ju7Gs6" }),
+    ligne({ id: "AL-2026-0158", soc: "MERCIER & ASSOCIES", op: "Augmentation de capital", ref: "GC-2026-232", etat: "publiee", ht: 136, dem: "2026-10-19", pay: "2026-10-20", env: "2026-10-20", acc: "2026-10-20", par: "2026-10-21", att: "2026-10-22", j: COURRIER, sup: "en ligne", mail: "associes@mercier-associes.example", lien: "p/Me2Bq8" }),
+    ligne({ id: "AL-2026-0157", soc: "KPL3D", op: "Transfert de siège", etat: "publiee", ht: 109, dem: "2026-09-15", pay: "2026-09-15", env: "2026-09-15", acc: "2026-09-16", par: "2026-09-16", att: "2026-09-17", j: PROVENCE, sup: "en ligne", mail: "direction@kpl3d.example", lien: "p/Kp3Hn1", vire: "2026-10-15" }),
+    ligne({ id: "AL-2026-0156", soc: "ORVEA", op: "Changement de dirigeant", etat: "publiee", ht: 109, dem: "2026-08-31", pay: "2026-09-01", env: "2026-09-01", acc: "2026-09-01", par: "2026-09-02", att: "2026-09-03", j: GIRONDE, sup: "en ligne", mail: "gerance@orvea.example", lien: "p/Or9Dk4", vire: "2026-10-15" })
   ];
 
   /* Attestations plus anciennes (archive), hors tableau de suivi */
@@ -230,6 +235,8 @@
   function parutionTxt(r) {
     if (r.etat === "annulee") return '<span class="muted">Aucune</span>';
     if (r.etat === "publiee" || r.etat === "verif") return "parue le " + fmtDate(r.par);
+    if (r.etat === "refusee") return '<span class="muted">après correction</span>';
+    if (!r.pay) return r.souhait ? "souhaitée le " + fmtDate(r.par) : '<span class="muted">au plus tôt après paiement</span>';
     return "prévue le " + fmtDate(r.par);
   }
   function journalTxt(r) {
@@ -515,10 +522,10 @@
     var jBloc = '<div class="ann-box"><div class="overline">Journal</div>';
     if (!r.j || (!r.pay && r.etat !== "annulee")) {
       jBloc += '<p class="small">Attribué après le paiement du client, selon le département (' + esc(r.dep) + " " + esc(DEPTS[r.dep]) + ").</p>" +
-        '<dl class="ann-kv ann-kv-left"><dt>Parution</dt><dd>souhaitée le ' + fmtDate(r.par) + "</dd></dl>";
+        '<dl class="ann-kv ann-kv-left"><dt>Parution</dt><dd>' + (r.souhait ? "souhaitée le " + fmtDate(r.par) : "au plus tôt après le paiement") + "</dd></dl>";
     } else {
       jBloc += '<dl class="ann-kv ann-kv-left"><dt>Nom</dt><dd>' + esc(r.j) + "</dd><dt>Support</dt><dd>" + esc(r.sup) + "</dd><dt>Département</dt><dd>" + esc(r.dep) + " " + esc(DEPTS[r.dep]) +
-        "</dd><dt>Date</dt><dd>" + (r.etat === "publiee" || r.etat === "verif" ? "parue le " : r.etat === "annulee" ? "annulée, prévue le " : "prévue le ") + fmtDate(r.par) + "</dd></dl>";
+        "</dd><dt>Date</dt><dd>" + (r.etat === "refusee" ? "à fixer après la correction du texte" : (r.etat === "publiee" || r.etat === "verif" ? "parue le " : r.etat === "annulee" ? "annulée, prévue le " : "prévue le ") + fmtDate(r.par)) + "</dd></dl>";
     }
     jBloc += "</div>";
     h += '<div class="ann-grid2">' + lienBloc + jBloc + "</div>";
@@ -619,7 +626,7 @@
     var ht = prixWz(v.op, v.dep);
     $("ann-wz-recap").innerHTML =
       '<dl class="ann-kv ann-kv-left"><dt>Société</dt><dd>' + esc(v.soc) + "</dd><dt>Opération</dt><dd>" + esc(v.op) + "</dd><dt>Département</dt><dd>" + esc(v.dep) + " " + esc(DEPTS[v.dep] || "") +
-      "</dd><dt>Parution</dt><dd>souhaitée le " + fmtDate(v.date) + "</dd><dt>Journal</dt><dd>Attribué par LejAL après le paiement du client</dd></dl>" +
+      "</dd><dt>Parution</dt><dd>" + (v.date ? "souhaitée le " + fmtDate(v.date) : "au plus tôt après le paiement") + "</dd><dt>Journal</dt><dd>Attribué par LejAL après le paiement du client</dd></dl>" +
       '<div class="ann-grid2" style="margin-top:14px"><div class="ann-box"><div class="overline">Prix</div><dl class="ann-kv"><dt>Prix HT</dt><dd>' + eur(ht) + "</dd><dt>TVA 20" + NBSP + "%</dt><dd>" + eur(tva(ht)) +
       '</dd><dt class="tot">Prix TTC</dt><dd class="tot">' + eur(ttc(ht)) + '</dd></dl></div><div class="ann-box"><div class="overline">Apport d’affaires du cabinet</div><dl class="ann-kv"><dt>Montant (25' + NBSP + '% du HT)</dt><dd>' + eur(apportDe(ht)) +
       '</dd></dl><p class="ann-note">Acquis à la parution. Le cabinet ne règle rien.</p></div></div>';
@@ -627,8 +634,8 @@
   function wzSuivant() {
     var v = wzValeurs(), err = $("ann-wz-err");
     if (wz.step === 1) {
-      if (!v.soc || !v.op || !v.dep || !v.date) { err.textContent = "Renseignez la société, l’opération, le département et la date de parution souhaitée."; return; }
-      if (v.date < addDays(TODAY, 1)) { err.textContent = "La date de parution souhaitée doit être postérieure au " + fmtDate(TODAY) + "."; return; }
+      if (!v.soc || !v.op || !v.dep) { err.textContent = "Renseignez la société, l’opération et le département."; return; }
+      if (v.date && v.date < addDays(TODAY, 1)) { err.textContent = "La date de parution souhaitée doit être postérieure au " + fmtDate(TODAY) + "."; return; }
       var cle = v.soc + "|" + v.op + "|" + v.date;
       if (!wz.texteModifie || wz.texteCle !== cle) {
         if (!wz.texteModifie) $("ann-wz-texte").value = texteAnnonce(v.soc, v.op, addDays(TODAY, -2), v.dep);
@@ -653,7 +660,7 @@
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.mail)) { err.textContent = "Saisissez une adresse e-mail valide pour le client."; $("ann-wz-mail").focus(); return; }
     dernierId += 1;
     var r = {
-      id: "AL-2026-0" + dernierId, soc: v.soc, op: v.op, etat: "attente", ht: prixWz(v.op, v.dep), dem: TODAY, par: v.date,
+      id: "AL-2026-0" + dernierId, soc: v.soc, op: v.op, etat: "attente", ht: prixWz(v.op, v.dep), dem: TODAY, par: v.date || addDays(TODAY, 1), souhait: !!v.date,
       mail: v.mail, lien: "p/Nw" + dernierId, texte: v.texte, dep: v.dep, neuf: true
     };
     ANNONCES.unshift(r);
@@ -669,7 +676,7 @@
   function wzOuvrir() {
     wz = { step: 1, texteCle: "", texteModifie: false };
     $("ann-wz-soc").value = ""; $("ann-wz-op").value = ""; $("ann-wz-dep").value = "";
-    $("ann-wz-date").value = "2026-12-03"; $("ann-wz-date").min = addDays(TODAY, 1);
+    $("ann-wz-date").value = ""; $("ann-wz-date").min = addDays(TODAY, 1);
     $("ann-wz-texte").value = ""; $("ann-wz-mail").value = "";
     wzMontrer();
     ouvrir($("ann-wz"), $("ann-wz-soc"));
