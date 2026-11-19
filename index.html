@@ -250,7 +250,7 @@
             '<section class="group"><div class="overline">' + (function (p) { var p2 = { ej: ["pd-ej", "EJ"], prop: ["pd-prop", "EJ · proposition 2027"], lejal: ["pd-lejal", "LejAL"] }[p]; return p2 ? '<span class="prod"><span class="pd ' + p2[0] + '"></span>' + p2[1] + '</span>' : ''; })(g.prod) + g.title + '</div><div class="grid">' +
             g.items.map(function (it) {
               return (
-                '<a class="card tile' + (it[0].indexOf("parcours-") === 0 ? " tile-parcours" : "") + '" href="' + it[0] + '"' + (it[0].indexOf("http") === 0 ? ' target="_blank" rel="noopener"' : "") + '><span class="list-icon"><span class="ms">' + it[1] + "</span></span>" +
+                '<a class="card tile' + (it[0].indexOf("parcours-") === 0 ? " tile-parcours" : "") + '" href="' + it[0] + '" target="_blank" rel="noopener"><span class="list-icon"><span class="ms">' + it[1] + "</span></span>" +
                 '<span><span class="row-title" style="display:block">' + it[2] + '</span><span class="row-meta">' + it[3] + "</span></span>" +
                 '<span class="ms chev">arrow_forward</span></a>'
               );
