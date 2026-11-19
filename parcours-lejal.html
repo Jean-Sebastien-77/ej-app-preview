@@ -122,15 +122,15 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
             <td><p class="step"><b>Confirmation</b> : LejAL rend le lien de paiement. EJ l'affiche au cabinet.</p><p class="step">Aucun journal dans le département : refus <code>409</code>, rien n'est facturé.</p></td>
             <td><p class="step">Webhook <code>paid</code> avec l'apport d'affaires né de ce paiement.</p></td>
             <td><p class="step">Webhooks <code>routed</code>, <code>submitted</code> : journal retenu et nom INPI.</p></td>
-            <td><p class="step"><code>attestation_available</code> : EJ télécharge l'attestation pour la formalité.</p><p class="step">Refus : <code>announcement.rejected</code>, EJ corrige (<code>PATCH</code>) et reconfirme ; complément si plus cher.</p></td>
-            <td><p class="step"><code>published</code> sur preuve, puis <code>completed</code>.</p><p class="step">J+3 : <code>publication_delayed</code>. Republication : nouvelle annonce et nouvelle attestation à remettre au greffe.</p></td>
+            <td><p class="step"><code>attestation_available</code> : EJ télécharge l'attestation pour la formalité.</p><p class="step">Refus : <code>announcement.rejected</code>, EJ corrige (<code>PATCH</code>) et reconfirme ; complément si plus cher.</p><p class="step"><span class="tag t-new">nouveau</span>Le refus émet aussi <code>needs_input</code> ; un lien dont le montant a changé est signalé par <code>payment_link_closed</code>.</p></td>
+            <td><p class="step"><code>published</code> sur preuve, puis <code>completed</code>.</p><p class="step">J+3 : <code>publication_delayed</code>. Republication : nouvelle annonce et nouvelle attestation à remettre au greffe.</p><p class="step"><span class="tag t-new">nouveau</span>Date de parution modifiée : <code>scheduled</code> et <code>attestation_available</code> sont renvoyés.</p></td>
             <td><p class="step"><code>commission.earned</code> à la parution prouvée.</p><p class="step"><span class="tag t-new">nouveau</span>EJ lit par l'API le <b>compte d'apport d'affaires</b> du cabinet (solde, en attente, virements) et son relevé, pour les afficher chez lui.</p></td>
           </tr>
           <tr class="ec">
             <th scope="row">EC<small>cabinet</small></th>
             <td><p class="step">Venu d'EJ : active son compte en une page (CGV), e-mail « Bienvenue ».</p><p class="step">Ou saisie directe dans son espace, avec aperçu du texte et du prix.</p><p class="step"><span class="tag t-new">nouveau</span>Peut indiquer une date de parution souhaitée ; sans date, parution au plus tôt.</p></td>
             <td><p class="step">Fiche dossier : <b>copier</b> le lien ou l'<b>envoyer par e-mail</b> au client, relancer au plus une fois par jour.</p><p class="step"><span class="tag t-new">nouveau</span>LejAL relance le client à J+3 et J+7 s'il n'a pas réglé un lien envoyé par e-mail.</p></td>
-            <td><p class="step">E-mail « Paiement reçu » avec l'apport d'affaires en attente.</p></td>
+            <td><p class="step">E-mail « Paiement reçu » avec l'apport d'affaires en attente.</p><p class="step"><span class="tag t-new">nouveau</span>Sans adresse de contact, les e-mails du cabinet partent à son administrateur.</p></td>
             <td><p class="step">Fiche : « Envoi au journal en cours ».</p></td>
             <td><p class="step">Refus du journal : bandeau et bouton « Corriger » dans la fiche.</p><p class="step"><span class="tag t-new">nouveau</span>E-mail « Annonce refusée par le journal » avec le motif et un bouton « Corriger le dossier ».</p></td>
             <td><p class="step">J+3 sans preuve : e-mail « Parution en cours de vérification ».</p><p class="step">E-mail « Annonce publiée » avec l'attestation, ou « Annonce republiée ».</p><p class="step"><span class="tag t-new">nouveau</span>Page « Attestations » : toutes les attestations du cabinet, à rechercher et à télécharger.</p></td>
@@ -153,18 +153,18 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
             <td><p class="step">Page de paiement sans compte : annonces, HT, TVA, TTC, bouton « Payer ». Complément expliqué.</p></td>
             <td><p class="empty">Rien.</p></td>
             <td><p class="step">Refus du journal plus cher : doit payer un complément, avec un nouveau lien.</p></td>
-            <td><p class="empty">Rien.</p></td>
+            <td><p class="step"><span class="tag t-new">nouveau</span>E-mail « Annonce légale parue » si LejAL lui avait envoyé le lien de paiement.</p></td>
             <td><p class="empty">Rien.</p></td>
           </tr>
           <tr class="ad">
             <th scope="row">LejAL<small>administrateur</small></th>
-            <td><p class="step">Crée l'intégration d'EJ (clé, secret), les journaux et leurs couvertures.</p></td>
+            <td><p class="step">Crée l'intégration d'EJ (clé, secret), les journaux et leurs couvertures.</p><p class="step"><span class="tag t-new">nouveau</span>Enregistre le mandat d'émission des attestations de chaque journal.</p></td>
             <td><p class="empty">Rien.</p></td>
             <td><p class="empty">Rien (paiement simulé en démo).</p></td>
             <td><p class="step">« Transmissions à reprendre » : pastille dans le menu et synthèse e-mail (matin et 14 h). Relancer, confier à un journal.</p></td>
             <td><p class="step"><span class="tag t-warn">manuel</span>Saisit la réponse d'un journal sans compte.</p><p class="step">Après un refus : choisit le journal de l'annonce corrigée.</p></td>
-            <td><p class="step">Contrôle des parutions : valide les preuves en ligne douteuses, republie à J+5.</p></td>
-            <td><p class="step"><span class="tag t-warn">manuel</span>« Virer le solde » enregistre le virement ; le virement bancaire se fait hors de LejAL.</p></td>
+            <td><p class="step">Contrôle des parutions : valide les preuves en ligne douteuses, republie à J+5.</p><p class="step"><span class="tag t-new">nouveau</span>Suit les republications à réclamer au journal défaillant.</p></td>
+            <td><p class="step"><span class="tag t-warn">manuel</span>« Virer le solde » enregistre le virement ; le virement bancaire se fait hors de LejAL.</p><p class="step"><span class="tag t-new">nouveau</span>Pastille et synthèse e-mail « virements à faire » quand une échéance est atteinte.</p></td>
           </tr>
         </tbody>
       </table>
@@ -174,7 +174,7 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
   <section aria-labelledby="t-paths">
     <h2 id="t-paths">Les chemins de traverse</h2>
     <div class="grid2">
-      <div class="card"><h3>Le journal refuse</h3><p>Le dossier repasse « à compléter ». Le cabinet (ou EJ) corrige, reconfirme. Si le texte corrigé coûte plus cher, un lien de complément part au client ; sinon l'annonce repart aussitôt. Depuis le lot Q31, un lien dont le montant est devenu faux est fermé.</p></div>
+      <div class="card"><h3>Le journal refuse</h3><p>Le dossier repasse « à compléter ». Le cabinet (ou EJ) corrige, reconfirme. Si le texte corrigé coûte plus cher, un lien de complément part au client ; sinon l'annonce repart aussitôt. Un lien dont le montant est devenu faux est fermé, et EJ en est prévenu.</p></div>
       <div class="card"><h3>Le journal ne répond pas</h3><p>Relance du journal à J+1 puis chaque jour ouvré, cabinet prévenu à J+3, « à republier » à J+5. L'administrateur choisit un autre journal, aux frais de LejAL ; le premier journal reçoit « ne pas publier ».</p></div>
       <div class="card"><h3>Annulation</h3><p>Possible tant que le client n'a pas payé : le lien est fermé, l'apport d'affaires en attente annulé. Après paiement, refusée (aucun remboursement disponible).</p></div>
       <div class="card"><h3>Envoi bloqué après paiement</h3><p>Aucun journal habilité, adresse fausse ou envoi interrompu : l'annonce apparaît dans « Transmissions à reprendre » après une heure, le balayage la relance seul quand c'est sans risque.</p></div>
