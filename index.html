@@ -92,6 +92,30 @@
         color: var(--ej-action-600);
         transform: translateX(2px);
       }
+      .overline .prod {
+        text-transform: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-right: 10px;
+        padding: 2px 10px;
+        border: 1px solid var(--ej-neutral-200);
+        border-radius: 999px;
+        background: var(--ej-white);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        color: var(--ej-neutral-600);
+        vertical-align: 1px;
+      }
+      .overline .prod .pd {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+      .pd-ej { background: var(--ej-primary-900); }
+      .pd-prop { background: var(--ej-action-600); }
+      .pd-lejal { background: var(--ej-logo-mint); }
       .note {
         margin-top: 40px;
       }
@@ -143,15 +167,15 @@
     <script>
       var GROUPS = [
         {
-          title: "Nouveau",
+          prod: "ej", title: "Nouveau",
           items: [["accueil.html", "home", "Accueil", "Activité, parcours de découverte, vidéos"]],
         },
         {
-          title: "LejAL · Annonces légales",
+          prod: "lejal", title: "Annonces légales",
           items: [["parcours-lejal.html", "timeline", "Une annonce légale, par acteur", "EJ, cabinet, journal, entreprise, LejAL : les sept étapes"]],
         },
         {
-          title: "Propositions 2027 · Cockpit, Missions & conformité",
+          prod: "prop", title: "Cockpit, Missions & conformité",
           items: [
             ["cockpit.html", "layout_dashboard", "Cockpit", "Onglet de l'Accueil : tableaux, assistant DPJ"],
             ["lab.html", "shield_check", "Dispositif LAB", "Dossiers LAB à traiter"],
@@ -167,7 +191,7 @@
           ],
         },
         {
-          title: "Parcours KERLYS · Transformation de SARL en SAS",
+          prod: "prop", title: "Parcours KERLYS · Transformation de SARL en SAS",
           items: [
             ["formalite.html?ref=F-2026-0409&cabinet=vasseur", "topic", "Côté conseil : la formalité", "CABINET VASSEUR EXPERTISE, intervention du commissaire"],
             ["societe.html?id=kerlys&cabinet=vasseur", "storefront", "Côté conseil : la fiche société", "Formalités de KERLYS"],
@@ -176,7 +200,7 @@
           ],
         },
         {
-          title: "Formalités",
+          prod: "ej", title: "Formalités",
           items: [
             ["formalites.html", "topic", "Liste des formalités", "164 formalités, filtres, statuts"],
             ["nouvelle-formalite.html", "add_circle", "Nouvelle formalité", "Type, saisie, opérations, société"],
@@ -185,7 +209,7 @@
           ],
         },
         {
-          title: "Sociétés",
+          prod: "ej", title: "Sociétés",
           items: [
             ["societes.html", "storefront", "Mes sociétés", "135 sociétés"],
             ["societe.html", "timeline", "Fiche société · Formalités", "Chaîne des formalités"],
@@ -193,21 +217,21 @@
           ],
         },
         {
-          title: "Pilotage",
+          prod: "ej", title: "Pilotage",
           items: [
             ["suivi-actions.html", "table_chart", "Suivi des actions", "Dépôts INPI, signature à validation"],
             ["export-ifu.html", "price_change", "Export IFU 2025", "Assistance à la déclaration"],
           ],
         },
         {
-          title: "Administration",
+          prod: "ej", title: "Administration",
           items: [
             ["connecteurs.html", "cable", "Connecteurs", "Signature, INPI, Pappers"],
             ["etiquettes.html", "bookmarks", "Étiquettes", "Étiquettes du cabinet"],
           ],
         },
         {
-          title: "Organisation et compte",
+          prod: "ej", title: "Organisation et compte",
           items: [
             ["mon-cabinet.html", "store", "Mon cabinet", "Informations, adresse, mandataire"],
             ["utilisateurs.html", "supervisor_account", "Utilisateurs", "Équipe du cabinet"],
@@ -220,7 +244,7 @@
       document.getElementById("groups").innerHTML =
         GROUPS.map(function (g) {
           return (
-            '<section class="group"><div class="overline">' + g.title + '</div><div class="grid">' +
+            '<section class="group"><div class="overline">' + (function (p) { var p2 = { ej: ["pd-ej", "EJ"], prop: ["pd-prop", "EJ · proposition 2027"], lejal: ["pd-lejal", "LejAL"] }[p]; return p2 ? '<span class="prod"><span class="pd ' + p2[0] + '"></span>' + p2[1] + '</span>' : ''; })(g.prod) + g.title + '</div><div class="grid">' +
             g.items.map(function (it) {
               return (
                 '<a class="card tile' + (it[0].indexOf("parcours-") === 0 ? " tile-parcours" : "") + '" href="' + it[0] + '"><span class="list-icon"><span class="ms">' + it[1] + "</span></span>" +
