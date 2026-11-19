@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parcours LejAL par acteur</title>
+<meta name="robots" content="noindex">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Mise en page : en-tête court, couloirs par acteur sur 7 étapes (défilement horizontal du seul tableau). Charte LejAL (encre, violet, menthe). */
+:root{
+  --bg:#F7F6FC; --surface:#FFFFFF; --ink:#221C55; --muted:#6B678C; --line:#E6E4F3; --soft:#E9E7F8;
+  --primary:#312782; --accent:#5D58D7; --mint:#0F7A56; --mint-bg:#DDFBEF;
+  --crit:#991B1B; --crit-bg:#FEE2E2; --warn:#92400E; --warn-bg:#FEF3C7; --info:#1E40AF; --info-bg:#DBEAFE;
+  --lane-ej:#E8E6F6; --lane-ec:#EEEDFB; --lane-jr:#DDFBEF; --lane-cl:#FEF3C7; --lane-ad:#F1F0F6;
+  --display:"Sora",ui-sans-serif,system-ui,sans-serif; --body:"Inter",ui-sans-serif,system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14112E; --surface:#1D1940; --ink:#ECEBFA; --muted:#A9A6CC; --line:#2E2960; --soft:#26214F;
+  --primary:#B9B4F5; --accent:#8F8BF0; --mint:#54EFAF; --mint-bg:#123D30;
+  --crit:#FCA5A5; --crit-bg:#3B1518; --warn:#FCD34D; --warn-bg:#3A2A0C; --info:#93C5FD; --info-bg:#132548;
+  --lane-ej:#221D4C; --lane-ec:#251F55; --lane-jr:#13332B; --lane-cl:#33290F; --lane-ad:#1F1C3A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14112E; --surface:#1D1940; --ink:#ECEBFA; --muted:#A9A6CC; --line:#2E2960; --soft:#26214F;
+  --primary:#B9B4F5; --accent:#8F8BF0; --mint:#54EFAF; --mint-bg:#123D30;
+  --crit:#FCA5A5; --crit-bg:#3B1518; --warn:#FCD34D; --warn-bg:#3A2A0C; --info:#93C5FD; --info-bg:#132548;
+  --lane-ej:#221D4C; --lane-ec:#251F55; --lane-jr:#13332B; --lane-cl:#33290F; --lane-ad:#1F1C3A; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14.5px;line-height:1.5;margin:0}
+.wrap{max-width:1240px;margin:0 auto;padding-block:32px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:40px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+h1{font-size:clamp(26px,4vw,36px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:22px;font-weight:600}
+.lead{color:var(--muted);max-width:68ch;margin:8px 0 0}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 10px;font-size:12.5px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%}
+section{display:flex;flex-direction:column;gap:14px}
+.legend{display:flex;flex-wrap:wrap;gap:8px}
+.scroller{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table.lanes{border-collapse:separate;border-spacing:0;min-width:1180px;width:100%}
+.lanes th,.lanes td{vertical-align:top;text-align:left;padding:10px 10px;border-bottom:1px solid var(--line)}
+.lanes thead th{font-family:var(--display);font-weight:600;font-size:13px;position:sticky;top:0;background:var(--surface);border-bottom:2px solid var(--line)}
+.lanes thead th span{display:block;font-family:var(--body);font-weight:500;color:var(--muted);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase}
+.lanes tbody th{width:150px;font-family:var(--display);font-size:13.5px;font-weight:600;position:sticky;left:0;z-index:1}
+.lanes tbody th small{display:block;font-family:var(--body);font-weight:400;color:var(--muted);font-size:12px;margin-top:2px}
+tr.ej th,tr.ej td{background:var(--lane-ej)} tr.ec th,tr.ec td{background:var(--lane-ec)}
+tr.jr th,tr.jr td{background:var(--lane-jr)} tr.cl th,tr.cl td{background:var(--lane-cl)} tr.ad th,tr.ad td{background:var(--lane-ad)}
+.step{font-size:12.8px;line-height:1.42;margin:0 0 6px}
+.step:last-child{margin-bottom:0}
+.step b{font-weight:600}
+.empty{color:var(--muted);font-size:12.5px}
+.tag{display:inline-block;font-size:11px;font-weight:600;border-radius:5px;padding:0 5px;margin-right:3px;vertical-align:1px}
+.t-crit{background:var(--crit-bg);color:var(--crit)} .t-warn{background:var(--warn-bg);color:var(--warn)} .t-new{background:var(--mint-bg);color:var(--mint)}
+.t-info{background:var(--info-bg);color:var(--info)}
+code{font-size:12px;background:var(--soft);border-radius:4px;padding:0 4px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;min-width:0}
+.card h3{font-size:15px;margin-bottom:6px}
+.card p{margin:0;font-size:13.5px;color:var(--ink)}
+.card p+p{margin-top:6px}
+.gaps{display:flex;flex-direction:column;gap:10px}
+.gap{display:grid;grid-template-columns:120px 1fr;gap:12px;background:var(--surface);border:1px solid var(--line);border-left-width:4px;border-radius:10px;padding:12px 14px}
+.gap.crit{border-left-color:var(--crit)} .gap.warn{border-left-color:#D97706} .gap.conf{border-left-color:var(--accent)}
+.gap .who{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.gap .who strong{font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+.gap.crit .who strong{color:var(--crit)} .gap.warn .who strong{color:var(--warn)} .gap.conf .who strong{color:var(--accent)}
+.gap h3{font-size:14.5px;font-family:var(--body);font-weight:600;margin-bottom:3px}
+.gap p{margin:0;font-size:13.3px;color:var(--ink)}
+.gap .ref{color:var(--muted);font-size:12px;margin-top:4px}
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.filters button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 12px;cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--primary);border-color:var(--primary);color:var(--bg)}
+.filters button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.count{font-variant-numeric:tabular-nums}
+footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px}
+@media (max-width:640px){.gap{grid-template-columns:1fr}.gap .who{flex-direction:row;flex-wrap:wrap;gap:8px}}
+</style>
+<style>footer a{color:var(--accent)}</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Parcours d'une annonce légale dans LejAL</h1>
+    <p class="lead">Ce que vit chaque acteur, de la demande au virement de l'apport d'affaires, tel que le code le fait aujourd'hui (version de démonstration du 19 novembre 2026).</p>
+    <div class="meta">
+      <span class="chip"><span class="dot" style="background:var(--primary)"></span>EJ : logiciel partenaire (API et webhooks)</span>
+      <span class="chip"><span class="dot" style="background:var(--accent)"></span>EC : cabinet d'expertise comptable</span>
+      <span class="chip"><span class="dot" style="background:var(--mint)"></span>Journal habilité</span>
+      <span class="chip"><span class="dot" style="background:#D97706"></span>Entreprise cliente du cabinet</span>
+      <span class="chip"><span class="dot" style="background:var(--muted)"></span>Administrateur LejAL</span>
+    </div>
+  </header>
+
+  <section aria-labelledby="t-lanes">
+    <h2 id="t-lanes">Les sept étapes, acteur par acteur</h2>
+    <div class="legend">
+      <span class="chip"><span class="tag t-new">nouveau</span>en ligne depuis le 19 novembre</span>
+      <span class="chip"><span class="tag t-warn">manuel</span>dépend d'une action de LejAL</span>
+      
+    </div>
+    <div class="scroller" role="region" aria-label="Tableau des parcours, défilable horizontalement" tabindex="0">
+      <table class="lanes">
+        <thead>
+          <tr>
+            <th scope="col"><span>Acteur</span></th>
+            <th scope="col"><span>1</span>Demande</th>
+            <th scope="col"><span>2</span>Confirmation et lien</th>
+            <th scope="col"><span>3</span>Paiement</th>
+            <th scope="col"><span>4</span>Envoi au journal</th>
+            <th scope="col"><span>5</span>Acceptation ou refus</th>
+            <th scope="col"><span>6</span>Parution et preuve</th>
+            <th scope="col"><span>7</span>Apport d'affaires</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="ej">
+            <th scope="row">EJ<small>logiciel du cabinet</small></th>
+            <td><p class="step"><b>Devis</b> puis <b>création</b> de la demande. Réponse <code>ready</code> ou <code>needs_input</code> avec les champs manquants.</p><p class="step">Cabinet pas encore activé : EJ demande un lien de connexion « Activer mon compte ».</p></td>
+            <td><p class="step"><b>Confirmation</b> : LejAL rend le lien de paiement. EJ l'affiche au cabinet.</p><p class="step">Aucun journal dans le département : refus <code>409</code>, rien n'est facturé.</p></td>
+            <td><p class="step">Webhook <code>paid</code> avec l'apport d'affaires né de ce paiement.</p></td>
+            <td><p class="step">Webhooks <code>routed</code>, <code>submitted</code> : journal retenu et nom INPI.</p></td>
+            <td><p class="step"><code>attestation_available</code> : EJ télécharge l'attestation pour la formalité.</p><p class="step">Refus : <code>announcement.rejected</code>, EJ corrige (<code>PATCH</code>) et reconfirme ; complément si plus cher.</p></td>
+            <td><p class="step"><code>published</code> sur preuve, puis <code>completed</code>.</p><p class="step">J+3 : <code>publication_delayed</code>. Republication : nouvelle annonce et nouvelle attestation à remettre au greffe.</p></td>
+            <td><p class="step"><code>commission.earned</code> à la parution prouvée.</p></td>
+          </tr>
+          <tr class="ec">
+            <th scope="row">EC<small>cabinet</small></th>
+            <td><p class="step">Venu d'EJ : active son compte en une page (CGV), e-mail « Bienvenue ».</p><p class="step">Ou saisie directe dans son espace, avec aperçu du texte et du prix.</p></td>
+            <td><p class="step">Fiche dossier : <b>copier</b> le lien ou l'<b>envoyer par e-mail</b> au client, relancer au plus une fois par jour.</p><p class="step"><span class="tag t-new">nouveau</span>LejAL relance le client à J+3 et J+7 s'il n'a pas réglé un lien envoyé par e-mail.</p></td>
+            <td><p class="step">E-mail « Paiement reçu » avec l'apport d'affaires en attente.</p></td>
+            <td><p class="step">Fiche : « Envoi au journal en cours ».</p></td>
+            <td><p class="step">Refus du journal : bandeau et bouton « Corriger » dans la fiche.</p><p class="step"><span class="tag t-new">nouveau</span>E-mail « Annonce refusée par le journal » avec le motif et un bouton « Corriger le dossier ».</p></td>
+            <td><p class="step">J+3 sans preuve : e-mail « Parution en cours de vérification ».</p><p class="step">E-mail « Annonce publiée » avec l'attestation, ou « Annonce republiée ».</p></td>
+            <td><p class="step">Compte d'apport d'affaires : IBAN, fréquence, demande de virement instantané. E-mail à chaque virement.</p></td>
+          </tr>
+          <tr class="jr">
+            <th scope="row">Journal<small>par e-mail ou avec compte</small></th>
+            <td><p class="empty">Rien.</p></td>
+            <td><p class="empty">Rien : aucun envoi avant le paiement complet.</p></td>
+            <td><p class="empty">Rien.</p></td>
+            <td><p class="step"><b>E-mail</b> « Annonce légale / société / SIREN / réf. AL-… » : texte complet, prix, bon de commande PDF.</p><p class="step"><span class="tag t-new">nouveau</span>Bouton « Traiter l'annonce en ligne » sans mot de passe : accepter, refuser, déposer la preuve.</p><p class="step">Avec compte : onglet « À accepter ».</p></td>
+            <td><p class="step">Accepte pour une date ou refuse (4 motifs).</p><p class="step">Sans compte : par le bouton de l'e-mail. <span class="tag t-warn">manuel</span>S'il répond par e-mail, l'administrateur recopie.</p></td>
+            <td><p class="step">Dépose la preuve : lien en ligne, ou numéro et PDF. Relance chaque jour ouvré dès J+1.</p><p class="step">Sans compte : preuve par le bouton de l'e-mail. <span class="tag t-warn">manuel</span>Preuve envoyée par e-mail : recopiée par l'administrateur.</p><p class="step">Retiré au profit d'un autre journal : e-mail « ne pas publier ».</p></td>
+            <td><p class="step">Relevé mensuel et CSV dans l'espace journal (avec compte).</p></td>
+          </tr>
+          <tr class="cl">
+            <th scope="row">Entreprise<small>cliente du cabinet</small></th>
+            <td><p class="empty">Rien : le cabinet s'occupe de tout.</p></td>
+            <td><p class="step">Reçoit le lien par son cabinet, ou par e-mail de LejAL si le cabinet clique « envoyer ».</p><p class="step"><span class="tag t-new">nouveau</span>Dans ce cas, relancé à J+3 et J+7 tant qu'il n'a pas réglé.</p></td>
+            <td><p class="step">Page de paiement sans compte : annonces, HT, TVA, TTC, bouton « Payer ». Complément expliqué.</p></td>
+            <td><p class="empty">Rien.</p></td>
+            <td><p class="step">Refus du journal plus cher : doit payer un complément, avec un nouveau lien.</p></td>
+            <td><p class="empty">Rien.</p></td>
+            <td><p class="empty">Rien.</p></td>
+          </tr>
+          <tr class="ad">
+            <th scope="row">LejAL<small>administrateur</small></th>
+            <td><p class="step">Crée l'intégration d'EJ (clé, secret), les journaux et leurs couvertures.</p></td>
+            <td><p class="empty">Rien.</p></td>
+            <td><p class="empty">Rien (paiement simulé en démo).</p></td>
+            <td><p class="step">« Transmissions à reprendre » : pastille dans le menu et synthèse e-mail (matin et 14 h). Relancer, confier à un journal.</p></td>
+            <td><p class="step"><span class="tag t-warn">manuel</span>Saisit la réponse d'un journal sans compte.</p><p class="step">Après un refus : choisit le journal de l'annonce corrigée.</p></td>
+            <td><p class="step">Contrôle des parutions : valide les preuves en ligne douteuses, republie à J+5.</p></td>
+            <td><p class="step"><span class="tag t-warn">manuel</span>« Virer le solde » enregistre le virement ; le virement bancaire se fait hors de LejAL.</p></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-paths">
+    <h2 id="t-paths">Les chemins de traverse</h2>
+    <div class="grid2">
+      <div class="card"><h3>Le journal refuse</h3><p>Le dossier repasse « à compléter ». Le cabinet (ou EJ) corrige, reconfirme. Si le texte corrigé coûte plus cher, un lien de complément part au client ; sinon l'annonce repart aussitôt. Depuis le lot Q31, un lien dont le montant est devenu faux est fermé.</p></div>
+      <div class="card"><h3>Le journal ne répond pas</h3><p>Relance du journal à J+1 puis chaque jour ouvré, cabinet prévenu à J+3, « à republier » à J+5. L'administrateur choisit un autre journal, aux frais de LejAL ; le premier journal reçoit « ne pas publier ».</p></div>
+      <div class="card"><h3>Annulation</h3><p>Possible tant que le client n'a pas payé : le lien est fermé, l'apport d'affaires en attente annulé. Après paiement, refusée (aucun remboursement disponible).</p></div>
+      <div class="card"><h3>Envoi bloqué après paiement</h3><p>Aucun journal habilité, adresse fausse ou envoi interrompu : l'annonce apparaît dans « Transmissions à reprendre » après une heure, le balayage la relance seul quand c'est sans risque.</p></div>
+    </div>
+  </section>
+
+  <footer>Source : code de LejAL et documents du projet, version de démonstration du 19 novembre 2026. <a href="index.html">Retour à l’aperçu Express Juridique</a></footer>
+</div>
+</body>
+</html>
